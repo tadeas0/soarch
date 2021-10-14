@@ -2,6 +2,8 @@ from mido import MidiFile, merge_tracks
 from mido.messages.messages import Message
 import config
 import numpy as np
+from scipy.interpolate import interp1d
+import math
 
 
 class Parser:
@@ -16,6 +18,18 @@ class Parser:
             return 0
         else:
             raise TypeError()
+
+    @staticmethod
+    def __downsample(array, npts):
+        interpolated = interp1d(
+            np.arange(len(array)),
+            array,
+            axis=0,
+            kind="nearest",
+            fill_value="extrapolate",
+        )
+        downsampled = interpolated(np.linspace(0, len(array), npts))
+        return downsampled
 
     @staticmethod
     def load_parse(midi_file_path: str):
@@ -57,4 +71,14 @@ class Parser:
                 velocity_matrix[message.channel][message.note] = vel
             current_time += message.time
 
-        return ret_tracks
+        ###################################################################
+        # TODO: I dont know if it works
+        # Resample tracks from ticks to 64th notes
+        notes = math.floor((track_length / midi_file.ticks_per_beat) * 16)
+        new_res_tracks = np.ndarray((config.MIDI_CHANNELS, notes))
+        for i in range(config.MIDI_CHANNELS):
+            new_res_tracks[i] = Parser.__downsample(ret_tracks[i], notes)
+
+        ###################################################################
+
+        return new_res_tracks

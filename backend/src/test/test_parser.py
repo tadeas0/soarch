@@ -3,7 +3,7 @@ from mido.messages.messages import Message
 
 from mido.midifiles.midifiles import MidiFile
 from mido.midifiles.tracks import MidiTrack
-from midi.parser import Parser
+from app.midi.parser import Parser
 
 
 class TestParser(unittest.TestCase):
