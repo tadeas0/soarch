@@ -1,9 +1,12 @@
 import * as React from "react";
 import { useState, FunctionComponent, MouseEvent } from "react";
+import { Tone } from "tone/build/esm/core/Tone";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
 } from "../constants";
+import usePlayback from "../hooks/usePlayback";
+import Sequencer from "../sequencer";
 import "./pianoRoll.css";
 
 interface PianoRollProps {
@@ -18,6 +21,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     const [noteGrid, setNoteGrid] = useState<boolean[][]>(
         Array.from(Array(noteHeight), () => Array(noteWidth).fill(false))
     );
+
+    const [isPlaying, handlePlayToggle] = usePlayback();
 
     const handleClick = (pitch: number, position: number) => {
         let newNotes = [...noteGrid];
@@ -43,6 +48,19 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         setNoteGrid(newNotes);
     };
 
+    const handleClear = () => {
+        setNoteGrid(
+            Array.from(Array(noteHeight), () => Array(noteWidth).fill(false))
+        );
+    };
+
+    const handlePlayClick = () => {
+        if (!isPlaying) {
+            Sequencer.addGridToBuffer(noteGrid);
+        }
+        handlePlayToggle();
+    };
+
     function renderNotes() {
         let rows = noteGrid.map((row, ri) => {
             const entry = row.map((i, ci) => (
@@ -63,9 +81,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     }
 
     return (
-        <table className="pianoroll">
-            <tbody>{renderNotes()}</tbody>
-        </table>
+        <div>
+            <button onClick={handlePlayClick}>
+                {isPlaying ? "Stop" : "Play"}
+            </button>
+            <button onClick={handleClear}>Clear</button>
+            <table className="pianoroll">
+                <tbody>{renderNotes()}</tbody>
+            </table>
+        </div>
     );
 };
 
