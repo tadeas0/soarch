@@ -5,13 +5,13 @@ import {
     PIANO_ROLL_NOTE_SUBDIVISION,
 } from "./constants";
 
-interface Note {
+export interface Note {
     time: Tone.Unit.Time;
     pitch: Tone.Unit.Note;
     length: Tone.Unit.Time;
 }
 
-export default abstract class Sequencer {
+export abstract class Sequencer {
     private static synth: Tone.PolySynth | Tone.Synth = new Tone.PolySynth(
         Tone.Synth,
         {

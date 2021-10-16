@@ -7,17 +7,19 @@ import {
     PIANO_ROLL_LOWEST_NOTE,
 } from "../constants";
 import usePlayback from "../hooks/usePlayback";
-import Sequencer from "../sequencer";
+import { Note, Sequencer } from "../sequencer";
 import "./pianoRoll.css";
 
 interface PianoRollProps {
     noteWidth?: number;
     noteHeight?: number;
+    onSubmit: (notes: Note[]) => void;
 }
 
 const PianoRoll: FunctionComponent<PianoRollProps> = ({
     noteWidth = DEFAULT_PIANO_ROLL_WIDTH,
     noteHeight = DEFAULT_PIANO_ROLL_HEIGHT,
+    onSubmit,
 }: PianoRollProps) => {
     const [noteGrid, setNoteGrid] = useState<boolean[][]>(
         Array.from(Array(noteHeight), () => Array(noteWidth).fill(false))
@@ -110,6 +112,13 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             <table>
                 <tbody>{renderNotes()}</tbody>
             </table>
+            <button
+                onClick={() =>
+                    onSubmit(Sequencer.transformGridToNotes(noteGrid))
+                }
+            >
+                Submit
+            </button>
         </div>
     );
 };

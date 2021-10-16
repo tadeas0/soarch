@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Sequencer from "../sequencer";
+import { Sequencer } from "../sequencer";
 
 const usePlayback = (): [boolean, () => void] => {
     const [isPlaying, setIsPlaying] = useState(false);
