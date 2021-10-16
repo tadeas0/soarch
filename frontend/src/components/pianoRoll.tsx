@@ -51,6 +51,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         setNoteGrid(
             Array.from(Array(noteHeight), () => Array(noteWidth).fill(false))
         );
+        if (isPlaying) {
+            handlePlayToggle();
+            Sequencer.clearBuffer();
+        }
     };
 
     const handlePlayClick = () => {
