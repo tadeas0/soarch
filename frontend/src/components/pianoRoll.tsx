@@ -78,10 +78,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                         handleRightClick(ri, ci);
                     }}
                     onMouseOver={(e) => handleMouseOver(e, ri, ci)}
+                    key={ci}
                 ></td>
             ));
             return (
-                <tr className={isBlackKey(ri) ? "blackkey" : "whitekey"}>
+                <tr
+                    className={isBlackKey(ri) ? "blackkey" : "whitekey"}
+                    key={ri}
+                >
                     {entry}
                 </tr>
             );
