@@ -13,7 +13,7 @@ import "./pianoRoll.css";
 interface PianoRollProps {
     noteWidth?: number;
     noteHeight?: number;
-    onSubmit: (notes: Note[]) => void;
+    onSubmit: (notes: Note[], gridLength: number) => void;
 }
 
 const PianoRoll: FunctionComponent<PianoRollProps> = ({
@@ -114,7 +114,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             </table>
             <button
                 onClick={() =>
-                    onSubmit(Sequencer.transformGridToNotes(noteGrid))
+                    onSubmit(
+                        Sequencer.transformGridToNotes(noteGrid),
+                        noteWidth
+                    )
                 }
             >
                 Submit

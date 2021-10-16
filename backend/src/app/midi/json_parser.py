@@ -9,11 +9,16 @@ class JsonParser:
         parsed_notes = sorted(
             [JsonParser.__parse_note(i) for i in notes], key=lambda n: n["time"]
         )
-        length = max(i["time"] + i["length"] for i in parsed_notes)
+        length = data["gridLength"]
         res = np.zeros(length)
+        last_index = 0
         for i in parsed_notes:
             if i["pitch"] > res[i["time"]]:
                 res[i["time"] : i["time"] + i["length"]] = i["pitch"]
+                last_index = i["time"] + i["length"]
+            elif i["time"] + i["length"] > last_index:
+                res[last_index : i["time"] + i["length"]] = i["pitch"]
+                last_index = i["time"] + i["length"]
 
         return res
 
