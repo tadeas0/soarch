@@ -1,4 +1,4 @@
-from app.midi.parser import Parser
+from app.midi.midi_parser import MidiParser
 from app.midi.song import Song
 import config
 import os
@@ -11,7 +11,7 @@ def main():
 
     for i in os.listdir(config.RAW_MIDI_DIR):
         p = os.path.join(config.RAW_MIDI_DIR, i)
-        a = Parser.load_parse(p)
+        a = MidiParser.load_parse(p)
         isplit = i.split(" - ")
         song = Song(isplit[1].rstrip(".mid"), isplit[0], a)
         print(f"Parsing: {i}")

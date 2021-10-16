@@ -6,7 +6,7 @@ from scipy.interpolate import interp1d
 import math
 
 
-class Parser:
+class MidiParser:
     @staticmethod
     def __get_velocity(message: Message) -> int:
         if message.type == "note_on" and message.velocity > config.VELOCITY_THRESHOLD:
@@ -34,7 +34,7 @@ class Parser:
     @staticmethod
     def load_parse(midi_file_path: str):
         mid = MidiFile(midi_file_path)
-        return Parser.parse(mid)
+        return MidiParser.parse(mid)
 
     @staticmethod
     def parse(midi_file: MidiFile):
@@ -67,7 +67,7 @@ class Parser:
                         ret_tracks[c][
                             current_time : current_time + message.time
                         ] = non_zero[0][-1]
-                vel = Parser.__get_velocity(message)
+                vel = MidiParser.__get_velocity(message)
                 velocity_matrix[message.channel][message.note] = vel
             current_time += message.time
 
@@ -77,7 +77,7 @@ class Parser:
         notes = math.floor((track_length / midi_file.ticks_per_beat) * 16)
         new_res_tracks = np.ndarray((config.MIDI_CHANNELS, notes))
         for i in range(config.MIDI_CHANNELS):
-            new_res_tracks[i] = Parser.__downsample(ret_tracks[i], notes)
+            new_res_tracks[i] = MidiParser.__downsample(ret_tracks[i], notes)
 
         ###################################################################
 

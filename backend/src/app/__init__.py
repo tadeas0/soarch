@@ -3,6 +3,7 @@ from flask import Flask
 
 app = Flask(__name__)
 app.config.from_json("../secrets.json")
+app.url_map.strict_slashes = False
 
 
 from app.midi.controller import midi_bp

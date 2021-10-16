@@ -3,7 +3,7 @@ from mido.messages.messages import Message
 
 from mido.midifiles.midifiles import MidiFile
 from mido.midifiles.tracks import MidiTrack
-from app.midi.parser import Parser
+from app.midi.midi_parser import MidiParser
 
 
 class TestParser(unittest.TestCase):
@@ -28,12 +28,12 @@ class TestParser(unittest.TestCase):
         track2.append(Message("note_on", channel=0, note=3, velocity=0, time=3))
 
         self.assertSequenceEqual(
-            Parser.parse(mid)[0].tolist(),
+            MidiParser.parse(mid)[0].tolist(),
             [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0],
         )
 
         self.assertSequenceEqual(
-            Parser.parse(mid2)[0].tolist(), [1, 1, 2, 2, 2, 1, 1, 0, 0, 3, 3, 3]
+            MidiParser.parse(mid2)[0].tolist(), [1, 1, 2, 2, 2, 1, 1, 0, 0, 3, 3, 3]
         )
 
 
