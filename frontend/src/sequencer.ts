@@ -21,8 +21,8 @@ export default abstract class Sequencer {
         }
     ).toDestination();
 
-    public static init() {
-        Tone.start();
+    public static async init() {
+        await Tone.start();
     }
 
     public static addGridToBuffer(noteGrid: boolean[][]) {
@@ -103,7 +103,6 @@ export default abstract class Sequencer {
     }
 
     public static isInitialized() {
-        const ctx = new Tone.Context();
-        return ctx.state === "running";
+        return Tone.context.state === "running";
     }
 }

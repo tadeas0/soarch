@@ -4,9 +4,9 @@ import Sequencer from "../sequencer";
 const usePlayback = (): [boolean, () => void] => {
     const [isPlaying, setIsPlaying] = useState(false);
 
-    const handleToggle = () => {
+    const handleToggle = async () => {
         if (!Sequencer.isInitialized()) {
-            Sequencer.init();
+            await Sequencer.init();
         }
 
         if (Sequencer.isPlaying()) {
