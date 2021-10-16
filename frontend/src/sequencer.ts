@@ -49,6 +49,13 @@ export default abstract class Sequencer {
         new Tone.Part((time, note) => {
             this.synth.triggerAttackRelease(note.pitch, note.length, time);
         }, notes).start(0);
+
+        Tone.Transport.setLoopPoints(
+            0,
+            this.rollTimeToToneTime(noteGrid[0].length)
+        );
+
+        Tone.Transport.loop = true;
     }
 
     public static clearBuffer() {
@@ -69,16 +76,18 @@ export default abstract class Sequencer {
         notePitch: number
     ): Note {
         return {
-            time: Tone.Time(
-                `0:0:${(16 / PIANO_ROLL_NOTE_SUBDIVISION) * noteStart}`
-            ).toBarsBeatsSixteenths(),
+            time: this.rollTimeToToneTime(noteStart),
             pitch: Tone.Frequency(PIANO_ROLL_LOWEST_NOTE)
                 .transpose(DEFAULT_PIANO_ROLL_HEIGHT - notePitch - 1)
                 .toNote(),
-            length: Tone.Time(
-                `0:0:${(16 / PIANO_ROLL_NOTE_SUBDIVISION) * noteLength}`
-            ).toBarsBeatsSixteenths(),
+            length: this.rollTimeToToneTime(noteLength),
         };
+    }
+
+    private static rollTimeToToneTime(time: number) {
+        return Tone.Time(
+            `0:0:${(16 / PIANO_ROLL_NOTE_SUBDIVISION) * time}`
+        ).toBarsBeatsSixteenths();
     }
 
     public static isPlaying() {
