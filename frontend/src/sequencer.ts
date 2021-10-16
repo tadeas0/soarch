@@ -26,6 +26,21 @@ export default abstract class Sequencer {
     }
 
     public static addGridToBuffer(noteGrid: boolean[][]) {
+        let notes: Note[] = this.transformGridToNotes(noteGrid);
+
+        new Tone.Part((time, note) => {
+            this.synth.triggerAttackRelease(note.pitch, note.length, time);
+        }, notes).start(0);
+
+        Tone.Transport.setLoopPoints(
+            0,
+            this.rollTimeToToneTime(noteGrid[0].length)
+        );
+
+        Tone.Transport.loop = true;
+    }
+
+    public static transformGridToNotes(noteGrid: boolean[][]) {
         let notes: Note[] = [];
         for (let r = 0; r < noteGrid.length; r++) {
             let noteOn = false;
@@ -46,16 +61,7 @@ export default abstract class Sequencer {
             }
         }
 
-        new Tone.Part((time, note) => {
-            this.synth.triggerAttackRelease(note.pitch, note.length, time);
-        }, notes).start(0);
-
-        Tone.Transport.setLoopPoints(
-            0,
-            this.rollTimeToToneTime(noteGrid[0].length)
-        );
-
-        Tone.Transport.loop = true;
+        return notes;
     }
 
     public static clearBuffer() {
