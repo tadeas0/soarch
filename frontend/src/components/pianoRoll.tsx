@@ -1,8 +1,10 @@
 import * as React from "react";
 import { useState, FunctionComponent, MouseEvent } from "react";
+import * as Tone from "tone";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
+    PIANO_ROLL_LOWEST_NOTE,
 } from "../constants";
 import usePlayback from "../hooks/usePlayback";
 import Sequencer from "../sequencer";
@@ -65,7 +67,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         handlePlayToggle();
     };
 
-    function renderNotes() {
+    const renderNotes = () => {
         let rows = noteGrid.map((row, ri) => {
             const entry = row.map((i, ci) => (
                 <td
@@ -78,19 +80,30 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                     onMouseOver={(e) => handleMouseOver(e, ri, ci)}
                 ></td>
             ));
-            return <tr>{entry}</tr>;
+            return (
+                <tr className={isBlackKey(ri) ? "blackkey" : "whitekey"}>
+                    {entry}
+                </tr>
+            );
         });
 
         return rows;
-    }
+    };
+
+    const isBlackKey = (row: number) => {
+        return Tone.Frequency(PIANO_ROLL_LOWEST_NOTE)
+            .transpose(noteHeight - row - 1)
+            .toNote()
+            .includes("#");
+    };
 
     return (
-        <div>
+        <div className="pianoroll">
             <button onClick={handlePlayClick}>
                 {isPlaying ? "Stop" : "Play"}
             </button>
             <button onClick={handleClear}>Clear</button>
-            <table className="pianoroll">
+            <table>
                 <tbody>{renderNotes()}</tbody>
             </table>
         </div>
