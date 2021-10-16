@@ -1,6 +1,5 @@
 import * as React from "react";
 import { useState, FunctionComponent, MouseEvent } from "react";
-import { Tone } from "tone/build/esm/core/Tone";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
@@ -56,6 +55,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     const handlePlayClick = () => {
         if (!isPlaying) {
+            Sequencer.clearBuffer();
             Sequencer.addGridToBuffer(noteGrid);
         }
         handlePlayToggle();

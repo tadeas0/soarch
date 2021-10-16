@@ -6,13 +6,26 @@ import {
 } from "./constants";
 
 interface Note {
-    start: number;
-    pitch: Tone.FrequencyClass;
-    length: Tone.TimeClass;
+    time: Tone.Unit.Time;
+    pitch: Tone.Unit.Note;
+    length: Tone.Unit.Time;
 }
 
-const Sequencer = {
-    addGridToBuffer(noteGrid: boolean[][]) {
+export default abstract class Sequencer {
+    private static synth: Tone.PolySynth | Tone.Synth = new Tone.PolySynth(
+        Tone.Synth,
+        {
+            oscillator: {
+                type: "sine",
+            },
+        }
+    ).toDestination();
+
+    public static init() {
+        Tone.start();
+    }
+
+    public static addGridToBuffer(noteGrid: boolean[][]) {
         let notes: Note[] = [];
         for (let r = 0; r < noteGrid.length; r++) {
             let noteOn = false;
@@ -26,66 +39,62 @@ const Sequencer = {
                     noteLength = 1;
                     noteStart = c;
                 } else if (noteOn && !noteGrid[r][c]) {
-                    notes.push({
-                        start: noteStart,
-                        pitch: this.noteToFrequency(r),
-                        length: this.lengthToTime(noteLength),
-                    });
+                    notes.push(this.createNoteObject(noteStart, noteLength, r));
                     noteOn = false;
                     noteLength = 0;
                 }
             }
         }
-        // console.log(notes);
-        const synth = new Tone.PolySynth().toDestination();
-        notes.forEach((n) => {
-            synth.triggerAttackRelease(
-                n.pitch.toNotation(),
-                n.length.toMilliseconds()
-            );
-            // this.synth.triggerAttackRelease(sequence[this.currentBeat], "8n");
-        });
 
-        // Tone.Transport.scheduleOnce()
-    },
+        new Tone.Part((time, note) => {
+            this.synth.triggerAttackRelease(note.pitch, note.length, time);
+        }, notes).start(0);
+    }
 
-    noteToFrequency(note: number) {
-        return Tone.Frequency(PIANO_ROLL_LOWEST_NOTE).transpose(
-            DEFAULT_PIANO_ROLL_HEIGHT - note - 1
-        );
-    },
+    public static clearBuffer() {
+        Tone.Transport.cancel();
+    }
 
-    lengthToTime(length: number) {
-        return Tone.Time(`0:0:${(16 / PIANO_ROLL_NOTE_SUBDIVISION) * length}`);
-    },
+    public static setBpm(bpm: number) {
+        Tone.Transport.bpm.value = 120;
+    }
 
-    // currentBeat: number;
-    // synth: Tone.Synth<Tone.SynthOptions>;
+    public static setSynth(synth: Tone.Synth) {
+        this.synth = synth;
+    }
 
-    // constructor() {
-    //     this.currentBeat = 0;
-    //     this.synth = new Tone.Synth().toDestination();
-    //     console.log("init synth");
-    // }
+    private static createNoteObject(
+        noteStart: number,
+        noteLength: number,
+        notePitch: number
+    ): Note {
+        return {
+            time: Tone.Time(
+                `0:0:${(16 / PIANO_ROLL_NOTE_SUBDIVISION) * noteStart}`
+            ).toBarsBeatsSixteenths(),
+            pitch: Tone.Frequency(PIANO_ROLL_LOWEST_NOTE)
+                .transpose(DEFAULT_PIANO_ROLL_HEIGHT - notePitch - 1)
+                .toNote(),
+            length: Tone.Time(
+                `0:0:${(16 / PIANO_ROLL_NOTE_SUBDIVISION) * noteLength}`
+            ).toBarsBeatsSixteenths(),
+        };
+    }
 
-    // // init() {
-    // //     this.playSequence(["C3", "C4"]);
-    // // }
+    public static isPlaying() {
+        return Tone.Transport.state === "started";
+    }
 
-    // playSequence(sequence: string[]) {
-    //     const repeat = () => {
-    //         this.synth.triggerAttackRelease(sequence[this.currentBeat], "8n");
-    //         this.currentBeat += 1;
-    //     };
-    //     Tone.Transport.bpm.value = 120;
-    //     // Tone.Transport.scheduleRepeat(new Tone.Sequence(["C3"]), "8n");
-    //     Tone.start();
-    //     Tone.Transport.start();
-    // }
+    public static start() {
+        Tone.Transport.start();
+    }
 
-    // stop() {
-    //     Tone.Transport.stop();
-    // }
-};
+    public static stop() {
+        Tone.Transport.stop();
+    }
 
-export default Sequencer;
+    public static isInitialized() {
+        const ctx = new Tone.Context();
+        return ctx.state === "running";
+    }
+}

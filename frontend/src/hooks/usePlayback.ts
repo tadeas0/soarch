@@ -1,27 +1,27 @@
-import * as React from "react";
-import { useState } from "react";
-import * as Tone from "tone";
+import { useEffect, useState } from "react";
+import Sequencer from "../sequencer";
 
 const usePlayback = (): [boolean, () => void] => {
-    const [isPlaying, setPlaying] = useState(
-        Tone.Transport.state === "started"
-    );
+    const [isPlaying, setIsPlaying] = useState(false);
 
     const handleToggle = () => {
-        const ctx = new Tone.Context();
-        if (ctx.state === "suspended") {
-            Tone.start();
+        if (!Sequencer.isInitialized()) {
+            Sequencer.init();
         }
 
-        if (Tone.Transport.state === "started") {
-            Tone.Transport.stop();
-            console.log("stop");
-            setPlaying(false);
-        } else if (Tone.Transport.state === "stopped") {
-            Tone.Transport.start();
-            setPlaying(true);
+        if (Sequencer.isPlaying()) {
+            Sequencer.stop();
+            setIsPlaying(false);
+        } else {
+            Sequencer.start();
+            setIsPlaying(true);
         }
     };
+
+    useEffect(() => {
+        setIsPlaying(Sequencer.isPlaying());
+    }, []);
+
     return [isPlaying, handleToggle];
 };
 
