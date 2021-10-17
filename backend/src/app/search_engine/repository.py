@@ -1,6 +1,6 @@
 from app.search_engine.song import Song
 from app.search_engine.parser import MidiParser
-from miditoolkit.midi import MidiFile
+from miditoolkit.midi import MidiFile  # type: ignore
 import glob
 import os
 from typing import List, Set
