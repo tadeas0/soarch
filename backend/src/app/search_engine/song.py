@@ -28,12 +28,12 @@ class Track:
         res = np.zeros(self.grid_length)
         last_index = 0
         for i in self.notes:
-            if i["pitch"] > res[i["time"]]:
-                res[i["time"] : i["time"] + i["length"]] = i["pitch"]
-                last_index = i["time"] + i["length"]
-            elif i["time"] + i["length"] > last_index:
-                res[last_index : i["time"] + i["length"]] = i["pitch"]
-                last_index = i["time"] + i["length"]
+            if i.pitch > res[i.time]:
+                res[i.time : i.time + i.length] = i.pitch
+                last_index = i.time + i.length
+            elif i.time + i.length > last_index:
+                res[last_index : i.time + i.length] = i.pitch
+                last_index = i.time + i.length
 
         return res
 

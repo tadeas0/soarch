@@ -42,7 +42,7 @@ class MidiParser:
                     list(
                         map(
                             lambda n: Note(
-                                st(n.start), st(n.end) - st(n.start), st(n.pitch)
+                                st(n.start), st(n.end) - st(n.start), n.pitch
                             ),
                             inst.notes,
                         )
