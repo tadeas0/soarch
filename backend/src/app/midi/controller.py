@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from flask import Blueprint, request
 from app.search_engine.parser import JsonParser
+from app import search_engine
 
 midi_bp = Blueprint("midi", __name__, url_prefix="/midi")
 
@@ -13,7 +14,10 @@ def midi_get():
 @midi_bp.post("/")
 def midi_post():
     data = request.get_json()
-    print(JsonParser.parse(data))
+    song = JsonParser.parse(data)
+    similar_songs = search_engine.find_similar(10, song.tracks[0])
+    for i in similar_songs:
+        print(f"{i[1].metadata.name} - {i[1].metadata.name} {i[0]}")
     return "test"
 
 
