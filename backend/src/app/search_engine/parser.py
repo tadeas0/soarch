@@ -1,6 +1,5 @@
-from miditoolkit.midi import MidiFile
+from miditoolkit.midi import MidiFile  # type: ignore
 from app.search_engine.song import Song, Track, Note
-from typing import List
 from math import floor
 import config
 
@@ -11,9 +10,11 @@ def scaleTicks(oldPPQ: int, newPPQ: int, ticks: int) -> int:
 
 class JsonParser:
     @staticmethod
-    def parse(data) -> List[Track]:
+    def parse(data) -> Song:
         notes = data["notes"]
-        return Track([JsonParser.__parse_note(i) for i in notes], notes["gridLength"])
+        return Song(
+            [Track([JsonParser.__parse_note(i) for i in notes], notes["gridLength"])]
+        )
 
     @staticmethod
     def __parse_bars_beats_sixteenths(bbs: str) -> int:
