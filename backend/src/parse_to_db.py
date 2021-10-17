@@ -1,4 +1,5 @@
-from app.midi.midi_parser import MidiParser
+from app.search_engine.parser import MidiParser
+from miditoolkit.midi import MidiFile
 from app.midi.song import Song
 import config
 import os
@@ -7,11 +8,10 @@ import pickle
 
 def main():
     os.makedirs(config.PROCESSED_MIDI, exist_ok=True)
-    songs = []
-
     for i in os.listdir(config.RAW_MIDI_DIR):
         p = os.path.join(config.RAW_MIDI_DIR, i)
-        a = MidiParser.load_parse(p)
+        mid = MidiFile(p)
+        a = MidiParser.parse(mid)
         isplit = i.split(" - ")
         song = Song(isplit[1].rstrip(".mid"), isplit[0], a)
         print(f"Parsing: {i}")

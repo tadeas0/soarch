@@ -6,3 +6,4 @@ PROCESSED_MIDI = "../midi_files/processed"
 RAW_SIMPLE_MIDI_DIR = "../midi_files/simple_raw"
 PROCESSED_SIMPLE_MIDI = "../midi_files/simple_processed"
 VELOCITY_THRESHOLD = 0
+DEFAULT_PPQ = 480
