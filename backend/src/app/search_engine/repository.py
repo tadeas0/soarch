@@ -1,7 +1,7 @@
 from app.search_engine.song import Song
 from app.search_engine.parser import MidiParser
 from miditoolkit.midi import MidiFile  # type: ignore
-import glob
+from glob import glob
 import os
 import pickle
 from typing import List, Set
@@ -19,7 +19,12 @@ class SongRepository:
             self.__load_from_pickle(file_path)
 
     def load_directory(self, directory: str):
-        for i in glob.glob(os.path.join(directory, "*.mid")):
+        extensions = ("*.mid", "*.pkl")
+        matched_files: List[str] = []
+        for i in extensions:
+            matched_files.extend(glob(os.path.join(directory, i)))
+
+        for i in matched_files:
             self.load_song(i)
 
     def get_all(self):
