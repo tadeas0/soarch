@@ -1,5 +1,6 @@
 from typing import List
-import numpy as np  # type: ignore
+import numpy as np
+from functools import lru_cache
 
 
 class Note:
@@ -17,17 +18,22 @@ class Note:
 
 class Track:
     def __init__(self, notes: List[Note], grid_length: int) -> None:
-        self.notes = notes
+        self.__notes = notes
         self.grid_length = grid_length
         self.__is_sorted = False
 
-    def get_top_line(self):
+    @property  # type: ignore
+    @lru_cache()
+    def top_line(self):
+        return self.__get_top_line()
+
+    def __get_top_line(self):
         if not self.__is_sorted:
-            self.notes = sorted(self.notes, key=lambda n: n.time)
+            self.__notes = sorted(self.__notes, key=lambda n: n.time)
 
         res = np.zeros(self.grid_length)
         last_index = 0
-        for i in self.notes:
+        for i in self.__notes:
             if i.pitch > res[i.time]:
                 res[i.time : i.time + i.length] = i.pitch
                 last_index = i.time + i.length
