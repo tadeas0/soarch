@@ -1,4 +1,4 @@
-from miditoolkit.midi import MidiFile  # type: ignore
+from miditoolkit.midi import MidiFile
 from app.search_engine.song import Song, Track, Note
 from math import floor
 import config

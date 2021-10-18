@@ -1,6 +1,6 @@
 import requests
 import os
-from bs4 import BeautifulSoup  # type: ignore
+from bs4 import BeautifulSoup
 import config
 import click
 from flask.cli import with_appcontext

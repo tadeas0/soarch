@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 import numpy as np
-from scipy.stats import wasserstein_distance  # type: ignore
-from fastdtw import fastdtw  # type: ignore
-from Bio import pairwise2  # type: ignore
+from scipy.stats import wasserstein_distance
+from fastdtw import fastdtw
+from Bio import pairwise2
 
 
 class SimilarityStrategy(ABC):
