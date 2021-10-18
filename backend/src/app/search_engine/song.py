@@ -15,6 +15,15 @@ class Note:
     def __repr__(self) -> str:
         return f"Note({self.time},{self.length},{self.pitch})"
 
+    def equals(self, other: object) -> bool:
+        if not isinstance(other, self.__class__):
+            return False
+        return (
+            self.time == other.time
+            and self.length == other.length
+            and self.pitch == other.pitch
+        )
+
 
 class Track:
     def __init__(self, notes: List[Note], grid_length: int) -> None:

@@ -15,7 +15,7 @@ class JsonParser:
         return Song(
             [
                 Track(
-                    [JsonParser.__parse_note(i) for i in notes],
+                    [JsonParser.parse_note(i) for i in notes],
                     scaleTicks(4, config.DEFAULT_PPQ, data["gridLength"]),
                 )
             ]
@@ -28,7 +28,7 @@ class JsonParser:
         return scaleTicks(4, config.DEFAULT_PPQ, sixteenths)
 
     @staticmethod
-    def __parse_note(note) -> Note:
+    def parse_note(note) -> Note:
         return Note(
             JsonParser.__parse_bars_beats_sixteenths(note["time"]),
             JsonParser.__parse_bars_beats_sixteenths(note["length"]),
@@ -42,7 +42,7 @@ class MidiParser:
         melodic_inst = filter(lambda inst: not inst.is_drum, midi_file.instruments)
 
         def st(t: int):
-            scaleTicks(midi_file.max_tick, config.DEFAULT_PPQ, t)
+            return scaleTicks(midi_file.ticks_per_beat, config.DEFAULT_PPQ, t)
 
         return Song(
             [
