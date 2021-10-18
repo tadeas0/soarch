@@ -1,4 +1,4 @@
-from app.search_engine.song import Track
+from app.midi.song import Track
 from abc import ABC, abstractmethod
 from typing import List
 import numpy as np

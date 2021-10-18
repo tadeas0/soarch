@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from flask import Blueprint, request
-from app.search_engine.parser import JsonParser
-from app.search_engine.serializer import TrackSerializer
+from app.midi.parser import JsonParser
+from app.midi.serializer import TrackSerializer
 from app import engine
 
 midi_bp = Blueprint("midi", __name__, url_prefix="/midi")

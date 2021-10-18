@@ -1,8 +1,8 @@
 from functools import lru_cache
 from typing import List, Tuple, Set
-from app.search_engine.repository import SongRepository
+from app.midi.repository import SongRepository
 from app.search_engine.similarity_strategy import SimilarityStrategy
-from app.search_engine.song import Song, Track
+from app.midi.song import Song, Track
 from app.search_engine.melody_extraction_strategy import MelodyExtractionStrategy
 from app.search_engine.standardization_strategy import StandardizationStrategy
 

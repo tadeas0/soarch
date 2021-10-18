@@ -1,5 +1,5 @@
-from app.search_engine.parser import JsonParser
-from app.search_engine.song import Note
+from app.midi.parser import JsonParser
+from app.midi.song import Note
 import unittest
 
 

@@ -1,4 +1,4 @@
-from app.search_engine.song import Note, SongMetadata, Track
+from app.midi.song import Note, SongMetadata, Track
 from math import floor
 import config
 

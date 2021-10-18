@@ -1,6 +1,6 @@
 from flask import Flask
 import config
-from app.search_engine.repository import SongRepository
+from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.similarity_strategy import DTWStrategy
 

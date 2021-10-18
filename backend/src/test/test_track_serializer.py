@@ -1,6 +1,6 @@
 import unittest
-from app.search_engine.serializer import TrackSerializer
-from app.search_engine.song import Note
+from app.midi.serializer import TrackSerializer
+from app.midi.song import Note
 
 
 class TestMidiParser(unittest.TestCase):

@@ -1,5 +1,5 @@
 from miditoolkit.midi import MidiFile
-from app.search_engine.song import Song, Track, Note
+from app.midi.song import Song, Track, Note
 from math import floor
 import config
 

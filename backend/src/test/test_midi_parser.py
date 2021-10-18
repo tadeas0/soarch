@@ -1,8 +1,8 @@
 import unittest
 from miditoolkit.midi import MidiFile, Instrument
 from miditoolkit.midi.containers import Note
-from app.search_engine.song import Note as MyNote
-from app.search_engine.parser import MidiParser
+from app.midi.song import Note as MyNote
+from app.midi.parser import MidiParser
 
 
 class TestMidiParser(unittest.TestCase):
