@@ -18,7 +18,7 @@ class Note:
 
 class Track:
     def __init__(self, notes: List[Note], grid_length: int) -> None:
-        self.__notes = notes
+        self.notes = notes
         self.grid_length = grid_length
         self.__is_sorted = False
 
@@ -29,25 +29,29 @@ class Track:
 
     def __get_top_line(self):
         if not self.__is_sorted:
-            self.__notes = sorted(self.__notes, key=lambda n: n.time)
+            self.notes = sorted(self.notes, key=lambda n: n.time)
 
-        res = np.zeros(self.grid_length)
-        last_index = 0
-        for i in self.__notes:
-            if i.pitch > res[i.time]:
-                res[i.time : i.time + i.length] = i.pitch
-                last_index = i.time + i.length
-            elif i.time + i.length > last_index:
-                res[last_index : i.time + i.length] = i.pitch
-                last_index = i.time + i.length
+        last_pitch = -1
+        last_time = -1
+        res: List[int] = []
+        for i in self.notes:
+            if i.time == last_time and i.pitch > last_pitch:
+                res[-1] = i.pitch
+            elif i.time > last_time:
+                res.append(i.pitch)
+                last_time = i.time
+                last_pitch = i.pitch
 
-        return res
+        return np.array(res)
 
 
 class SongMetadata:
     def __init__(self, artist, name) -> None:
         self.artist = artist
         self.name = name
+
+    def __str__(self) -> str:
+        return f"SongMetadata({self.artist}, {self.name})"
 
 
 class Song:

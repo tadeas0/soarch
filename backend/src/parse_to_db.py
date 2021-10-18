@@ -14,7 +14,7 @@ def main():
         mid = MidiFile(p)
         song = MidiParser.parse(mid)
         isplit = i.split(" - ")
-        song.metadata = SongMetadata(isplit[0], isplit[1])
+        song.metadata = SongMetadata(isplit[0], isplit[1].replace(".mid", ""))
         with open(os.path.join(config.PROCESSED_MIDI, f"{i}.pkl"), "wb") as pf:
             pickle.dump(song, pf)
 

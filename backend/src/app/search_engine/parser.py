@@ -13,7 +13,12 @@ class JsonParser:
     def parse(data) -> Song:
         notes = data["notes"]
         return Song(
-            [Track([JsonParser.__parse_note(i) for i in notes], notes["gridLength"])]
+            [
+                Track(
+                    [JsonParser.__parse_note(i) for i in notes],
+                    scaleTicks(4, config.DEFAULT_PPQ, data["gridLength"]),
+                )
+            ]
         )
 
     @staticmethod
