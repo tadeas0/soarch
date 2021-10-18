@@ -33,3 +33,11 @@ from app.health_check.controller import health_check_bp
 
 app.register_blueprint(midi_bp)
 app.register_blueprint(health_check_bp)
+
+from app.scripts.parse_to_db import parse_to_db
+from app.scripts.scrape_robs_library import scrape_robs_library
+from app.scripts.scrape_freemidi import scrape_freemidi
+
+app.cli.add_command(parse_to_db)
+app.cli.add_command(scrape_freemidi)
+app.cli.add_command(scrape_robs_library)

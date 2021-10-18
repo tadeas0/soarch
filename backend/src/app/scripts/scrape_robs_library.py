@@ -2,9 +2,13 @@ import requests
 import os
 from bs4 import BeautifulSoup  # type: ignore
 import config
+import click
+from flask.cli import with_appcontext
 
 
-def main():
+@click.command("scrape-rob")
+@with_appcontext
+def scrape_robs_library():
     os.makedirs(config.RAW_MIDI_DIR, exist_ok=True)
 
     html = requests.get(f"{config.ROBS_MIDI_LIB_URL}/music-b.htm").content
@@ -16,13 +20,9 @@ def main():
             artist = full_name_split[0]
             song = full_name_split[1]
             midi_file_link = f"{config.ROBS_MIDI_LIB_URL}/{i.get('href')}"
-            print(f"Downloading {artist} - {song}")
+            click.echo(f"Downloading {artist} - {song}")
             with open(
                 os.path.join(config.RAW_MIDI_DIR, f"{artist} - {song}.mid"), "wb"
             ) as midi_file:
                 res = requests.get(midi_file_link, allow_redirects=True)
                 midi_file.write(res.content)
-
-
-if __name__ == "__main__":
-    main()
