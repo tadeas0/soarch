@@ -6,17 +6,23 @@ from Bio import pairwise2
 
 
 class SimilarityStrategy(ABC):
+    highest_first = True
+
     @abstractmethod
     def compare(self, line1, line2) -> float:
         pass
 
 
 class EMDStrategy(SimilarityStrategy):
+    highest_first = False
+
     def compare(self, line1, line2) -> float:
         return wasserstein_distance(line1, line2)
 
 
 class LCSStrategy(SimilarityStrategy):
+    highest_first = True
+
     def __measure_aux(self, x, y):
         dp_table = np.zeros((len(x) + 1, len(y) + 1))
         # solve the problem in a bottom up manner
@@ -35,12 +41,16 @@ class LCSStrategy(SimilarityStrategy):
 
 
 class DTWStrategy(SimilarityStrategy):
+    highest_first = False
+
     def compare(self, line1, line2) -> float:
         dist, _ = fastdtw(line1, line2)
         return dist
 
 
 class LocalAlignmentStrategy(SimilarityStrategy):
+    highest_first = True
+
     def compare(self, line1, line2) -> float:
         tl1 = "".join(chr(int(i) + 128) for i in line1)
         tl2 = "".join(chr(int(i) + 128) for i in line2)

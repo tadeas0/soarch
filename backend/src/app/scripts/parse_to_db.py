@@ -15,12 +15,15 @@ def parse_to_db():
     for i in os.listdir(config.RAW_MIDI_DIR):
         p = os.path.join(config.RAW_MIDI_DIR, i)
         click.echo(f"Parsing: {i}")
+
         try:
             mid = MidiFile(p)
             song = MidiParser.parse(mid)
         except IOError as e:
-
             click.echo(f"Could not parse {i}. {e}")
+        except EOFError as e:
+            click.echo(f"Could not parse {i}. {e}")
+
         isplit = i.split(" - ")
         song.metadata = SongMetadata(isplit[0], isplit[1].replace(".mid", ""))
         with open(os.path.join(config.PROCESSED_MIDI, f"{i}.pkl"), "wb") as pf:

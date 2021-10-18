@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from flask import Blueprint, request
 from app.search_engine.parser import JsonParser
+from app.search_engine.serializer import TrackSerializer
 from app import engine
 
 midi_bp = Blueprint("midi", __name__, url_prefix="/midi")
@@ -15,11 +16,14 @@ def midi_get():
 def midi_post():
     data = request.get_json()
     song = JsonParser.parse(data)
-    # print(song.tracks[0].top_line)
     similar_songs = engine.find_similar(10, song.tracks[0])
-    for i in sorted(similar_songs, key=lambda a: a[0]):
-        print(f"{i[1].metadata.name} - {i[1].metadata.name} {i[0]}")
-    return "test"
+    serialized_songs = [
+        TrackSerializer.serialize_with_metadata(i[1].metadata, i[2])
+        for i in similar_songs
+    ]
+    res = {"tracks": serialized_songs}
+
+    return res
 
 
 @midi_bp.errorhandler(KeyError)

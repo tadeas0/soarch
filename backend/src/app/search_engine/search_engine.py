@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import Tuple, Set
+from typing import List, Tuple, Set
 from app.search_engine.repository import SongRepository
 from app.search_engine.similarity_strategy import SimilarityStrategy
 from app.search_engine.song import Song, Track
@@ -22,16 +22,20 @@ class SearchEngine:
         self.standardization_strategy = standardization_strategy
         self.similarity_strategy = similarity_strategy
 
-    def find_similar(self, n: int, query_track: Track) -> Set[Tuple[float, Song]]:
-        songs: Set[Tuple[float, Song]] = set()
+    def find_similar(
+        self, n: int, query_track: Track
+    ) -> List[Tuple[float, Song, Track]]:
+        songs: Set[Tuple[float, Song, Track]] = set()
         query_prep = self.__preprocess_track(query_track)
         for song in self.repository.get_all():
             for track in song.tracks:
                 sim = self.similarity_strategy.compare(
                     query_prep, self.__preprocess_track(track)
                 )
-                songs.add((sim, song))
-        return songs
+                songs.add((sim, song, track))
+        return sorted(
+            songs, reverse=self.similarity_strategy.highest_first, key=lambda a: a[0]
+        )[0:n]
 
     @lru_cache()
     def __preprocess_track(self, track: Track):
