@@ -9,18 +9,10 @@ app.url_map.strict_slashes = False
 
 from app.search_engine.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
-from app.search_engine.similarity_strategy import (
-    DTWStrategy,
-    EMDStrategy,
-    LCSStrategy,
-    LocalAlignmentStrategy,
-)
+from app.search_engine.similarity_strategy import DTWStrategy
 
 from app.search_engine.melody_extraction_strategy import TopNoteStrategy
-from app.search_engine.standardization_strategy import (
-    RelativeIntervalStrategy,
-    StandardizationStrategy,
-)
+from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
 repository = SongRepository()
 repository.load_directory(config.PROCESSED_MIDI)
