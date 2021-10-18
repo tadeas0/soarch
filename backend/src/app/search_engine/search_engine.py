@@ -7,7 +7,7 @@ from app.search_engine.melody_extraction_strategy import MelodyExtractionStrateg
 from app.search_engine.standardization_strategy import StandardizationStrategy
 
 
-# TODO: thoroughly test preprocessing caching
+# TODO: test preprocessing caching
 # TODO: cleanup result format
 class SearchEngine:
     def __init__(
