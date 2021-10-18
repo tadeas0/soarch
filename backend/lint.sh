@@ -1,3 +1,4 @@
 #!/bin/bash
 src_dir="src/app"
-mypy $(dirname "$0")/$src_dir --exclude "$(dirname "$0")/$src_dir/venv/*"
+flake8 $(dirname "$0")/$src_dir --exclude venv
+mypy $(dirname "$0")/$src_dir --exclude venv/
