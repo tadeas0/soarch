@@ -27,7 +27,7 @@ before_script:
     - pip install virtualenv
     - virtualenv venv
     - source venv/bin/activate
-    - pip install backend/requirements.txt # you can also use tox
+    - pip install -r backend/requirements.txt # you can also use tox
 
 lint:
     script:
