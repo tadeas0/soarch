@@ -13,6 +13,7 @@ before_script:
 
 stages:
     - Static Analysis
+    - Test
 
 flake8:
     stage: Static Analysis
@@ -23,3 +24,8 @@ mypy:
     stage: Static Analysis
     script:
         - mypy backend/src/
+
+unittest:
+    stage: Test
+    script:
+        - python3 -m unittest discover backend/src/test/
