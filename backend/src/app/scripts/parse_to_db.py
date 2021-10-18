@@ -1,6 +1,6 @@
 from app.search_engine.parser import MidiParser
-from miditoolkit.midi import MidiFile
-from app.search_engine.song import SongMetadata, Song
+from miditoolkit.midi import MidiFile  # type: ignore
+from app.search_engine.song import SongMetadata
 import config
 import os
 import pickle

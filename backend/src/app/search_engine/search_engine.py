@@ -1,5 +1,5 @@
 from functools import lru_cache
-from typing import List, Tuple, Set
+from typing import Tuple, Set
 from app.search_engine.repository import SongRepository
 from app.search_engine.similarity_strategy import SimilarityStrategy
 from app.search_engine.song import Song, Track

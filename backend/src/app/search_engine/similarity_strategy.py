@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from app.search_engine.song import Song, Track
 import numpy as np
 from scipy.stats import wasserstein_distance  # type: ignore
 from fastdtw import fastdtw  # type: ignore

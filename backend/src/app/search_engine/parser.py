@@ -40,7 +40,10 @@ class MidiParser:
     @staticmethod
     def parse(midi_file: MidiFile) -> Song:
         melodic_inst = filter(lambda inst: not inst.is_drum, midi_file.instruments)
-        st = lambda t: scaleTicks(midi_file.max_tick, config.DEFAULT_PPQ, t)
+
+        def st(t: int):
+            scaleTicks(midi_file.max_tick, config.DEFAULT_PPQ, t)
+
         return Song(
             [
                 Track(

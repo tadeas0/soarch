@@ -4,7 +4,7 @@ from miditoolkit.midi import MidiFile  # type: ignore
 from glob import glob
 import os
 import pickle
-from typing import List, Set
+from typing import List
 
 
 class SongRepository:

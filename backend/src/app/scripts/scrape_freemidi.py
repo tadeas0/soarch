@@ -28,12 +28,13 @@ def scrape_freemidi():
         headers = {
             "Host": "freemidi.org",
             "Connection": "keep-alive",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36",
             "Accept-Encoding": "gzip, deflate, br",
             "Accept-Language": "en-US,en;q=0.9",
         }
         session = requests.Session()
-        r1 = session.get(download_link, headers=headers)
+        session.get(download_link, headers=headers)
         r2 = session.get(download_link, headers=headers)
         with open(
             os.path.join(config.RAW_MIDI_DIR, f"{artist} - {song_title}.mid"), "wb"
