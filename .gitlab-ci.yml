@@ -23,7 +23,7 @@ flake8:
 mypy:
     stage: Static Analysis
     script:
-        - mypy backend/src/
+        - mypy backend/src/ --config-file backend/setup.cfg
 
 unittest:
     stage: Test

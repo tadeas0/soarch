@@ -1,7 +1,6 @@
 from app.search_engine.parser import JsonParser
 from app.search_engine.song import Note
 import unittest
-import json
 
 
 class TestJsonParser(unittest.TestCase):
