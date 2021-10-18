@@ -6,7 +6,7 @@ charset-normalizer==2.0.7
 click==8.0.3
 cycler==0.10.0
 data-science-types==0.2.23
-dataclasses==0.8
+dataclasses
 dnspython==2.1.0
 dtw-python==1.1.10
 email-validator==1.1.3
