@@ -11,8 +11,11 @@ def main():
     for i in os.listdir(config.RAW_MIDI_DIR):
         p = os.path.join(config.RAW_MIDI_DIR, i)
         print(f"Parsing: {i}")
-        mid = MidiFile(p)
-        song = MidiParser.parse(mid)
+        try:
+            mid = MidiFile(p)
+            song = MidiParser.parse(mid)
+        except IOError as e:
+            print(f"Could not parse {i}. {e}")
         isplit = i.split(" - ")
         song.metadata = SongMetadata(isplit[0], isplit[1].replace(".mid", ""))
         with open(os.path.join(config.PROCESSED_MIDI, f"{i}.pkl"), "wb") as pf:
