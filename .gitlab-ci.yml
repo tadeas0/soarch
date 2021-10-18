@@ -18,7 +18,7 @@ stages:
 flake8:
     stage: Static Analysis
     script:
-        - flake8 backend/src/
+        - flake8 backend/src/ --config backend/setup.cfg
 
 mypy:
     stage: Static Analysis
