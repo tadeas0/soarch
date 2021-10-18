@@ -16,8 +16,7 @@ function App() {
                     time: n.time,
                 };
             }),
-        });
-        // console.log(notes);
+        }).then((res) => console.log(res.data));
     };
 
     return (
