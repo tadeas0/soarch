@@ -8,6 +8,7 @@ from app.search_engine.standardization_strategy import StandardizationStrategy
 
 
 # TODO: thoroughly test preprocessing caching
+# TODO: cleanup result format
 class SearchEngine:
     def __init__(
         self,
