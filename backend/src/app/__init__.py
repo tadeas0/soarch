@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 import config
 from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
@@ -14,7 +14,12 @@ engine = SearchEngine(
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder="../build/static", template_folder="../build")
+
+    @app.route("/")
+    def index():
+        return render_template("index.html")
+
     app.config.from_json("../secrets.json")
     app.url_map.strict_slashes = False
 

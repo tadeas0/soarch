@@ -14,6 +14,7 @@ before_script:
 stages:
     - Static Analysis
     - Test
+    - Deploy
 
 flake8:
     stage: Static Analysis
@@ -29,3 +30,13 @@ unittest:
     stage: Test
     script:
         - python3 -m unittest discover backend/src/test/ --top-level backend/src/
+
+deploy:
+    stage: Deploy
+    script:
+        - apt-get update -qy
+        - apt-get install -y ruby-dev
+        - gem install dpl
+        - dpl --provider=heroku --app=HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
+    only:
+        - cd
