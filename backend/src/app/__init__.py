@@ -20,7 +20,6 @@ def create_app():
     def index():
         return render_template("index.html")
 
-    app.config.from_json("../secrets.json")
     app.url_map.strict_slashes = False
 
     repository.load_directory(config.PROCESSED_MIDI)
