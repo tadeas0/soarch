@@ -1,1 +1,2 @@
+release: cd src && flask scrape-freemidi && flask parse-db
 web: gunicorn --chdir src/ "app:create_app()"
