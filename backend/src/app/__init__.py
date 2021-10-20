@@ -14,11 +14,7 @@ engine = SearchEngine(
 
 
 def create_app():
-    app = Flask(__name__, static_folder="../build/static", template_folder="../build")
-
-    @app.route("/")
-    def index():
-        return render_template("index.html")
+    app = Flask(__name__)
 
     app.url_map.strict_slashes = False
 

@@ -14,6 +14,6 @@ interface NoteSerialized {
 
 export const API = {
     postNotes(noteForm: NoteForm) {
-        return axios.post("/midi", noteForm);
+        return axios.post("/api/midi", noteForm);
     },
 };

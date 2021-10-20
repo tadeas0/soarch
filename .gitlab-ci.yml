@@ -31,12 +31,26 @@ unittest:
     script:
         - python3 -m unittest discover backend/src/test/ --top-level backend/src/
 
-deploy:
+deploy-backend:
     stage: Deploy
     script:
-        - apt-get update -qy
-        - apt-get install -y ruby-dev
-        - gem install dpl
-        - dpl --provider=heroku --app=$HEROKU_APP_PRODUCTION --api-key=$HEROKU_API_KEY
+        - echo "Deploying Backend..."
+        - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
+        - docker build --file=backend/Dockerfile --rm=true -t registry.heroku.com/$HEROKU_APP_BACKEND/web ./backend
+        - docker push registry.heroku.com/$HEROKU_APP_BACKEND/web
+        - docker run -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli:latest container:release web -a $HEROKU_APP_BACKEND
+        - echo "Backend deployment Complete!"
+    only:
+        - cd
+
+deploy-frontend:
+    stage: Deploy
+    script:
+        - echo "Deploying Frontend..."
+        - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
+        - docker build --file=frontend/Dockerfile --rm=true -t registry.heroku.com/$HEROKU_APP_FRONTEND/web ./frontend
+        - docker push registry.heroku.com/$HEROKU_APP_FRONTEND/web
+        - docker run -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli:latest container:release web -a $HEROKU_APP_FRONTEND
+        - echo "Frontend deployment Complete!"
     only:
         - cd

@@ -1,1 +1,0 @@
-web: cd src && flask scrape-freemidi && flask parse-db && gunicorn "app:create_app()"

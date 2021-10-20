@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+    backend:
+        build: backend
+        container_name: midi-search-backend
+        image: midi-search-backend
+        volumes:
+            - ./backend:/backend
+        environment:
+            - FLASK_APP=src/app
+            - FLASK_ENV=development
+            - GUNICORN_CMD_ARGS=--reload
+            - PORT=8080
+        # command: ["flask", "run", "--port", "8080", "--host", "0.0.0.0"]
+        ports:
+            - "8080:8080"
+    frontend:
+        build: frontend
+        container_name: midi-search-frontend
+        image: midi-search-frontend
+        environment:
+            - API_HOST=http://midi-search-backend:8080
+        ports:
+            - "3000:80"
