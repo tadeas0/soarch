@@ -21,5 +21,6 @@ services:
         image: midi-search-frontend
         environment:
             - API_HOST=http://midi-search-backend:8080
+            - PORT=80
         ports:
             - "3000:80"
