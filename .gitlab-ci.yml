@@ -43,7 +43,7 @@ deploy-backend:
         - docker run -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli:latest container:release web -a $HEROKU_APP_BACKEND
         - echo "Backend deployment Complete!"
     only:
-        - cd
+        - master
 
 deploy-frontend:
     stage: Deploy
@@ -58,4 +58,4 @@ deploy-frontend:
         - docker run -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli:latest container:release web -a $HEROKU_APP_FRONTEND
         - echo "Frontend deployment Complete!"
     only:
-        - cd
+        - master
