@@ -1,7 +1,3 @@
-before_script:
-    - python -V # Print out python version for debugging
-    - pip install -r backend/requirements.txt # you can also use tox
-
 stages:
     - Static Analysis
     - Test
@@ -10,18 +6,27 @@ stages:
 flake8:
     stage: Static Analysis
     image: python:3.6
+    before_script:
+        - python -V # Print out python version for debugging
+        - pip install -r backend/requirements.txt # you can also use tox
     script:
         - flake8 backend/src/ --config backend/setup.cfg
 
 mypy:
     stage: Static Analysis
     image: python:3.6
+    before_script:
+        - python -V # Print out python version for debugging
+        - pip install -r backend/requirements.txt # you can also use tox
     script:
         - mypy backend/src/ --config-file backend/setup.cfg
 
 unittest:
     stage: Test
     image: python:3.6
+    before_script:
+        - python -V # Print out python version for debugging
+        - pip install -r backend/requirements.txt # you can also use tox
     script:
         - python3 -m unittest discover backend/src/test/ --top-level backend/src/
 
