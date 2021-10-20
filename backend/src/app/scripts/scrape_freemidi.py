@@ -12,7 +12,7 @@ GETTER_URL = "https://freemidi.org/getter"
 @click.command("scrape-freemidi")
 @with_appcontext
 def scrape_freemidi():
-    os.makedirs(config.PROCESSED_MIDI, exist_ok=True)
+    os.makedirs(config.RAW_MIDI_DIR, exist_ok=True)
 
     html = requests.get(f"{TOPMIDI_URL}").content
     soup = BeautifulSoup(html, features="html.parser")
