@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 import config
 from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
