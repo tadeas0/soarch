@@ -15,7 +15,7 @@ engine = SearchEngine(
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_json("../secrets.json")
+
     app.url_map.strict_slashes = False
 
     repository.load_directory(config.PROCESSED_MIDI)

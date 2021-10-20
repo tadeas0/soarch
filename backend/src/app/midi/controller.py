@@ -4,7 +4,7 @@ from app.midi.parser import JsonParser
 from app.midi.serializer import TrackSerializer
 from app import engine
 
-midi_bp = Blueprint("midi", __name__, url_prefix="/midi")
+midi_bp = Blueprint("midi", __name__, url_prefix="/api/midi")
 
 
 @midi_bp.get("/")
