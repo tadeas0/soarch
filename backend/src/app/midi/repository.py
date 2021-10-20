@@ -25,7 +25,9 @@ class SongRepository:
             matched_files.extend(glob(os.path.join(directory, i)))
 
         for i in matched_files:
+            print(f"Loading {i}")
             self.load_song(i)
+        print(f"Loaded {len(i)} songs")
 
     def get_all(self):
         return self.__songs
