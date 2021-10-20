@@ -1,12 +1,3 @@
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Python.gitlab-ci.yml
-
-# Official language image. Look for the different tagged releases at:
-# https://hub.docker.com/r/library/python/tags/
-image: python:3.6
-
 before_script:
     - python -V # Print out python version for debugging
     - pip install -r backend/requirements.txt # you can also use tox
@@ -18,21 +9,25 @@ stages:
 
 flake8:
     stage: Static Analysis
+    image: python:3.6
     script:
         - flake8 backend/src/ --config backend/setup.cfg
 
 mypy:
     stage: Static Analysis
+    image: python:3.6
     script:
         - mypy backend/src/ --config-file backend/setup.cfg
 
 unittest:
     stage: Test
+    image: python:3.6
     script:
         - python3 -m unittest discover backend/src/test/ --top-level backend/src/
 
 deploy-backend:
     stage: Deploy
+    image: docker:latest
     script:
         - echo "Deploying Backend..."
         - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
@@ -45,6 +40,7 @@ deploy-backend:
 
 deploy-frontend:
     stage: Deploy
+    image: docker:latest
     script:
         - echo "Deploying Frontend..."
         - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
