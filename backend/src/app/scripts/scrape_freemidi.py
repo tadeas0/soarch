@@ -3,6 +3,7 @@ import os
 from bs4 import BeautifulSoup
 import config
 import click
+from app import file_storage
 from flask.cli import with_appcontext
 
 TOPMIDI_URL = "https://freemidi.org/topmidi"
@@ -12,8 +13,6 @@ GETTER_URL = "https://freemidi.org/getter"
 @click.command("scrape-freemidi")
 @with_appcontext
 def scrape_freemidi():
-    os.makedirs(config.RAW_MIDI_DIR, exist_ok=True)
-
     html = requests.get(f"{TOPMIDI_URL}").content
     soup = BeautifulSoup(html, features="html.parser")
     for i in soup.find_all("div", class_="song-list-container"):
@@ -36,7 +35,7 @@ def scrape_freemidi():
         session = requests.Session()
         session.get(download_link, headers=headers)
         r2 = session.get(download_link, headers=headers)
-        with open(
-            os.path.join(config.RAW_MIDI_DIR, f"{artist} - {song_title}.mid"), "wb"
+        with file_storage.open(
+            os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song_title}.mid"), "wb"
         ) as f:
             f.write(r2.content)

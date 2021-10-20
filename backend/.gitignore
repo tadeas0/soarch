@@ -2,3 +2,4 @@ secrets.json
 similarity_test.py
 tmp.py
 build
+cloud_storage_key.json

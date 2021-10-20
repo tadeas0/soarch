@@ -1,4 +1,5 @@
 from flask import Flask
+from app.midi.filestorage import LocalFileStorage
 import config
 from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
@@ -7,7 +8,8 @@ from app.search_engine.similarity_strategy import DTWStrategy
 from app.search_engine.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
-repository = SongRepository()
+file_storage = LocalFileStorage(config.MIDI_DIR)
+repository = SongRepository(file_storage)
 engine = SearchEngine(
     repository, TopNoteStrategy(), RelativeIntervalStrategy(), DTWStrategy()
 )
@@ -18,7 +20,7 @@ def create_app():
 
     app.url_map.strict_slashes = False
 
-    repository.load_directory(config.PROCESSED_MIDI)
+    repository.load_directory(config.PROCESSED_MIDI_PREFIX)
 
     from app.midi.controller import midi_bp
     from app.health_check.controller import health_check_bp
