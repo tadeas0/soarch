@@ -17,8 +17,7 @@ services:
             - FLASK_ENV=development
             - GUNICORN_CMD_ARGS=--reload
             - PORT=8080
-            - REDIS_HOST=redis-cache
-            - REDIS_PORT=6379
+            - REDIS_URL=redis://redis-cache
         ports:
             - "8080:8080"
     frontend:

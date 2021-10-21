@@ -61,14 +61,11 @@ class GoogleCloudFileStorage(FileStorage):
         self,
         credentials_json: dict,
         bucket_name: str,
-        redis_cache_host: str = None,
-        redis_cache_port: int = None,
+        redis_url: str = None,
     ) -> None:
         self.__redis_cache: Optional[redis.Redis] = None
-        if redis_cache_host and redis_cache_port:
-            self.__redis_cache = redis.Redis(
-                host=redis_cache_host, port=redis_cache_port
-            )
+        if redis_url:
+            self.__redis_cache = redis.from_url(redis_url)
         self.__storage_client = storage.Client.from_service_account_info(
             credentials_json
         )
