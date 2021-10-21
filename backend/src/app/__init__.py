@@ -10,7 +10,9 @@ from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
 if config.CLOUD_STORAGE_CREDENTIALS:
     file_storage: FileStorage = GoogleCloudFileStorage(
-        json.loads(config.CLOUD_STORAGE_CREDENTIALS), config.BUCKET_NAME
+        json.loads(config.CLOUD_STORAGE_CREDENTIALS),
+        config.BUCKET_NAME,
+        config.REDIS_URL,
     )
 
 else:
