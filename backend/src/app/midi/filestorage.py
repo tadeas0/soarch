@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, IO
 from google.cloud import storage
+import io
 import os
 
 
@@ -66,11 +67,14 @@ class GoogleCloudFileStorage(FileStorage):
         blob = self.__bucket.get_blob(key)
         if blob is None and mode not in ["w", "wb"]:
             raise FileNotFoundError()
-
-        if blob is None:
+        elif mode in ["w", "wb"]:
             return self.__bucket.blob(key).open(mode)
-
-        return blob.open(mode)
+        elif mode == "rb":
+            return io.BytesIO(blob.download_as_bytes())
+        elif mode == "r":
+            return io.TextIOWrapper(blob.download_as_text())
+        else:
+            raise ValueError(f"invalid mode {mode}")
 
     def list(self) -> List[str]:
         return list(
