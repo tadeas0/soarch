@@ -5,3 +5,4 @@ __pycache__
 venv
 midi_files
 heroku_deploy
+.env*
