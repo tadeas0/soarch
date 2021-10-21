@@ -2,8 +2,6 @@ from app.midi.filestorage import FileStorage
 from app.midi.song import Song
 from app.midi.parser import MidiParser
 from miditoolkit.midi import MidiFile
-from glob import glob
-import os
 import pickle
 from typing import List
 
