@@ -1,14 +1,21 @@
 from flask import Flask
-from app.midi.filestorage import LocalFileStorage
 import config
+import json
+from app.midi.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.similarity_strategy import DTWStrategy
-
 from app.search_engine.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
-file_storage = LocalFileStorage(config.MIDI_DIR)
+if config.CLOUD_STORAGE_CREDENTIALS:
+    file_storage: FileStorage = GoogleCloudFileStorage(
+        json.loads(config.CLOUD_STORAGE_CREDENTIALS), config.BUCKET_NAME
+    )
+
+else:
+    file_storage = LocalFileStorage(config.MIDI_DIR)
+
 repository = SongRepository(file_storage)
 engine = SearchEngine(
     repository, TopNoteStrategy(), RelativeIntervalStrategy(), DTWStrategy()

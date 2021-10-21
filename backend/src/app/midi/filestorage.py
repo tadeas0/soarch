@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, IO
+from google.cloud import storage
+import io
 import os
 
 
@@ -51,3 +53,38 @@ class LocalFileStorage(FileStorage):
                     res.append(fp)
 
         return res
+
+
+class GoogleCloudFileStorage(FileStorage):
+    def __init__(self, credentials_json: dict, bucket_name: str) -> None:
+        self.__storage_client = storage.Client.from_service_account_info(
+            credentials_json
+        )
+        self.__bucket_name = bucket_name
+        self.__bucket = self.__storage_client.bucket(bucket_name)
+
+    def open(self, key: str, mode: str) -> IO:
+        blob = self.__bucket.get_blob(key)
+        if blob is None and mode not in ["w", "wb"]:
+            raise FileNotFoundError()
+        elif mode in ["w", "wb"]:
+            return self.__bucket.blob(key).open(mode)
+        elif mode == "rb":
+            return io.BytesIO(blob.download_as_bytes())
+        elif mode == "r":
+            return io.TextIOWrapper(blob.download_as_text())
+        else:
+            raise ValueError(f"invalid mode {mode}")
+
+    def list(self) -> List[str]:
+        return list(
+            map(lambda a: a.name, self.__storage_client.list_blobs(self.__bucket_name))
+        )
+
+    def list_prefix(self, prefix: str) -> List[str]:
+        return list(
+            map(
+                lambda a: a.name,
+                self.__storage_client.list_blobs(self.__bucket_name, prefix=prefix),
+            )
+        )
