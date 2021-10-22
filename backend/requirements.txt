@@ -54,6 +54,7 @@ pyparsing==2.4.7
 python-dateutil==2.8.2
 python-Levenshtein==0.12.2
 python-magic==0.4.24
+redis==3.5.3
 regex==2021.10.8
 requests==2.26.0
 rsa==4.7.2
@@ -63,6 +64,7 @@ soupsieve==2.2.1
 toml==0.10.2
 tomli==1.2.1
 typed-ast==1.4.3
+types-redis==3.5.15
 types-requests==2.25.11
 typing-extensions==3.10.0.2
 urllib3==1.26.7
