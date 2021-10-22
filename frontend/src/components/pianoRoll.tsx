@@ -1,14 +1,13 @@
 import * as React from "react";
 import { useState, FunctionComponent, MouseEvent } from "react";
-import * as Tone from "tone";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
-    PIANO_ROLL_LOWEST_NOTE,
 } from "../constants";
 import usePlayback from "../hooks/usePlayback";
 import { Note, Sequencer } from "../sequencer";
 import "./pianoRoll.css";
+import PianoRollGrid from "./pianoRollGrid";
 
 interface PianoRollProps {
     noteWidth?: number;
@@ -34,7 +33,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     };
 
     const handleMouseOver = (
-        e: MouseEvent<HTMLTableCellElement>,
+        e: MouseEvent<HTMLElement>,
         pitch: number,
         position: number
     ) => {
@@ -69,49 +68,20 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         handlePlayToggle();
     };
 
-    const renderNotes = () => {
-        let rows = noteGrid.map((row, ri) => {
-            const entry = row.map((i, ci) => (
-                <td
-                    className={i ? "active" : "inactive"}
-                    onMouseDown={() => handleClick(ri, ci)}
-                    onContextMenu={(e) => {
-                        e.preventDefault();
-                        handleRightClick(ri, ci);
-                    }}
-                    onMouseOver={(e) => handleMouseOver(e, ri, ci)}
-                    key={ci}
-                ></td>
-            ));
-            return (
-                <tr
-                    className={isBlackKey(ri) ? "blackkey" : "whitekey"}
-                    key={ri}
-                >
-                    {entry}
-                </tr>
-            );
-        });
-
-        return rows;
-    };
-
-    const isBlackKey = (row: number) => {
-        return Tone.Frequency(PIANO_ROLL_LOWEST_NOTE)
-            .transpose(noteHeight - row - 1)
-            .toNote()
-            .includes("#");
-    };
-
     return (
         <div className="pianoroll">
             <button onClick={handlePlayClick}>
                 {isPlaying ? "Stop" : "Play"}
             </button>
             <button onClick={handleClear}>Clear</button>
-            <table>
-                <tbody>{renderNotes()}</tbody>
-            </table>
+            <PianoRollGrid
+                onMouseDown={handleClick}
+                onRightClick={handleRightClick}
+                onMouseOver={handleMouseOver}
+                noteWidth={noteWidth}
+                noteHeight={noteHeight}
+                noteGrid={noteGrid}
+            />
             <button
                 onClick={() =>
                     onSubmit(
