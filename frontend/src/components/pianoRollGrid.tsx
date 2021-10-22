@@ -6,9 +6,9 @@ import { PIANO_ROLL_LOWEST_NOTE } from "../constants";
 
 interface PianoRollGridProps {
     noteGrid: boolean[][];
-    onRightClick: (ri: number, ci: number) => void;
-    onMouseDown: (ri: number, ci: number) => void;
-    onMouseOver: (
+    onRightClick?: (ri: number, ci: number) => void;
+    onMouseDown?: (ri: number, ci: number) => void;
+    onMouseOver?: (
         e: React.MouseEvent<HTMLElement>,
         ri: number,
         ci: number
@@ -20,12 +20,16 @@ interface PianoRollGridProps {
 // TODO: cleanup event handling
 const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     noteGrid,
-    onRightClick,
-    onMouseDown,
-    onMouseOver,
+    onRightClick = (ri: number, ci: number) => {},
+    onMouseDown = (ri: number, ci: number) => {},
+    onMouseOver = (
+        e: React.MouseEvent<HTMLElement>,
+        ri: number,
+        ci: number
+    ) => {},
     noteWidth,
     noteHeight,
-}) => {
+}: PianoRollGridProps) => {
     const renderNotes = () => {
         let rows = noteGrid.map((row, ri) => {
             const entry = row.map((i, ci) => (
