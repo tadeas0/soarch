@@ -3,7 +3,7 @@ import { useState } from "react";
 import * as Tone from "tone";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll";
-import SearchResultCard from "./components/result";
+import SearchResults from "./components/searchResults";
 import { Note } from "./sequencer";
 import { API } from "./services/api";
 
@@ -15,7 +15,9 @@ export interface SearchResult {
 
 function App() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+    const [isBusy, setBusy] = useState<boolean>(false);
     const handleSubmit = (notes: Note[], gridLength: number) => {
+        setBusy(true);
         API.postNotes({
             gridLength: gridLength,
             notes: notes.map((n) => {
@@ -25,30 +27,35 @@ function App() {
                     time: n.time,
                 };
             }),
-        }).then((res) => {
-            const result = res.data.tracks.map<SearchResult>((track) => {
-                return {
-                    artist: track.artist,
-                    name: track.name,
-                    notes: track.notes.map<Note>((n) => {
-                        return {
-                            time: Tone.Time(n.time).toBarsBeatsSixteenths(),
-                            pitch: Tone.Frequency(n.pitch, "midi").toNote(),
-                            length: Tone.Time(n.length).toBarsBeatsSixteenths(),
-                        };
-                    }),
-                };
+        })
+            .then((res) => {
+                const result = res.data.tracks.map<SearchResult>((track) => {
+                    return {
+                        artist: track.artist,
+                        name: track.name,
+                        notes: track.notes.map<Note>((n) => {
+                            return {
+                                time: Tone.Time(n.time).toBarsBeatsSixteenths(),
+                                pitch: Tone.Frequency(n.pitch, "midi").toNote(),
+                                length: Tone.Time(
+                                    n.length
+                                ).toBarsBeatsSixteenths(),
+                            };
+                        }),
+                    };
+                });
+                setSearchResults(result);
+                setBusy(false);
+            })
+            .catch((err) => {
+                console.error(err); // TODO: Handle error
             });
-            setSearchResults(result);
-        });
     };
 
     return (
         <div className="App">
             <PianoRoll onSubmit={handleSubmit} />
-            {searchResults.map((s) => (
-                <SearchResultCard searchResult={s} />
-            ))}
+            <SearchResults searchResults={searchResults} isBusy={isBusy} />
         </div>
     );
 }
