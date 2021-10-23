@@ -1,5 +1,6 @@
 .pianoroll {
     padding: 20px;
+    flex: 1 1 auto;
 }
 
 .pianoroll button {
