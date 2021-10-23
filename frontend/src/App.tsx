@@ -3,10 +3,11 @@ import { useState } from "react";
 import * as Tone from "tone";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll";
+import SearchResultCard from "./components/result";
 import { Note } from "./sequencer";
 import { API } from "./services/api";
 
-interface SearchResult {
+export interface SearchResult {
     artist: string;
     name: string;
     notes: Note[];
@@ -45,6 +46,9 @@ function App() {
     return (
         <div className="App">
             <PianoRoll onSubmit={handleSubmit} />
+            {searchResults.map((s) => (
+                <SearchResultCard searchResult={s} />
+            ))}
         </div>
     );
 }
