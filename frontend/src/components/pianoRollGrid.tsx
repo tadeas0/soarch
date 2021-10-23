@@ -2,7 +2,7 @@ import * as React from "react";
 import { FunctionComponent, useState, useEffect } from "react";
 import "./pianoRoll.css";
 import * as Tone from "tone";
-import { DEFAULT_PIANO_ROLL_WIDTH, PIANO_ROLL_LOWEST_NOTE } from "../constants";
+import { PIANO_ROLL_LOWEST_NOTE } from "../constants";
 
 interface PianoRollGridProps {
     noteGrid: boolean[][];
@@ -33,7 +33,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const [currentBeat, setCurrentBeat] = useState(0);
 
     useEffect(() => {
-        const interval = setInterval(() => {
+        setInterval(() => {
             const bbs = Tone.Transport.position.toString().split(":");
             const beat =
                 parseInt(bbs[0]) * 16 +
