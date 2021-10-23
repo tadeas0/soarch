@@ -2,6 +2,8 @@ import * as React from "react";
 import { FunctionComponent } from "react";
 import { SearchResult } from "../App";
 import SearchResultCard from "./searchResultCard";
+import RiseLoader from "react-spinners/RiseLoader";
+import "./result.css";
 
 interface SearchResultsProps {
     searchResults: SearchResult[];
@@ -13,9 +15,9 @@ const SearchResults: FunctionComponent<SearchResultsProps> = ({
     isBusy,
 }) => {
     return (
-        <div>
+        <div className="results-container">
             {isBusy ? (
-                <h1>Loading...</h1>
+                <RiseLoader />
             ) : (
                 searchResults.map((s) => <SearchResultCard searchResult={s} />)
             )}

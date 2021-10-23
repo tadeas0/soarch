@@ -1,5 +1,26 @@
+.results-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 4px solid transparent;
+    border-radius: 8px;
+    background-clip: padding-box;
+}
+
+.results-container::-webkit-scrollbar {
+    width: 16px;
+}
+
+.results-container {
+    flex: 0 1 auto;
+    margin-top: 10px;
+    overflow-y: scroll;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 3px solid rgba(0, 0, 0, 0.6);
+    margin: 0 20px 10px 20px;
+}
+
 .result-card {
-    margin: 3px 30px 3px 30px;
+    margin: 3px 10px 3px 10px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
 
