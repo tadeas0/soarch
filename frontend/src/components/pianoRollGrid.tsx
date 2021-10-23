@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FunctionComponent } from "react";
+import { FunctionComponent, useState, useEffect } from "react";
 import "./pianoRoll.css";
 import * as Tone from "tone";
 import { PIANO_ROLL_LOWEST_NOTE } from "../constants";
@@ -30,11 +30,27 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     noteWidth,
     noteHeight,
 }: PianoRollGridProps) => {
+    const [currentBeat, setCurrentBeat] = useState(0);
+
+    useEffect(() => {
+        setInterval(() => {
+            const bbs = Tone.Transport.position.toString().split(":");
+            const beat =
+                parseInt(bbs[0]) * 16 +
+                parseInt(bbs[1]) * 4 +
+                parseInt(bbs[2]) * 1;
+            setCurrentBeat(beat);
+        }, 100);
+    }, []);
+
     const renderNotes = () => {
         let rows = noteGrid.map((row, ri) => {
             const entry = row.map((i, ci) => (
                 <td
-                    className={i ? "active" : "inactive"}
+                    className={
+                        (i ? "active" : "inactive") +
+                        (ci === currentBeat ? " beat" : "")
+                    }
                     onMouseDown={() => onMouseDown(ri, ci)}
                     onContextMenu={(e) => {
                         e.preventDefault();
