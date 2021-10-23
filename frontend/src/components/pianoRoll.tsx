@@ -4,6 +4,8 @@ import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
 } from "../constants";
+import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
+import { MdDelete, MdOutlineSearch } from "react-icons/md";
 import usePlayback from "../hooks/usePlayback";
 import { Note, Sequencer } from "../sequencer";
 import "./pianoRoll.css";
@@ -71,9 +73,22 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     return (
         <div className="pianoroll">
             <button onClick={handlePlayClick}>
-                {isPlaying ? "Stop" : "Play"}
+                {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
             </button>
-            <button onClick={handleClear}>Clear</button>
+            <button
+                className="right"
+                onClick={() =>
+                    onSubmit(
+                        Sequencer.transformGridToNotes(noteGrid),
+                        noteWidth
+                    )
+                }
+            >
+                <MdOutlineSearch />
+            </button>
+            <button onClick={handleClear}>
+                <MdDelete />
+            </button>
             <PianoRollGrid
                 onMouseDown={handleClick}
                 onRightClick={handleRightClick}
@@ -82,16 +97,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 noteHeight={noteHeight}
                 noteGrid={noteGrid}
             />
-            <button
-                onClick={() =>
-                    onSubmit(
-                        Sequencer.transformGridToNotes(noteGrid),
-                        noteWidth
-                    )
-                }
-            >
-                Submit
-            </button>
         </div>
     );
 };
