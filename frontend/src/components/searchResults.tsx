@@ -17,7 +17,9 @@ const SearchResults: FunctionComponent<SearchResultsProps> = ({
     return (
         <div className="results-container">
             {isBusy ? (
-                <RiseLoader size={100} />
+                <div className="loader">
+                    <RiseLoader size={100} />
+                </div>
             ) : (
                 searchResults.map((s) => <SearchResultCard searchResult={s} />)
             )}
