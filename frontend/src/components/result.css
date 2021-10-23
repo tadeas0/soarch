@@ -1,0 +1,16 @@
+.result-card {
+    margin: 3px 30px 3px 30px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.result-card .inner {
+    padding: 3px;
+}
+
+.result-card h4 {
+    margin-bottom: 0px;
+}
+
+.result-card p {
+    margin-top: 0px;
+}

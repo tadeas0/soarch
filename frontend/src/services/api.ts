@@ -12,8 +12,24 @@ interface NoteSerialized {
     time: Tone.Unit.Time;
 }
 
+interface SearchResultResponse {
+    tracks: [
+        {
+            artist: string;
+            name: string;
+            notes: [
+                {
+                    length: string;
+                    pitch: number;
+                    time: string;
+                }
+            ];
+        }
+    ];
+}
+
 export const API = {
     postNotes(noteForm: NoteForm) {
-        return axios.post("/api/midi", noteForm);
+        return axios.post<SearchResultResponse>("/api/midi", noteForm);
     },
 };
