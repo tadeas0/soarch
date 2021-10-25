@@ -73,11 +73,13 @@ class LocalFileStorage(FileStorage):
         return res
 
     async def read(self, key: str) -> Any:
-        async with aiofiles.open(key, "rb") as f:
+        path = os.path.join(self.root_path, key)
+        async with aiofiles.open(path, "rb") as f:
             return await f.read()
 
     async def write(self, key: str, content: str) -> Any:
-        async with aiofiles.open(key, "w") as f:
+        path = os.path.join(self.root_path, key)
+        async with aiofiles.open(path, "w") as f:
             return await f.write(content)
 
 
@@ -164,7 +166,7 @@ class GoogleCloudFileStorage(FileStorage):
         )
 
     async def read(self, key: str) -> Any:
-        return self.__async_client.download(config.BUCKET_NAME, key)
+        return await self.__async_client.download(self.__bucket_name, key)
 
     async def write(self, key: str, content: Any) -> Any:
-        return self.__async_client.upload(config.BUCKET_NAME, key, content)
+        return await self.__async_client.upload(self.__bucket_name, key, content)

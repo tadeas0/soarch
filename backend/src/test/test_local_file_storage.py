@@ -1,7 +1,6 @@
 import unittest
 from pyfakefs.fake_filesystem_unittest import TestCase
 from app.midi.filestorage import LocalFileStorage
-from async_test import async_test
 
 
 class TestLocalFileStorage(TestCase):
