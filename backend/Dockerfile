@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.9
 WORKDIR /backend
 COPY requirements.txt requirements.txt
 RUN pip install --upgrade pip

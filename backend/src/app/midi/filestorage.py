@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Coroutine, Dict, List, IO, Optional, Union
+from typing import Any, List, IO, Optional
 import logging
 import config
 from google.cloud import storage
@@ -8,12 +8,12 @@ import aiofiles
 import redis
 import io
 import json
-import asyncio
 import os
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
+# TODO: add redis caching for async operations
 class FileStorage(ABC):
     @abstractmethod
     def open(self, key: str, mode: str) -> IO:
