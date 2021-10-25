@@ -10,6 +10,7 @@ from app.search_engine.standardization_strategy import StandardizationStrategy
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
+
 # TODO: test preprocessing caching
 # TODO: cleanup result format
 class SearchEngine:
