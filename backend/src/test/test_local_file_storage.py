@@ -1,9 +1,10 @@
 import unittest
 from pyfakefs.fake_filesystem_unittest import TestCase
 from app.midi.filestorage import LocalFileStorage
+from async_test import async_test
 
 
-class TestMidiParser(TestCase):
+class TestLocalFileStorage(TestCase):
     def setUp(self):
         self.setUpPyfakefs()
         self.fs.create_file("/test_dir/file1.txt")

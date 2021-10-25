@@ -1,10 +1,14 @@
 from abc import ABC, abstractmethod
-from typing import List, IO, Optional
+from typing import Any, Coroutine, Dict, List, IO, Optional, Union
 import logging
 import config
 from google.cloud import storage
+from gcloud.aio.storage import storage as aio_storage
+import aiofiles
 import redis
 import io
+import json
+import asyncio
 import os
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
@@ -21,6 +25,14 @@ class FileStorage(ABC):
 
     @abstractmethod
     def list_prefix(self, prefix: str) -> List[str]:
+        pass
+
+    @abstractmethod
+    async def read(self, key: str) -> Any:
+        pass
+
+    @abstractmethod
+    async def write(self, key: str, content: Any) -> Any:
         pass
 
 
@@ -60,6 +72,14 @@ class LocalFileStorage(FileStorage):
 
         return res
 
+    async def read(self, key: str) -> Any:
+        async with aiofiles.open(key, "rb") as f:
+            return await f.read()
+
+    async def write(self, key: str, content: str) -> Any:
+        async with aiofiles.open(key, "w") as f:
+            return await f.write(content)
+
 
 class GoogleCloudFileStorage(FileStorage):
     def __init__(
@@ -76,6 +96,9 @@ class GoogleCloudFileStorage(FileStorage):
         )
         self.__bucket_name = bucket_name
         self.__bucket = self.__storage_client.bucket(bucket_name)
+        self.__async_client = aio_storage.Storage(
+            service_file=io.StringIO(json.dumps(credentials_json))
+        )
 
     def open(self, key: str, mode: str) -> IO:
         logger.debug(f"Opening cloud file: {key} mode: {mode}")
@@ -139,3 +162,9 @@ class GoogleCloudFileStorage(FileStorage):
                 self.__storage_client.list_blobs(self.__bucket_name, prefix=prefix),
             )
         )
+
+    async def read(self, key: str) -> Any:
+        return self.__async_client.download(config.BUCKET_NAME, key)
+
+    async def write(self, key: str, content: Any) -> Any:
+        return self.__async_client.upload(config.BUCKET_NAME, key, content)
