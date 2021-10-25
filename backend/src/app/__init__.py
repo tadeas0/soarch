@@ -1,5 +1,6 @@
 from flask import Flask
 import config
+import logging
 import json
 from app.midi.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 from app.midi.repository import SongRepository
@@ -14,7 +15,6 @@ if config.CLOUD_STORAGE_CREDENTIALS:
         config.BUCKET_NAME,
         config.REDIS_URL,
     )
-
 else:
     file_storage = LocalFileStorage(config.MIDI_DIR)
 
@@ -24,18 +24,32 @@ engine = SearchEngine(
 )
 
 
+def setup_logging():
+    logger = logging.getLogger(config.DEFAULT_LOGGER)
+    logger.setLevel(logging.DEBUG)
+    sh = logging.StreamHandler()
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    sh.setFormatter(formatter)
+    logger.addHandler(sh)
+    return logger
+
+
 def create_app():
     app = Flask(__name__)
+    logger = setup_logging()
+    logger.info("Logging initialized")
 
     app.url_map.strict_slashes = False
-
-    repository.load_directory(config.PROCESSED_MIDI_PREFIX)
 
     from app.midi.controller import midi_bp
     from app.health_check.controller import health_check_bp
 
     app.register_blueprint(midi_bp)
     app.register_blueprint(health_check_bp)
+
+    logger.info("Blueprints initialized")
 
     from app.scripts.parse_to_db import parse_to_db
     from app.scripts.scrape_robs_library import scrape_robs_library
@@ -44,5 +58,14 @@ def create_app():
     app.cli.add_command(parse_to_db)
     app.cli.add_command(scrape_freemidi)
     app.cli.add_command(scrape_robs_library)
+
+    if type(file_storage) == GoogleCloudFileStorage:
+        logger.info("Using google cloud file storage")
+    else:
+        logger.info("Using local file storage")
+
+    repository.load_directory(config.PROCESSED_MIDI_PREFIX)
+
+    logger.info("Application initialized")
 
     return app

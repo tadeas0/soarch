@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import List, IO, Optional
+import logging
+import config
 from google.cloud import storage
 import redis
 import io
 import os
+
+logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
 class FileStorage(ABC):
@@ -25,6 +29,7 @@ class LocalFileStorage(FileStorage):
         self.root_path = root_path
 
     def open(self, key: str, mode: str) -> IO:
+        logger.debug(f"Opening local file: {key} mode: {mode}")
         path = os.path.join(self.root_path, key)
         if mode in ("w", "wb"):
             os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -73,7 +78,9 @@ class GoogleCloudFileStorage(FileStorage):
         self.__bucket = self.__storage_client.bucket(bucket_name)
 
     def open(self, key: str, mode: str) -> IO:
+        logger.debug(f"Opening cloud file: {key} mode: {mode}")
         if self.__redis_cache:
+            logger.debug(f"Opening from cache file: {key} mode: {mode}")
             return self.__open_cache(key, mode)
         else:
             return self.__open_no_cache(key, mode)
