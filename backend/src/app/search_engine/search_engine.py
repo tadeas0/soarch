@@ -1,10 +1,14 @@
 from functools import lru_cache
+import logging
+import config
 from typing import List, Tuple, Set
 from app.midi.repository import SongRepository
 from app.search_engine.similarity_strategy import SimilarityStrategy
 from app.midi.song import Song, Track
 from app.search_engine.melody_extraction_strategy import MelodyExtractionStrategy
 from app.search_engine.standardization_strategy import StandardizationStrategy
+
+logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
 # TODO: test preprocessing caching
@@ -25,6 +29,7 @@ class SearchEngine:
     def find_similar(
         self, n: int, query_track: Track
     ) -> List[Tuple[float, Song, Track]]:
+        logger.info("Searching song")
         songs: Set[Tuple[float, Song, Track]] = set()
         query_prep = self.__preprocess_track(query_track)
         for song in self.repository.get_all():
@@ -33,6 +38,7 @@ class SearchEngine:
                     query_prep, self.__preprocess_track(track)
                 )
                 songs.add((sim, song, track))
+        logger.info("Found similar song")
         return sorted(
             songs, reverse=self.similarity_strategy.highest_first, key=lambda a: a[0]
         )[0:n]
