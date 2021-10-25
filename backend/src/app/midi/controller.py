@@ -13,10 +13,10 @@ def midi_get():
 
 
 @midi_bp.post("/")
-def midi_post():
+async def midi_post():
     data = request.get_json()
     song = JsonParser.parse(data)
-    similar_songs = engine.find_similar(10, song.tracks[0])
+    similar_songs = await engine.find_similar_async(10, song.tracks[0])
     serialized_songs = [
         TrackSerializer.serialize_with_metadata(i[1].metadata, i[2])
         for i in similar_songs
