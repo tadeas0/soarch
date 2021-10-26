@@ -16,6 +16,10 @@ logger = logging.getLogger(config.DEFAULT_LOGGER)
 # TODO: add redis caching for async operations
 class FileStorage(ABC):
     @abstractmethod
+    async def initialize(self) -> None:
+        pass
+
+    @abstractmethod
     def open(self, key: str, mode: str) -> IO:
         pass
 
@@ -39,6 +43,9 @@ class FileStorage(ABC):
 class LocalFileStorage(FileStorage):
     def __init__(self, root_path) -> None:
         self.root_path = root_path
+
+    async def initialize(self) -> None:
+        os.makedirs(self.root_path, exist_ok=True)
 
     def open(self, key: str, mode: str) -> IO:
         logger.debug(f"Opening local file: {key} mode: {mode}")
@@ -90,17 +97,22 @@ class GoogleCloudFileStorage(FileStorage):
         bucket_name: str,
         redis_url: str = None,
     ) -> None:
-        self.__redis_cache: Optional[redis.Redis] = None
-        if redis_url:
-            self.__redis_cache = redis.from_url(redis_url)
-        self.__storage_client = storage.Client.from_service_account_info(
-            credentials_json
-        )
+        self.__creds = credentials_json
+        self.__redis_url = redis_url
         self.__bucket_name = bucket_name
-        self.__bucket = self.__storage_client.bucket(bucket_name)
+        self.__redis_cache: Optional[redis.Redis] = None
+        self.__storage_client: Optional[storage.Client] = None
+        self.__async_client: Optional[aio_storage.Storage] = None
+
+    async def initialize(self) -> None:
+        if self.__redis_url:
+            self.__redis_cache = redis.from_url(self.__redis_url)
+        self.__storage_client = storage.Client.from_service_account_info(self.__creds)
+        self.__bucket = self.__storage_client.bucket(self.__bucket_name)
         self.__async_client = aio_storage.Storage(
-            service_file=io.StringIO(json.dumps(credentials_json))
+            service_file=io.StringIO(json.dumps(self.__creds))
         )
+        logger.debug("Google cloud file storage initialized")
 
     def open(self, key: str, mode: str) -> IO:
         logger.debug(f"Opening cloud file: {key} mode: {mode}")
@@ -153,11 +165,17 @@ class GoogleCloudFileStorage(FileStorage):
             raise ValueError("redis cache not defined")
 
     def list(self) -> List[str]:
+        logger.debug("Listing files")
+        if not self.__storage_client:
+            raise RuntimeError("Storage client uninitialized")
         return list(
             map(lambda a: a.name, self.__storage_client.list_blobs(self.__bucket_name))
         )
 
     def list_prefix(self, prefix: str) -> List[str]:
+        logger.debug(f"Listing files with prefix {prefix}")
+        if not self.__storage_client:
+            raise RuntimeError("Storage client uninitialized")
         return list(
             map(
                 lambda a: a.name,
@@ -166,7 +184,13 @@ class GoogleCloudFileStorage(FileStorage):
         )
 
     async def read(self, key: str) -> Any:
-        return await self.__async_client.download(self.__bucket_name, key)
+        if not self.__async_client:
+            raise RuntimeError("Async storage client uninitialized")
+        return await self.__async_client.download(self.__bucket_name, key, timeout=90)
 
     async def write(self, key: str, content: Any) -> Any:
-        return await self.__async_client.upload(self.__bucket_name, key, content)
+        if not self.__async_client:
+            raise RuntimeError("Async storage client uninitialized")
+        return await self.__async_client.upload(
+            self.__bucket_name, key, content, timeout=90
+        )

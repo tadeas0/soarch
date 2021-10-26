@@ -1,4 +1,4 @@
-from flask import Flask
+from quart import Quart
 import config
 import logging
 import json
@@ -37,7 +37,7 @@ def setup_logging():
 
 
 def create_app():
-    app = Flask(__name__)
+    app = Quart(__name__)
     logger = setup_logging()
     logger.info("Logging initialized")
 
@@ -59,12 +59,15 @@ def create_app():
     app.cli.add_command(scrape_freemidi)
     app.cli.add_command(scrape_robs_library)
 
+    @app.before_first_request
+    async def init_file_storage():
+        await file_storage.initialize()
+        repository.load_directory(config.PROCESSED_MIDI_PREFIX)
+
     if type(file_storage) == GoogleCloudFileStorage:
         logger.info("Using google cloud file storage")
     else:
         logger.info("Using local file storage")
-
-    repository.load_directory(config.PROCESSED_MIDI_PREFIX)
 
     logger.info("Application initialized")
 

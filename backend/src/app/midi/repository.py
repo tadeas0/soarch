@@ -4,7 +4,12 @@ from app.midi.song import Song
 from app.midi.parser import MidiParser
 from miditoolkit.midi import MidiFile
 import pickle
+import logging
+import config
 from typing import List
+
+
+logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
 class SongRepository:
@@ -20,10 +25,12 @@ class SongRepository:
             return self.__load_from_pickle(file_path)
 
     def load_directory(self, directory: str):
+        logger.debug(f"Loading directory {directory}")
         extensions = ("mid", "pkl")
         dir_content = self.file_storage.list_prefix(directory)
         matched_files = filter(lambda a: a.split(".")[-1] in extensions, dir_content)
         self.__song_keys.extend(matched_files)
+        logger.debug(f"Loaded directory {directory}")
 
     def get_all(self):
         for i in self.__song_keys:

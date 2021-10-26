@@ -53,6 +53,7 @@ class SearchEngine:
         consumer = asyncio.ensure_future(self.__consume_queue(query_prep, in_q, out_q))
         await self.__fetch_files_to_queue(in_q)
         await in_q.join()
+        consumer.cancel()
 
         while not out_q.empty():
             songs.append(await out_q.get())
@@ -75,8 +76,6 @@ class SearchEngine:
         songs: Set[Tuple[float, Song, Track]] = set()
         while True:
             song = await in_q.get()
-            if song == None:
-                break
 
             for track in song.tracks:
                 sim = self.similarity_strategy.compare(

@@ -12,14 +12,10 @@ services:
         image: midi-search-backend
         volumes:
             - ./backend:/backend
-        # environment:
-        #     - FLASK_APP=src/app
-        #     - FLASK_ENV=development
-        #     - GUNICORN_CMD_ARGS=--reload
-        #     - PORT=8080
-        #     - REDIS_URL=redis://redis-cache
-        env_file:
-            - .env.dev
+        environment:
+            - HYPERCORN_CMD_ARGS=--reload
+            - PORT=8080
+            - REDIS_URL=redis://redis-cache
         ports:
             - "8080:8080"
     frontend:
