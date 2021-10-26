@@ -186,11 +186,21 @@ class GoogleCloudFileStorage(FileStorage):
     async def read(self, key: str) -> Any:
         if not self.__async_client:
             raise RuntimeError("Async storage client uninitialized")
-        return await self.__async_client.download(self.__bucket_name, key, timeout=90)
+        logger.debug(f"Reading key: {key}")
+        if self.__redis_cache and (res := self.__redis_cache.get(key)):
+            logger.debug(f"Reading from cache key: {key}")
+            return res
+        down = await self.__async_client.download(self.__bucket_name, key, timeout=90)
+        if self.__redis_cache:
+            self.__redis_cache.set(key, down)
+        return down
 
     async def write(self, key: str, content: Any) -> Any:
         if not self.__async_client:
             raise RuntimeError("Async storage client uninitialized")
+        logger.debug(f"Writing key: {key}")
+        if self.__redis_cache:
+            self.__redis_cache.set(key, content)
         return await self.__async_client.upload(
             self.__bucket_name, key, content, timeout=90
         )
