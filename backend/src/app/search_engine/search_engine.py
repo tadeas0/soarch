@@ -73,7 +73,6 @@ class SearchEngine:
     async def __consume_queue(
         self, query_prep, in_q: asyncio.Queue, out_q: asyncio.Queue
     ):
-        songs: Set[Tuple[float, Song, Track]] = set()
         while True:
             song = await in_q.get()
 
