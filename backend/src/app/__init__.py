@@ -26,7 +26,12 @@ engine = SearchEngine(
 
 def setup_logging():
     logger = logging.getLogger(config.DEFAULT_LOGGER)
-    logger.setLevel(logging.DEBUG)
+
+    if config.ENV == "dev":
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+
     sh = logging.StreamHandler()
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

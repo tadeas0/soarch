@@ -16,6 +16,7 @@ services:
             - HYPERCORN_CMD_ARGS=--reload
             - PORT=8080
             - REDIS_URL=redis://redis-cache
+            - ENV=dev
         ports:
             - "8080:8080"
     frontend:
