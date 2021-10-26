@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 import config
 import click
 from app import file_storage
-from flask.cli import with_appcontext
+from quart.cli import with_appcontext
 
 TOPMIDI_URL = "https://freemidi.org/topmidi"
 GETTER_URL = "https://freemidi.org/getter"

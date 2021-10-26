@@ -13,9 +13,7 @@ services:
         volumes:
             - ./backend:/backend
         environment:
-            - FLASK_APP=src/app
-            - FLASK_ENV=development
-            - GUNICORN_CMD_ARGS=--reload
+            - HYPERCORN_CMD_ARGS=--reload
             - PORT=8080
             - REDIS_URL=redis://redis-cache
         ports:

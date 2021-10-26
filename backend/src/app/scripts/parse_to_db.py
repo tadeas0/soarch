@@ -6,7 +6,7 @@ import config
 import os
 import pickle
 import click
-from flask.cli import with_appcontext
+from quart.cli import with_appcontext
 
 
 @click.command("parse-db")

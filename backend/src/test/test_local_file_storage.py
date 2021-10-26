@@ -3,7 +3,7 @@ from pyfakefs.fake_filesystem_unittest import TestCase
 from app.midi.filestorage import LocalFileStorage
 
 
-class TestMidiParser(TestCase):
+class TestLocalFileStorage(TestCase):
     def setUp(self):
         self.setUpPyfakefs()
         self.fs.create_file("/test_dir/file1.txt")

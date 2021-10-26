@@ -3,7 +3,7 @@ from app.midi.serializer import TrackSerializer
 from app.midi.song import Note
 
 
-class TestMidiParser(unittest.TestCase):
+class TestTrackSerializer(unittest.TestCase):
     def test_ticks_to_bbbs(self):
         self.assertEqual(TrackSerializer.ticks_to_bbs(10, 100), "0:0:0")
         self.assertEqual(TrackSerializer.ticks_to_bbs(20, 100), "0:0:0")

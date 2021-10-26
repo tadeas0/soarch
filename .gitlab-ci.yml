@@ -5,7 +5,7 @@ stages:
 
 flake8:
     stage: Static Analysis
-    image: python:3.6
+    image: python:3.9
     before_script:
         - python -V # Print out python version for debugging
         - pip install -r backend/requirements.txt # you can also use tox
@@ -14,7 +14,7 @@ flake8:
 
 mypy:
     stage: Static Analysis
-    image: python:3.6
+    image: python:3.9
     before_script:
         - python -V # Print out python version for debugging
         - pip install -r backend/requirements.txt # you can also use tox
@@ -23,7 +23,7 @@ mypy:
 
 unittest:
     stage: Test
-    image: python:3.6
+    image: python:3.9
     before_script:
         - python -V # Print out python version for debugging
         - pip install -r backend/requirements.txt # you can also use tox
