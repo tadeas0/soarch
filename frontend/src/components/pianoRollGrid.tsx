@@ -69,6 +69,14 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         return rows;
     };
 
+    const renderHeader = () => {
+        let row: JSX.Element[] = [];
+        for (let i = 0; i < noteGrid[0].length; i++) {
+            row.push((i + 1) % 4 ? <td></td> : <td>{i + 1}</td>);
+        }
+        return <tr>{row}</tr>;
+    };
+
     const isBlackKey = (row: number) => {
         return Tone.Frequency(PIANO_ROLL_LOWEST_NOTE)
             .transpose(noteGrid.length - row - 1)
@@ -79,6 +87,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     return (
         <div className="table-container">
             <table>
+                <thead>{renderHeader()}</thead>
                 <tbody>{renderNotes()}</tbody>
             </table>
         </div>
