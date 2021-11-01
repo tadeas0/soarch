@@ -1,6 +1,5 @@
 import * as Tone from "tone";
 import {
-    DEFAULT_PIANO_ROLL_HEIGHT,
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
 } from "./constants";
@@ -54,7 +53,13 @@ export abstract class Sequencer {
                     noteLength = 1;
                     noteStart = c;
                 } else if (noteOn && !noteGrid[r][c]) {
-                    notes.push(this.createNoteObject(noteStart, noteLength, r));
+                    notes.push(
+                        this.createNoteObject(
+                            noteStart,
+                            noteLength,
+                            noteGrid.length - r - 1
+                        )
+                    );
                     noteOn = false;
                     noteLength = 0;
                 }
@@ -84,7 +89,7 @@ export abstract class Sequencer {
         return {
             time: this.rollTimeToToneTime(noteStart),
             pitch: Tone.Frequency(PIANO_ROLL_LOWEST_NOTE)
-                .transpose(DEFAULT_PIANO_ROLL_HEIGHT - notePitch - 1)
+                .transpose(notePitch)
                 .toNote(),
             length: this.rollTimeToToneTime(noteLength),
         };

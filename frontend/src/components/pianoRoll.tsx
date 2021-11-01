@@ -3,9 +3,11 @@ import { useState, FunctionComponent, MouseEvent } from "react";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
+    MEASURE_LENGTH,
 } from "../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch } from "react-icons/md";
+import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import usePlayback from "../hooks/usePlayback";
 import { Note, Sequencer } from "../sequencer";
 import "./pianoRoll.css";
@@ -17,13 +19,11 @@ interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
 }
 
-const PianoRoll: FunctionComponent<PianoRollProps> = ({
-    noteWidth = DEFAULT_PIANO_ROLL_WIDTH,
-    noteHeight = DEFAULT_PIANO_ROLL_HEIGHT,
-    onSubmit,
-}: PianoRollProps) => {
+const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const [noteGrid, setNoteGrid] = useState<boolean[][]>(
-        Array.from(Array(noteHeight), () => Array(noteWidth).fill(false))
+        Array.from(Array(props.noteHeight), () =>
+            Array(props.noteWidth).fill(false)
+        )
     );
 
     const [isPlaying, handlePlayToggle] = usePlayback();
@@ -54,7 +54,9 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     const handleClear = () => {
         setNoteGrid(
-            Array.from(Array(noteHeight), () => Array(noteWidth).fill(false))
+            Array.from(Array(noteGrid.length), () =>
+                Array(noteGrid[0].length).fill(false)
+            )
         );
         if (isPlaying) {
             handlePlayToggle();
@@ -70,6 +72,33 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         handlePlayToggle();
     };
 
+    const handleAddMeasure = () => {
+        let newNoteGrid = [...noteGrid];
+        for (let i = 0; i < noteGrid.length; i++) {
+            newNoteGrid[i] = newNoteGrid[i].concat(
+                Array(MEASURE_LENGTH).fill(false)
+            );
+        }
+        setNoteGrid(newNoteGrid);
+    };
+
+    const canRemoveMeasure = () => {
+        return noteGrid[0].length > 2 * MEASURE_LENGTH;
+    };
+
+    const handleRemoveMeasure = () => {
+        if (canRemoveMeasure()) {
+            let newNoteGrid = [...noteGrid];
+            for (let i = 0; i < noteGrid.length; i++) {
+                newNoteGrid[i] = newNoteGrid[i].slice(
+                    0,
+                    noteGrid[0].length - MEASURE_LENGTH
+                );
+            }
+            setNoteGrid(newNoteGrid);
+        }
+    };
+
     return (
         <div className="pianoroll">
             <button onClick={handlePlayClick}>
@@ -78,9 +107,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             <button
                 className="right"
                 onClick={() =>
-                    onSubmit(
+                    props.noteWidth &&
+                    props.onSubmit(
                         Sequencer.transformGridToNotes(noteGrid),
-                        noteWidth
+                        props.noteWidth
                     )
                 }
             >
@@ -89,16 +119,28 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             <button onClick={handleClear}>
                 <MdDelete />
             </button>
+            <button
+                onClick={handleRemoveMeasure}
+                disabled={!canRemoveMeasure()}
+            >
+                <AiOutlineMinus />
+            </button>
+            <button onClick={handleAddMeasure}>
+                <AiOutlinePlus />
+            </button>
             <PianoRollGrid
                 onMouseDown={handleClick}
                 onRightClick={handleRightClick}
                 onMouseOver={handleMouseOver}
-                noteWidth={noteWidth}
-                noteHeight={noteHeight}
                 noteGrid={noteGrid}
             />
         </div>
     );
+};
+
+PianoRoll.defaultProps = {
+    noteWidth: DEFAULT_PIANO_ROLL_WIDTH,
+    noteHeight: DEFAULT_PIANO_ROLL_HEIGHT,
 };
 
 export default PianoRoll;
