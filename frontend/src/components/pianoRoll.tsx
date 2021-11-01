@@ -93,8 +93,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 onMouseDown={handleClick}
                 onRightClick={handleRightClick}
                 onMouseOver={handleMouseOver}
-                noteWidth={noteWidth}
-                noteHeight={noteHeight}
                 noteGrid={noteGrid}
             />
         </div>

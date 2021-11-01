@@ -13,8 +13,6 @@ interface PianoRollGridProps {
         ri: number,
         ci: number
     ) => void;
-    noteWidth: number;
-    noteHeight: number;
 }
 
 // TODO: cleanup event handling
@@ -27,8 +25,6 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         ri: number,
         ci: number
     ) => {},
-    noteWidth,
-    noteHeight,
 }: PianoRollGridProps) => {
     const [currentBeat, setCurrentBeat] = useState(0);
 
@@ -75,15 +71,17 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 
     const isBlackKey = (row: number) => {
         return Tone.Frequency(PIANO_ROLL_LOWEST_NOTE)
-            .transpose(noteHeight - row - 1)
+            .transpose(noteGrid.length - row - 1)
             .toNote()
             .includes("#");
     };
 
     return (
-        <table>
-            <tbody>{renderNotes()}</tbody>
-        </table>
+        <div className="table-container">
+            <table>
+                <tbody>{renderNotes()}</tbody>
+            </table>
+        </div>
     );
 };
 

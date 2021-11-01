@@ -4,6 +4,10 @@ import * as Tone from "tone";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll";
 import SearchResults from "./components/searchResults";
+import {
+    DEFAULT_PIANO_ROLL_HEIGHT,
+    DEFAULT_PIANO_ROLL_WIDTH,
+} from "./constants";
 import { Note } from "./sequencer";
 import { API } from "./services/api";
 
@@ -54,7 +58,11 @@ function App() {
 
     return (
         <div className="App">
-            <PianoRoll onSubmit={handleSubmit} />
+            <PianoRoll
+                onSubmit={handleSubmit}
+                noteHeight={DEFAULT_PIANO_ROLL_HEIGHT}
+                noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
+            />
             <SearchResults searchResults={searchResults} isBusy={isBusy} />
         </div>
     );
