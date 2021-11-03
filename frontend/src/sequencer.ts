@@ -69,6 +69,19 @@ export abstract class Sequencer {
         return notes;
     }
 
+    public static transformNotesToGrid(notes: Note[]): boolean[][] {
+        let grid: boolean[][] = [];
+        let minGridLength = 0;
+        for (const n of notes) {
+            const nMax =
+                this.toneTimeToRollTime(n.time) +
+                this.toneTimeToRollTime(n.length);
+            if (nMax > minGridLength) minGridLength = nMax;
+        }
+
+        return grid;
+    }
+
     public static clearBuffer() {
         Tone.Transport.cancel();
     }
@@ -99,6 +112,15 @@ export abstract class Sequencer {
         return Tone.Time(
             `0:0:${(16 / PIANO_ROLL_NOTE_SUBDIVISION) * time}`
         ).toBarsBeatsSixteenths();
+    }
+
+    private static toneTimeToRollTime(time: Tone.Unit.Time) {
+        const split = Tone.Time(time).toBarsBeatsSixteenths().split(":");
+        return (
+            parseInt(split[0]) * 16 +
+            parseInt(split[1]) * 4 +
+            parseInt(split[2]) * 1
+        );
     }
 
     public static isPlaying() {
