@@ -65,3 +65,11 @@
     outline: none;
     padding: 20px;
 }
+
+.result-overlay-content button {
+    background: none;
+    border: none;
+    float: right;
+    font-size: 26px;
+    margin: -11px -17px 0px 0px;
+}

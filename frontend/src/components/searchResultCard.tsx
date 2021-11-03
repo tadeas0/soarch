@@ -4,6 +4,7 @@ import ReactModal from "react-modal";
 import { SearchResult } from "../App";
 import { Sequencer } from "../sequencer";
 import PianoRollGrid from "./pianoRollGrid";
+import { MdClose } from "react-icons/md";
 import "./result.css";
 
 interface SearchResultProps {
@@ -36,6 +37,9 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     className="result-overlay-content"
                     onRequestClose={handleModalClose}
                 >
+                    <button onClick={handleModalClose}>
+                        <MdClose />
+                    </button>
                     <div className="pianoroll">
                         <PianoRollGrid noteGrid={noteGrid} />
                     </div>
