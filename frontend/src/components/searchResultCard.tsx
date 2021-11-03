@@ -5,7 +5,9 @@ import { SearchResult } from "../App";
 import { Sequencer } from "../sequencer";
 import PianoRollGrid from "./pianoRollGrid";
 import { MdClose } from "react-icons/md";
+import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import "./result.css";
+import usePlayback from "../hooks/usePlayback";
 
 interface SearchResultProps {
     searchResult: SearchResult;
@@ -16,14 +18,25 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
 }) => {
     const [isOpen, setOpen] = useState<boolean>(false);
     const [noteGrid, setNoteGrid] = useState<boolean[][]>([]);
+    const [isPlaying, handleStart, handleStop] = usePlayback();
 
     const handleModalOpen = () => {
         setNoteGrid(Sequencer.transformNotesToGrid(searchResult.notes));
+        handleStop();
         setOpen(true);
     };
 
     const handleModalClose = () => {
+        handleStop();
         setOpen(false);
+    };
+
+    const handlePlayClick = () => {
+        if (!isPlaying) {
+            handleStart(noteGrid);
+        } else {
+            handleStop();
+        }
     };
 
     return (
@@ -37,8 +50,11 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     className="result-overlay-content"
                     onRequestClose={handleModalClose}
                 >
-                    <button onClick={handleModalClose}>
+                    <button className="close-btn" onClick={handleModalClose}>
                         <MdClose />
+                    </button>
+                    <button className="play-btn" onClick={handlePlayClick}>
+                        {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                     </button>
                     <div className="pianoroll">
                         <PianoRollGrid noteGrid={noteGrid} />
