@@ -26,7 +26,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         )
     );
 
-    const [isPlaying, handlePlayToggle] = usePlayback();
+    const [isPlaying, handleStart, handleStop] = usePlayback();
 
     const handleClick = (pitch: number, position: number) => {
         let newNotes = [...noteGrid];
@@ -59,17 +59,16 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             )
         );
         if (isPlaying) {
-            handlePlayToggle();
-            Sequencer.clearBuffer();
+            handleStop();
         }
     };
 
     const handlePlayClick = () => {
         if (!isPlaying) {
-            Sequencer.clearBuffer();
-            Sequencer.addGridToBuffer(noteGrid);
+            handleStart(noteGrid);
+        } else {
+            handleStop();
         }
-        handlePlayToggle();
     };
 
     const handleAddMeasure = () => {
@@ -79,6 +78,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 Array(MEASURE_LENGTH).fill(false)
             );
         }
+        handleStop();
         setNoteGrid(newNoteGrid);
     };
 
@@ -95,6 +95,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                     noteGrid[0].length - MEASURE_LENGTH
                 );
             }
+            handleStop();
             setNoteGrid(newNoteGrid);
         }
     };
