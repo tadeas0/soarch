@@ -28,9 +28,8 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     return (
         <div className="result-card">
             <div className="inner">
-                <h4>{searchResult.name}</h4>
+                <h4 onClick={handleModalOpen}>{searchResult.name}</h4>
                 <p>{searchResult.artist}</p>
-                <button onClick={handleModalOpen}>MODAL</button>
                 <ReactModal
                     isOpen={isOpen}
                     shouldCloseOnOverlayClick={true}

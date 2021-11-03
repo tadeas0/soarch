@@ -40,6 +40,11 @@
 
 .result-card h4 {
     margin-bottom: 0px;
+    cursor: pointer;
+}
+
+.result-card h4:hover {
+    text-decoration: underline;
 }
 
 .result-card p {
