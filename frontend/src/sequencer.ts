@@ -1,5 +1,6 @@
 import * as Tone from "tone";
 import {
+    MEASURE_LENGTH,
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
 } from "./constants";
@@ -70,14 +71,49 @@ export abstract class Sequencer {
     }
 
     public static transformNotesToGrid(notes: Note[]): boolean[][] {
-        let grid: boolean[][] = [];
         let minGridLength = 0;
+        let minGridStart = this.toneTimeToRollTime(notes[0].time);
+        let lowestNote: Tone.Unit.MidiNote = Tone.Frequency(
+            notes[0].pitch
+        ).toMidi();
+        let highestNote: Tone.Unit.MidiNote = 0;
         for (const n of notes) {
-            const nMax =
-                this.toneTimeToRollTime(n.time) +
-                this.toneTimeToRollTime(n.length);
+            const nMin = this.toneTimeToRollTime(n.time);
+            let length = this.toneTimeToRollTime(n.length);
+            if (length === 0) length = 1;
+            const nMax = nMin + length;
+            const midiPitch = Tone.Frequency(n.pitch).toMidi();
+            if (midiPitch < lowestNote) lowestNote = midiPitch;
+            if (midiPitch > highestNote) highestNote = midiPitch;
+            if (minGridStart > nMin) minGridStart = nMin;
             if (nMax > minGridLength) minGridLength = nMax;
         }
+
+        const lowC = lowestNote - (lowestNote % 12);
+        const highB = highestNote + 12 - (highestNote % 12) - 1;
+        const gridStart = minGridStart - (minGridStart % MEASURE_LENGTH);
+        const gridEnd =
+            minGridLength + MEASURE_LENGTH - (minGridLength % MEASURE_LENGTH);
+        const gridWidth = gridEnd - gridStart;
+        const gridHeight = highB - lowC;
+
+        let grid = Array.from(Array(gridHeight), () =>
+            Array(gridWidth).fill(false)
+        );
+
+        notes.forEach((n) => {
+            const start = this.toneTimeToRollTime(n.time);
+            let length = this.toneTimeToRollTime(n.length);
+            if (length === 0) length = 1;
+            const end = start + length;
+            const pitch =
+                gridHeight - (Tone.Frequency(n.pitch).toMidi() - lowC) - 1;
+            grid[pitch] = grid[pitch].fill(
+                true,
+                start - gridStart,
+                end - gridStart
+            );
+        });
 
         return grid;
     }

@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import * as Tone from "tone";
+import Modal from "react-modal";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll";
 import SearchResults from "./components/searchResults";
@@ -16,6 +17,8 @@ export interface SearchResult {
     name: string;
     notes: Note[];
 }
+
+Modal.setAppElement("#root");
 
 function App() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);

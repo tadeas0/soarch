@@ -13,9 +13,11 @@ interface SearchResultProps {
 const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     searchResult,
 }) => {
-    const [isOpen, setOpen] = useState(false);
+    const [isOpen, setOpen] = useState<boolean>(false);
+    const [noteGrid, setNoteGrid] = useState<boolean[][]>([]);
 
     const handleModalOpen = () => {
+        setNoteGrid(Sequencer.transformNotesToGrid(searchResult.notes));
         setOpen(true);
     };
 
@@ -35,8 +37,9 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     className="result-overlay-content"
                     onRequestClose={handleModalClose}
                 >
-                    Test
-                    {/* <PianoRollGrid noteGrid={Sequencer.} /> */}
+                    <div className="pianoroll">
+                        <PianoRollGrid noteGrid={noteGrid} />
+                    </div>
                 </ReactModal>
             </div>
         </div>
