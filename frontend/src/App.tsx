@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import * as Tone from "tone";
+import Modal from "react-modal";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll";
 import SearchResults from "./components/searchResults";
@@ -10,12 +11,15 @@ import {
 } from "./constants";
 import { Note } from "./sequencer";
 import { API } from "./services/api";
+import { PlaybackProvider } from "./context/playbackContext";
 
 export interface SearchResult {
     artist: string;
     name: string;
     notes: Note[];
 }
+
+Modal.setAppElement("#root");
 
 function App() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -58,12 +62,14 @@ function App() {
 
     return (
         <div className="App">
-            <PianoRoll
-                onSubmit={handleSubmit}
-                noteHeight={DEFAULT_PIANO_ROLL_HEIGHT}
-                noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
-            />
-            <SearchResults searchResults={searchResults} isBusy={isBusy} />
+            <PlaybackProvider>
+                <PianoRoll
+                    onSubmit={handleSubmit}
+                    noteHeight={DEFAULT_PIANO_ROLL_HEIGHT}
+                    noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
+                />
+                <SearchResults searchResults={searchResults} isBusy={isBusy} />
+            </PlaybackProvider>
         </div>
     );
 }

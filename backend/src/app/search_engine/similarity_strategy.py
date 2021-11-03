@@ -25,7 +25,6 @@ class LCSStrategy(SimilarityStrategy):
 
     def __measure_aux(self, x, y):
         dp_table = np.zeros((len(x) + 1, len(y) + 1))
-        # solve the problem in a bottom up manner
         for i in range(1, len(x) + 1):
             for j in range(1, len(y) + 1):
                 if x[i - 1] == y[j - 1]:

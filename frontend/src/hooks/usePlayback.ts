@@ -1,28 +1,36 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
+import { PlaybackContext } from "../context/playbackContext";
 import { Sequencer } from "../sequencer";
 
-const usePlayback = (): [boolean, () => void] => {
-    const [isPlaying, setIsPlaying] = useState(false);
+const usePlayback = (): [
+    boolean,
+    (noteGrid: boolean[][]) => void,
+    () => void
+] => {
+    const { isPlaying, setPlaying } = useContext(PlaybackContext);
 
-    const handleToggle = async () => {
+    const handleStart = async (noteGrid: boolean[][]) => {
         if (!Sequencer.isInitialized()) {
             await Sequencer.init();
         }
+        Sequencer.stop();
+        Sequencer.clearBuffer();
+        Sequencer.addGridToBuffer(noteGrid);
+        Sequencer.start();
+        setPlaying(true);
+    };
 
-        if (Sequencer.isPlaying()) {
-            Sequencer.stop();
-            setIsPlaying(false);
-        } else {
-            Sequencer.start();
-            setIsPlaying(true);
-        }
+    const handleStop = async () => {
+        Sequencer.stop();
+        Sequencer.clearBuffer();
+        setPlaying(false);
     };
 
     useEffect(() => {
-        setIsPlaying(Sequencer.isPlaying());
-    }, []);
+        setPlaying(Sequencer.isPlaying());
+    }, [setPlaying]);
 
-    return [isPlaying, handleToggle];
+    return [isPlaying, handleStart, handleStop];
 };
 
 export default usePlayback;

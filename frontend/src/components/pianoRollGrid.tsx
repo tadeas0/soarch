@@ -72,7 +72,9 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const renderHeader = () => {
         let row: JSX.Element[] = [];
         for (let i = 0; i < noteGrid[0].length; i++) {
-            row.push((i + 1) % 4 ? <td></td> : <td>{i + 1}</td>);
+            row.push(
+                (i + 1) % 4 ? <td key={i}></td> : <td key={i}>{i + 1}</td>
+            );
         }
         return <tr>{row}</tr>;
     };
