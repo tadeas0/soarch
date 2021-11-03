@@ -168,6 +168,8 @@ export abstract class Sequencer {
     }
 
     public static stop() {
+        if (this.synth instanceof Tone.Synth) this.synth.triggerRelease();
+        else if (this.synth instanceof Tone.PolySynth) this.synth.releaseAll();
         Tone.Transport.stop();
     }
 

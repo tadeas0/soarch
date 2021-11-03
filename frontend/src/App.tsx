@@ -11,6 +11,7 @@ import {
 } from "./constants";
 import { Note } from "./sequencer";
 import { API } from "./services/api";
+import { PlaybackProvider } from "./context/playbackContext";
 
 export interface SearchResult {
     artist: string;
@@ -61,12 +62,14 @@ function App() {
 
     return (
         <div className="App">
-            <PianoRoll
-                onSubmit={handleSubmit}
-                noteHeight={DEFAULT_PIANO_ROLL_HEIGHT}
-                noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
-            />
-            <SearchResults searchResults={searchResults} isBusy={isBusy} />
+            <PlaybackProvider>
+                <PianoRoll
+                    onSubmit={handleSubmit}
+                    noteHeight={DEFAULT_PIANO_ROLL_HEIGHT}
+                    noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
+                />
+                <SearchResults searchResults={searchResults} isBusy={isBusy} />
+            </PlaybackProvider>
         </div>
     );
 }

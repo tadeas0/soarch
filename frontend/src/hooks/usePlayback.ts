@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
+import { PlaybackContext } from "../context/playbackContext";
 import { Sequencer } from "../sequencer";
 
 const usePlayback = (): [
@@ -6,7 +7,7 @@ const usePlayback = (): [
     (noteGrid: boolean[][]) => void,
     () => void
 ] => {
-    const [isPlaying, setIsPlaying] = useState(false);
+    const { isPlaying, setPlaying } = useContext(PlaybackContext);
 
     const handleStart = async (noteGrid: boolean[][]) => {
         if (!Sequencer.isInitialized()) {
@@ -16,18 +17,18 @@ const usePlayback = (): [
         Sequencer.clearBuffer();
         Sequencer.addGridToBuffer(noteGrid);
         Sequencer.start();
-        setIsPlaying(true);
+        setPlaying(true);
     };
 
     const handleStop = async () => {
         Sequencer.stop();
         Sequencer.clearBuffer();
-        setIsPlaying(false);
+        setPlaying(false);
     };
 
     useEffect(() => {
-        setIsPlaying(Sequencer.isPlaying());
-    }, []);
+        setPlaying(Sequencer.isPlaying());
+    }, [setPlaying]);
 
     return [isPlaying, handleStart, handleStop];
 };
