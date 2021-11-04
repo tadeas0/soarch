@@ -8,6 +8,7 @@ import SearchResults from "./components/searchResults";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
+    PIANO_ROLL_LOWEST_NOTE,
 } from "./constants";
 import { Note } from "./sequencer";
 import { API } from "./services/api";
@@ -67,6 +68,7 @@ function App() {
                     onSubmit={handleSubmit}
                     noteHeight={DEFAULT_PIANO_ROLL_HEIGHT}
                     noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
+                    lowestNote={PIANO_ROLL_LOWEST_NOTE}
                 />
                 <SearchResults searchResults={searchResults} isBusy={isBusy} />
             </PlaybackProvider>
