@@ -70,7 +70,6 @@ export abstract class Sequencer {
         };
     }
 
-    // TODO: THIS DOESNT WORK
     public static trimNotes(notes: Note[]): Note[] {
         let lb = this.toneTimeToRollTime(notes[0].time);
         let hb = this.toneTimeToRollTime(notes[0].time);
