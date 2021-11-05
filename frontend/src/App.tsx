@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { Sequencer } from "./sequencer";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
@@ -42,15 +43,22 @@ function App() {
                     return {
                         artist: track.artist,
                         name: track.name,
-                        notes: track.notes.map<Note>((n) => {
-                            return {
-                                time: Tone.Time(n.time).toBarsBeatsSixteenths(),
-                                pitch: Tone.Frequency(n.pitch, "midi").toNote(),
-                                length: Tone.Time(
-                                    n.length
-                                ).toBarsBeatsSixteenths(),
-                            };
-                        }),
+                        notes: Sequencer.trimNotes(
+                            track.notes.map<Note>((n) => {
+                                return {
+                                    time: Tone.Time(
+                                        n.time
+                                    ).toBarsBeatsSixteenths(),
+                                    pitch: Tone.Frequency(
+                                        n.pitch,
+                                        "midi"
+                                    ).toNote(),
+                                    length: Tone.Time(
+                                        n.length
+                                    ).toBarsBeatsSixteenths(),
+                                };
+                            })
+                        ),
                     };
                 });
                 setSearchResults(result);

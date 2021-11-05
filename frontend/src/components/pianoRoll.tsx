@@ -4,6 +4,7 @@ import { useState, FunctionComponent } from "react";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
+    DEFAULT_NOTE_LENGTH,
     MEASURE_LENGTH,
 } from "../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
@@ -33,7 +34,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const handleAddNote = (pitch: number, position: number) => {
         const newNote: Note = Sequencer.createNoteObject(
             position,
-            4,
+            DEFAULT_NOTE_LENGTH,
             gridParams.height - pitch - 1
         );
 

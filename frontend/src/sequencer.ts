@@ -70,6 +70,29 @@ export abstract class Sequencer {
         };
     }
 
+    // TODO: THIS DOESNT WORK
+    public static trimNotes(notes: Note[]): Note[] {
+        let lb = this.toneTimeToRollTime(notes[0].time);
+        let hb = this.toneTimeToRollTime(notes[0].time);
+        notes.forEach((n) => {
+            const start = this.toneTimeToRollTime(n.time);
+            const end = start + this.toneTimeToRollTime(n.length);
+            lb = Math.min(lb, start);
+            hb = Math.max(hb, end);
+        });
+        const gridStart = lb - (lb % MEASURE_LENGTH);
+        const newNotes = notes.map((n) => {
+            return {
+                pitch: n.pitch,
+                time: this.rollTimeToToneTime(
+                    this.toneTimeToRollTime(n.time) - gridStart
+                ),
+                length: n.length,
+            };
+        });
+        return newNotes;
+    }
+
     public static clearBuffer() {
         Tone.Transport.cancel();
     }

@@ -78,7 +78,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 
         // Thick lines
         ctx.beginPath();
-        for (let i = 4; i < gridParams.width; i += 4) {
+        for (let i = 8; i < gridParams.width; i += 8) {
             ctx.moveTo(i * PIANO_ROLL_NOTE_WIDTH, 0);
             ctx.lineTo(i * PIANO_ROLL_NOTE_WIDTH, ctx.canvas.height);
         }
@@ -88,7 +88,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         ctx.stroke();
 
         ctx.beginPath();
-        for (let i = 8; i < gridParams.width; i += 8) {
+        for (let i = 16; i < gridParams.width; i += 16) {
             ctx.moveTo(i * PIANO_ROLL_NOTE_WIDTH, 0);
             ctx.lineTo(i * PIANO_ROLL_NOTE_WIDTH, ctx.canvas.height);
         }
