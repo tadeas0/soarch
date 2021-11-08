@@ -15,9 +15,9 @@ class TestJsonParser(unittest.TestCase):
         n1 = JsonParser.parse_note({"time": "1:0:0", "length": "1:2:2", "pitch": 110})
         n2 = JsonParser.parse_note({"time": "0:0:0", "length": "0:0:3", "pitch": 50})
         n3 = JsonParser.parse_note({"time": "0:0:5", "length": "0:0:3", "pitch": 3})
-        self.assertTrue(n1.equals(Note(1920, 3120, 110)))
-        self.assertTrue(n2.equals(Note(0, 360, 50)))
-        self.assertTrue(n3.equals(Note(600, 360, 3)))
+        self.assertTrue(n1 == Note(1920, 3120, 110))
+        self.assertTrue(n2 == Note(0, 360, 50))
+        self.assertTrue(n3 == Note(600, 360, 3))
 
     def test_parse(self):
         j1 = {
@@ -29,9 +29,9 @@ class TestJsonParser(unittest.TestCase):
             ],
         }
         res_notes = JsonParser.parse(j1).tracks[0].notes
-        self.assertTrue(res_notes[0].equals(Note(240, 240, 10)))
-        self.assertTrue(res_notes[1].equals(Note(600, 360, 15)))
-        self.assertTrue(res_notes[2].equals(Note(1080, 1320, 3)))
+        self.assertTrue(res_notes[0] == Note(240, 240, 10))
+        self.assertTrue(res_notes[1] == Note(600, 360, 15))
+        self.assertTrue(res_notes[2] == Note(1080, 1320, 3))
 
 
 if __name__ == "__main__":

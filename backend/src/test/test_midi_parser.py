@@ -24,14 +24,14 @@ class TestMidiParser(unittest.TestCase):
         song = MidiParser.parse(mid)
 
         n1 = song.tracks[0].notes
-        self.assertTrue(n1[0].equals(MyNote(0, 40, 30)))
-        self.assertTrue(n1[1].equals(MyNote(8, 4, 20)))
-        self.assertTrue(n1[2].equals(MyNote(16, 6, 30)))
+        self.assertTrue(n1[0] == MyNote(0, 40, 30))
+        self.assertTrue(n1[1] == MyNote(8, 4, 20))
+        self.assertTrue(n1[2] == MyNote(16, 6, 30))
 
         n2 = song.tracks[1].notes
-        self.assertTrue(n2[0].equals(MyNote(20, 20, 4)))
-        self.assertTrue(n2[1].equals(MyNote(100, 2, 0)))
-        self.assertTrue(n2[2].equals(MyNote(16, 84, 15)))
+        self.assertTrue(n2[0] == MyNote(20, 20, 4))
+        self.assertTrue(n2[1] == MyNote(100, 2, 0))
+        self.assertTrue(n2[2] == MyNote(16, 84, 15))
 
 
 if __name__ == "__main__":
