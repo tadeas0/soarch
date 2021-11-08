@@ -28,7 +28,7 @@ unittest:
         - python -V # Print out python version for debugging
         - pip install -r backend/requirements.txt # you can also use tox
     script:
-        - python3 -m unittest discover backend/src/test/ --top-level backend/src/
+        - python3 -m pytest backend/
 
 deploy-backend:
     stage: Deploy
