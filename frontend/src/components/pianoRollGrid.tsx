@@ -70,42 +70,51 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         [gridParams]
     );
 
-    const drawVLines = (
-        ctx: CanvasRenderingContext2D,
-        color: string,
-        width: number,
-        skip: number
-    ) => {
-        ctx.beginPath();
-        for (let i = skip; i < gridParams.width; i += skip) {
-            ctx.moveTo(i * PIANO_ROLL_NOTE_WIDTH, PIANO_ROLL_HEADER_SIZE);
-            ctx.lineTo(i * PIANO_ROLL_NOTE_WIDTH, ctx.canvas.height);
-        }
-        ctx.lineWidth = width;
-        ctx.strokeStyle = color;
-        ctx.closePath();
-        ctx.stroke();
-    };
+    const drawVLines = useCallback(
+        (
+            ctx: CanvasRenderingContext2D,
+            color: string,
+            width: number,
+            skip: number
+        ) => {
+            ctx.beginPath();
+            for (let i = skip; i < gridParams.width; i += skip) {
+                ctx.moveTo(i * PIANO_ROLL_NOTE_WIDTH, PIANO_ROLL_HEADER_SIZE);
+                ctx.lineTo(i * PIANO_ROLL_NOTE_WIDTH, ctx.canvas.height);
+            }
+            ctx.lineWidth = width;
+            ctx.strokeStyle = color;
+            ctx.closePath();
+            ctx.stroke();
+        },
+        [gridParams]
+    );
 
-    const drawHLines = (
-        ctx: CanvasRenderingContext2D,
-        color: string,
-        width: number,
-        skip: number
-    ) => {
-        ctx.beginPath();
-        for (let i = skip; i < gridParams.height; i += skip) {
-            ctx.moveTo(0, i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE);
-            ctx.lineTo(
-                ctx.canvas.width,
-                i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE
-            );
-        }
-        ctx.lineWidth = width;
-        ctx.strokeStyle = color;
-        ctx.closePath();
-        ctx.stroke();
-    };
+    const drawHLines = useCallback(
+        (
+            ctx: CanvasRenderingContext2D,
+            color: string,
+            width: number,
+            skip: number
+        ) => {
+            ctx.beginPath();
+            for (let i = skip; i < gridParams.height; i += skip) {
+                ctx.moveTo(
+                    0,
+                    i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE
+                );
+                ctx.lineTo(
+                    ctx.canvas.width,
+                    i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE
+                );
+            }
+            ctx.lineWidth = width;
+            ctx.strokeStyle = color;
+            ctx.closePath();
+            ctx.stroke();
+        },
+        [gridParams]
+    );
 
     const drawGrid = useCallback(
         (ctx: CanvasRenderingContext2D) => {
@@ -128,7 +137,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
             drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
             drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 3, 12);
         },
-        [gridParams, isBlackKey]
+        [gridParams, isBlackKey, drawVLines, drawHLines]
     );
 
     const drawHeader = useCallback(
