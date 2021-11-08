@@ -32,6 +32,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const [isPlaying, handleStart, handleStop] = usePlayback();
 
     const handleAddNote = (pitch: number, position: number) => {
+        handleStop();
         const newNote: Note = Sequencer.createNoteObject(
             position,
             DEFAULT_NOTE_LENGTH,

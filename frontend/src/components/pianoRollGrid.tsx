@@ -46,19 +46,9 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     onDeleteNote = (ri: number, ci: number) => {},
 }: PianoRollGridProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
     const [currentDrawState, setCurrentDrawState] = useState<DrawState>(
         DrawState.NOTHING
     );
-    const [currentBeat, setCurrentBeat] = useState(0);
-
-    useEffect(() => {
-        Sequencer.runCallbackOnMeasure(() => {
-            setCurrentBeat(
-                Sequencer.toneTimeToRollTime(Tone.Transport.position)
-            );
-        });
-    }, []);
 
     const isBlackKey = useCallback(
         (row: number) => {
@@ -140,30 +130,27 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         [gridParams, isBlackKey, drawVLines, drawHLines]
     );
 
-    const drawHeader = useCallback(
-        (ctx: CanvasRenderingContext2D) => {
-            requestAnimationFrame(() => {
-                ctx.fillStyle = PIANO_ROLL_BG_COLOR;
-                ctx.fillRect(0, 0, ctx.canvas.width, PIANO_ROLL_HEADER_SIZE);
-                let grd = ctx.createLinearGradient(
-                    0,
-                    0,
-                    currentBeat * PIANO_ROLL_NOTE_WIDTH,
-                    0
-                );
-                grd.addColorStop(0, PIANO_ROLL_BG_COLOR);
-                grd.addColorStop(1, PIANO_ROLL_PLAYHEAD_COLOR);
-                ctx.fillStyle = grd;
-                ctx.fillRect(
-                    0,
-                    0,
-                    currentBeat * PIANO_ROLL_NOTE_WIDTH,
-                    PIANO_ROLL_HEADER_SIZE
-                );
-            });
-        },
-        [currentBeat]
-    );
+    const drawHeader = useCallback((ctx: CanvasRenderingContext2D) => {
+        requestAnimationFrame(() => {
+            ctx.fillStyle = PIANO_ROLL_BG_COLOR;
+            ctx.fillRect(0, 0, ctx.canvas.width, PIANO_ROLL_HEADER_SIZE);
+            let grd = ctx.createLinearGradient(
+                0,
+                0,
+                Tone.Transport.progress * ctx.canvas.width,
+                0
+            );
+            grd.addColorStop(0, PIANO_ROLL_BG_COLOR);
+            grd.addColorStop(0.5, PIANO_ROLL_PLAYHEAD_COLOR);
+            ctx.fillStyle = grd;
+            ctx.fillRect(
+                0,
+                0,
+                Tone.Transport.progress * ctx.canvas.width,
+                PIANO_ROLL_HEADER_SIZE
+            );
+        });
+    }, []);
 
     const drawNotes = useCallback(
         (ctx: CanvasRenderingContext2D) => {
@@ -196,7 +183,6 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 gridParams.height * PIANO_ROLL_NOTE_HEIGHT;
             canvas.width = gridParams.width * PIANO_ROLL_NOTE_WIDTH;
             const context = canvas.getContext("2d");
-            ctxRef.current = context;
             if (context) {
                 drawGrid(context);
                 drawNotes(context);
@@ -208,10 +194,14 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         const canvas = canvasRef.current;
         if (canvas) {
             const context = canvas.getContext("2d");
-            ctxRef.current = context;
-            if (context) drawHeader(context);
+            if (context) {
+                drawHeader(context);
+                Sequencer.runCallbackOnMeasure(() => {
+                    drawHeader(context);
+                });
+            }
         }
-    }, [currentBeat, drawHeader]);
+    }, [drawHeader]);
 
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
         e.preventDefault();
