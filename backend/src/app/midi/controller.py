@@ -26,5 +26,6 @@ async def midi_post():
 
 
 @midi_bp.errorhandler(KeyError)
+@midi_bp.errorhandler(TypeError)
 def handle_key_error(e):
     return "Invalid data format", HTTPStatus.BAD_REQUEST
