@@ -14,11 +14,17 @@ class TrackSerializer:
 
     @staticmethod
     def serialize_note(note: Note):
-        return {
+        n = {
             "pitch": note.pitch,
             "time": TrackSerializer.ticks_to_bbs(note.time, config.DEFAULT_PPQ),
             "length": TrackSerializer.ticks_to_bbs(note.length, config.DEFAULT_PPQ),
         }
+
+        # NOTE: If note is shorter than 16th, make it 16th.
+        # Happens with triplets and 32nd notes, which are currently not supported
+        if n["length"] == "0:0:0":
+            n["length"] = "0:0:1"
+        return n
 
     @staticmethod
     def ticks_to_bbs(ticks: int, ppq: int) -> str:
