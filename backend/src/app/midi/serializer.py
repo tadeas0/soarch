@@ -5,11 +5,15 @@ import config
 
 class TrackSerializer:
     @staticmethod
-    def serialize_with_metadata(metadata: SongMetadata, track: Track):
+    def serialize_with_metadata(metadata: SongMetadata, track: Track, trim=True):
+        notes = [TrackSerializer.serialize_note(i) for i in track.notes]
+        if trim:
+            notes = TrackSerializer.trim_notes(notes)
+
         return {
             "artist": metadata.artist,
             "name": metadata.name,
-            "notes": [TrackSerializer.serialize_note(i) for i in track.notes],
+            "notes": notes,
         }
 
     @staticmethod
@@ -28,7 +32,11 @@ class TrackSerializer:
 
     @staticmethod
     def trim_notes(notes: list[Note]) -> list[Note]:
-        return []
+        min_time = min([i.time for i in notes])
+        if min_time >= config.MEASURE_LENGTH:
+            ltrim = config.MEASURE_LENGTH * (min_time // config.MEASURE_LENGTH)
+            return [Note(n.time - ltrim, n.length, n.pitch) for n in notes]
+        return notes
 
     @staticmethod
     def ticks_to_bbs(ticks: int, ppq: int) -> str:

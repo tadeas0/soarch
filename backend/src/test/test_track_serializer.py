@@ -52,8 +52,75 @@ class TestTrackSerializer(unittest.TestCase):
         )
 
     def test_trim_notes(self):
-        n1 = [Note(config.DEFAULT_PPQ * 4, 480, 20)]
-        # self.assertCountEqual(TrackSerializer.trim_notes(n1), [Note(0, 480, 20)])
+        n1 = [Note(config.DEFAULT_PPQ * 4, config.DEFAULT_PPQ, 0)]
+        self.assertCountEqual(
+            TrackSerializer.trim_notes(n1), [Note(0, config.DEFAULT_PPQ, 0)]
+        )
+        n2 = [
+            Note(config.DEFAULT_PPQ * 5, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 6, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 7, config.DEFAULT_PPQ, 0),
+        ]
+        self.assertCountEqual(
+            TrackSerializer.trim_notes(n2),
+            [
+                Note(config.DEFAULT_PPQ * 1, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 2, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 3, config.DEFAULT_PPQ, 0),
+            ],
+        )
+        n3 = [
+            Note(config.DEFAULT_PPQ, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 2, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 7, config.DEFAULT_PPQ, 0),
+        ]
+        self.assertCountEqual(
+            TrackSerializer.trim_notes(n3),
+            [
+                Note(config.DEFAULT_PPQ, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 2, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 7, config.DEFAULT_PPQ, 0),
+            ],
+        )
+        n4 = [
+            Note(config.DEFAULT_PPQ * 8, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 5, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 7, config.DEFAULT_PPQ, 0),
+        ]
+        self.assertCountEqual(
+            TrackSerializer.trim_notes(n4),
+            [
+                Note(config.DEFAULT_PPQ * 4, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 1, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 3, config.DEFAULT_PPQ, 0),
+            ],
+        )
+        n5 = [
+            Note(config.DEFAULT_PPQ * 18, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 17, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 16, config.DEFAULT_PPQ, 0),
+        ]
+        self.assertCountEqual(
+            TrackSerializer.trim_notes(n5),
+            [
+                Note(config.DEFAULT_PPQ * 2, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 1, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 0, config.DEFAULT_PPQ, 0),
+            ],
+        )
+        n6 = [
+            Note(config.DEFAULT_PPQ * 18, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 17, config.DEFAULT_PPQ, 0),
+            Note(config.DEFAULT_PPQ * 6, config.DEFAULT_PPQ, 0),
+        ]
+        self.assertCountEqual(
+            TrackSerializer.trim_notes(n6),
+            [
+                Note(config.DEFAULT_PPQ * 14, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 13, config.DEFAULT_PPQ, 0),
+                Note(config.DEFAULT_PPQ * 2, config.DEFAULT_PPQ, 0),
+            ],
+        )
 
 
 if __name__ == "__main__":
