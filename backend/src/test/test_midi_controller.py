@@ -1,10 +1,8 @@
-import json
 from app.search_engine.search_engine import SearchEngine
 import config
 import pytest
 from app import create_app
 import mock
-from app.midi.repository import SongRepository
 from app.midi.song import Song, SongMetadata, Track, Note
 
 
@@ -22,7 +20,7 @@ async def find_similar_async_mock(cls, *args):
         100,
     )
     return [
-        (i, Song([track], SongMetadata(f"artist", f"song")), track) for i in range(10)
+        (i, Song([track], SongMetadata("artist", "song")), track) for i in range(10)
     ]
 
 
@@ -50,8 +48,8 @@ async def test_midi_controller_success(app):
 
         expected_songs = [
             {
-                "name": f"song",
-                "artist": f"artist",
+                "name": "song",
+                "artist": "artist",
                 "notes": [
                     {"pitch": 20, "length": "0:1:0", "time": "0:0:0"},
                     {"pitch": 20, "length": "0:1:0", "time": "0:1:0"},
