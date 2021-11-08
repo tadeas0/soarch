@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { Sequencer } from "./sequencer";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
@@ -8,6 +9,7 @@ import SearchResults from "./components/searchResults";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
+    PIANO_ROLL_LOWEST_NOTE,
 } from "./constants";
 import { Note } from "./sequencer";
 import { API } from "./services/api";
@@ -41,15 +43,22 @@ function App() {
                     return {
                         artist: track.artist,
                         name: track.name,
-                        notes: track.notes.map<Note>((n) => {
-                            return {
-                                time: Tone.Time(n.time).toBarsBeatsSixteenths(),
-                                pitch: Tone.Frequency(n.pitch, "midi").toNote(),
-                                length: Tone.Time(
-                                    n.length
-                                ).toBarsBeatsSixteenths(),
-                            };
-                        }),
+                        notes: Sequencer.trimNotes(
+                            track.notes.map<Note>((n) => {
+                                return {
+                                    time: Tone.Time(
+                                        n.time
+                                    ).toBarsBeatsSixteenths(),
+                                    pitch: Tone.Frequency(
+                                        n.pitch,
+                                        "midi"
+                                    ).toNote(),
+                                    length: Tone.Time(
+                                        n.length
+                                    ).toBarsBeatsSixteenths(),
+                                };
+                            })
+                        ),
                     };
                 });
                 setSearchResults(result);
@@ -67,6 +76,7 @@ function App() {
                     onSubmit={handleSubmit}
                     noteHeight={DEFAULT_PIANO_ROLL_HEIGHT}
                     noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
+                    lowestNote={PIANO_ROLL_LOWEST_NOTE}
                 />
                 <SearchResults searchResults={searchResults} isBusy={isBusy} />
             </PlaybackProvider>

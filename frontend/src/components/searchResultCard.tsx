@@ -17,11 +17,9 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     searchResult,
 }) => {
     const [isOpen, setOpen] = useState<boolean>(false);
-    const [noteGrid, setNoteGrid] = useState<boolean[][]>([]);
     const [isPlaying, handleStart, handleStop] = usePlayback();
 
     const handleModalOpen = () => {
-        setNoteGrid(Sequencer.transformNotesToGrid(searchResult.notes));
         handleStop();
         setOpen(true);
     };
@@ -33,7 +31,8 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
 
     const handlePlayClick = () => {
         if (!isPlaying) {
-            handleStart(noteGrid);
+            const params = Sequencer.getGridParamsFromNotes(searchResult.notes);
+            handleStart(searchResult.notes, params.width);
         } else {
             handleStop();
         }
@@ -57,7 +56,12 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                         {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                     </button>
                     <div className="pianoroll">
-                        <PianoRollGrid noteGrid={noteGrid} />
+                        <PianoRollGrid
+                            gridParams={Sequencer.getGridParamsFromNotes(
+                                searchResult.notes
+                            )}
+                            notes={searchResult.notes}
+                        />
                     </div>
                 </ReactModal>
             </div>

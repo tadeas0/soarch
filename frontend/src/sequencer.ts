@@ -4,6 +4,7 @@ import {
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
 } from "./constants";
+import { GridParams } from "./components/pianoRollGrid";
 
 export interface Note {
     time: Tone.Unit.Time;
@@ -21,56 +22,25 @@ export abstract class Sequencer {
         }
     ).toDestination();
 
+    private static onBeatCallbacks: (() => void)[] = [];
+
+    private static onMeasureCallbacks: (() => void)[] = [];
+
     public static async init() {
         await Tone.start();
     }
 
-    public static addGridToBuffer(noteGrid: boolean[][]) {
-        let notes: Note[] = this.transformGridToNotes(noteGrid);
-
+    public static addNotesToBuffer(notes: Note[], gridLength: number) {
         new Tone.Part((time, note) => {
             this.synth.triggerAttackRelease(note.pitch, note.length, time);
         }, notes).start(0);
 
-        Tone.Transport.setLoopPoints(
-            0,
-            this.rollTimeToToneTime(noteGrid[0].length)
-        );
+        Tone.Transport.setLoopPoints(0, this.rollTimeToToneTime(gridLength));
 
         Tone.Transport.loop = true;
     }
 
-    public static transformGridToNotes(noteGrid: boolean[][]) {
-        let notes: Note[] = [];
-        for (let r = 0; r < noteGrid.length; r++) {
-            let noteOn = false;
-            let noteLength = 0;
-            let noteStart = 0;
-            for (let c = 0; c < noteGrid[r].length; c++) {
-                if (noteGrid[r][c] && noteOn) {
-                    noteLength += 1;
-                } else if (noteGrid[r][c]) {
-                    noteOn = true;
-                    noteLength = 1;
-                    noteStart = c;
-                } else if (noteOn && !noteGrid[r][c]) {
-                    notes.push(
-                        this.createNoteObject(
-                            noteStart,
-                            noteLength,
-                            noteGrid.length - r - 1
-                        )
-                    );
-                    noteOn = false;
-                    noteLength = 0;
-                }
-            }
-        }
-
-        return notes;
-    }
-
-    public static transformNotesToGrid(notes: Note[]): boolean[][] {
+    public static getGridParamsFromNotes(notes: Note[]): GridParams {
         let minGridLength = 0;
         let minGridStart = this.toneTimeToRollTime(notes[0].time);
         let lowestNote: Tone.Unit.MidiNote = Tone.Frequency(
@@ -95,27 +65,35 @@ export abstract class Sequencer {
         const gridEnd =
             minGridLength + MEASURE_LENGTH - (minGridLength % MEASURE_LENGTH);
         const gridWidth = gridEnd - gridStart;
-        const gridHeight = highB - lowC;
+        const gridHeight = highB - lowC + 1;
 
-        let grid = Array.from(Array(gridHeight), () =>
-            Array(gridWidth).fill(false)
-        );
+        return {
+            width: gridWidth,
+            height: gridHeight,
+            lowestNote: Tone.Frequency(lowC, "midi").toNote(),
+        };
+    }
 
+    public static trimNotes(notes: Note[]): Note[] {
+        let lb = this.toneTimeToRollTime(notes[0].time);
+        let hb = this.toneTimeToRollTime(notes[0].time);
         notes.forEach((n) => {
             const start = this.toneTimeToRollTime(n.time);
-            let length = this.toneTimeToRollTime(n.length);
-            if (length === 0) length = 1;
-            const end = start + length;
-            const pitch =
-                gridHeight - (Tone.Frequency(n.pitch).toMidi() - lowC) - 1;
-            grid[pitch] = grid[pitch].fill(
-                true,
-                start - gridStart,
-                end - gridStart
-            );
+            const end = start + this.toneTimeToRollTime(n.length);
+            lb = Math.min(lb, start);
+            hb = Math.max(hb, end);
         });
-
-        return grid;
+        const gridStart = lb - (lb % MEASURE_LENGTH);
+        const newNotes = notes.map((n) => {
+            return {
+                pitch: n.pitch,
+                time: this.rollTimeToToneTime(
+                    this.toneTimeToRollTime(n.time) - gridStart
+                ),
+                length: n.length,
+            };
+        });
+        return newNotes;
     }
 
     public static clearBuffer() {
@@ -130,7 +108,7 @@ export abstract class Sequencer {
         this.synth = synth;
     }
 
-    private static createNoteObject(
+    public static createNoteObject(
         noteStart: number,
         noteLength: number,
         notePitch: number
@@ -144,13 +122,13 @@ export abstract class Sequencer {
         };
     }
 
-    private static rollTimeToToneTime(time: number) {
+    public static rollTimeToToneTime(time: number) {
         return Tone.Time(
             `0:0:${(16 / PIANO_ROLL_NOTE_SUBDIVISION) * time}`
         ).toBarsBeatsSixteenths();
     }
 
-    private static toneTimeToRollTime(time: Tone.Unit.Time) {
+    public static toneTimeToRollTime(time: Tone.Unit.Time) {
         const split = Tone.Time(time).toBarsBeatsSixteenths().split(":");
         return (
             parseInt(split[0]) * 16 +
@@ -159,12 +137,46 @@ export abstract class Sequencer {
         );
     }
 
+    public static tonePitchToRollPitch(
+        pitch: Tone.Unit.Note,
+        lowestNote: Tone.Unit.Note,
+        gridHeight: number
+    ) {
+        return (
+            gridHeight -
+            (Tone.Frequency(pitch).toMidi() -
+                Tone.Frequency(lowestNote).toMidi()) -
+            1
+        );
+    }
+
+    public static rollPitchToTonePitch(pitch: number, gridParams: GridParams) {
+        return Tone.Frequency(gridParams.lowestNote)
+            .transpose(gridParams.height - pitch)
+            .toBarsBeatsSixteenths();
+    }
+
     public static isPlaying() {
         return Tone.Transport.state === "started";
     }
 
     public static start() {
         Tone.Transport.start();
+        Tone.Transport.scheduleRepeat((time) => {
+            this.onBeatCallbacks.forEach((c) => {
+                Tone.Draw.schedule(() => {
+                    c();
+                }, time);
+            });
+        }, "16n");
+
+        Tone.Transport.scheduleRepeat((time) => {
+            this.onMeasureCallbacks.forEach((c) => {
+                Tone.Draw.schedule(() => {
+                    c();
+                }, time);
+            });
+        }, "2n");
     }
 
     public static stop() {
@@ -175,5 +187,13 @@ export abstract class Sequencer {
 
     public static isInitialized() {
         return Tone.context.state === "running";
+    }
+
+    public static async runCallbackOnBeat(callback: () => void) {
+        this.onBeatCallbacks.push(callback);
+    }
+
+    public static async runCallbackOnMeasure(callback: () => void) {
+        this.onMeasureCallbacks.push(callback);
     }
 }

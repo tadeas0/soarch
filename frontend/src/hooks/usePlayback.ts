@@ -1,21 +1,21 @@
 import { useContext, useEffect } from "react";
 import { PlaybackContext } from "../context/playbackContext";
-import { Sequencer } from "../sequencer";
+import { Sequencer, Note } from "../sequencer";
 
 const usePlayback = (): [
     boolean,
-    (noteGrid: boolean[][]) => void,
+    (notes: Note[], gridLength: number) => void,
     () => void
 ] => {
     const { isPlaying, setPlaying } = useContext(PlaybackContext);
 
-    const handleStart = async (noteGrid: boolean[][]) => {
+    const handleStart = async (notes: Note[], gridLength: number) => {
         if (!Sequencer.isInitialized()) {
             await Sequencer.init();
         }
         Sequencer.stop();
         Sequencer.clearBuffer();
-        Sequencer.addGridToBuffer(noteGrid);
+        Sequencer.addNotesToBuffer(notes, gridLength);
         Sequencer.start();
         setPlaying(true);
     };

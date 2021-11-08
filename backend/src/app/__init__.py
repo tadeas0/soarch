@@ -5,7 +5,7 @@ import json
 from app.midi.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
-from app.search_engine.similarity_strategy import DTWStrategy
+from app.search_engine.similarity_strategy import LCSStrategy
 from app.search_engine.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
@@ -20,7 +20,7 @@ else:
 
 repository = SongRepository(file_storage)
 engine = SearchEngine(
-    repository, TopNoteStrategy(), RelativeIntervalStrategy(), DTWStrategy()
+    repository, TopNoteStrategy(), RelativeIntervalStrategy(), LCSStrategy()
 )
 
 

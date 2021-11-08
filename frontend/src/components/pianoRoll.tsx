@@ -1,8 +1,10 @@
 import * as React from "react";
-import { useState, FunctionComponent, MouseEvent } from "react";
+import * as Tone from "tone";
+import { useState, FunctionComponent } from "react";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
+    DEFAULT_NOTE_LENGTH,
     MEASURE_LENGTH,
 } from "../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
@@ -11,53 +13,52 @@ import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import usePlayback from "../hooks/usePlayback";
 import { Note, Sequencer } from "../sequencer";
 import "./pianoRoll.css";
-import PianoRollGrid from "./pianoRollGrid";
+import PianoRollGrid, { GridParams } from "./pianoRollGrid";
 
 interface PianoRollProps {
-    noteWidth?: number;
-    noteHeight?: number;
+    noteWidth: number;
+    noteHeight: number;
+    lowestNote: Tone.Unit.Note;
     onSubmit: (notes: Note[], gridLength: number) => void;
 }
 
 const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
-    const [noteGrid, setNoteGrid] = useState<boolean[][]>(
-        Array.from(Array(props.noteHeight), () =>
-            Array(props.noteWidth).fill(false)
-        )
-    );
-
+    const [notes, setNotes] = useState<Note[]>([]);
+    const [gridParams, setGridParams] = useState<GridParams>({
+        width: props.noteWidth,
+        height: props.noteHeight,
+        lowestNote: props.lowestNote,
+    });
     const [isPlaying, handleStart, handleStop] = usePlayback();
 
-    const handleClick = (pitch: number, position: number) => {
-        let newNotes = [...noteGrid];
-        newNotes[pitch][position] = true;
-        setNoteGrid(newNotes);
+    const handleAddNote = (pitch: number, position: number) => {
+        handleStop();
+        const newNote: Note = Sequencer.createNoteObject(
+            position,
+            DEFAULT_NOTE_LENGTH,
+            gridParams.height - pitch - 1
+        );
+
+        const newNotes = [...notes, newNote];
+        setNotes(newNotes);
     };
 
-    const handleMouseOver = (
-        e: MouseEvent<HTMLElement>,
-        pitch: number,
-        position: number
-    ) => {
-        if (e.buttons === 1) {
-            handleClick(pitch, position);
-        } else if (e.buttons === 2) {
-            handleRightClick(pitch, position);
-        }
-    };
-
-    const handleRightClick = (pitch: number, position: number) => {
-        let newNotes = [...noteGrid];
-        newNotes[pitch][position] = false;
-        setNoteGrid(newNotes);
+    const handleDeleteNote = (pitch: number, position: number) => {
+        let newNotes = notes.filter((n) => {
+            const s = Sequencer.toneTimeToRollTime(n.time);
+            const e = s + Sequencer.toneTimeToRollTime(n.length);
+            const p = Sequencer.tonePitchToRollPitch(
+                n.pitch,
+                props.lowestNote,
+                gridParams.height
+            );
+            return !(p === pitch && s <= position && e >= position);
+        });
+        setNotes(newNotes);
     };
 
     const handleClear = () => {
-        setNoteGrid(
-            Array.from(Array(noteGrid.length), () =>
-                Array(noteGrid[0].length).fill(false)
-            )
-        );
+        setNotes([]);
         if (isPlaying) {
             handleStop();
         }
@@ -65,38 +66,36 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
 
     const handlePlayClick = () => {
         if (!isPlaying) {
-            handleStart(noteGrid);
+            handleStart(notes, gridParams.width);
         } else {
             handleStop();
         }
     };
 
     const handleAddMeasure = () => {
-        let newNoteGrid = [...noteGrid];
-        for (let i = 0; i < noteGrid.length; i++) {
-            newNoteGrid[i] = newNoteGrid[i].concat(
-                Array(MEASURE_LENGTH).fill(false)
-            );
-        }
-        handleStop();
-        setNoteGrid(newNoteGrid);
+        setGridParams({
+            ...gridParams,
+            width: gridParams.width + MEASURE_LENGTH,
+        });
     };
 
     const canRemoveMeasure = () => {
-        return noteGrid[0].length > 2 * MEASURE_LENGTH;
+        return gridParams.width > 2 * MEASURE_LENGTH;
     };
 
     const handleRemoveMeasure = () => {
         if (canRemoveMeasure()) {
-            let newNoteGrid = [...noteGrid];
-            for (let i = 0; i < noteGrid.length; i++) {
-                newNoteGrid[i] = newNoteGrid[i].slice(
-                    0,
-                    noteGrid[0].length - MEASURE_LENGTH
+            const newGridLength = gridParams.width - MEASURE_LENGTH;
+            const newNotes = notes.filter((n) => {
+                return (
+                    Sequencer.toneTimeToRollTime(n.time) +
+                        Sequencer.toneTimeToRollTime(n.length) <
+                    newGridLength
                 );
-            }
+            });
+            setGridParams({ ...gridParams, width: newGridLength });
             handleStop();
-            setNoteGrid(newNoteGrid);
+            setNotes(newNotes);
         }
     };
 
@@ -108,11 +107,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             <button
                 className="right"
                 onClick={() =>
-                    props.noteWidth &&
-                    props.onSubmit(
-                        Sequencer.transformGridToNotes(noteGrid),
-                        props.noteWidth
-                    )
+                    props.noteWidth && props.onSubmit(notes, gridParams.width)
                 }
             >
                 <MdOutlineSearch />
@@ -130,10 +125,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 <AiOutlinePlus />
             </button>
             <PianoRollGrid
-                onMouseDown={handleClick}
-                onRightClick={handleRightClick}
-                onMouseOver={handleMouseOver}
-                noteGrid={noteGrid}
+                onAddNote={handleAddNote}
+                onDeleteNote={handleDeleteNote}
+                gridParams={gridParams}
+                notes={notes}
             />
         </div>
     );
