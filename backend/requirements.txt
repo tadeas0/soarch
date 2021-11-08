@@ -59,6 +59,7 @@ matplotlib==3.3.4
 mccabe==0.6.1
 miditoolkit==0.1.15
 mido==1.2.10
+mock==4.0.3
 mongoengine==0.23.1
 multidict==5.2.0
 mypy==0.910
@@ -82,6 +83,7 @@ PyJWT==2.3.0
 pymongo==3.12.0
 pyparsing==2.4.7
 pytest==6.2.5
+pytest-asyncio==0.16.0
 python-dateutil==2.8.2
 python-Levenshtein==0.12.2
 python-magic==0.4.24
@@ -97,6 +99,7 @@ toml==0.10.2
 tomli==1.2.1
 typed-ast==1.4.3
 types-aiofiles==0.7.0
+types-mock==4.0.3
 types-redis==3.5.15
 types-requests==2.25.11
 typing-extensions==3.10.0.2
