@@ -22,6 +22,10 @@ export abstract class Sequencer {
         }
     ).toDestination();
 
+    private static onBeatCallbacks: (() => void)[] = [];
+
+    private static onMeasureCallbacks: (() => void)[] = [];
+
     public static async init() {
         await Tone.start();
     }
@@ -61,12 +65,12 @@ export abstract class Sequencer {
         const gridEnd =
             minGridLength + MEASURE_LENGTH - (minGridLength % MEASURE_LENGTH);
         const gridWidth = gridEnd - gridStart;
-        const gridHeight = highB - lowC;
+        const gridHeight = highB - lowC + 1;
 
         return {
             width: gridWidth,
             height: gridHeight,
-            lowestNote: Tone.Frequency(lowC).toNote(),
+            lowestNote: Tone.Frequency(lowC, "midi").toNote(),
         };
     }
 
@@ -146,9 +150,9 @@ export abstract class Sequencer {
         );
     }
 
-    public static rollPitchToTonePitch(pitch: number, gridHeight: number) {
-        return Tone.Frequency(PIANO_ROLL_LOWEST_NOTE)
-            .transpose(gridHeight - pitch)
+    public static rollPitchToTonePitch(pitch: number, gridParams: GridParams) {
+        return Tone.Frequency(gridParams.lowestNote)
+            .transpose(gridParams.height - pitch)
             .toBarsBeatsSixteenths();
     }
 
@@ -158,6 +162,21 @@ export abstract class Sequencer {
 
     public static start() {
         Tone.Transport.start();
+        Tone.Transport.scheduleRepeat((time) => {
+            this.onBeatCallbacks.forEach((c) => {
+                Tone.Draw.schedule(() => {
+                    c();
+                }, time);
+            });
+        }, "16n");
+
+        Tone.Transport.scheduleRepeat((time) => {
+            this.onMeasureCallbacks.forEach((c) => {
+                Tone.Draw.schedule(() => {
+                    c();
+                }, time);
+            });
+        }, "4n");
     }
 
     public static stop() {
@@ -168,5 +187,13 @@ export abstract class Sequencer {
 
     public static isInitialized() {
         return Tone.context.state === "running";
+    }
+
+    public static async runCallbackOnBeat(callback: () => void) {
+        this.onBeatCallbacks.push(callback);
+    }
+
+    public static async runCallbackOnMeasure(callback: () => void) {
+        this.onMeasureCallbacks.push(callback);
     }
 }
