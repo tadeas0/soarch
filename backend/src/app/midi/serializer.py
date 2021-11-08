@@ -27,6 +27,10 @@ class TrackSerializer:
         return n
 
     @staticmethod
+    def trim_notes(notes: list[Note]) -> list[Note]:
+        return []
+
+    @staticmethod
     def ticks_to_bbs(ticks: int, ppq: int) -> str:
         measures = floor(ticks / (ppq * 4))
         quarters = floor((ticks % (ppq * 4)) / ppq)

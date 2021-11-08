@@ -1,28 +1,14 @@
 from typing import List
 import numpy as np
+from dataclasses import dataclass
 from functools import lru_cache
 
 
+@dataclass
 class Note:
-    def __init__(self, time: int, length: int, pitch: int) -> None:
-        self.time = time
-        self.length = length
-        self.pitch = pitch
-
-    def __str__(self) -> str:
-        return f"Note({self.time},{self.length},{self.pitch})"
-
-    def __repr__(self) -> str:
-        return f"Note({self.time},{self.length},{self.pitch})"
-
-    def equals(self, other: object) -> bool:
-        if not isinstance(other, self.__class__):
-            return False
-        return (
-            self.time == other.time
-            and self.length == other.length
-            and self.pitch == other.pitch
-        )
+    time: int
+    length: int
+    pitch: int
 
 
 class Track:

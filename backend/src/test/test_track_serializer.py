@@ -1,6 +1,7 @@
 import unittest
 from app.midi.serializer import TrackSerializer
 from app.midi.song import Note
+import config
 
 
 class TestTrackSerializer(unittest.TestCase):
@@ -49,6 +50,10 @@ class TestTrackSerializer(unittest.TestCase):
             TrackSerializer.serialize_note(Note(480, 250, 31)),
             {"time": "0:1:0", "length": "0:0:2", "pitch": 31},
         )
+
+    def test_trim_notes(self):
+        n1 = [Note(config.DEFAULT_PPQ * 4, 480, 20)]
+        # self.assertCountEqual(TrackSerializer.trim_notes(n1), [Note(0, 480, 20)])
 
 
 if __name__ == "__main__":
