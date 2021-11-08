@@ -6,14 +6,15 @@ import config
 class TrackSerializer:
     @staticmethod
     def serialize_with_metadata(metadata: SongMetadata, track: Track, trim=True):
-        notes = [TrackSerializer.serialize_note(i) for i in track.notes]
+        track_notes = track.notes
         if trim:
-            notes = TrackSerializer.trim_notes(notes)
+            track_notes = TrackSerializer.trim_notes(track_notes)
+        serialized_notes = [TrackSerializer.serialize_note(i) for i in track_notes]
 
         return {
             "artist": metadata.artist,
             "name": metadata.name,
-            "notes": notes,
+            "notes": serialized_notes,
         }
 
     @staticmethod
