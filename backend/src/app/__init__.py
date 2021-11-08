@@ -5,7 +5,7 @@ import json
 from app.midi.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
-from app.search_engine.similarity_strategy import DTWStrategy, EMDStrategy, LCSStrategy
+from app.search_engine.similarity_strategy import LCSStrategy
 from app.search_engine.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
