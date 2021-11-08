@@ -9,3 +9,7 @@ export const PIANO_ROLL_NOTE_HEIGHT = 20;
 export const PIANO_ROLL_NOTE_WIDTH = 20;
 export const DEFAULT_NOTE_LENGTH = 4;
 export const PIANO_ROLL_HEADER_SIZE = 20;
+export const PIANO_ROLL_GRID_COLORS = ["black", "black", "blue"];
+export const PIANO_ROLL_BLACK_KEY_COLOR = "gray";
+export const PIANO_ROLL_BG_COLOR = "#ffffff";
+export const PIANO_ROLL_PLAYHEAD_COLOR = "limegreen";

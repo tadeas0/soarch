@@ -176,7 +176,7 @@ export abstract class Sequencer {
                     c();
                 }, time);
             });
-        }, "4n");
+        }, "2n");
     }
 
     public static stop() {

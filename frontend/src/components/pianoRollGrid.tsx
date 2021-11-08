@@ -9,9 +9,13 @@ import {
 import "./pianoRoll.css";
 import * as Tone from "tone";
 import {
+    PIANO_ROLL_BG_COLOR,
+    PIANO_ROLL_BLACK_KEY_COLOR,
+    PIANO_ROLL_GRID_COLORS,
     PIANO_ROLL_HEADER_SIZE,
     PIANO_ROLL_NOTE_HEIGHT,
     PIANO_ROLL_NOTE_WIDTH,
+    PIANO_ROLL_PLAYHEAD_COLOR,
 } from "../constants";
 import { Sequencer, Note } from "../sequencer";
 
@@ -66,13 +70,48 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         [gridParams]
     );
 
+    const drawVLines = (
+        ctx: CanvasRenderingContext2D,
+        color: string,
+        width: number,
+        skip: number
+    ) => {
+        ctx.beginPath();
+        for (let i = skip; i < gridParams.width; i += skip) {
+            ctx.moveTo(i * PIANO_ROLL_NOTE_WIDTH, PIANO_ROLL_HEADER_SIZE);
+            ctx.lineTo(i * PIANO_ROLL_NOTE_WIDTH, ctx.canvas.height);
+        }
+        ctx.lineWidth = width;
+        ctx.strokeStyle = color;
+        ctx.closePath();
+        ctx.stroke();
+    };
+
+    const drawHLines = (
+        ctx: CanvasRenderingContext2D,
+        color: string,
+        width: number,
+        skip: number
+    ) => {
+        ctx.beginPath();
+        for (let i = skip; i < gridParams.height; i += skip) {
+            ctx.moveTo(0, i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE);
+            ctx.lineTo(
+                ctx.canvas.width,
+                i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE
+            );
+        }
+        ctx.lineWidth = width;
+        ctx.strokeStyle = color;
+        ctx.closePath();
+        ctx.stroke();
+    };
+
     const drawGrid = useCallback(
         (ctx: CanvasRenderingContext2D) => {
-            // TODO: split into multiple functions
-            const lineColors = ["black", "black", "blue"];
-            const fillColor = "gray";
-
-            ctx.fillStyle = fillColor;
+            ctx.fillStyle = PIANO_ROLL_BG_COLOR;
+            ctx.fill();
+            ctx.fillStyle = PIANO_ROLL_BLACK_KEY_COLOR;
             for (let i = 0; i < gridParams.height; i += 1) {
                 if (isBlackKey(i)) {
                     ctx.fillRect(
@@ -83,76 +122,29 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                     );
                 }
             }
-            // Basic grid
-            ctx.moveTo(0, 0);
-            ctx.beginPath();
-            for (let i = 0; i <= gridParams.width; i++) {
-                ctx.moveTo(i * PIANO_ROLL_NOTE_WIDTH, PIANO_ROLL_HEADER_SIZE);
-                ctx.lineTo(i * PIANO_ROLL_NOTE_WIDTH, ctx.canvas.height);
-            }
-            for (let i = 0; i <= gridParams.height; i++) {
-                ctx.moveTo(
-                    0,
-                    i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE
-                );
-                ctx.lineTo(
-                    ctx.canvas.width,
-                    i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE
-                );
-            }
-            ctx.strokeStyle = lineColors[0];
-            ctx.closePath();
-            ctx.stroke();
-
-            // Thick lines
-            ctx.beginPath();
-            for (let i = 8; i < gridParams.width; i += 8) {
-                ctx.moveTo(i * PIANO_ROLL_NOTE_WIDTH, PIANO_ROLL_HEADER_SIZE);
-                ctx.lineTo(i * PIANO_ROLL_NOTE_WIDTH, ctx.canvas.height);
-            }
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = lineColors[1];
-            ctx.closePath();
-            ctx.stroke();
-
-            ctx.beginPath();
-            for (let i = 16; i < gridParams.width; i += 16) {
-                ctx.moveTo(i * PIANO_ROLL_NOTE_WIDTH, PIANO_ROLL_HEADER_SIZE);
-                ctx.lineTo(i * PIANO_ROLL_NOTE_WIDTH, ctx.canvas.height);
-            }
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = lineColors[2];
-            ctx.closePath();
-            ctx.stroke();
-
-            ctx.beginPath();
-            for (let i = 12; i < gridParams.height; i += 12) {
-                ctx.moveTo(
-                    0,
-                    i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE
-                );
-                ctx.lineTo(
-                    ctx.canvas.width,
-                    i * PIANO_ROLL_NOTE_HEIGHT + PIANO_ROLL_HEADER_SIZE
-                );
-            }
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = lineColors[0];
-            ctx.closePath();
-            ctx.stroke();
+            drawVLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
+            drawVLines(ctx, PIANO_ROLL_GRID_COLORS[1], 3, 8);
+            drawVLines(ctx, PIANO_ROLL_GRID_COLORS[2], 3, 16);
+            drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
+            drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 3, 12);
         },
         [gridParams, isBlackKey]
     );
 
     const drawHeader = useCallback(
         (ctx: CanvasRenderingContext2D) => {
-            // TODO: extract constants
             requestAnimationFrame(() => {
-                const bgColor = "#ffffff";
-                ctx.fillStyle = bgColor;
+                ctx.fillStyle = PIANO_ROLL_BG_COLOR;
                 ctx.fillRect(0, 0, ctx.canvas.width, PIANO_ROLL_HEADER_SIZE);
-                const rectColor = "limegreen";
-                ctx.fillStyle = rectColor;
+                let grd = ctx.createLinearGradient(
+                    0,
+                    0,
+                    currentBeat * PIANO_ROLL_NOTE_WIDTH,
+                    0
+                );
+                grd.addColorStop(0, PIANO_ROLL_BG_COLOR);
+                grd.addColorStop(1, PIANO_ROLL_PLAYHEAD_COLOR);
+                ctx.fillStyle = grd;
                 ctx.fillRect(
                     0,
                     0,
