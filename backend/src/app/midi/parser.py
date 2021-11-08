@@ -6,7 +6,7 @@ import config
 
 def scaleTicks(oldPPQ: int, newPPQ: int, ticks: int) -> int:
     res = floor((newPPQ / oldPPQ) * ticks)
-    return res if res > 0 else 1
+    return res
 
 
 class JsonParser:
