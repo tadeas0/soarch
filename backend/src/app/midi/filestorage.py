@@ -13,7 +13,6 @@ import os
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
-# TODO: add redis caching for async operations
 class FileStorage(ABC):
     @abstractmethod
     async def initialize(self) -> None:
@@ -32,11 +31,11 @@ class FileStorage(ABC):
         pass
 
     @abstractmethod
-    async def read(self, key: str) -> Any:
+    async def read(self, key: str) -> bytes:
         pass
 
     @abstractmethod
-    async def write(self, key: str, content: Any) -> Any:
+    async def write(self, key: str, content: Any) -> None:
         pass
 
 
@@ -79,15 +78,15 @@ class LocalFileStorage(FileStorage):
 
         return res
 
-    async def read(self, key: str) -> Any:
+    async def read(self, key: str) -> bytes:
         path = os.path.join(self.root_path, key)
         async with aiofiles.open(path, "rb") as f:
             return await f.read()
 
-    async def write(self, key: str, content: str) -> Any:
+    async def write(self, key: str, content: str) -> None:
         path = os.path.join(self.root_path, key)
         async with aiofiles.open(path, "w") as f:
-            return await f.write(content)
+            await f.write(content)
 
 
 class GoogleCloudFileStorage(FileStorage):
@@ -183,7 +182,7 @@ class GoogleCloudFileStorage(FileStorage):
             )
         )
 
-    async def read(self, key: str) -> Any:
+    async def read(self, key: str) -> bytes:
         if not self.__async_client:
             raise RuntimeError("Async storage client uninitialized")
         logger.debug(f"Reading key: {key}")
@@ -195,12 +194,10 @@ class GoogleCloudFileStorage(FileStorage):
             self.__redis_cache.set(key, down)
         return down
 
-    async def write(self, key: str, content: Any) -> Any:
+    async def write(self, key: str, content: Any) -> None:
         if not self.__async_client:
             raise RuntimeError("Async storage client uninitialized")
         logger.debug(f"Writing key: {key}")
         if self.__redis_cache:
             self.__redis_cache.set(key, content)
-        return await self.__async_client.upload(
-            self.__bucket_name, key, content, timeout=90
-        )
+        await self.__async_client.upload(self.__bucket_name, key, content, timeout=90)

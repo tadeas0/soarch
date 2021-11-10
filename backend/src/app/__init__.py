@@ -24,7 +24,7 @@ engine = SearchEngine(
 )
 
 
-def setup_logging():
+def setup_logging() -> logging.Logger:
     logger = logging.getLogger(config.DEFAULT_LOGGER)
 
     if config.ENV == "dev":
@@ -41,7 +41,7 @@ def setup_logging():
     return logger
 
 
-def create_app():
+def create_app() -> Quart:
     app = Quart(__name__)
     logger = setup_logging()
     logger.info("Logging initialized")

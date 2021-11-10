@@ -30,10 +30,11 @@ class SearchEngine:
         songs: list[tuple[float, SongMetadata, Track]] = []
         query_prep = self.__preprocess_track(query_track)
         for song in self.repository.get_all():
-            for track in song.tracks:
-                sim = self.similarity_strategy.compare(
-                    query_prep, self.__preprocess_track(track)
-                )
+            if song.metadata:
+                for track in song.tracks:
+                    sim = self.similarity_strategy.compare(
+                        query_prep, self.__preprocess_track(track)
+                    )
                 songs.append((sim, song.metadata, track))
         logger.info("Found similar song")
         return self.__postprocess_result_list(songs, n)

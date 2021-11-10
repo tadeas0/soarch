@@ -1,16 +1,17 @@
 from app.midi.song import Track
 from abc import ABC, abstractmethod
 import numpy as np
+import numpy.typing as npt
 
 
 class MelodyExtractionStrategy(ABC):
     @abstractmethod
-    def extract(self, track: Track):
+    def extract(self, track: Track) -> npt.NDArray[np.int64]:
         pass
 
 
 class TopNoteStrategy(MelodyExtractionStrategy):
-    def extract(self, track: Track):
+    def extract(self, track: Track) -> npt.NDArray[np.int64]:
         last_pitch = -1
         last_time = -1
         res: list[int] = []
