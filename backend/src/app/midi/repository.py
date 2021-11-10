@@ -5,7 +5,6 @@ from miditoolkit.midi import MidiFile
 import pickle
 import logging
 import config
-from typing import List
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
@@ -14,7 +13,7 @@ logger = logging.getLogger(config.DEFAULT_LOGGER)
 class SongRepository:
     def __init__(self, file_storage: FileStorage) -> None:
         self.file_storage = file_storage
-        self.__song_keys: List[str] = []
+        self.__song_keys: list[str] = []
 
     def load_song(self, file_path: str):
         extension = file_path.split(".")[-1]

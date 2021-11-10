@@ -31,7 +31,7 @@ class MockFileStorage(FileStorage):
     def open(self, key, mode):
         raise NotImplementedError()
 
-    def list(self):
+    def list_all(self):
         raise NotImplementedError()
 
     def list_prefix(self, prefix):

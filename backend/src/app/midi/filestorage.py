@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, IO, Optional
+from typing import Any, IO, Optional
 import logging
 import config
 from google.cloud import storage
@@ -24,11 +24,11 @@ class FileStorage(ABC):
         pass
 
     @abstractmethod
-    def list(self) -> List[str]:
+    def list_all(self) -> list[str]:
         pass
 
     @abstractmethod
-    def list_prefix(self, prefix: str) -> List[str]:
+    def list_prefix(self, prefix: str) -> list[str]:
         pass
 
     @abstractmethod
@@ -55,8 +55,8 @@ class LocalFileStorage(FileStorage):
 
         return open(path, mode)
 
-    def list(self) -> List[str]:
-        res: List[str] = []
+    def list_all(self) -> list[str]:
+        res: list[str] = []
         rd_len = len(self.root_path)
         for path, subdirs, files in os.walk(self.root_path):
             for name in files:
@@ -66,8 +66,8 @@ class LocalFileStorage(FileStorage):
                 res.append(fp)
         return res
 
-    def list_prefix(self, prefix: str) -> List[str]:
-        res: List[str] = []
+    def list_prefix(self, prefix: str) -> list[str]:
+        res: list[str] = []
         rd_len = len(self.root_path)
         for path, subdirs, files in os.walk(self.root_path):
             for name in files:
@@ -164,7 +164,7 @@ class GoogleCloudFileStorage(FileStorage):
         else:
             raise ValueError("redis cache not defined")
 
-    def list(self) -> List[str]:
+    def list_all(self) -> list[str]:
         logger.debug("Listing files")
         if not self.__storage_client:
             raise RuntimeError("Storage client uninitialized")
@@ -172,7 +172,7 @@ class GoogleCloudFileStorage(FileStorage):
             map(lambda a: a.name, self.__storage_client.list_blobs(self.__bucket_name))
         )
 
-    def list_prefix(self, prefix: str) -> List[str]:
+    def list_prefix(self, prefix: str) -> list[str]:
         logger.debug(f"Listing files with prefix {prefix}")
         if not self.__storage_client:
             raise RuntimeError("Storage client uninitialized")
