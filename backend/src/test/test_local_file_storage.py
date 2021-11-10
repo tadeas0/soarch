@@ -17,7 +17,7 @@ def test_list(fake_filesystem):
     lfs = LocalFileStorage("/")
     case = unittest.TestCase()
     case.assertCountEqual(
-        lfs.list(),
+        lfs.list_all(),
         [
             "test_dir/file1.txt",
             "test_dir/file2.mid",
@@ -104,7 +104,7 @@ def test_open(fake_filesystem):
     f8.close()
 
     case.assertCountEqual(
-        lfs.list(),
+        lfs.list_all(),
         [
             "test_dir/file1.txt",
             "test_dir/file2.mid",

@@ -1,7 +1,6 @@
 import logging
 import config
 import asyncio
-from typing import List, Tuple
 from app.midi.repository import SongRepository
 from app.search_engine.similarity_strategy import SimilarityStrategy
 from app.midi.song import Song, SongMetadata, Track
@@ -26,25 +25,26 @@ class SearchEngine:
 
     def find_similar(
         self, n: int, query_track: Track
-    ) -> List[Tuple[float, SongMetadata, Track]]:
+    ) -> list[tuple[float, SongMetadata, Track]]:
         logger.info("Searching song")
-        songs: list[Tuple[float, SongMetadata, Track]] = []
+        songs: list[tuple[float, SongMetadata, Track]] = []
         query_prep = self.__preprocess_track(query_track)
         for song in self.repository.get_all():
-            for track in song.tracks:
-                sim = self.similarity_strategy.compare(
-                    query_prep, self.__preprocess_track(track)
-                )
+            if song.metadata:
+                for track in song.tracks:
+                    sim = self.similarity_strategy.compare(
+                        query_prep, self.__preprocess_track(track)
+                    )
                 songs.append((sim, song.metadata, track))
         logger.info("Found similar song")
         return self.__postprocess_result_list(songs, n)
 
     async def find_similar_async(self, n: int, query_track: Track):
         logger.info("Searching song")
-        songs: List[Tuple[float, SongMetadata, Track]] = []
+        songs: list[tuple[float, SongMetadata, Track]] = []
         query_prep = self.__preprocess_track(query_track)
         in_q: asyncio.Queue[Song] = asyncio.Queue()
-        out_q: asyncio.Queue[Tuple[float, SongMetadata, Track]] = asyncio.Queue()
+        out_q: asyncio.Queue[tuple[float, SongMetadata, Track]] = asyncio.Queue()
         consumer = asyncio.ensure_future(self.__consume_queue(query_prep, in_q, out_q))
         await self.__fetch_files_to_queue(in_q)
         await in_q.join()

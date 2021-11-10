@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Union
 from app.midi.song import Note, SongMetadata, Track
 from math import floor
 import config
@@ -8,7 +8,7 @@ class TrackSerializer:
     @staticmethod
     def serialize_with_metadata(
         metadata: SongMetadata, track: Track, trim=True
-    ) -> dict[str, Any]:
+    ) -> dict[str, Union[str, list[dict[str, Union[str, int]]]]]:
         track_notes = track.notes
         if trim:
             track_notes = TrackSerializer.trim_notes(track_notes)
@@ -21,8 +21,8 @@ class TrackSerializer:
         }
 
     @staticmethod
-    def serialize_note(note: Note):
-        n = {
+    def serialize_note(note: Note) -> dict[str, Union[str, int]]:
+        n: dict[str, Union[str, int]] = {
             "pitch": note.pitch,
             "time": TrackSerializer.ticks_to_bbs(note.time, config.DEFAULT_PPQ),
             "length": TrackSerializer.ticks_to_bbs(note.length, config.DEFAULT_PPQ),
