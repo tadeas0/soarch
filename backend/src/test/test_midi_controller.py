@@ -3,7 +3,7 @@ import config
 import pytest
 from app import create_app
 import mock
-from app.midi.song import Song, SongMetadata, Track, Note
+from app.midi.song import SongMetadata, Track, Note
 
 
 @pytest.fixture
