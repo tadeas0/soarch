@@ -19,9 +19,7 @@ async def find_similar_async_mock(cls, *args):
         ],
         100,
     )
-    return [
-        (i, Song([track], SongMetadata("artist", "song")), track) for i in range(10)
-    ]
+    return [(i, SongMetadata("artist", "song"), track) for i in range(10)]
 
 
 @pytest.mark.asyncio
