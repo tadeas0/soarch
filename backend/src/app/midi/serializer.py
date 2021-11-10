@@ -1,3 +1,4 @@
+from typing import Any
 from app.midi.song import Note, SongMetadata, Track
 from math import floor
 import config
@@ -5,7 +6,9 @@ import config
 
 class TrackSerializer:
     @staticmethod
-    def serialize_with_metadata(metadata: SongMetadata, track: Track, trim=True):
+    def serialize_with_metadata(
+        metadata: SongMetadata, track: Track, trim=True
+    ) -> dict[str, Any]:
         track_notes = track.notes
         if trim:
             track_notes = TrackSerializer.trim_notes(track_notes)

@@ -18,8 +18,7 @@ async def midi_post():
     song = JsonParser.parse(data)
     similar_songs = await engine.find_similar_async(10, song.tracks[0])
     serialized_songs = [
-        TrackSerializer.serialize_with_metadata(i[1].metadata, i[2])
-        for i in similar_songs
+        TrackSerializer.serialize_with_metadata(i[1], i[2]) for i in similar_songs
     ]
     res = {"tracks": serialized_songs}
     return jsonify(res)
