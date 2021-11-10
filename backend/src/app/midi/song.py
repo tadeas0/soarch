@@ -1,7 +1,5 @@
-from typing import List
-import numpy as np
 from dataclasses import dataclass
-from functools import lru_cache
+from typing import Optional
 
 
 @dataclass
@@ -11,45 +9,19 @@ class Note:
     pitch: int
 
 
+@dataclass
 class Track:
-    def __init__(self, notes: List[Note], grid_length: int) -> None:
-        self.notes = notes
-        self.grid_length = grid_length
-        self.__is_sorted = False
-
-    @property  # type: ignore
-    @lru_cache()
-    def top_line(self):
-        return self.__get_top_line()
-
-    def __get_top_line(self):
-        if not self.__is_sorted:
-            self.notes = sorted(self.notes, key=lambda n: n.time)
-
-        last_pitch = -1
-        last_time = -1
-        res: List[int] = []
-        for i in self.notes:
-            if i.time == last_time and i.pitch > last_pitch:
-                res[-1] = i.pitch
-            elif i.time > last_time:
-                res.append(i.pitch)
-                last_time = i.time
-                last_pitch = i.pitch
-
-        return np.array(res)
+    notes: list[Note]
+    grid_length: int
 
 
+@dataclass
 class SongMetadata:
-    def __init__(self, artist, name) -> None:
-        self.artist = artist
-        self.name = name
-
-    def __str__(self) -> str:
-        return f"SongMetadata({self.artist}, {self.name})"
+    artist: str
+    name: str
 
 
+@dataclass
 class Song:
-    def __init__(self, tracks: List[Track], metadata: SongMetadata = None) -> None:
-        self.tracks = tracks
-        self.metadata = metadata
+    tracks: list[Track]
+    metadata: Optional[SongMetadata]

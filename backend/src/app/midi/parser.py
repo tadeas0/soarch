@@ -19,7 +19,8 @@ class JsonParser:
                     [JsonParser.parse_note(i) for i in notes],
                     scaleTicks(4, config.DEFAULT_PPQ, data["gridLength"]),
                 )
-            ]
+            ],
+            None,
         )
 
     @staticmethod
@@ -59,5 +60,6 @@ class MidiParser:
                     st(midi_file.max_tick),
                 )
                 for inst in melodic_inst
-            ]
+            ],
+            None,
         )

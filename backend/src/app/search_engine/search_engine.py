@@ -5,7 +5,7 @@ import asyncio
 from typing import List, Tuple, Set
 from app.midi.repository import SongRepository
 from app.search_engine.similarity_strategy import SimilarityStrategy
-from app.midi.song import Song, Track
+from app.midi.song import Song, SongMetadata, Track
 from app.search_engine.melody_extraction_strategy import MelodyExtractionStrategy
 from app.search_engine.standardization_strategy import StandardizationStrategy
 
@@ -27,6 +27,7 @@ class SearchEngine:
         self.standardization_strategy = standardization_strategy
         self.similarity_strategy = similarity_strategy
 
+    # TODO: Probbably just needs to return list[tuple[float, SongMetadata, Track]]
     def find_similar(
         self, n: int, query_track: Track
     ) -> List[Tuple[float, Song, Track]]:
@@ -58,9 +59,25 @@ class SearchEngine:
         while not out_q.empty():
             songs.append(await out_q.get())
 
-        return sorted(
-            songs, reverse=self.similarity_strategy.highest_first, key=lambda a: a[0]
-        )[0:n]
+        sorted_songs = sorted(
+            songs,
+            reverse=self.similarity_strategy.highest_first,
+            key=lambda a: (a[0], a[1].metadata.name if a[1].metadata else ""),
+        )
+
+        metadata: set[tuple[str, str]] = set()
+        unique_songs: list[tuple[float, Song, Track]] = []
+        for i in sorted_songs:
+            if i[1].metadata:
+                meta_tuple = (i[1].metadata.artist, i[1].metadata.name)
+                if not meta_tuple in metadata:
+                    metadata.add(meta_tuple)
+                    unique_songs.append(i)
+
+        if len(unique_songs) >= n:
+            return unique_songs[0:n]
+
+        return unique_songs
 
     async def __fetch_files_to_queue(self, q: asyncio.Queue):
         keys = self.repository.list_keys()
