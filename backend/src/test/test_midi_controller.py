@@ -2,7 +2,7 @@ from app.search_engine.search_engine import SearchEngine
 import config
 import pytest
 from app import create_app
-import mock
+import unittest.mock
 from app.midi.song import SongMetadata, Track, Note
 
 
@@ -24,7 +24,7 @@ async def find_similar_async_mock(cls, *args):
 
 @pytest.mark.asyncio
 async def test_midi_controller_success(app):
-    with mock.patch.object(
+    with unittest.mock.patch.object(
         SearchEngine, "find_similar_async", new=find_similar_async_mock
     ):
         client = app.test_client()
@@ -61,7 +61,7 @@ async def test_midi_controller_success(app):
 
 @pytest.mark.asyncio
 async def test_midi_controller_bad_request(app):
-    with mock.patch.object(
+    with unittest.mock.patch.object(
         SearchEngine, "find_similar_async", new=find_similar_async_mock
     ):
         client = app.test_client()
