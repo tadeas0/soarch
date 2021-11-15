@@ -29,13 +29,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         height: props.noteHeight,
         lowestNote: props.lowestNote,
     });
+    const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
 
     const handleAddNote = (pitch: number, position: number) => {
         handleStop();
         const newNote: Note = Sequencer.createNoteObject(
             position,
-            DEFAULT_NOTE_LENGTH,
+            noteLength,
             gridParams.height - pitch - 1
         );
 
@@ -62,6 +63,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         if (isPlaying) {
             handleStop();
         }
+    };
+
+    const handleChangeNoteLength = () => {
+        setNoteLength((noteLength * 2) % 31);
     };
 
     const handlePlayClick = () => {
@@ -124,6 +129,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             <button onClick={handleAddMeasure}>
                 <AiOutlinePlus />
             </button>
+            <button onClick={handleChangeNoteLength}>{noteLength}</button>
             <PianoRollGrid
                 onAddNote={handleAddNote}
                 onDeleteNote={handleDeleteNote}
