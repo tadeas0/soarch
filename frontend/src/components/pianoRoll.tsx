@@ -9,6 +9,11 @@ import {
 } from "../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch } from "react-icons/md";
+import SixteenthNote from "../notes/sixteenth.svg";
+import EighthNote from "../notes/eighth.svg";
+import QuarterNote from "../notes/quarter.svg";
+import HalfNote from "../notes/half.svg";
+import WholeNote from "../notes/whole.svg";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import usePlayback from "../hooks/usePlayback";
 import { Note, Sequencer } from "../sequencer";
@@ -29,13 +34,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         height: props.noteHeight,
         lowestNote: props.lowestNote,
     });
+    const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
 
     const handleAddNote = (pitch: number, position: number) => {
         handleStop();
         const newNote: Note = Sequencer.createNoteObject(
             position,
-            DEFAULT_NOTE_LENGTH,
+            noteLength,
             gridParams.height - pitch - 1
         );
 
@@ -62,6 +68,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         if (isPlaying) {
             handleStop();
         }
+    };
+
+    const handleChangeNoteLength = () => {
+        setNoteLength((noteLength * 2) % 31);
     };
 
     const handlePlayClick = () => {
@@ -99,6 +109,18 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         }
     };
 
+    const renderNoteIcon = () => {
+        const iconDict: { [key: number]: JSX.Element } = {
+            1: <img src={SixteenthNote} height={50} alt="1" />,
+            2: <img src={EighthNote} height={50} alt="2" />,
+            4: <img src={QuarterNote} height={50} alt="4" />,
+            8: <img src={HalfNote} height={50} alt="8" />,
+            16: <img src={WholeNote} height={50} alt="16" />,
+        };
+
+        return iconDict[noteLength];
+    };
+
     return (
         <div className="pianoroll">
             <button onClick={handlePlayClick}>
@@ -124,6 +146,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             <button onClick={handleAddMeasure}>
                 <AiOutlinePlus />
             </button>
+            <button onClick={handleChangeNoteLength}>{renderNoteIcon()}</button>
             <PianoRollGrid
                 onAddNote={handleAddNote}
                 onDeleteNote={handleDeleteNote}
