@@ -16,8 +16,19 @@ export abstract class Sequencer {
     private static synth: Tone.PolySynth | Tone.Synth = new Tone.PolySynth(
         Tone.Synth,
         {
+            envelope: {
+                attack: 0.005,
+                attackCurve: "linear",
+                decay: 0.1,
+                decayCurve: "exponential",
+                release: 1,
+                releaseCurve: "exponential",
+                sustain: 0.3,
+            },
             oscillator: {
-                type: "sine",
+                partialCount: 0,
+                phase: 0,
+                type: "triangle",
             },
         }
     ).toDestination();
