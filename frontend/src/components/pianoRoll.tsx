@@ -37,9 +37,16 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     });
     const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
-    useKeyboardListener();
 
-    const handleAddNote = (pitch: number, position: number) => {
+    useKeyboardListener((note: Note) => {
+        if (isPlaying) {
+            const newNotes = [...notes, note];
+            Sequencer.addNotesToBuffer([note], gridParams.width);
+            setNotes(newNotes);
+        }
+    });
+
+    const handleAddNote = (pitch: number, position: number, length: number) => {
         handleStop();
         const newNote: Note = Sequencer.createNoteObject(
             position,
@@ -150,7 +157,9 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             </button>
             <button onClick={handleChangeNoteLength}>{renderNoteIcon()}</button>
             <PianoRollGrid
-                onAddNote={handleAddNote}
+                onAddNote={(pitch: number, position: number) => {
+                    handleAddNote(pitch, position, noteLength);
+                }}
                 onDeleteNote={handleDeleteNote}
                 gridParams={gridParams}
                 notes={notes}

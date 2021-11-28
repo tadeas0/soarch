@@ -1,12 +1,20 @@
 import * as Tone from "tone";
 import { useCallback, useEffect, useState } from "react";
-import { Sequencer } from "../sequencer";
+import { Sequencer, Note } from "../sequencer";
 import { KEYBOARD_NOTE_MAP } from "../constants";
 
-const useKeyboardListener = (): void => {
+const useKeyboardListener = (onKeyUp: (note: Note) => void): void => {
     const [pressedNotes, setPressedNotes] = useState<{
         [note: Tone.Unit.Frequency]: boolean;
     }>({});
+    const [noteStarts, setNoteStarts] = useState<{
+        [note: Tone.Unit.Frequency]: Tone.Unit.Time;
+    }>({});
+
+    const getCurrentQTime = () => {
+        const qTime = Tone.Time(Tone.Transport.position).quantize("16n");
+        return Tone.Time(qTime).toBarsBeatsSixteenths();
+    };
 
     const keyDownListener = useCallback(
         (event: KeyboardEvent) => {
@@ -15,25 +23,51 @@ const useKeyboardListener = (): void => {
                     ...pressedNotes,
                     [event.code]: true,
                 };
+                setNoteStarts({
+                    ...noteStarts,
+                    [KEYBOARD_NOTE_MAP[event.code]]: getCurrentQTime(),
+                });
                 setPressedNotes(newPressedNotes);
                 Sequencer.pressNote(KEYBOARD_NOTE_MAP[event.code]);
             }
         },
-        [pressedNotes]
+        [pressedNotes, noteStarts]
     );
 
     const keyUpListener = useCallback(
         (event: KeyboardEvent) => {
             if (event.code in KEYBOARD_NOTE_MAP) {
+                const end = getCurrentQTime();
+                const start = noteStarts[KEYBOARD_NOTE_MAP[event.code]];
+                const splEnd = end.split(":");
+                const splStart = start.toString().split(":");
+                const len = Tone.Time(
+                    "0:0:" +
+                        (parseInt(splEnd[0]) * 16 +
+                            parseInt(splEnd[1]) * 4 +
+                            parseInt(splEnd[2]) -
+                            (parseInt(splStart[0]) * 16 +
+                                parseInt(splStart[1]) * 4 +
+                                parseInt(splStart[2])))
+                );
+
                 const newPressedNotes = {
                     ...pressedNotes,
                     [event.code]: false,
                 };
                 setPressedNotes(newPressedNotes);
                 Sequencer.releaseNote(KEYBOARD_NOTE_MAP[event.code]);
+
+                onKeyUp({
+                    pitch: Tone.Frequency(
+                        KEYBOARD_NOTE_MAP[event.code]
+                    ).toNote(),
+                    time: start,
+                    length: len.toBarsBeatsSixteenths(),
+                });
             }
         },
-        [pressedNotes]
+        [pressedNotes, onKeyUp, noteStarts]
     );
 
     useEffect(() => {
