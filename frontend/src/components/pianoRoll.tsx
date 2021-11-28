@@ -16,6 +16,7 @@ import HalfNote from "../notes/half.svg";
 import WholeNote from "../notes/whole.svg";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import usePlayback from "../hooks/usePlayback";
+import useKeyboardListener from "../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../sequencer";
 import "./pianoRoll.css";
 import PianoRollGrid, { GridParams } from "./pianoRollGrid";
@@ -36,6 +37,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     });
     const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
+    useKeyboardListener();
 
     const handleAddNote = (pitch: number, position: number) => {
         handleStop();

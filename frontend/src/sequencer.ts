@@ -97,6 +97,10 @@ export abstract class Sequencer {
         this.synth = synth;
     }
 
+    public static getSynth() {
+        return this.synth;
+    }
+
     public static createNoteObject(
         noteStart: number,
         noteLength: number,
@@ -184,5 +188,13 @@ export abstract class Sequencer {
 
     public static async runCallbackOnMeasure(callback: () => void) {
         this.onMeasureCallbacks.push(callback);
+    }
+
+    public static pressNote(note: Tone.Unit.Frequency) {
+        this.synth.triggerAttack(note, Tone.context.currentTime);
+    }
+
+    public static releaseNote(note: Tone.Unit.Frequency) {
+        this.synth.triggerRelease(note, Tone.context.currentTime);
     }
 }
