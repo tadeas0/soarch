@@ -10,6 +10,7 @@ import "./pianoRoll.css";
 import * as Tone from "tone";
 import {
     BG_COLOR,
+    LIGHT_BG_COLOR,
     PIANO_ROLL_BG_COLOR,
     PIANO_ROLL_BLACK_KEY_COLOR,
     PIANO_ROLL_GRID_COLORS,
@@ -163,7 +164,6 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 
     const drawNotes = useCallback(
         (ctx: CanvasRenderingContext2D) => {
-            ctx.fillStyle = PRIMARY_COLOR;
             ctx.strokeStyle = SECONDARY_COLOR;
 
             notes.forEach((n) => {
@@ -182,6 +182,12 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                     Sequencer.toneTimeToRollTime(n.length) *
                     PIANO_ROLL_NOTE_WIDTH;
                 const h = PIANO_ROLL_NOTE_HEIGHT;
+
+                const grd = ctx.createLinearGradient(x - 30, y, x + w, y);
+                grd.addColorStop(0, LIGHT_BG_COLOR);
+                grd.addColorStop(0.7, PRIMARY_COLOR);
+
+                ctx.fillStyle = grd;
                 ctx.fillRect(x, y, w, h);
                 ctx.strokeRect(x, y, w, h);
             });
