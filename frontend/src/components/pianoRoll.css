@@ -39,6 +39,7 @@
 
 .pianoroll .table-container canvas {
     padding: 0px;
+    transition: width 0.1s linear;
 }
 
 .pianoroll .table-container::-webkit-scrollbar-thumb {

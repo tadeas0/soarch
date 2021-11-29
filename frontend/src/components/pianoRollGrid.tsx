@@ -202,6 +202,8 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 PIANO_ROLL_HEADER_SIZE +
                 gridParams.height * PIANO_ROLL_NOTE_HEIGHT;
             canvas.width = gridParams.width * PIANO_ROLL_NOTE_WIDTH;
+            canvas.style.width = canvas.width + "px";
+            canvas.style.height = canvas.height + "px";
             const context = canvas.getContext("2d");
             if (context) {
                 drawGrid(context);
