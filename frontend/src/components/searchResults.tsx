@@ -4,6 +4,7 @@ import { SearchResult } from "../App";
 import SearchResultCard from "./searchResultCard";
 import RiseLoader from "react-spinners/RiseLoader";
 import "./result.css";
+import { SECONDARY_COLOR } from "../constants";
 
 interface SearchResultsProps {
     searchResults: SearchResult[];
@@ -18,7 +19,7 @@ const SearchResults: FunctionComponent<SearchResultsProps> = ({
         <div className="results-container">
             {isBusy ? (
                 <div className="loader">
-                    <RiseLoader size={100} />
+                    <RiseLoader size={100} color={SECONDARY_COLOR} />
                 </div>
             ) : (
                 searchResults.map((s) => <SearchResultCard searchResult={s} />)

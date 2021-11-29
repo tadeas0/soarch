@@ -9,6 +9,7 @@ import {
 import "./pianoRoll.css";
 import * as Tone from "tone";
 import {
+    BG_COLOR,
     PIANO_ROLL_BG_COLOR,
     PIANO_ROLL_BLACK_KEY_COLOR,
     PIANO_ROLL_GRID_COLORS,
@@ -16,6 +17,7 @@ import {
     PIANO_ROLL_NOTE_HEIGHT,
     PIANO_ROLL_NOTE_WIDTH,
     PIANO_ROLL_PLAYHEAD_COLOR,
+    PRIMARY_COLOR,
 } from "../constants";
 import { Sequencer, Note } from "../sequencer";
 
@@ -109,6 +111,12 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const drawGrid = useCallback(
         (ctx: CanvasRenderingContext2D) => {
             ctx.fillStyle = PIANO_ROLL_BG_COLOR;
+            ctx.rect(
+                0,
+                PIANO_ROLL_HEADER_SIZE,
+                ctx.canvas.width,
+                ctx.canvas.height - PIANO_ROLL_HEADER_SIZE
+            );
             ctx.fill();
             ctx.fillStyle = PIANO_ROLL_BLACK_KEY_COLOR;
             for (let i = 0; i < gridParams.height; i += 1) {
@@ -132,7 +140,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 
     const drawHeader = useCallback((ctx: CanvasRenderingContext2D) => {
         requestAnimationFrame(() => {
-            ctx.fillStyle = PIANO_ROLL_BG_COLOR;
+            ctx.fillStyle = BG_COLOR;
             ctx.fillRect(0, 0, ctx.canvas.width, PIANO_ROLL_HEADER_SIZE);
             let grd = ctx.createLinearGradient(
                 0,
@@ -154,7 +162,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 
     const drawNotes = useCallback(
         (ctx: CanvasRenderingContext2D) => {
-            ctx.fillStyle = "red";
+            ctx.fillStyle = PRIMARY_COLOR;
             notes.forEach((n) => {
                 ctx.fillRect(
                     Sequencer.toneTimeToRollTime(n.time) *

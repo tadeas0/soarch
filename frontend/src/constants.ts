@@ -11,10 +11,6 @@ export const PIANO_ROLL_NOTE_HEIGHT = 20;
 export const PIANO_ROLL_NOTE_WIDTH = 20;
 export const DEFAULT_NOTE_LENGTH = 4;
 export const PIANO_ROLL_HEADER_SIZE = 20;
-export const PIANO_ROLL_GRID_COLORS = ["black", "black", "blue"];
-export const PIANO_ROLL_BLACK_KEY_COLOR = "gray";
-export const PIANO_ROLL_BG_COLOR = "#ffffff";
-export const PIANO_ROLL_PLAYHEAD_COLOR = "limegreen";
 
 export const KEYBOARD_NOTE_MAP: { [keyCode: string]: Tone.Unit.Frequency } = {
     KeyZ: "C3",
@@ -43,3 +39,14 @@ export const KEYBOARD_NOTE_MAP: { [keyCode: string]: Tone.Unit.Frequency } = {
     Digit7: "A#4",
     KeyU: "B4",
 };
+
+export const BG_COLOR = "#0b0c10";
+export const MEDIUM_BG_COLOR = "#1f2833";
+export const LIGHT_BG_COLOR = "#c5c6c7";
+export const SECONDARY_COLOR = "#45a29e";
+export const PRIMARY_COLOR = "#66fcf1";
+
+export const PIANO_ROLL_GRID_COLORS = ["gray", "gray", SECONDARY_COLOR];
+export const PIANO_ROLL_BLACK_KEY_COLOR = BG_COLOR;
+export const PIANO_ROLL_BG_COLOR = MEDIUM_BG_COLOR;
+export const PIANO_ROLL_PLAYHEAD_COLOR = SECONDARY_COLOR;
