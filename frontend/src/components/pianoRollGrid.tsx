@@ -221,12 +221,14 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         e.preventDefault();
         const { offsetX, offsetY } = e.nativeEvent;
         const [ri, ci] = getCoordsAtOffset(offsetX, offsetY);
-        if (e.button === 0) {
-            onAddNote(ri, ci);
-            setCurrentDrawState(DrawState.DRAWING);
-        } else if (e.button === 2) {
-            onDeleteNote(ri, ci);
-            setCurrentDrawState(DrawState.DELETING);
+        if (ri >= 0) {
+            if (e.button === 0) {
+                onAddNote(ri, ci);
+                setCurrentDrawState(DrawState.DRAWING);
+            } else if (e.button === 2) {
+                onDeleteNote(ri, ci);
+                setCurrentDrawState(DrawState.DELETING);
+            }
         }
     };
 
