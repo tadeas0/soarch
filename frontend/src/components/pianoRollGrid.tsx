@@ -18,6 +18,7 @@ import {
     PIANO_ROLL_NOTE_WIDTH,
     PIANO_ROLL_PLAYHEAD_COLOR,
     PRIMARY_COLOR,
+    SECONDARY_COLOR,
 } from "../constants";
 import { Sequencer, Note } from "../sequencer";
 
@@ -163,21 +164,26 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const drawNotes = useCallback(
         (ctx: CanvasRenderingContext2D) => {
             ctx.fillStyle = PRIMARY_COLOR;
+            ctx.strokeStyle = SECONDARY_COLOR;
+
             notes.forEach((n) => {
-                ctx.fillRect(
+                const x =
                     Sequencer.toneTimeToRollTime(n.time) *
-                        PIANO_ROLL_NOTE_WIDTH,
+                    PIANO_ROLL_NOTE_WIDTH;
+                const y =
                     Sequencer.tonePitchToRollPitch(
                         n.pitch,
                         gridParams.lowestNote,
                         gridParams.height
                     ) *
                         PIANO_ROLL_NOTE_HEIGHT +
-                        PIANO_ROLL_HEADER_SIZE,
+                    PIANO_ROLL_HEADER_SIZE;
+                const w =
                     Sequencer.toneTimeToRollTime(n.length) *
-                        PIANO_ROLL_NOTE_WIDTH,
-                    PIANO_ROLL_NOTE_HEIGHT
-                );
+                    PIANO_ROLL_NOTE_WIDTH;
+                const h = PIANO_ROLL_NOTE_HEIGHT;
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeRect(x, y, w, h);
             });
         },
         [gridParams, notes]
