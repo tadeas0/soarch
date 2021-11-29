@@ -9,6 +9,7 @@ from app.search_engine.similarity_strategy import LCSStrategy
 from app.search_engine.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
+
 if config.CLOUD_STORAGE_CREDENTIALS:
     file_storage: FileStorage = GoogleCloudFileStorage(
         json.loads(config.CLOUD_STORAGE_CREDENTIALS),
