@@ -9,6 +9,8 @@ import {
 import "./pianoRoll.css";
 import * as Tone from "tone";
 import {
+    BG_COLOR,
+    LIGHT_BG_COLOR,
     PIANO_ROLL_BG_COLOR,
     PIANO_ROLL_BLACK_KEY_COLOR,
     PIANO_ROLL_GRID_COLORS,
@@ -16,6 +18,8 @@ import {
     PIANO_ROLL_NOTE_HEIGHT,
     PIANO_ROLL_NOTE_WIDTH,
     PIANO_ROLL_PLAYHEAD_COLOR,
+    PRIMARY_COLOR,
+    SECONDARY_COLOR,
 } from "../constants";
 import { Sequencer, Note } from "../sequencer";
 
@@ -109,6 +113,12 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const drawGrid = useCallback(
         (ctx: CanvasRenderingContext2D) => {
             ctx.fillStyle = PIANO_ROLL_BG_COLOR;
+            ctx.rect(
+                0,
+                PIANO_ROLL_HEADER_SIZE,
+                ctx.canvas.width,
+                ctx.canvas.height - PIANO_ROLL_HEADER_SIZE
+            );
             ctx.fill();
             ctx.fillStyle = PIANO_ROLL_BLACK_KEY_COLOR;
             for (let i = 0; i < gridParams.height; i += 1) {
@@ -132,7 +142,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 
     const drawHeader = useCallback((ctx: CanvasRenderingContext2D) => {
         requestAnimationFrame(() => {
-            ctx.fillStyle = PIANO_ROLL_BG_COLOR;
+            ctx.fillStyle = BG_COLOR;
             ctx.fillRect(0, 0, ctx.canvas.width, PIANO_ROLL_HEADER_SIZE);
             let grd = ctx.createLinearGradient(
                 0,
@@ -154,22 +164,32 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 
     const drawNotes = useCallback(
         (ctx: CanvasRenderingContext2D) => {
-            ctx.fillStyle = "red";
+            ctx.strokeStyle = SECONDARY_COLOR;
+
             notes.forEach((n) => {
-                ctx.fillRect(
+                const x =
                     Sequencer.toneTimeToRollTime(n.time) *
-                        PIANO_ROLL_NOTE_WIDTH,
+                    PIANO_ROLL_NOTE_WIDTH;
+                const y =
                     Sequencer.tonePitchToRollPitch(
                         n.pitch,
                         gridParams.lowestNote,
                         gridParams.height
                     ) *
                         PIANO_ROLL_NOTE_HEIGHT +
-                        PIANO_ROLL_HEADER_SIZE,
+                    PIANO_ROLL_HEADER_SIZE;
+                const w =
                     Sequencer.toneTimeToRollTime(n.length) *
-                        PIANO_ROLL_NOTE_WIDTH,
-                    PIANO_ROLL_NOTE_HEIGHT
-                );
+                    PIANO_ROLL_NOTE_WIDTH;
+                const h = PIANO_ROLL_NOTE_HEIGHT;
+
+                const grd = ctx.createLinearGradient(x - 30, y, x + w, y);
+                grd.addColorStop(0, LIGHT_BG_COLOR);
+                grd.addColorStop(0.7, PRIMARY_COLOR);
+
+                ctx.fillStyle = grd;
+                ctx.fillRect(x, y, w, h);
+                ctx.strokeRect(x, y, w, h);
             });
         },
         [gridParams, notes]
@@ -182,6 +202,8 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 PIANO_ROLL_HEADER_SIZE +
                 gridParams.height * PIANO_ROLL_NOTE_HEIGHT;
             canvas.width = gridParams.width * PIANO_ROLL_NOTE_WIDTH;
+            canvas.style.width = canvas.width + "px";
+            canvas.style.height = canvas.height + "px";
             const context = canvas.getContext("2d");
             if (context) {
                 drawGrid(context);
@@ -207,12 +229,14 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         e.preventDefault();
         const { offsetX, offsetY } = e.nativeEvent;
         const [ri, ci] = getCoordsAtOffset(offsetX, offsetY);
-        if (e.button === 0) {
-            onAddNote(ri, ci);
-            setCurrentDrawState(DrawState.DRAWING);
-        } else if (e.button === 2) {
-            onDeleteNote(ri, ci);
-            setCurrentDrawState(DrawState.DELETING);
+        if (ri >= 0) {
+            if (e.button === 0) {
+                onAddNote(ri, ci);
+                setCurrentDrawState(DrawState.DRAWING);
+            } else if (e.button === 2) {
+                onDeleteNote(ri, ci);
+                setCurrentDrawState(DrawState.DELETING);
+            }
         }
     };
 

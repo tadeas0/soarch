@@ -8,6 +8,7 @@ import { MdClose } from "react-icons/md";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import "./result.css";
 import usePlayback from "../hooks/usePlayback";
+import { PRIMARY_COLOR } from "../constants";
 
 interface SearchResultProps {
     searchResult: SearchResult;
@@ -47,10 +48,11 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     isOpen={isOpen}
                     shouldCloseOnOverlayClick={true}
                     className="result-overlay-content"
+                    overlayClassName="result-overlay-overlay"
                     onRequestClose={handleModalClose}
                 >
                     <button className="close-btn" onClick={handleModalClose}>
-                        <MdClose />
+                        <MdClose color={PRIMARY_COLOR} />
                     </button>
                     <button className="play-btn" onClick={handlePlayClick}>
                         {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
