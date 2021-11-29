@@ -43,19 +43,19 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         (note: Note) => {
             if (isPlaying) {
                 const newNotes = [...notes, note];
-                Sequencer.addNotesToBuffer([note], gridParams.width);
+                Sequencer.fillBuffer([note], gridParams.width);
                 setNotes(newNotes);
             }
         }
     );
 
     const handleAddNote = (pitch: number, position: number, length: number) => {
-        handleStop();
         const newNote: Note = Sequencer.createNoteObject(
             position,
-            noteLength,
+            length,
             gridParams.height - pitch - 1
         );
+        Sequencer.addNoteToBuffer(newNote);
 
         const newNotes = [...notes, newNote];
         setNotes(newNotes);
@@ -70,6 +70,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 props.lowestNote,
                 gridParams.height
             );
+            if (p === pitch && s <= position && e >= position)
+                Sequencer.deleteNoteFromBuffer(n);
             return !(p === pitch && s <= position && e >= position);
         });
         setNotes(newNotes);

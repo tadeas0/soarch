@@ -33,6 +33,8 @@ export abstract class Sequencer {
         }
     ).toDestination();
 
+    private static part: Tone.Part = new Tone.Part();
+
     private static onBeatCallbacks: (() => void)[] = [];
 
     private static onMeasureCallbacks: (() => void)[] = [];
@@ -41,14 +43,22 @@ export abstract class Sequencer {
         await Tone.start();
     }
 
-    public static addNotesToBuffer(notes: Note[], gridLength: number) {
-        new Tone.Part((time, note) => {
+    public static fillBuffer(notes: Note[], gridLength: number) {
+        this.part = new Tone.Part((time, note) => {
             this.synth.triggerAttackRelease(note.pitch, note.length, time);
         }, notes).start(0);
 
         Tone.Transport.setLoopPoints(0, this.rollTimeToToneTime(gridLength));
 
         Tone.Transport.loop = true;
+    }
+
+    public static addNoteToBuffer(note: Note) {
+        this.part.add(note.time, note);
+    }
+
+    public static deleteNoteFromBuffer(note: Note) {
+        this.part.remove(note.time, note);
     }
 
     public static getGridParamsFromNotes(notes: Note[]): GridParams {
@@ -146,7 +156,7 @@ export abstract class Sequencer {
     public static rollPitchToTonePitch(pitch: number, gridParams: GridParams) {
         return Tone.Frequency(gridParams.lowestNote)
             .transpose(gridParams.height - pitch)
-            .toBarsBeatsSixteenths();
+            .toNote();
     }
 
     public static isPlaying() {

@@ -15,7 +15,7 @@ const usePlayback = (): [
         }
         Sequencer.stop();
         Sequencer.clearBuffer();
-        Sequencer.addNotesToBuffer(notes, gridLength);
+        Sequencer.fillBuffer(notes, gridLength);
         Sequencer.start();
         setPlaying(true);
     };
