@@ -3,13 +3,16 @@ import { useCallback, useEffect, useState } from "react";
 import { Sequencer, Note } from "../sequencer";
 import { KEYBOARD_NOTE_MAP } from "../constants";
 
-const useKeyboardListener = (onKeyUp: (note: Note) => void): void => {
+const useKeyboardListener = (
+    onKeyUp: (note: Note) => void
+): [boolean, (playbackEnabled: boolean) => void] => {
     const [pressedNotes, setPressedNotes] = useState<{
         [note: Tone.Unit.Frequency]: boolean;
     }>({});
     const [noteStarts, setNoteStarts] = useState<{
         [note: Tone.Unit.Frequency]: Tone.Unit.Time;
     }>({});
+    const [playbackEnabled, setPlaybackEnabled] = useState(false);
 
     const getCurrentQTime = () => {
         const qTime = Tone.Time(Tone.Transport.position).quantize("16n");
@@ -18,7 +21,11 @@ const useKeyboardListener = (onKeyUp: (note: Note) => void): void => {
 
     const keyDownListener = useCallback(
         (event: KeyboardEvent) => {
-            if (event.code in KEYBOARD_NOTE_MAP && !pressedNotes[event.code]) {
+            if (
+                playbackEnabled &&
+                event.code in KEYBOARD_NOTE_MAP &&
+                !pressedNotes[event.code]
+            ) {
                 const newPressedNotes = {
                     ...pressedNotes,
                     [event.code]: true,
@@ -31,12 +38,12 @@ const useKeyboardListener = (onKeyUp: (note: Note) => void): void => {
                 Sequencer.pressNote(KEYBOARD_NOTE_MAP[event.code]);
             }
         },
-        [pressedNotes, noteStarts]
+        [pressedNotes, noteStarts, playbackEnabled]
     );
 
     const keyUpListener = useCallback(
         (event: KeyboardEvent) => {
-            if (event.code in KEYBOARD_NOTE_MAP) {
+            if (playbackEnabled && event.code in KEYBOARD_NOTE_MAP) {
                 const end = getCurrentQTime();
                 const start = noteStarts[KEYBOARD_NOTE_MAP[event.code]];
                 const splEnd = end.split(":");
@@ -67,7 +74,7 @@ const useKeyboardListener = (onKeyUp: (note: Note) => void): void => {
                 });
             }
         },
-        [pressedNotes, onKeyUp, noteStarts]
+        [pressedNotes, noteStarts, playbackEnabled, onKeyUp]
     );
 
     useEffect(() => {
@@ -84,6 +91,8 @@ const useKeyboardListener = (onKeyUp: (note: Note) => void): void => {
         for (let i in KEYBOARD_NOTE_MAP) newPressedNotes[i] = false;
         setPressedNotes(newPressedNotes);
     }, []);
+
+    return [playbackEnabled, setPlaybackEnabled];
 };
 
 export default useKeyboardListener;
