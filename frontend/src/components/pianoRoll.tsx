@@ -9,13 +9,15 @@ import {
 } from "../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch } from "react-icons/md";
+import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
+import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
 import SixteenthNote from "../notes/sixteenth.svg";
 import EighthNote from "../notes/eighth.svg";
 import QuarterNote from "../notes/quarter.svg";
 import HalfNote from "../notes/half.svg";
 import WholeNote from "../notes/whole.svg";
-import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import usePlayback from "../hooks/usePlayback";
+import useKeyboardListener from "../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../sequencer";
 import "./pianoRoll.css";
 import PianoRollGrid, { GridParams } from "./pianoRollGrid";
@@ -37,13 +39,23 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
 
-    const handleAddNote = (pitch: number, position: number) => {
-        handleStop();
+    const [playbackEnabled, setPlaybackEnabled] = useKeyboardListener(
+        (note: Note) => {
+            if (isPlaying) {
+                const newNotes = [...notes, note];
+                Sequencer.fillBuffer([note], gridParams.width);
+                setNotes(newNotes);
+            }
+        }
+    );
+
+    const handleAddNote = (pitch: number, position: number, length: number) => {
         const newNote: Note = Sequencer.createNoteObject(
             position,
-            noteLength,
+            length,
             gridParams.height - pitch - 1
         );
+        Sequencer.addNoteToBuffer(newNote);
 
         const newNotes = [...notes, newNote];
         setNotes(newNotes);
@@ -58,6 +70,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 props.lowestNote,
                 gridParams.height
             );
+            if (p === pitch && s <= position && e >= position)
+                Sequencer.deleteNoteFromBuffer(n);
             return !(p === pitch && s <= position && e >= position);
         });
         setNotes(newNotes);
@@ -111,11 +125,11 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
 
     const renderNoteIcon = () => {
         const iconDict: { [key: number]: JSX.Element } = {
-            1: <img src={SixteenthNote} height={50} alt="1" />,
-            2: <img src={EighthNote} height={50} alt="2" />,
-            4: <img src={QuarterNote} height={50} alt="4" />,
-            8: <img src={HalfNote} height={50} alt="8" />,
-            16: <img src={WholeNote} height={50} alt="16" />,
+            1: <img src={SixteenthNote} width={30} height={50} alt="1" />,
+            2: <img src={EighthNote} width={30} height={50} alt="2" />,
+            4: <img src={QuarterNote} width={30} height={50} alt="4" />,
+            8: <img src={HalfNote} width={30} height={50} alt="8" />,
+            16: <img src={WholeNote} width={30} height={10} alt="16" />,
         };
 
         return iconDict[noteLength];
@@ -123,32 +137,46 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
 
     return (
         <div className="pianoroll">
-            <button onClick={handlePlayClick}>
-                {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
-            </button>
-            <button
-                className="right"
-                onClick={() =>
-                    props.noteWidth && props.onSubmit(notes, gridParams.width)
-                }
-            >
-                <MdOutlineSearch />
-            </button>
-            <button onClick={handleClear}>
-                <MdDelete />
-            </button>
-            <button
-                onClick={handleRemoveMeasure}
-                disabled={!canRemoveMeasure()}
-            >
-                <AiOutlineMinus />
-            </button>
-            <button onClick={handleAddMeasure}>
-                <AiOutlinePlus />
-            </button>
-            <button onClick={handleChangeNoteLength}>{renderNoteIcon()}</button>
+            <div className="button-container">
+                <button onClick={handlePlayClick}>
+                    {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
+                </button>
+                <button
+                    className="right"
+                    onClick={() =>
+                        props.noteWidth &&
+                        props.onSubmit(notes, gridParams.width)
+                    }
+                >
+                    <MdOutlineSearch />
+                </button>
+                <button onClick={handleClear}>
+                    <MdDelete />
+                </button>
+                <button
+                    onClick={handleRemoveMeasure}
+                    disabled={!canRemoveMeasure()}
+                >
+                    <AiOutlineMinus />
+                </button>
+                <button onClick={handleAddMeasure}>
+                    <AiOutlinePlus />
+                </button>
+                <button onClick={handleChangeNoteLength}>
+                    {renderNoteIcon()}
+                </button>
+                <button onClick={() => setPlaybackEnabled(!playbackEnabled)}>
+                    {playbackEnabled ? (
+                        <TiMediaRecord />
+                    ) : (
+                        <TiMediaRecordOutline />
+                    )}
+                </button>
+            </div>
             <PianoRollGrid
-                onAddNote={handleAddNote}
+                onAddNote={(pitch: number, position: number) => {
+                    handleAddNote(pitch, position, noteLength);
+                }}
                 onDeleteNote={handleDeleteNote}
                 gridParams={gridParams}
                 notes={notes}

@@ -2,8 +2,15 @@
     padding: 20px;
 }
 
+.pianoroll .button-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
 .pianoroll button {
-    width: 15%;
+    flex-grow: 1;
     outline: none;
     border-radius: 10px;
     border: none;
