@@ -51,9 +51,11 @@ def create_app() -> Quart:
 
     from app.midi.controller import midi_bp
     from app.health_check.controller import health_check_bp
+    from app.similarity_strategy.controller import similarity_strategy_bp
 
     app.register_blueprint(midi_bp)
     app.register_blueprint(health_check_bp)
+    app.register_blueprint(similarity_strategy_bp)
 
     logger.info("Blueprints initialized")
 
