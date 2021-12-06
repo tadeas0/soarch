@@ -22,6 +22,9 @@ class SearchEngineFactory:
             "la": LocalAlignmentStrategy(),
         }
 
+        if strategy_repr not in similarity_strategy_dict:
+            raise ValueError("Unknown similarity strategy")
+
         return SearchEngine(
             repository,
             TopNoteStrategy(),
