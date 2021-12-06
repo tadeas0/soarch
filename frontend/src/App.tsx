@@ -1,10 +1,11 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll";
 import SearchResults from "./components/searchResults";
+import StrategySelector from "./components/strategySelector";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
@@ -24,7 +25,23 @@ Modal.setAppElement("#root");
 
 function App() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+    const [availableStrategies, setAvailableStrategies] = useState<
+        Array<string>
+    >([]);
+    const [selectedStrategy, setSelectedStrategy] = useState<string>("");
     const [isBusy, setBusy] = useState<boolean>(false);
+
+    useEffect(() => {
+        API.getSimilarityStrategies()
+            .then((res) => {
+                setAvailableStrategies(res.data);
+                setSelectedStrategy(res.data[0]);
+            })
+            .catch((err) => {
+                console.log(err); // TODO: handle errors
+            });
+    }, []);
+
     const handleSubmit = (notes: Note[], gridLength: number) => {
         setBusy(true);
         API.postNotes({
@@ -36,6 +53,7 @@ function App() {
                     time: n.time,
                 };
             }),
+            similarityStrategy: selectedStrategy,
         })
             .then((res) => {
                 const result = res.data.tracks.map<SearchResult>((track) => {
@@ -70,6 +88,13 @@ function App() {
                     noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
                     lowestNote={PIANO_ROLL_LOWEST_NOTE}
                 />
+                <div>
+                    <StrategySelector
+                        options={availableStrategies}
+                        onChange={setSelectedStrategy}
+                        selectedValue={selectedStrategy}
+                    />
+                </div>
                 <SearchResults searchResults={searchResults} isBusy={isBusy} />
             </PlaybackProvider>
         </div>

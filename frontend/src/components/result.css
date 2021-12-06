@@ -16,6 +16,7 @@
 }
 
 .results-container {
+    flex-grow: 1;
     overflow-y: scroll;
     margin-bottom: 16px;
     border-radius: 8px;

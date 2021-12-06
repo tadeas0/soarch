@@ -3,6 +3,7 @@ import axios from "axios";
 
 interface NoteForm {
     notes: NoteSerialized[];
+    similarityStrategy?: string;
     gridLength: number;
 }
 
@@ -31,5 +32,8 @@ interface SearchResultResponse {
 export const API = {
     postNotes(noteForm: NoteForm) {
         return axios.post<SearchResultResponse>("/api/midi", noteForm);
+    },
+    getSimilarityStrategies() {
+        return axios.get<Array<string>>("/api/similarity-strategy");
     },
 };
