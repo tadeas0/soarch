@@ -45,7 +45,7 @@ class SearchEngine:
                     for segment in segments:
                         proc_seg = self.__preprocess_track(segment)
 
-                        sim = self.similarity_strategy.compare(query_prep[0], proc_seg)
+                        sim = self.similarity_strategy.compare(query_prep, proc_seg)
                         songs.append((sim, song.metadata, segment))
         logger.info("Found similar song")
         return self.__postprocess_result_list(songs, n)
