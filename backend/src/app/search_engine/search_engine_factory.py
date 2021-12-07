@@ -2,12 +2,7 @@ from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.standardization_strategy import RelativeIntervalStrategy
-from app.search_engine.similarity_strategy import (
-    EMDStrategy,
-    LCSStrategy,
-    DTWStrategy,
-    LocalAlignmentStrategy,
-)
+from app.search_engine.similarity_strategy import SimilarityStrategy
 
 
 class SearchEngineFactory:
@@ -15,19 +10,12 @@ class SearchEngineFactory:
     def create_search_engine(
         repository: SongRepository, strategy_repr: str
     ) -> SearchEngine:
-        similarity_strategy_dict = {
-            "emd": EMDStrategy(),
-            "lcs": LCSStrategy(),
-            "dtw": DTWStrategy(),
-            "la": LocalAlignmentStrategy(),
-        }
+        for i in SimilarityStrategy.__subclasses__():
+            if i().shortcut == strategy_repr:
+                return SearchEngine(
+                    repository,
+                    TopNoteStrategy(),
+                    RelativeIntervalStrategy(),
+                    i())
 
-        if strategy_repr not in similarity_strategy_dict:
-            raise ValueError("Unknown similarity strategy")
-
-        return SearchEngine(
-            repository,
-            TopNoteStrategy(),
-            RelativeIntervalStrategy(),
-            similarity_strategy_dict[strategy_repr],
-        )
+        raise ValueError("Unknown similarity strategy")
