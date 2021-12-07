@@ -24,13 +24,13 @@ async def midi_post():
     if not data:
         raise TypeError()
 
-    similarity_strategy = data.get(
-        "similarityStrategy", config.DEFAULT_STRATEGY)
+    similarity_strategy = data.get("similarityStrategy", config.DEFAULT_STRATEGY)
 
     song = JsonParser.parse(data)
     try:
         engine = SearchEngineFactory.create_search_engine(
-            repository, similarity_strategy)
+            repository, similarity_strategy
+        )
     except ValueError as e:
         logger.debug(f"Unknown strategy {similarity_strategy}")
         return str(e), HTTPStatus.BAD_REQUEST

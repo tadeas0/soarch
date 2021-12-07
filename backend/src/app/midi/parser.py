@@ -13,6 +13,7 @@ class JsonParser:
     @staticmethod
     def parse(data) -> Song:
         notes = data["notes"]
+        bpm = data.get("bpm", 120)
         return Song(
             [
                 Track(
@@ -20,6 +21,7 @@ class JsonParser:
                     scaleTicks(4, config.DEFAULT_PPQ, data["gridLength"]),
                 )
             ],
+            bpm,
             None,
         )
 
@@ -46,6 +48,12 @@ class MidiParser:
         def st(t: int):
             return scaleTicks(midi_file.ticks_per_beat, config.DEFAULT_PPQ, t)
 
+        bpm = 120
+        for i in map(lambda c: c.tempo, midi_file.tempo_changes):
+            if i > 0:
+                bpm = i
+                break
+
         return Song(
             [
                 Track(
@@ -61,5 +69,6 @@ class MidiParser:
                 )
                 for inst in melodic_inst
             ],
+            bpm,
             None,
         )

@@ -17,12 +17,12 @@ def list_keys_mock(cls):
 def get_all_mock(cls):
     for i in range(5):
         track = Track([Note(0, 10, 0)], 100)
-        yield Song([track], SongMetadata(f"artist{i}", f"song{i}"))
+        yield Song([track], 120, SongMetadata(f"artist{i}", f"song{i}"))
 
 
 async def load_song_async_mock(cls, file_path: str):
     track = Track([Note(0, 10, 0)], 100)
-    return Song([track], SongMetadata(f"artist{file_path}", f"song{file_path}"))
+    return Song([track], 120, SongMetadata(f"artist{file_path}", f"song{file_path}"))
 
 
 class MockFileStorage(FileStorage):
@@ -50,7 +50,7 @@ def assert_result(result, expected_len):
     for i in result:
         assert len(i) == 3
         assert isinstance(i[0], float)
-        assert isinstance(i[1], SongMetadata)
+        assert isinstance(i[1], Song)
         assert isinstance(i[2], Track)
 
 

@@ -3,7 +3,7 @@ import config
 import pytest
 from app import create_app
 import unittest.mock
-from app.midi.song import SongMetadata, Track, Note
+from app.midi.song import Song, SongMetadata, Track, Note
 
 
 @pytest.fixture
@@ -19,7 +19,10 @@ async def find_similar_async_mock(cls, *args):
         ],
         100,
     )
-    return [(i, SongMetadata("artist", "song"), track) for i in range(10)]
+    return [
+        (i, Song([track], 120, SongMetadata("artist", "song")), track)
+        for i in range(10)
+    ]
 
 
 @unittest.mock.patch.object(SearchEngine, "find_similar_async", find_similar_async_mock)
@@ -50,6 +53,7 @@ async def test_midi_controller_success(app):
                 {"pitch": 20, "length": "0:1:0", "time": "0:0:0"},
                 {"pitch": 20, "length": "0:1:0", "time": "0:1:0"},
             ],
+            "bpm": 120,
         }
         for i in range(10)
     ]

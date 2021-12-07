@@ -24,4 +24,5 @@ class SongMetadata:
 @dataclass
 class Song:
     tracks: list[Track]
+    bpm: int
     metadata: Optional[SongMetadata]

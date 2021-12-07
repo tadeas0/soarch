@@ -1,5 +1,5 @@
 from typing import Union
-from app.midi.song import Note, SongMetadata, Track
+from app.midi.song import Note, Track, Song
 from math import floor
 import config
 
@@ -7,18 +7,28 @@ import config
 class TrackSerializer:
     @staticmethod
     def serialize_with_metadata(
-        metadata: SongMetadata, track: Track, trim=True
-    ) -> dict[str, Union[str, list[dict[str, Union[str, int]]]]]:
+        song: Song, track: Track, trim=True
+    ) -> dict[str, Union[str, int, list[dict[str, Union[str, int]]]]]:
+        print(song)
         track_notes = track.notes
         if trim:
             track_notes = TrackSerializer.trim_notes(track_notes)
         serialized_notes = [TrackSerializer.serialize_note(i) for i in track_notes]
 
-        return {
-            "artist": metadata.artist,
-            "name": metadata.name,
-            "notes": serialized_notes,
-        }
+        if song.metadata:
+            return {
+                "artist": song.metadata.artist,
+                "name": song.metadata.name,
+                "notes": serialized_notes,
+                "bpm": song.bpm,
+            }
+        else:
+            return {
+                "artist": "Unknown artist",
+                "name": "Unknown song",
+                "notes": serialized_notes,
+                "bpm": song.bpm,
+            }
 
     @staticmethod
     def serialize_note(note: Note) -> dict[str, Union[str, int]]:
