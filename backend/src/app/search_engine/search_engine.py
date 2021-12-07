@@ -5,7 +5,7 @@ import numpy.typing as npt
 import numpy as np
 from app.midi.repository import SongRepository
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
-from app.midi.song import Song, SongMetadata, Track
+from app.midi.song import Song, Track
 from app.search_engine.strategy.melody_extraction_strategy import (
     MelodyExtractionStrategy,
 )
@@ -32,9 +32,9 @@ class SearchEngine:
 
     def find_similar(
         self, n: int, query_track: Track
-    ) -> list[tuple[float, SongMetadata, Track]]:
+    ) -> list[tuple[float, Song, Track]]:
         logger.info("Searching song")
-        songs: list[tuple[float, SongMetadata, Track]] = []
+        songs: list[tuple[float, Song, Track]] = []
         query_prep = self.__preprocess_track(query_track)
         for song in self.repository.get_all():
             if song.metadata:
@@ -46,16 +46,18 @@ class SearchEngine:
                         proc_seg = self.__preprocess_track(segment)
 
                         sim = self.similarity_strategy.compare(query_prep, proc_seg)
-                        songs.append((sim, song.metadata, segment))
+                        songs.append((sim, song, segment))
         logger.info("Found similar song")
         return self.__postprocess_result_list(songs, n)
 
-    async def find_similar_async(self, n: int, query_track: Track):
+    async def find_similar_async(
+        self, n: int, query_track: Track
+    ) -> list[tuple[float, Song, Track]]:
         logger.info("Searching song")
-        songs: list[tuple[float, SongMetadata, Track]] = []
+        songs: list[tuple[float, Song, Track]] = []
         query_prep = self.__preprocess_track(query_track)
         in_q: asyncio.Queue[Song] = asyncio.Queue()
-        out_q: asyncio.Queue[tuple[float, SongMetadata, Track]] = asyncio.Queue()
+        out_q: asyncio.Queue[tuple[float, Song, Track]] = asyncio.Queue()
         consumer = asyncio.ensure_future(
             self.__consume_queue(query_track, query_prep, in_q, out_q)
         )
@@ -69,21 +71,26 @@ class SearchEngine:
         return self.__postprocess_result_list(songs, n)
 
     def __postprocess_result_list(
-        self, results: list[tuple[float, SongMetadata, Track]], n: int
-    ):
+        self, results: list[tuple[float, Song, Track]], n: int
+    ) -> list[tuple[float, Song, Track]]:
         sorted_results = sorted(
             results,
             reverse=self.similarity_strategy.highest_first,
-            key=lambda a: (a[0], a[1].name, a[1].artist),
+            key=lambda a: (
+                a[0],
+                a[1].metadata.name if a[1].metadata else "",
+                a[1].metadata.artist if a[1].metadata else "",
+            ),
         )
         logger.debug("Postprocessing search results")
         metadata: set[tuple[str, str]] = set()
-        unique_results: list[tuple[float, SongMetadata, Track]] = []
+        unique_results: list[tuple[float, Song, Track]] = []
         for i in sorted_results:
-            meta_tuple = (i[1].artist, i[1].name)
-            if meta_tuple not in metadata:
-                metadata.add(meta_tuple)
-                unique_results.append(i)
+            if i[1].metadata:
+                meta_tuple = (i[1].metadata.artist, i[1].metadata.name)
+                if meta_tuple not in metadata:
+                    metadata.add(meta_tuple)
+                    unique_results.append(i)
 
         if len(unique_results) >= n:
             return unique_results[0:n]
@@ -103,7 +110,7 @@ class SearchEngine:
         query_track: Track,
         query_prep,
         in_q: asyncio.Queue[Song],
-        out_q: asyncio.Queue[tuple[float, SongMetadata, Track]],
+        out_q: asyncio.Queue[tuple[float, Song, Track]],
     ) -> None:
         while True:
             song = await in_q.get()
@@ -119,7 +126,7 @@ class SearchEngine:
                         prep_seg = self.__preprocess_track(segment)
                         sim = self.similarity_strategy.compare(query_prep, prep_seg)
 
-                        await out_q.put((sim, song.metadata, segment))
+                        await out_q.put((sim, song, segment))
             in_q.task_done()
 
     def __preprocess_track(self, track: Track) -> npt.NDArray[np.int64]:

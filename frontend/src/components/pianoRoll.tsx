@@ -6,6 +6,9 @@ import {
     DEFAULT_PIANO_ROLL_WIDTH,
     DEFAULT_NOTE_LENGTH,
     MEASURE_LENGTH,
+    MIN_BPM,
+    MAX_BPM,
+    DEFAULT_BPM,
 } from "../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch } from "react-icons/md";
@@ -38,6 +41,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     });
     const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
+    const [currentBPM, setCurrentBPM] = useState(DEFAULT_BPM);
 
     const [playbackEnabled, setPlaybackEnabled] = useKeyboardListener(
         (note: Note) => {
@@ -90,7 +94,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
 
     const handlePlayClick = () => {
         if (!isPlaying) {
-            handleStart(notes, gridParams.width);
+            let bpm = DEFAULT_BPM;
+            if (currentBPM >= MIN_BPM && currentBPM <= MAX_BPM)
+                bpm = currentBPM;
+            handleStart(notes, bpm, gridParams.width);
         } else {
             handleStop();
         }
@@ -123,6 +130,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         }
     };
 
+    const handleChangeBPM = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.preventDefault();
+        const value = Number(e.target.value);
+        e.target.value.length <= 3 && setCurrentBPM(value);
+        if (value >= MIN_BPM && value <= MAX_BPM) {
+            Sequencer.setBpm(value);
+        }
+    };
+
     const renderNoteIcon = () => {
         const iconDict: { [key: number]: JSX.Element } = {
             1: <img src={SixteenthNote} width={30} height={50} alt="1" />,
@@ -138,7 +154,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     return (
         <div className="pianoroll">
             <div className="button-container">
-                <button onClick={handlePlayClick}>
+                <button
+                    onClick={handlePlayClick}
+                    disabled={!(currentBPM >= MIN_BPM && currentBPM <= MAX_BPM)}
+                >
                     {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                 </button>
                 <button
@@ -172,6 +191,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                         <TiMediaRecordOutline />
                     )}
                 </button>
+                <input
+                    type="number"
+                    value={currentBPM}
+                    onChange={handleChangeBPM}
+                    max={250}
+                    min={30}
+                    disabled={isPlaying}
+                ></input>
             </div>
             <PianoRollGrid
                 onAddNote={(pitch: number, position: number) => {
