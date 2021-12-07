@@ -100,7 +100,7 @@ export abstract class Sequencer {
     }
 
     public static setBpm(bpm: number) {
-        Tone.Transport.bpm.value = 120;
+        Tone.Transport.bpm.value = bpm;
     }
 
     public static setSynth(synth: Tone.Synth) {
