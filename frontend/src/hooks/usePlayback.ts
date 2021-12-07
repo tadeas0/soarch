@@ -4,18 +4,23 @@ import { Sequencer, Note } from "../sequencer";
 
 const usePlayback = (): [
     boolean,
-    (notes: Note[], gridLength: number) => void,
+    (notes: Note[], bpm: number, gridLength: number) => void,
     () => void
 ] => {
     const { isPlaying, setPlaying } = useContext(PlaybackContext);
 
-    const handleStart = async (notes: Note[], gridLength: number) => {
+    const handleStart = async (
+        notes: Note[],
+        bpm: number,
+        gridLength: number
+    ) => {
         if (!Sequencer.isInitialized()) {
             await Sequencer.init();
         }
         Sequencer.stop();
         Sequencer.clearBuffer();
         Sequencer.fillBuffer(notes, gridLength);
+        Sequencer.setBpm(bpm);
         Sequencer.start();
         setPlaying(true);
     };

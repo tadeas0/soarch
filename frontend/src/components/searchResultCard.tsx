@@ -33,7 +33,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     const handlePlayClick = () => {
         if (!isPlaying) {
             const params = Sequencer.getGridParamsFromNotes(searchResult.notes);
-            handleStart(searchResult.notes, params.width);
+            handleStart(searchResult.notes, searchResult.bpm, params.width);
         } else {
             handleStop();
         }

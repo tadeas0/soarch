@@ -9,7 +9,6 @@ class TrackSerializer:
     def serialize_with_metadata(
         song: Song, track: Track, trim=True
     ) -> dict[str, Union[str, int, list[dict[str, Union[str, int]]]]]:
-        print(song)
         track_notes = track.notes
         if trim:
             track_notes = TrackSerializer.trim_notes(track_notes)

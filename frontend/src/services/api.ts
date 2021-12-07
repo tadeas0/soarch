@@ -25,6 +25,7 @@ export interface SearchResultResponse {
                     time: string;
                 }
             ];
+            bpm: number;
         }
     ];
 }

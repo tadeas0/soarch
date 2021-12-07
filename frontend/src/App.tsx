@@ -20,6 +20,7 @@ export interface SearchResult {
     artist: string;
     name: string;
     notes: Note[];
+    bpm: number;
 }
 
 Modal.setAppElement("#root");
@@ -78,6 +79,7 @@ function App() {
                                 ).toBarsBeatsSixteenths(),
                             };
                         }),
+                        bpm: track.bpm,
                     };
                 });
                 setSearchResults(result);

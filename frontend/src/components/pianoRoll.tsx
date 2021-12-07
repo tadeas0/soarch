@@ -8,6 +8,7 @@ import {
     MEASURE_LENGTH,
     MIN_BPM,
     MAX_BPM,
+    DEFAULT_BPM,
 } from "../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch } from "react-icons/md";
@@ -40,7 +41,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     });
     const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
-    const [currentBPM, setCurrentBPM] = useState(120);
+    const [currentBPM, setCurrentBPM] = useState(DEFAULT_BPM);
 
     const [playbackEnabled, setPlaybackEnabled] = useKeyboardListener(
         (note: Note) => {
@@ -93,7 +94,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
 
     const handlePlayClick = () => {
         if (!isPlaying) {
-            handleStart(notes, gridParams.width);
+            let bpm = DEFAULT_BPM;
+            if (currentBPM >= MIN_BPM && currentBPM <= MAX_BPM)
+                bpm = currentBPM;
+            handleStart(notes, bpm, gridParams.width);
         } else {
             handleStop();
         }
