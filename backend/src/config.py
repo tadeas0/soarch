@@ -17,4 +17,3 @@ REDIS_URL = os.getenv("REDIS_URL", "")
 ENV = os.getenv("ENV", "prod")
 DEFAULT_LOGGER = "midi-search"
 DEFAULT_STRATEGY = "lcs"
-AVAILABLE_STRATEGIES = ["lcs", "emd", "dtw", "la"]

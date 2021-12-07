@@ -22,7 +22,6 @@ async def midi_post():
     data = await request.get_json()
     similarity_strategy = data.get(
         "similarityStrategy", config.DEFAULT_STRATEGY)
-    logger.debug(f"Searching using {similarity_strategy} similarity_strategy")
 
     song = JsonParser.parse(data)
     try:
@@ -32,10 +31,12 @@ async def midi_post():
         logger.debug(f"Unknown strategy {similarity_strategy}")
         return str(e), HTTPStatus.BAD_REQUEST
 
+    logger.debug(f"Searching using {similarity_strategy} similarity_strategy")
     similar_songs = await engine.find_similar_async(10, song.tracks[0])
     serialized_songs = [
         TrackSerializer.serialize_with_metadata(i[1], i[2]) for i in similar_songs
     ]
+    logger.debug(f"Found {len(serialized_songs)} songs")
     res = {"tracks": serialized_songs}
     return jsonify(res)
 
@@ -43,4 +44,5 @@ async def midi_post():
 @midi_bp.errorhandler(KeyError)
 @midi_bp.errorhandler(TypeError)
 def handle_key_error(e):
+    logger.debug("Recieved invalid data format")
     return "Invalid data format", HTTPStatus.BAD_REQUEST
