@@ -1,0 +1,8 @@
+.strategy-selector {
+    background-color: var(--medium-bg-color);
+    outline: none;
+    border: none;
+    color: white;
+    margin: 10px;
+    padding: 10px;
+}

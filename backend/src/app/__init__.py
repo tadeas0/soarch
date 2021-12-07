@@ -9,6 +9,7 @@ from app.search_engine.similarity_strategy import LCSStrategy
 from app.search_engine.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
+
 if config.CLOUD_STORAGE_CREDENTIALS:
     file_storage: FileStorage = GoogleCloudFileStorage(
         json.loads(config.CLOUD_STORAGE_CREDENTIALS),
@@ -50,9 +51,11 @@ def create_app() -> Quart:
 
     from app.midi.controller import midi_bp
     from app.health_check.controller import health_check_bp
+    from app.similarity_strategy.controller import similarity_strategy_bp
 
     app.register_blueprint(midi_bp)
     app.register_blueprint(health_check_bp)
+    app.register_blueprint(similarity_strategy_bp)
 
     logger.info("Blueprints initialized")
 

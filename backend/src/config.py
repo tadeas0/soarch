@@ -16,3 +16,4 @@ BUCKET_NAME = os.getenv("BUCKET_NAME", "")
 REDIS_URL = os.getenv("REDIS_URL", "")
 ENV = os.getenv("ENV", "prod")
 DEFAULT_LOGGER = "midi-search"
+DEFAULT_STRATEGY = "lcs"

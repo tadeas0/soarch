@@ -9,20 +9,50 @@ from Bio import pairwise2
 class SimilarityStrategy(ABC):
     highest_first = True
 
+    @property
     @abstractmethod
-    def compare(self, line1, line2) -> float:
+    def name(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def shortcut(self) -> str:
+        pass
+
+    @abstractmethod
+    def compare(
+            self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
+    ) -> float:
         pass
 
 
 class EMDStrategy(SimilarityStrategy):
     highest_first = False
 
-    def compare(self, line1, line2) -> float:
+    @property
+    def name(self) -> str:
+        return "Earth mover's distance"
+
+    @property
+    def shortcut(self) -> str:
+        return "emd"
+
+    def compare(
+            self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
+    ) -> float:
         return wasserstein_distance(line1, line2)
 
 
 class LCSStrategy(SimilarityStrategy):
     highest_first = True
+
+    @property
+    def name(self) -> str:
+        return "Longest common subsequence"
+
+    @property
+    def shortcut(self) -> str:
+        return "lcs"
 
     def __measure_aux(
         self, x: npt.NDArray[np.int64], y: npt.NDArray[np.int64]
@@ -47,6 +77,14 @@ class LCSStrategy(SimilarityStrategy):
 class DTWStrategy(SimilarityStrategy):
     highest_first = False
 
+    @property
+    def name(self) -> str:
+        return "Dynamic time warping"
+
+    @property
+    def shortcut(self) -> str:
+        return "dtw"
+
     def compare(
         self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
     ) -> float:
@@ -56,6 +94,14 @@ class DTWStrategy(SimilarityStrategy):
 
 class LocalAlignmentStrategy(SimilarityStrategy):
     highest_first = True
+
+    @property
+    def name(self) -> str:
+        return "Local alignment"
+
+    @property
+    def shortcut(self) -> str:
+        return "lca"
 
     def compare(
         self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]

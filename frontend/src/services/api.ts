@@ -1,18 +1,19 @@
 import * as Tone from "tone";
 import axios from "axios";
 
-interface NoteForm {
+export interface NoteForm {
     notes: NoteSerialized[];
+    similarityStrategy?: string;
     gridLength: number;
 }
 
-interface NoteSerialized {
+export interface NoteSerialized {
     pitch: Tone.Unit.MidiNote;
     length: Tone.Unit.Time;
     time: Tone.Unit.Time;
 }
 
-interface SearchResultResponse {
+export interface SearchResultResponse {
     tracks: [
         {
             artist: string;
@@ -28,8 +29,16 @@ interface SearchResultResponse {
     ];
 }
 
+export interface SimilarityStrategy {
+    name: string;
+    shortcut: string;
+}
+
 export const API = {
     postNotes(noteForm: NoteForm) {
         return axios.post<SearchResultResponse>("/api/midi", noteForm);
+    },
+    getSimilarityStrategies() {
+        return axios.get<SimilarityStrategy[]>("/api/similarity-strategy");
     },
 };
