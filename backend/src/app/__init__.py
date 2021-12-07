@@ -4,10 +4,6 @@ import logging
 import json
 from app.midi.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 from app.midi.repository import SongRepository
-from app.search_engine.search_engine import SearchEngine
-from app.search_engine.similarity_strategy import LCSStrategy
-from app.search_engine.melody_extraction_strategy import TopNoteStrategy
-from app.search_engine.standardization_strategy import RelativeIntervalStrategy
 
 
 if config.CLOUD_STORAGE_CREDENTIALS:
@@ -20,9 +16,6 @@ else:
     file_storage = LocalFileStorage(config.MIDI_DIR)
 
 repository = SongRepository(file_storage)
-engine = SearchEngine(
-    repository, TopNoteStrategy(), RelativeIntervalStrategy(), LCSStrategy()
-)
 
 
 def setup_logging() -> logging.Logger:

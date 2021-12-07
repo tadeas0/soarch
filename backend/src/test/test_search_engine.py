@@ -3,9 +3,10 @@ from app.midi.song import Note, Song, SongMetadata, Track
 from app.midi.repository import SongRepository
 from app.midi.filestorage import FileStorage
 from app.search_engine.search_engine import SearchEngine
-from app.search_engine.melody_extraction_strategy import TopNoteStrategy
-from app.search_engine.standardization_strategy import RelativeIntervalStrategy
-from app.search_engine.similarity_strategy import LCSStrategy
+from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
+from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
+from app.search_engine.strategy.similarity_strategy import LCSStrategy
+from app.search_engine.strategy.segmentation_strategy import OneSegmentStrategy
 import pytest
 
 
@@ -60,7 +61,11 @@ def assert_result(result, expected_len):
 async def test_find_similar_async():
     repository = SongRepository(MockFileStorage())
     search_engine = SearchEngine(
-        repository, TopNoteStrategy(), RelativeIntervalStrategy(), LCSStrategy()
+        repository,
+        TopNoteStrategy(),
+        RelativeIntervalStrategy(),
+        LCSStrategy(),
+        OneSegmentStrategy(),
     )
     query = Track([Note(0, 10, 32), Note(30, 10, 32)], 150)
     result1 = await search_engine.find_similar_async(2, query)
@@ -81,7 +86,11 @@ async def test_find_similar_async():
 async def test_find_similar():
     repository = SongRepository(MockFileStorage())
     search_engine = SearchEngine(
-        repository, TopNoteStrategy(), RelativeIntervalStrategy(), LCSStrategy()
+        repository,
+        TopNoteStrategy(),
+        RelativeIntervalStrategy(),
+        LCSStrategy(),
+        OneSegmentStrategy(),
     )
     query = Track([Note(0, 10, 32), Note(30, 10, 32)], 150)
     result1 = search_engine.find_similar(2, query)
