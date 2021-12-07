@@ -11,11 +11,14 @@ class SearchEngineFactory:
         repository: SongRepository, strategy_repr: str
     ) -> SearchEngine:
         for i in SimilarityStrategy.__subclasses__():
-            if i().shortcut == strategy_repr:
+            # NOTE: MyPy throws error, which can be safely ignored,
+            # because the abstract class is never accessed
+            # (__subclasses__() does not return the parent class)
+            if i().shortcut == strategy_repr:  # type: ignore
                 return SearchEngine(
                     repository,
                     TopNoteStrategy(),
                     RelativeIntervalStrategy(),
-                    i())
+                    i())  # type: ignore
 
         raise ValueError("Unknown similarity strategy")

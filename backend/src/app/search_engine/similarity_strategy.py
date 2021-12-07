@@ -20,7 +20,9 @@ class SimilarityStrategy(ABC):
         pass
 
     @abstractmethod
-    def compare(self, line1, line2) -> float:
+    def compare(
+            self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
+    ) -> float:
         pass
 
 
@@ -35,7 +37,9 @@ class EMDStrategy(SimilarityStrategy):
     def shortcut(self) -> str:
         return "emd"
 
-    def compare(self, line1, line2) -> float:
+    def compare(
+            self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
+    ) -> float:
         return wasserstein_distance(line1, line2)
 
 
