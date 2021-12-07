@@ -162,14 +162,14 @@ class DTWWinStrategy(SimilarityStrategy):
         for i in range(n + 1):
             for j in range(m + 1):
                 dtw[i][j] = np.inf
-        dtw[0, 0] = 0
+        dtw[0][0] = 0
 
         for i in range(1, n + 1):
-            for j in range(np.max([1][i - w]), np.min([m][i + w]) + 1):
+            for j in range(max(1, i - w), min(m, i + w) + 1):
                 dtw[i][j] = 0
 
         for i in range(1, n + 1):
-            for j in range(np.max([1][i - w]), np.min([m][i + w]) + 1):
+            for j in range(max(1, i - w), min(m, i + w) + 1):
                 cost = abs(line1[i - 1] - line2[j - 1])
                 last_min = min(dtw[i - 1][j], dtw[i][j - 1], dtw[i - 1][j - 1])
                 dtw[i][j] = cost + last_min
