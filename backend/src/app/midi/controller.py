@@ -20,6 +20,10 @@ def midi_get():
 @midi_bp.post("/")
 async def midi_post():
     data = await request.get_json()
+
+    if not data:
+        raise TypeError()
+
     similarity_strategy = data.get(
         "similarityStrategy", config.DEFAULT_STRATEGY)
 
