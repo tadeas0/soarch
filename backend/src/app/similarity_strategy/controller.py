@@ -1,4 +1,4 @@
-from app.search_engine.similarity_strategy import SimilarityStrategy
+from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from quart import Blueprint, jsonify
 import logging
 import config

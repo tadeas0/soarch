@@ -1,8 +1,9 @@
 from app.midi.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
-from app.search_engine.melody_extraction_strategy import TopNoteStrategy
-from app.search_engine.standardization_strategy import RelativeIntervalStrategy
-from app.search_engine.similarity_strategy import SimilarityStrategy
+from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
+from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
+from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
+from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
 
 
 class SearchEngineFactory:
@@ -19,6 +20,8 @@ class SearchEngineFactory:
                     repository,
                     TopNoteStrategy(),
                     RelativeIntervalStrategy(),
-                    i())  # type: ignore
+                    i(),  # type: ignore
+                    FixedLengthStrategy(),
+                )
 
         raise ValueError("Unknown similarity strategy")
