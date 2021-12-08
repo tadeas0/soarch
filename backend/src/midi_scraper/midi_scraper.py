@@ -27,13 +27,13 @@ def scrape_robs_midi_library(file_storage: FileStorage):
             artist = full_name_split[0]
             song = full_name_split[1]
             midi_file_link = f"{ROBS_MIDI_LIB_URL}/{i.get('href')}"
-            logger.info(f"Downloading {artist} - {song}")
+            logger.info(f"Downloading: {artist} - {song}")
             with file_storage.open(
                 os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song}.mid"), "wb"
             ) as midi_file:
                 res = requests.get(midi_file_link, allow_redirects=True)
                 midi_file.write(res.content)
-    logging.info("Finished scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
+    logger.info("Finished scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
 
 
 def scrape_free_midi(file_storage: FileStorage):
@@ -64,7 +64,7 @@ def scrape_free_midi(file_storage: FileStorage):
             os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song_title}.mid"), "wb"
         ) as f:
             f.write(r2.content)
-    logging.info("Finished scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
+    logger.info("Finished scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
 
 
 def parse_to_db(file_storage: FileStorage):

@@ -46,12 +46,16 @@ class SongRepository:
                 lambda a: a.split(".")[-1] in extensions, dir_content
             )
             keys.extend(matched_files)
-        
+
         # Return only .mid keys, that do not have .pkl equivalent
+        file_names = [i.split("/")[-1] for i in keys]
         new_keys = []
         for k in keys:
             extension = k.split(".")[-1]
-            if not (extension == "mid" and k.removesuffix(".mid") + ".pkl" in keys):
+            if not (
+                extension == "mid"
+                and k.split("/")[-1].removesuffix(".mid") + ".pkl" in file_names
+            ):
                 new_keys.append(k)
         return new_keys
 
@@ -62,6 +66,7 @@ class SongRepository:
     def __load_from_midi(self, file_path: str) -> Song:
         with self.file_storage.open(file_path, "rb") as f:
             song = MidiParser.parse(MidiFile(file=f))
+            logger.debug(f"Parsed file {file_path}")
             last = file_path.split("/")[-1]
 
             m = re.match(r"([a-zA-Z0-9 ]*) - ([a-zA-Z0-9 ]*)\.mid$", last)
@@ -76,6 +81,7 @@ class SongRepository:
 
     async def load_song_async(self, file_path: str) -> Song:
         extension = file_path.split(".")[-1]
+        logger.debug(f"Loading file {file_path}")
         if extension == "mid":
             return await self.__load_from_midi_async(file_path)
         elif extension == "pkl":
@@ -90,6 +96,7 @@ class SongRepository:
         song = MidiParser.parse(
             MidiFile(file=io.BytesIO(await self.file_storage.read(file_path)))
         )
+        logger.debug(f"Parsed file {file_path}")
         last = file_path.split("/")[-1]
 
         m = re.match(r"(.*) - (.*)\.mid$", last)
