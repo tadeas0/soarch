@@ -55,6 +55,7 @@ def create_app() -> Quart:
     @app.before_first_request
     async def init_file_storage():
         await file_storage.initialize()
+        repository.load_directory(config.RAW_MIDI_PREFIX)
         repository.load_directory(config.PROCESSED_MIDI_PREFIX)
 
     if type(file_storage) == GoogleCloudFileStorage:

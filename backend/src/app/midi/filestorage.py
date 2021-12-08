@@ -45,6 +45,10 @@ class LocalFileStorage(FileStorage):
 
     async def initialize(self) -> None:
         os.makedirs(self.root_path, exist_ok=True)
+        logger.debug(
+            "Local file storage initialized root_path: "
+            + f"{os.path.realpath(self.root_path)}"
+        )
 
     def open(self, key: str, mode: str) -> IO:
         logger.debug(f"Opening local file: {key} mode: {mode}")

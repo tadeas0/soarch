@@ -102,8 +102,11 @@ class SearchEngine:
         coros = [self.repository.load_song_async(i) for i in keys]
 
         for future in asyncio.as_completed(coros):
-            res = await future
-            await q.put(res)
+            try:
+                res = await future
+                await q.put(res)
+            except IOError as e:
+                logger.warning(f"Failed to parse song {e}")
 
     async def __consume_queue(
         self,
