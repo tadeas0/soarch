@@ -27,17 +27,21 @@ export interface SearchResult {
 
 Modal.setAppElement("#root");
 
+const DEFAULT_GRID_PARAMS: GridParams = {
+    height: DEFAULT_PIANO_ROLL_HEIGHT,
+    width: DEFAULT_PIANO_ROLL_WIDTH,
+    lowestNote: PIANO_ROLL_LOWEST_NOTE,
+};
+
 const EMPTY_QUERY: Song = {
     name: "<None>",
     artist: "<None>",
     bpm: DEFAULT_BPM,
     notes: [],
-};
-
-const DEFAULT_GRID_PARAMS: GridParams = {
-    height: DEFAULT_PIANO_ROLL_HEIGHT,
-    width: DEFAULT_PIANO_ROLL_WIDTH,
-    lowestNote: PIANO_ROLL_LOWEST_NOTE,
+    gridParams: {
+        ...DEFAULT_GRID_PARAMS,
+        lowestNote: Tone.Frequency(DEFAULT_GRID_PARAMS.lowestNote).toMidi(),
+    },
 };
 
 const songToOption = (query: Song) => {
