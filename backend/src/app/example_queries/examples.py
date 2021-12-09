@@ -222,6 +222,42 @@ snow_hey_oh = {
     ],
     "gridParams": {"width": 64, "height": 24, "lowestNote": 60},
 }
+careless_whisper = {
+    "bpm": 77,
+    "artist": "George Michael",
+    "name": "Careless Whisper",
+    "notes": [
+        {"pitch": 76, "length": "0:0:2", "time": "0:0:0"},
+        {"pitch": 74, "length": "0:0:1", "time": "0:0:2"},
+        {"pitch": 69, "length": "0:0:2", "time": "0:0:3"},
+        {"pitch": 65, "length": "0:0:2", "time": "0:1:1"},
+        {"pitch": 76, "length": "0:0:2", "time": "0:2:0"},
+        {"pitch": 74, "length": "0:0:1", "time": "0:2:2"},
+        {"pitch": 69, "length": "0:0:2", "time": "0:2:3"},
+        {"pitch": 65, "length": "0:0:2", "time": "0:3:1"},
+        {"pitch": 72, "length": "0:0:2", "time": "1:0:0"},
+        {"pitch": 70, "length": "0:0:1", "time": "1:0:2"},
+        {"pitch": 72, "length": "0:0:2", "time": "1:2:0"},
+        {"pitch": 65, "length": "0:0:2", "time": "1:0:3"},
+        {"pitch": 62, "length": "0:0:2", "time": "1:1:1"},
+        {"pitch": 65, "length": "0:0:2", "time": "1:2:3"},
+        {"pitch": 70, "length": "0:0:1", "time": "1:2:2"},
+        {"pitch": 70, "length": "0:0:2", "time": "2:0:0"},
+        {"pitch": 69, "length": "0:0:1", "time": "2:0:2"},
+        {"pitch": 65, "length": "0:0:2", "time": "2:0:3"},
+        {"pitch": 62, "length": "0:0:2", "time": "2:1:1"},
+        {"pitch": 58, "length": "0:2:0", "time": "2:1:3"},
+        {"pitch": 57, "length": "0:0:2", "time": "3:0:0"},
+        {"pitch": 58, "length": "0:0:2", "time": "3:0:2"},
+        {"pitch": 60, "length": "0:0:2", "time": "3:1:0"},
+        {"pitch": 62, "length": "0:0:2", "time": "3:1:2"},
+        {"pitch": 64, "length": "0:0:2", "time": "3:2:0"},
+        {"pitch": 65, "length": "0:0:2", "time": "3:2:2"},
+        {"pitch": 67, "length": "0:0:2", "time": "3:3:0"},
+        {"pitch": 69, "length": "0:0:2", "time": "3:3:2"},
+    ],
+    "gridParams": {"width": 64, "height": 36, "lowestNote": 48},
+}
 
 EXAMPLES = [
     bad_guy,
@@ -230,4 +266,5 @@ EXAMPLES = [
     the_real_slim_shady,
     beat_it,
     snow_hey_oh,
+    careless_whisper,
 ]
