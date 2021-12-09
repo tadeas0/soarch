@@ -13,11 +13,18 @@ export interface NoteSerialized {
     time: Tone.Unit.Time;
 }
 
+export interface GridParamsSerialized {
+    width: number;
+    height: number;
+    lowestNote: Tone.Unit.MidiNote;
+}
+
 export interface Song {
     artist: string;
     name: string;
     notes: NoteSerialized[];
     bpm: number;
+    gridParams?: GridParamsSerialized;
 }
 
 export interface SearchResultResponse {

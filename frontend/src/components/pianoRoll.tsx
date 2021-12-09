@@ -2,8 +2,6 @@ import * as React from "react";
 import * as Tone from "tone";
 import { useEffect, useState, FunctionComponent } from "react";
 import {
-    DEFAULT_PIANO_ROLL_HEIGHT,
-    DEFAULT_PIANO_ROLL_WIDTH,
     DEFAULT_NOTE_LENGTH,
     MEASURE_LENGTH,
     MIN_BPM,
@@ -26,20 +24,14 @@ import "./pianoRoll.css";
 import PianoRollGrid, { GridParams } from "./pianoRollGrid";
 
 interface PianoRollProps {
-    noteWidth: number;
-    noteHeight: number;
-    lowestNote: Tone.Unit.Note;
+    gridParams: GridParams;
     notes?: Note[];
     onSubmit: (notes: Note[], gridLength: number) => void;
 }
 
 const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const [notes, setNotes] = useState<Note[]>([]);
-    const [gridParams, setGridParams] = useState<GridParams>({
-        width: props.noteWidth,
-        height: props.noteHeight,
-        lowestNote: props.lowestNote,
-    });
+    const [gridParams, setGridParams] = useState<GridParams>(props.gridParams);
     const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
     const [currentBPM, setCurrentBPM] = useState(DEFAULT_BPM);
@@ -55,15 +47,18 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     );
 
     useEffect(() => {
+        setGridParams(props.gridParams);
         if (props.notes) setNotes(props.notes);
-    }, [props.notes]);
+    }, [props.notes, props.gridParams]);
 
     const handleAddNote = (pitch: number, position: number, length: number) => {
-        const newNote: Note = Sequencer.createNoteObject(
-            position,
-            length,
-            gridParams.height - pitch - 1
-        );
+        const newNote = {
+            time: Sequencer.rollTimeToToneTime(position),
+            pitch: Tone.Frequency(gridParams.lowestNote)
+                .transpose(gridParams.height - pitch - 1)
+                .toNote(),
+            length: Sequencer.rollTimeToToneTime(length),
+        };
         Sequencer.addNoteToBuffer(newNote);
 
         const newNotes = [...notes, newNote];
@@ -76,7 +71,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             const e = s + Sequencer.toneTimeToRollTime(n.length);
             const p = Sequencer.tonePitchToRollPitch(
                 n.pitch,
-                props.lowestNote,
+                gridParams.lowestNote,
                 gridParams.height
             );
             if (p === pitch && s <= position && e >= position)
@@ -168,7 +163,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 <button
                     className="right"
                     onClick={() =>
-                        props.noteWidth &&
+                        gridParams.width &&
                         props.onSubmit(notes, gridParams.width)
                     }
                 >
@@ -215,11 +210,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             />
         </div>
     );
-};
-
-PianoRoll.defaultProps = {
-    noteWidth: DEFAULT_PIANO_ROLL_WIDTH,
-    noteHeight: DEFAULT_PIANO_ROLL_HEIGHT,
 };
 
 export default PianoRoll;
