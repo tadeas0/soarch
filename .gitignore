@@ -3,6 +3,7 @@
 __pycache__
 .idea
 venv
-midi_files
+midi_files/processed
+midi_files/raw
 heroku_deploy
 .env*

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Tone from "tone";
-import { useState, FunctionComponent } from "react";
+import { useEffect, useState, FunctionComponent } from "react";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
@@ -29,6 +29,7 @@ interface PianoRollProps {
     noteWidth: number;
     noteHeight: number;
     lowestNote: Tone.Unit.Note;
+    notes?: Note[];
     onSubmit: (notes: Note[], gridLength: number) => void;
 }
 
@@ -52,6 +53,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             }
         }
     );
+
+    useEffect(() => {
+        if (props.notes) setNotes(props.notes);
+    }, [props.notes]);
 
     const handleAddNote = (pitch: number, position: number, length: number) => {
         const newNote: Note = Sequencer.createNoteObject(
@@ -141,10 +146,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
 
     const renderNoteIcon = () => {
         const iconDict: { [key: number]: JSX.Element } = {
-            1: <img src={SixteenthNote} width={30} height={50} alt="1" />,
-            2: <img src={EighthNote} width={30} height={50} alt="2" />,
-            4: <img src={QuarterNote} width={30} height={50} alt="4" />,
-            8: <img src={HalfNote} width={30} height={50} alt="8" />,
+            1: <img src={SixteenthNote} width={30} height={40} alt="1" />,
+            2: <img src={EighthNote} width={30} height={40} alt="2" />,
+            4: <img src={QuarterNote} width={30} height={40} alt="4" />,
+            8: <img src={HalfNote} width={30} height={40} alt="8" />,
             16: <img src={WholeNote} width={30} height={10} alt="16" />,
         };
 

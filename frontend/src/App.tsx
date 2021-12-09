@@ -11,9 +11,10 @@ import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
     PIANO_ROLL_LOWEST_NOTE,
+    DEFAULT_BPM,
 } from "./constants";
 import { Note } from "./sequencer";
-import { API, NoteForm } from "./services/api";
+import { API, NoteForm, Song } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 
 export interface SearchResult {
@@ -25,12 +26,30 @@ export interface SearchResult {
 
 Modal.setAppElement("#root");
 
+const EMPTY_QUERY: Song = {
+    name: "<None>",
+    artist: "<None>",
+    bpm: DEFAULT_BPM,
+    notes: [],
+};
+
+const songToOption = (query: Song) => {
+    return {
+        name: query.artist + " - " + query.name,
+        value: query.artist + " - " + query.name,
+    };
+};
+
 function App() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [availableStrategies, setAvailableStrategies] = useState<Option[]>(
         []
     );
     const [selectedStrategy, setSelectedStrategy] = useState<Option>();
+    const [exampleQueries, setExampleQueries] = useState<Song[]>([EMPTY_QUERY]);
+    const [selectedQuery, setSelectedQuery] = useState<Option>(
+        songToOption(EMPTY_QUERY)
+    );
     const [isBusy, setBusy] = useState<boolean>(false);
 
     useEffect(() => {
@@ -44,6 +63,13 @@ function App() {
                 });
                 setAvailableStrategies(options);
                 setSelectedStrategy(options[0]);
+            })
+            .catch((err) => {
+                console.log(err); // TODO: handle errors
+            });
+        API.getExampleQueries()
+            .then((res) => {
+                setExampleQueries([EMPTY_QUERY, ...res.data]);
             })
             .catch((err) => {
                 console.log(err); // TODO: handle errors
@@ -90,6 +116,26 @@ function App() {
             });
     };
 
+    const getSelectedQuerySong = (): Note[] | undefined => {
+        const res = exampleQueries.find(
+            (f) => f.artist + " - " + f.name === selectedQuery.value
+        );
+        if (res) {
+            return res.notes.map((n) => {
+                return {
+                    time: n.time,
+                    pitch: Tone.Frequency(n.pitch, "midi").toNote(),
+                    length: n.length,
+                };
+            });
+        }
+        return undefined;
+    };
+
+    const handleExampleQueryChange = (option: Option) => {
+        setSelectedQuery(option);
+    };
+
     return (
         <div className="App">
             <PlaybackProvider>
@@ -98,6 +144,7 @@ function App() {
                     noteHeight={DEFAULT_PIANO_ROLL_HEIGHT}
                     noteWidth={DEFAULT_PIANO_ROLL_WIDTH}
                     lowestNote={PIANO_ROLL_LOWEST_NOTE}
+                    notes={getSelectedQuerySong()}
                 />
                 <div>
                     {selectedStrategy && (
@@ -107,6 +154,11 @@ function App() {
                             selectedValue={selectedStrategy}
                         />
                     )}
+                    <StrategySelector
+                        options={exampleQueries.map(songToOption)}
+                        onChange={handleExampleQueryChange}
+                        selectedValue={selectedQuery}
+                    />
                 </div>
                 <SearchResults searchResults={searchResults} isBusy={isBusy} />
             </PlaybackProvider>
