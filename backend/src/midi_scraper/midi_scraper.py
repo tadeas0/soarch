@@ -1,4 +1,5 @@
 import logging
+import io
 import pickle
 from miditoolkit.midi import MidiFile
 import requests
@@ -16,10 +17,12 @@ ROBS_MIDI_LIB_URL = "http://www.storth.com/midi"
 logger = logging.getLogger(config.SCRAPER_LOGGER)
 
 
-def scrape_robs_midi_library(file_storage: FileStorage):
+async def scrape_robs_midi_library(file_storage: FileStorage):
     logger.info(f"Scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
     html = requests.get(f"{ROBS_MIDI_LIB_URL}/music-b.htm").content
     soup = BeautifulSoup(html, features="html.parser")
+    if not soup.body:
+        raise RuntimeError()
     for i in soup.body.find_all("table")[1].find_all("a"):
         if i.string and i.string != " ":
             full_name = i.string.replace("\n", " ").replace("\r", "").strip()
@@ -28,15 +31,15 @@ def scrape_robs_midi_library(file_storage: FileStorage):
             song = full_name_split[1]
             midi_file_link = f"{ROBS_MIDI_LIB_URL}/{i.get('href')}"
             logger.info(f"Downloading: {artist} - {song}")
-            with file_storage.open(
-                os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song}.mid"), "wb"
-            ) as midi_file:
-                res = requests.get(midi_file_link, allow_redirects=True)
-                midi_file.write(res.content)
+            res = requests.get(midi_file_link, allow_redirects=True)
+            await file_storage.write(
+                os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song}.mid"),
+                res.content,
+            )
     logger.info("Finished scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
 
 
-def scrape_free_midi(file_storage: FileStorage):
+async def scrape_free_midi(file_storage: FileStorage):
     logger.info(f"Scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
     html = requests.get(f"{FREMIDI_URL}").content
     soup = BeautifulSoup(html, features="html.parser")
@@ -60,31 +63,29 @@ def scrape_free_midi(file_storage: FileStorage):
         session = requests.Session()
         session.get(download_link, headers=headers)
         r2 = session.get(download_link, headers=headers)
-        with file_storage.open(
-            os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song_title}.mid"), "wb"
-        ) as f:
-            f.write(r2.content)
+        await file_storage.write(
+            os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song_title}.mid"),
+            r2.content,
+        )
     logger.info("Finished scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
 
 
-def parse_to_db(file_storage: FileStorage):
+async def parse_to_db(file_storage: FileStorage):
     logger.info(
         f"Parsing files from {config.RAW_MIDI_PREFIX} to {config.PROCESSED_MIDI_PREFIX}"
     )
     for i in file_storage.list_prefix(config.RAW_MIDI_PREFIX):
         logger.info(f"Parsing: {i}")
         try:
-            mf = file_storage.open(i, "rb")
-            mid = MidiFile(file=mf)
-            mf.close()
+            mid = MidiFile(file=io.BytesIO(await file_storage.read(i)))
             song = MidiParser.parse(mid)
             iclean = i.split("/")[-1].replace(".mid", "")
             isplit = iclean.split(" - ")
             song.metadata = SongMetadata(isplit[0], isplit[1])
-            with file_storage.open(
-                os.path.join(config.PROCESSED_MIDI_PREFIX, f"{iclean}.pkl"), "wb"
-            ) as pf:
-                pickle.dump(song, pf)
+            await file_storage.write(
+                os.path.join(config.PROCESSED_MIDI_PREFIX, f"{iclean}.pkl"),
+                pickle.dumps(song),
+            )
         except IOError as e:
             logger.info(f"Could not parse {i}. {e}")
         except EOFError as e:

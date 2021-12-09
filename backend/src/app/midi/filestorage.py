@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, IO, Optional
+from typing import Any, Optional
 import logging
 import config
 from google.cloud import storage
@@ -16,10 +16,6 @@ logger = logging.getLogger(config.DEFAULT_LOGGER)
 class FileStorage(ABC):
     @abstractmethod
     async def initialize(self) -> None:
-        pass
-
-    @abstractmethod
-    def open(self, key: str, mode: str) -> IO:
         pass
 
     @abstractmethod
@@ -49,14 +45,6 @@ class LocalFileStorage(FileStorage):
             "Local file storage initialized root_path: "
             + f"{os.path.realpath(self.root_path)}"
         )
-
-    def open(self, key: str, mode: str) -> IO:
-        logger.debug(f"Opening local file: {key} mode: {mode}")
-        path = os.path.join(self.root_path, key)
-        if mode in ("w", "wb"):
-            os.makedirs(os.path.dirname(path), exist_ok=True)
-
-        return open(path, mode)
 
     def list_all(self) -> list[str]:
         res: list[str] = []
@@ -89,6 +77,7 @@ class LocalFileStorage(FileStorage):
 
     async def write(self, key: str, content: str) -> None:
         path = os.path.join(self.root_path, key)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         async with aiofiles.open(path, "w") as f:
             await f.write(content)
 
@@ -116,56 +105,6 @@ class GoogleCloudFileStorage(FileStorage):
             service_file=io.StringIO(json.dumps(self.__creds))
         )
         logger.debug("Google cloud file storage initialized")
-
-    def open(self, key: str, mode: str) -> IO:
-        logger.debug(f"Opening cloud file: {key} mode: {mode}")
-        if self.__redis_cache:
-            logger.debug(f"Opening from cache file: {key} mode: {mode}")
-            return self.__open_cache(key, mode)
-        else:
-            return self.__open_no_cache(key, mode)
-
-    def __open_no_cache(self, key: str, mode: str) -> IO:
-        blob = self.__bucket.get_blob(key)
-        if blob is None and mode not in ["w", "wb"]:
-            raise FileNotFoundError()
-        elif mode in ["w", "wb"]:
-            return self.__bucket.blob(key).open(mode)
-        elif mode == "rb":
-            return io.BytesIO(blob.download_as_bytes())
-        elif mode == "r":
-            return io.TextIOWrapper(blob.download_as_text())
-        else:
-            raise ValueError(f"invalid mode: {mode}")
-
-    def __open_cache(self, key: str, mode: str) -> IO:
-        if self.__redis_cache:
-            if mode in ["r", "rb"]:
-                res = self.__redis_cache.get(key)
-                if res and mode == "r":
-                    return io.TextIOWrapper(io.BytesIO(res))
-                elif res and mode == "rb":
-                    return io.BytesIO(res)
-                elif not res and mode == "r":
-                    blob = self.__bucket.get_blob(key)
-                    if not blob:
-                        raise FileNotFoundError()
-                    content = blob.download_as_string()
-                    self.__redis_cache.set(key, content)
-                    return io.TextIOWrapper(io.BytesIO(content))
-                elif not res and mode == "rb":
-                    blob = self.__bucket.get_blob(key)
-                    if not blob:
-                        raise FileNotFoundError()
-                    content = blob.download_as_bytes()
-                    self.__redis_cache.set(key, content)
-                    return io.BytesIO(content)
-            elif mode in ["w", "wb"]:
-                self.__redis_cache.delete(key)
-                return self.__bucket.blob(key).open(mode)
-            raise ValueError(f"invalid mode: {mode}")
-        else:
-            raise ValueError("redis cache not defined")
 
     def list_all(self) -> list[str]:
         logger.debug("Listing files")

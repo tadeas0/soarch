@@ -1,6 +1,5 @@
 import io
 import re
-from typing import Generator
 from app.midi.filestorage import FileStorage
 from app.midi.parser import MidiParser
 from miditoolkit.midi import MidiFile
@@ -18,24 +17,10 @@ class SongRepository:
         self.file_storage = file_storage
         self.directories: list[str] = []
 
-    def load_song(self, file_path: str) -> Song:
-        extension = file_path.split(".")[-1]
-        if extension == "mid":
-            return self.__load_from_midi(file_path)
-        elif extension == "pkl":
-            return self.__load_from_pickle(file_path)
-        else:
-            raise ValueError()
-
     def load_directory(self, directory: str) -> None:
         logger.debug(f"Loading directory {directory}")
         self.directories.append(directory)
         logger.debug(f"Loaded directory {directory}")
-
-    def get_all(self) -> Generator[Song, None, None]:
-        for d in self.directories:
-            for i in self.file_storage.list_prefix(d):
-                yield self.load_song(i)
 
     def list_keys(self) -> list[str]:
         extensions = ("mid", "pkl")
@@ -58,26 +43,6 @@ class SongRepository:
             ):
                 new_keys.append(k)
         return new_keys
-
-    def __load_from_pickle(self, file_path: str) -> Song:
-        with self.file_storage.open(file_path, "rb") as f:
-            return pickle.load(f)
-
-    def __load_from_midi(self, file_path: str) -> Song:
-        with self.file_storage.open(file_path, "rb") as f:
-            song = MidiParser.parse(MidiFile(file=f))
-            logger.debug(f"Parsed file {file_path}")
-            last = file_path.split("/")[-1]
-
-            m = re.match(r"([a-zA-Z0-9 ]*) - ([a-zA-Z0-9 ]*)\.mid$", last)
-            artist = "Unknown artist"
-            name = "Unknown song"
-            if m and m.group(1):
-                artist = m.group(1)
-            if m and m.group(2):
-                name = m.group(2)
-            song.metadata = SongMetadata(artist, name)
-            return song
 
     async def load_song_async(self, file_path: str) -> Song:
         extension = file_path.split(".")[-1]

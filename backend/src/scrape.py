@@ -1,5 +1,7 @@
 import config
+import asyncio
 import os
+from functools import update_wrapper
 from midi_scraper.midi_scraper import (
     scrape_free_midi,
     scrape_robs_midi_library,
@@ -29,6 +31,16 @@ def __setup_logging():
     return logger
 
 
+def coro(f):
+    f = asyncio.coroutine(f)
+
+    def wrapper(*args, **kwargs):
+        loop = asyncio.get_event_loop()
+        return loop.run_until_complete(f(*args, **kwargs))
+
+    return update_wrapper(wrapper, f)
+
+
 @click.group()
 @click.pass_context
 def cli(ctx):
@@ -43,6 +55,8 @@ def cli(ctx):
     else:
         file_storage = LocalFileStorage(config.MIDI_DIR)
         logger.info("Using local file storage")
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(file_storage.initialize())
     ctx.obj["file_storage"] = file_storage
     ctx.obj["logger"] = logger
 
@@ -65,12 +79,13 @@ def cli(ctx):
 @click.pass_context
 def download(ctx, robs, freemidi, parse):
     file_storage = ctx.obj["file_storage"]
+    loop = asyncio.get_event_loop()
     if freemidi:
-        scrape_free_midi(file_storage)
+        loop.run_until_complete(scrape_free_midi(file_storage))
     if robs:
-        scrape_robs_midi_library(file_storage)
+        loop.run_until_complete(scrape_robs_midi_library(file_storage))
     if parse:
-        parse_to_db(file_storage)
+        loop.run_until_complete(parse_to_db(file_storage))
     if not parse and not robs and not freemidi:
         click.echo(ctx.get_help())
 
@@ -92,4 +107,4 @@ def clean(ctx):
 
 
 if __name__ == "__main__":
-    cli()
+    asyncio.run(cli())
