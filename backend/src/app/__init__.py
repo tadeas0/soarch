@@ -52,17 +52,10 @@ def create_app() -> Quart:
 
     logger.info("Blueprints initialized")
 
-    from app.scripts.parse_to_db import parse_to_db
-    from app.scripts.scrape_robs_library import scrape_robs_library
-    from app.scripts.scrape_freemidi import scrape_freemidi
-
-    app.cli.add_command(parse_to_db)
-    app.cli.add_command(scrape_freemidi)
-    app.cli.add_command(scrape_robs_library)
-
     @app.before_first_request
     async def init_file_storage():
         await file_storage.initialize()
+        repository.load_directory(config.RAW_MIDI_PREFIX)
         repository.load_directory(config.PROCESSED_MIDI_PREFIX)
 
     if type(file_storage) == GoogleCloudFileStorage:

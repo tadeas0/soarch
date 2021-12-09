@@ -12,6 +12,7 @@ services:
         image: midi-search-backend
         volumes:
             - ./backend:/backend
+            - ./midi_files:/midi_files
         environment:
             - HYPERCORN_CMD_ARGS=--reload
             - PORT=8080
