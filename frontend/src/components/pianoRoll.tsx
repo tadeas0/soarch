@@ -44,7 +44,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 Sequencer.fillBuffer([note], gridParams.width);
                 setNotes(newNotes);
             }
-        }
+        },
+        gridParams.lowestNote
     );
 
     useEffect(() => {

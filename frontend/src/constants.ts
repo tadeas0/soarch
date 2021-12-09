@@ -1,5 +1,3 @@
-import * as Tone from "tone";
-
 export const MIDI_NOTES = 128;
 export const DEFAULT_PIANO_ROLL_HEIGHT = 24;
 export const DEFAULT_PIANO_ROLL_WIDTH = 64;
@@ -15,32 +13,32 @@ export const PIANO_ROLL_NOTE_WIDTH = 20;
 export const DEFAULT_NOTE_LENGTH = 4;
 export const PIANO_ROLL_HEADER_SIZE = 20;
 
-export const KEYBOARD_NOTE_MAP: { [keyCode: string]: Tone.Unit.Frequency } = {
-    KeyZ: "C3",
-    KeyS: "C#3",
-    KeyX: "D3",
-    KeyD: "D#3",
-    KeyC: "E3",
-    KeyV: "F3",
-    KeyG: "F#3",
-    KeyB: "G3",
-    KeyH: "G#3",
-    KeyN: "A3",
-    KeyJ: "A#3",
-    KeyM: "B3",
+export const KEYBOARD_NOTE_MAP: { [keyCode: string]: number } = {
+    KeyZ: 0,
+    KeyS: 1,
+    KeyX: 2,
+    KeyD: 3,
+    KeyC: 4,
+    KeyV: 5,
+    KeyG: 6,
+    KeyB: 7,
+    KeyH: 8,
+    KeyN: 9,
+    KeyJ: 10,
+    KeyM: 11,
 
-    KeyQ: "C4",
-    Digit2: "C#4",
-    KeyW: "D4",
-    Digit3: "D#4",
-    KeyE: "E4",
-    KeyR: "F4",
-    Digit5: "F#4",
-    KeyT: "G4",
-    Digit6: "G#4",
-    KeyY: "A4",
-    Digit7: "A#4",
-    KeyU: "B4",
+    KeyQ: 12,
+    Digit2: 13,
+    KeyW: 14,
+    Digit3: 15,
+    KeyE: 16,
+    KeyR: 17,
+    Digit5: 18,
+    KeyT: 19,
+    Digit6: 20,
+    KeyY: 21,
+    Digit7: 22,
+    KeyU: 23,
 };
 
 export const BG_COLOR = "#0b0c10";
