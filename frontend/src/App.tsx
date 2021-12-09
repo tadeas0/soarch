@@ -145,6 +145,7 @@ function App() {
                 <PianoRoll
                     onSubmit={handleSubmit}
                     gridParams={gridParams}
+                    bpm={selectedQuery.bpm}
                     notes={selectedQuery.notes.map((n) => {
                         return {
                             ...n,

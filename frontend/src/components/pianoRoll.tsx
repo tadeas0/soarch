@@ -25,6 +25,7 @@ import PianoRollGrid, { GridParams } from "./pianoRollGrid";
 
 interface PianoRollProps {
     gridParams: GridParams;
+    bpm: number;
     notes?: Note[];
     onSubmit: (notes: Note[], gridLength: number) => void;
 }
@@ -48,8 +49,9 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
 
     useEffect(() => {
         setGridParams(props.gridParams);
+        setCurrentBPM(props.bpm);
         if (props.notes) setNotes(props.notes);
-    }, [props.notes, props.gridParams]);
+    }, [props.notes, props.gridParams, props.bpm]);
 
     const handleAddNote = (pitch: number, position: number, length: number) => {
         const newNote = {
@@ -62,6 +64,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         Sequencer.addNoteToBuffer(newNote);
 
         const newNotes = [...notes, newNote];
+        console.log(
+            newNotes.map((n) => {
+                return {
+                    pitch: Tone.Frequency(n.pitch).toMidi(),
+                    length: n.length,
+                    time: n.time,
+                };
+            })
+        );
         setNotes(newNotes);
     };
 
@@ -134,9 +145,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         e.preventDefault();
         const value = Number(e.target.value);
         e.target.value.length <= 3 && setCurrentBPM(value);
-        if (value >= MIN_BPM && value <= MAX_BPM) {
-            Sequencer.setBpm(value);
-        }
     };
 
     const renderNoteIcon = () => {
