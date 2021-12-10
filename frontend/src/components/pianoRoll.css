@@ -19,6 +19,13 @@
     padding: 10px 3px 3px 3px;
     font-size: 40px;
     background-color: var(--primary-color);
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.pianoroll button.recording {
+    background-color: var(--warn-color);
+    box-shadow: 0 4px 8px 0 var(--warn-color);
+    transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .pianoroll button:active:enabled {

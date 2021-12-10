@@ -193,7 +193,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 <button onClick={handleChangeNoteLength}>
                     {renderNoteIcon()}
                 </button>
-                <button onClick={() => setPlaybackEnabled(!playbackEnabled)}>
+                <button
+                    className={playbackEnabled ? "recording" : ""}
+                    onClick={() => setPlaybackEnabled(!playbackEnabled)}
+                >
                     {playbackEnabled ? (
                         <TiMediaRecord />
                     ) : (
