@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
@@ -44,13 +44,6 @@ const EMPTY_QUERY: Song = {
     },
 };
 
-const songToOption = (query: Song) => {
-    return {
-        name: query.artist + " - " + query.name,
-        value: query.artist + " - " + query.name,
-    };
-};
-
 function App() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [availableStrategies, setAvailableStrategies] = useState<Option[]>(
@@ -58,7 +51,7 @@ function App() {
     );
     const [selectedStrategy, setSelectedStrategy] = useState<Option>();
     const [exampleQueries, setExampleQueries] = useState<Song[]>([EMPTY_QUERY]);
-    const [selectedQuery, setSelectedQuery] = useState<Song>(EMPTY_QUERY);
+    const [selectedQuery, setSelectedQuery] = useState<Song>();
     const [gridParams, setGridParams] =
         useState<GridParams>(DEFAULT_GRID_PARAMS);
     const [isBusy, setBusy] = useState<boolean>(false);
@@ -143,19 +136,43 @@ function App() {
         }
     };
 
+    const getNotes = useCallback(() => {
+        if (selectedQuery)
+            return selectedQuery.notes.map((n) => {
+                return {
+                    ...n,
+                    pitch: Tone.Frequency(n.pitch, "midi").toNote(),
+                };
+            });
+        return undefined;
+    }, [selectedQuery]);
+
+    const getQueryOptions = () => {
+        return exampleQueries.map((query) => {
+            return {
+                name: query.artist + " - " + query.name,
+                value: query.artist + " - " + query.name,
+            };
+        });
+    };
+
+    const getSelectedQueryOption = () => {
+        if (selectedQuery)
+            return {
+                name: selectedQuery.artist + " - " + selectedQuery.name,
+                value: selectedQuery.artist + " - " + selectedQuery.name,
+            };
+        return undefined;
+    };
+
     return (
         <div className="App">
             <PlaybackProvider>
                 <PianoRoll
                     onSubmit={handleSubmit}
                     gridParams={gridParams}
-                    bpm={selectedQuery.bpm}
-                    notes={selectedQuery.notes.map((n) => {
-                        return {
-                            ...n,
-                            pitch: Tone.Frequency(n.pitch, "midi").toNote(),
-                        };
-                    })}
+                    bpm={selectedQuery ? selectedQuery.bpm : DEFAULT_BPM}
+                    notes={getNotes()}
                 />
                 <div>
                     {selectedStrategy && (
@@ -166,9 +183,9 @@ function App() {
                         />
                     )}
                     <StrategySelector
-                        options={exampleQueries.map(songToOption)}
+                        options={getQueryOptions()}
                         onChange={handleExampleQueryChange}
-                        selectedValue={songToOption(selectedQuery)}
+                        selectedValue={getSelectedQueryOption()}
                     />
                 </div>
                 <SearchResults searchResults={searchResults} isBusy={isBusy} />
