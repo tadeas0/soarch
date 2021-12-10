@@ -53,7 +53,7 @@ const useKeyboardListener = (
                 const start = noteStarts[KEYBOARD_NOTE_MAP[event.code]];
                 const splEnd = end.split(":");
                 const splStart = start.toString().split(":");
-                const len = Tone.Time(
+                let len = Tone.Time(
                     "0:0:" +
                         (parseInt(splEnd[0]) * 16 +
                             parseInt(splEnd[1]) * 4 +
@@ -62,6 +62,9 @@ const useKeyboardListener = (
                                 parseInt(splStart[1]) * 4 +
                                 parseInt(splStart[2])))
                 );
+
+                if (len.toBarsBeatsSixteenths() === "0:0:0")
+                    len = Tone.Time("0:0:1");
 
                 const newPressedNotes = {
                     ...pressedNotes,
