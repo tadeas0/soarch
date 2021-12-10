@@ -26,23 +26,6 @@ class SimilarityStrategy(ABC):
         pass
 
 
-class EMDStrategySP(SimilarityStrategy):
-    highest_first = False
-
-    @property
-    def name(self) -> str:
-        return "Earth mover's distance (SciPy library)"
-
-    @property
-    def shortcut(self) -> str:
-        return "emdsp"
-
-    def compare(
-        self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
-    ) -> float:
-        return wasserstein_distance(line1, line2)
-
-
 class LCSStrategy(SimilarityStrategy):
     highest_first = True
 
@@ -72,43 +55,6 @@ class LCSStrategy(SimilarityStrategy):
         self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
     ) -> float:
         return self.__measure_aux(line1, line2)
-
-
-class FDTWStrategyLib(SimilarityStrategy):
-    highest_first = False
-
-    @property
-    def name(self) -> str:
-        return "Fast dynamic time warping (FastDTW library)"
-
-    @property
-    def shortcut(self) -> str:
-        return "fdtwl"
-
-    def compare(
-        self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
-    ) -> float:
-        dist, _ = fastdtw(line1, line2, min(len(line1), len(line2)))
-        return dist
-
-
-class LocalAlignmentStrategy(SimilarityStrategy):
-    highest_first = True
-
-    @property
-    def name(self) -> str:
-        return "Local alignment"
-
-    @property
-    def shortcut(self) -> str:
-        return "lca"
-
-    def compare(
-        self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
-    ) -> float:
-        tl1 = "".join(chr(int(i) + 128) for i in line1)
-        tl2 = "".join(chr(int(i) + 128) for i in line2)
-        return pairwise2.align.localms(tl1, tl2, 1, -1, -2, -2, score_only=True)
 
 
 class DTWStrategy(SimilarityStrategy):
@@ -174,3 +120,57 @@ class DTWWinStrategy(SimilarityStrategy):
                 last_min = min(dtw[i - 1][j], dtw[i][j - 1], dtw[i - 1][j - 1])
                 dtw[i][j] = cost + last_min
         return dtw[-1][-1]
+
+
+class FDTWStrategyLib(SimilarityStrategy):
+    highest_first = False
+
+    @property
+    def name(self) -> str:
+        return "Fast dynamic time warping (FastDTW library)"
+
+    @property
+    def shortcut(self) -> str:
+        return "fdtwl"
+
+    def compare(
+        self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
+    ) -> float:
+        dist, _ = fastdtw(line1, line2, min(len(line1), len(line2)))
+        return dist
+
+
+class LocalAlignmentStrategy(SimilarityStrategy):
+    highest_first = True
+
+    @property
+    def name(self) -> str:
+        return "Local alignment"
+
+    @property
+    def shortcut(self) -> str:
+        return "lca"
+
+    def compare(
+        self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
+    ) -> float:
+        tl1 = "".join(chr(int(i) + 128) for i in line1)
+        tl2 = "".join(chr(int(i) + 128) for i in line2)
+        return pairwise2.align.localms(tl1, tl2, 1, -1, -2, -2, score_only=True)
+
+
+class EMDStrategySP(SimilarityStrategy):
+    highest_first = False
+
+    @property
+    def name(self) -> str:
+        return "Earth mover's distance (SciPy library)"
+
+    @property
+    def shortcut(self) -> str:
+        return "emdsp"
+
+    def compare(
+        self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
+    ) -> float:
+        return wasserstein_distance(line1, line2)

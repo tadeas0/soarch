@@ -9,7 +9,7 @@ export interface Option {
 
 interface StrategySelectorProps {
     options: Option[];
-    selectedValue: Option;
+    selectedValue?: Option;
     onChange: (newValue: Option) => void;
 }
 

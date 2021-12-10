@@ -218,7 +218,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
             const context = canvas.getContext("2d");
             if (context) {
                 drawHeader(context);
-                Sequencer.runCallbackOnMeasure(() => {
+                Sequencer.runCallbackOnBeat(() => {
                     drawHeader(context);
                 });
             }
