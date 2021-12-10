@@ -1,10 +1,11 @@
 import * as Tone from "tone";
 import { useCallback, useEffect, useState } from "react";
 import { Sequencer, Note } from "../sequencer";
-import { KEYBOARD_NOTE_MAP } from "../constants";
+import { KEYBOARD_NOTE_MAP, PIANO_ROLL_LOWEST_NOTE } from "../constants";
 
 const useKeyboardListener = (
-    onKeyUp: (note: Note) => void
+    onKeyUp: (note: Note) => void,
+    lowestNote: Tone.Unit.Note = PIANO_ROLL_LOWEST_NOTE
 ): [boolean, (playbackEnabled: boolean) => void] => {
     const [pressedNotes, setPressedNotes] = useState<{
         [note: Tone.Unit.Frequency]: boolean;
@@ -35,10 +36,14 @@ const useKeyboardListener = (
                     [KEYBOARD_NOTE_MAP[event.code]]: getCurrentQTime(),
                 });
                 setPressedNotes(newPressedNotes);
-                Sequencer.pressNote(KEYBOARD_NOTE_MAP[event.code]);
+                Sequencer.pressNote(
+                    Tone.Frequency(lowestNote)
+                        .transpose(KEYBOARD_NOTE_MAP[event.code])
+                        .toNote()
+                );
             }
         },
-        [pressedNotes, noteStarts, playbackEnabled]
+        [pressedNotes, noteStarts, playbackEnabled, lowestNote]
     );
 
     const keyUpListener = useCallback(
@@ -48,7 +53,7 @@ const useKeyboardListener = (
                 const start = noteStarts[KEYBOARD_NOTE_MAP[event.code]];
                 const splEnd = end.split(":");
                 const splStart = start.toString().split(":");
-                const len = Tone.Time(
+                let len = Tone.Time(
                     "0:0:" +
                         (parseInt(splEnd[0]) * 16 +
                             parseInt(splEnd[1]) * 4 +
@@ -58,23 +63,30 @@ const useKeyboardListener = (
                                 parseInt(splStart[2])))
                 );
 
+                if (len.toBarsBeatsSixteenths() === "0:0:0")
+                    len = Tone.Time("0:0:1");
+
                 const newPressedNotes = {
                     ...pressedNotes,
                     [event.code]: false,
                 };
                 setPressedNotes(newPressedNotes);
-                Sequencer.releaseNote(KEYBOARD_NOTE_MAP[event.code]);
+                Sequencer.releaseNote(
+                    Tone.Frequency(lowestNote)
+                        .transpose(KEYBOARD_NOTE_MAP[event.code])
+                        .toNote()
+                );
 
                 onKeyUp({
-                    pitch: Tone.Frequency(
-                        KEYBOARD_NOTE_MAP[event.code]
-                    ).toNote(),
+                    pitch: Tone.Frequency(lowestNote)
+                        .transpose(KEYBOARD_NOTE_MAP[event.code])
+                        .toNote(),
                     time: start,
                     length: len.toBarsBeatsSixteenths(),
                 });
             }
         },
-        [pressedNotes, noteStarts, playbackEnabled, onKeyUp]
+        [pressedNotes, noteStarts, playbackEnabled, onKeyUp, lowestNote]
     );
 
     useEffect(() => {

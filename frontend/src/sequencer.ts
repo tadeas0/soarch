@@ -13,6 +13,10 @@ export interface Note {
 }
 
 export abstract class Sequencer {
+    private static filter: Tone.Filter = new Tone.Filter(
+        400,
+        "lowpass"
+    ).toDestination();
     private static synth: Tone.PolySynth | Tone.Synth = new Tone.PolySynth(
         Tone.Synth,
         {
@@ -28,10 +32,10 @@ export abstract class Sequencer {
             oscillator: {
                 partialCount: 0,
                 phase: 0,
-                type: "triangle",
+                type: "sawtooth",
             },
         }
-    ).toDestination();
+    ).connect(this.filter);
 
     private static part: Tone.Part = new Tone.Part();
 

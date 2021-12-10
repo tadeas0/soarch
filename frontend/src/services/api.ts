@@ -13,21 +13,22 @@ export interface NoteSerialized {
     time: Tone.Unit.Time;
 }
 
+export interface GridParamsSerialized {
+    width: number;
+    height: number;
+    lowestNote: Tone.Unit.MidiNote;
+}
+
+export interface Song {
+    artist: string;
+    name: string;
+    notes: NoteSerialized[];
+    bpm: number;
+    gridParams?: GridParamsSerialized;
+}
+
 export interface SearchResultResponse {
-    tracks: [
-        {
-            artist: string;
-            name: string;
-            notes: [
-                {
-                    length: string;
-                    pitch: number;
-                    time: string;
-                }
-            ];
-            bpm: number;
-        }
-    ];
+    tracks: Song[];
 }
 
 export interface SimilarityStrategy {
@@ -41,5 +42,8 @@ export const API = {
     },
     getSimilarityStrategies() {
         return axios.get<SimilarityStrategy[]>("/api/similarity-strategy");
+    },
+    getExampleQueries() {
+        return axios.get<Song[]>("/api/example-queries");
     },
 };

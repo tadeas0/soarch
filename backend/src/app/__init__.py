@@ -45,10 +45,12 @@ def create_app() -> Quart:
     from app.midi.controller import midi_bp
     from app.health_check.controller import health_check_bp
     from app.similarity_strategy.controller import similarity_strategy_bp
+    from app.example_queries.controller import example_queries_bp
 
     app.register_blueprint(midi_bp)
     app.register_blueprint(health_check_bp)
     app.register_blueprint(similarity_strategy_bp)
+    app.register_blueprint(example_queries_bp)
 
     logger.info("Blueprints initialized")
 
@@ -57,6 +59,8 @@ def create_app() -> Quart:
         await file_storage.initialize()
         repository.load_directory(config.RAW_MIDI_PREFIX)
         repository.load_directory(config.PROCESSED_MIDI_PREFIX)
+        repository.load_directory(config.RAW_EXAMPLE_PREFIX)
+        repository.load_directory(config.PROCESSED_EXAMPLE_PREFIX)
 
     if type(file_storage) == GoogleCloudFileStorage:
         logger.info("Using google cloud file storage")
