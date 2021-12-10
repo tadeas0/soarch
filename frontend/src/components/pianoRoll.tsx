@@ -65,15 +65,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         Sequencer.addNoteToBuffer(newNote);
 
         const newNotes = [...notes, newNote];
-        console.log(
-            newNotes.map((n) => {
-                return {
-                    pitch: Tone.Frequency(n.pitch).toMidi(),
-                    length: n.length,
-                    time: n.time,
-                };
-            })
-        );
         setNotes(newNotes);
     };
 
