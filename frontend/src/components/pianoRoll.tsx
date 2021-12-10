@@ -52,6 +52,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         setGridParams(props.gridParams);
         setCurrentBPM(props.bpm);
         if (props.notes) setNotes(props.notes);
+        handleStop();
+        // eslint-disable-next-line
     }, [props.notes, props.gridParams, props.bpm]);
 
     const handleAddNote = (pitch: number, position: number, length: number) => {
