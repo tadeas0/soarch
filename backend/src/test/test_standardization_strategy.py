@@ -12,6 +12,5 @@ def test_default_strategy():
 
 
 def test_relative_interval_strategy():
-    case = unittest.TestCase()
     ris = RelativeIntervalStrategy()
     np.testing.assert_array_equal(ris.standardize([1, 2, 5, 4, 2]), [0, 1, 3, -1, -2])
