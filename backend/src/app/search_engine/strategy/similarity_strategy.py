@@ -37,24 +37,19 @@ class LCSStrategy(SimilarityStrategy):
     def shortcut(self) -> str:
         return "lcs"
 
-    def __measure_aux(
-        self, x: npt.NDArray[np.int64], y: npt.NDArray[np.int64]
-    ) -> float:
-        dp_table = np.zeros((len(x) + 1, len(y) + 1))
-        for i in range(1, len(x) + 1):
-            for j in range(1, len(y) + 1):
-                if x[i - 1] == y[j - 1]:
-                    dp_table[i - 1, j - 1] = 1 + dp_table[i - 2, j - 2]
-                else:
-                    dp_table[i - 1, j - 1] = max(
-                        dp_table[i - 1, j - 2], dp_table[i - 2, j - 1]
-                    )
-        return dp_table[len(x) - 1, len(y) - 1]
-
     def compare(
         self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
     ) -> float:
-        return self.__measure_aux(line1, line2)
+        dp_table = np.zeros((len(line1) + 1, len(line2) + 1))
+        for i in range(1, len(line1) + 1):
+            for j in range(1, len(line2) + 1):
+                if line1[i - 1] == line2[j - 1]:
+                    dp_table[i - 1][j - 1] = 1 + dp_table[i - 2][j - 2]
+                else:
+                    dp_table[i - 1][j - 1] = max(
+                        dp_table[i - 1][j - 2], dp_table[i - 2][j - 1]
+                    )
+        return dp_table[len(line1) - 1][len(line2) - 1]
 
 
 class DTWStrategy(SimilarityStrategy):
