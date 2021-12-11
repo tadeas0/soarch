@@ -1,4 +1,3 @@
-import unittest
 import numpy as np
 from app.search_engine.strategy.standardization_strategy import (
     DefaultStrategy,
