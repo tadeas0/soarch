@@ -78,7 +78,7 @@ class LocalFileStorage(FileStorage):
     async def write(self, key: str, content: str) -> None:
         path = os.path.join(self.root_path, key)
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        async with aiofiles.open(path, "w") as f:
+        async with aiofiles.open(path, "wb") as f:
             await f.write(content)
 
 
