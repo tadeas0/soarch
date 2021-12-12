@@ -77,23 +77,23 @@ async def test_write(my_tmpdir):
     lfs = LocalFileStorage(str(my_tmpdir.realpath()))
     case = unittest.TestCase()
 
-    await lfs.write("new_file.txt", "test_string")
+    await lfs.write("new_file.txt", b"test_string")
     assert await lfs.read("new_file.txt") == b"test_string"
 
     # Test directory creation
-    await lfs.write("new_directory/new_file_2.txt", "test_string_2")
+    await lfs.write("new_directory/new_file_2.txt", b"test_string_2")
     assert await lfs.read("new_directory/new_file_2.txt") == b"test_string_2"
 
     # Test nested directory creation
     await lfs.write(
-        "new_directory/new_nested_directory/new_file_3.txt", "test_string_3"
+        "new_directory/new_nested_directory/new_file_3.txt", b"test_string_3"
     )
     assert (
         await lfs.read("new_directory/new_nested_directory/new_file_3.txt")
         == b"test_string_3"
     )
 
-    await lfs.write("test_dir/new_file_4.txt", "test_string_4")
+    await lfs.write("test_dir/new_file_4.txt", b"test_string_4")
     assert await lfs.read("test_dir/new_file_4.txt") == b"test_string_4"
 
     case.assertCountEqual(
