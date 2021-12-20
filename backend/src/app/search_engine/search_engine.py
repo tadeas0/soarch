@@ -5,7 +5,7 @@ import numpy.typing as npt
 import numpy as np
 from app.midi.repository import SongRepository
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
-from app.midi.song import Song, Track
+from app.util.song import Song, Track
 from app.search_engine.strategy.melody_extraction_strategy import (
     MelodyExtractionStrategy,
 )

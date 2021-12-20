@@ -1,7 +1,7 @@
 import pytest
 import unittest
 import unittest.mock
-from app.midi.filestorage import LocalFileStorage
+from app.util.filestorage import LocalFileStorage
 
 
 @pytest.fixture

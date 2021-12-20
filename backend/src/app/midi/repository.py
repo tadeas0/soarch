@@ -1,11 +1,11 @@
 import io
 import re
-from app.midi.filestorage import FileStorage
-from app.midi.parser import MidiParser
+from app.util.filestorage import FileStorage
+from app.util.parser import MidiParser
 from miditoolkit.midi import MidiFile
 import pickle
 import logging
-from app.midi.song import Song, SongMetadata
+from app.util.song import Song, SongMetadata
 import config
 
 

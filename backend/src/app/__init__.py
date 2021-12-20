@@ -2,7 +2,7 @@ from quart import Quart
 import config
 import logging
 import json
-from app.midi.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
+from app.util.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 from app.midi.repository import SongRepository
 
 

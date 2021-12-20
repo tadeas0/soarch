@@ -1,5 +1,5 @@
 from typing import Union
-from app.midi.song import Note, Track, Song
+from app.util.song import Note, Track, Song
 from math import floor
 import config
 

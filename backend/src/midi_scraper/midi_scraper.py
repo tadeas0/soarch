@@ -3,9 +3,9 @@ import io
 import pickle
 from miditoolkit.midi import MidiFile
 import requests
-from app.midi.filestorage import FileStorage
-from app.midi.song import SongMetadata
-from app.midi.parser import MidiParser
+from app.util.filestorage import FileStorage
+from app.util.song import SongMetadata
+from app.util.parser import MidiParser
 import os
 from bs4 import BeautifulSoup
 import config
