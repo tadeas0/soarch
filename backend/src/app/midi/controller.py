@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from quart import Blueprint, request, jsonify
-from app.midi.parser import JsonParser
+from app.util.parser import JsonParser
 from app.midi.serializer import TrackSerializer
 from app import repository
 from app.search_engine.search_engine_factory import SearchEngineFactory

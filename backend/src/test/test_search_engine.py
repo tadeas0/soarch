@@ -1,7 +1,7 @@
 import unittest.mock
-from app.midi.song import Note, Song, SongMetadata, Track
+from app.util.song import Note, Song, SongMetadata, Track
 from app.midi.repository import SongRepository
-from app.midi.filestorage import FileStorage
+from app.util.filestorage import FileStorage
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy

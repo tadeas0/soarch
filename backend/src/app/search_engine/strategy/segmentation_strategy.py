@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from app.midi.song import Track, Note
+from app.util.song import Track, Note
 
 
 class SegmentationStrategy(ABC):

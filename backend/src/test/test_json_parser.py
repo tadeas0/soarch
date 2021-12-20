@@ -1,5 +1,5 @@
-from app.midi.parser import JsonParser
-from app.midi.song import Note
+from app.util.parser import JsonParser
+from app.util.song import Note
 
 
 def test_parse_note():
