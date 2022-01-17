@@ -13,10 +13,12 @@ import {
     DEFAULT_PIANO_ROLL_WIDTH,
     PIANO_ROLL_LOWEST_NOTE,
     DEFAULT_BPM,
+    SECONDARY_COLOR,
 } from "./constants";
 import { Note } from "./sequencer";
 import { API, NoteForm, Song } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
+import { BeatLoader } from "react-spinners";
 
 export interface SearchResult {
     artist: string;
@@ -55,11 +57,13 @@ function App() {
     const [gridParams, setGridParams] =
         useState<GridParams>(DEFAULT_GRID_PARAMS);
     const [isBusy, setBusy] = useState<boolean>(false);
+    const [initializing, setInitializing] = useState(false);
 
     useEffect(() => {
-        API.getSimilarityStrategies()
-            .then((res) => {
-                const options = res.data.map((r) => {
+        setInitializing(true);
+        Promise.all([API.getSimilarityStrategies(), API.getExampleQueries()])
+            .then(([resSimStrat, resExamQ]) => {
+                const options = resSimStrat.data.map((r) => {
                     return {
                         name: r.name,
                         value: r.shortcut,
@@ -67,17 +71,10 @@ function App() {
                 });
                 setAvailableStrategies(options);
                 setSelectedStrategy(options[0]);
+                setExampleQueries([EMPTY_QUERY, ...resExamQ.data]);
             })
-            .catch((err) => {
-                console.log(err); // TODO: handle errors
-            });
-        API.getExampleQueries()
-            .then((res) => {
-                setExampleQueries([EMPTY_QUERY, ...res.data]);
-            })
-            .catch((err) => {
-                console.log(err); // TODO: handle errors
-            });
+            .catch((err) => console.log(err))
+            .finally(() => setInitializing(false));
     }, []);
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
@@ -113,11 +110,11 @@ function App() {
                     };
                 });
                 setSearchResults(result);
-                setBusy(false);
             })
             .catch((err) => {
                 console.error(err); // TODO: Handle error
-            });
+            })
+            .finally(() => setBusy(false));
     };
 
     const handleExampleQueryChange = (option: Option) => {
@@ -167,29 +164,39 @@ function App() {
 
     return (
         <div className="App">
-            <PlaybackProvider>
-                <PianoRoll
-                    onSubmit={handleSubmit}
-                    gridParams={gridParams}
-                    bpm={selectedQuery ? selectedQuery.bpm : DEFAULT_BPM}
-                    notes={getNotes()}
-                />
+            {initializing ? (
                 <div>
-                    {selectedStrategy && (
-                        <StrategySelector
-                            options={availableStrategies}
-                            onChange={setSelectedStrategy}
-                            selectedValue={selectedStrategy}
-                        />
-                    )}
-                    <StrategySelector
-                        options={getQueryOptions()}
-                        onChange={handleExampleQueryChange}
-                        selectedValue={getSelectedQueryOption()}
-                    />
+                    <BeatLoader size={100} color={SECONDARY_COLOR} />
+                    <h1>Connecting to the server...</h1>
                 </div>
-                <SearchResults searchResults={searchResults} isBusy={isBusy} />
-            </PlaybackProvider>
+            ) : (
+                <PlaybackProvider>
+                    <PianoRoll
+                        onSubmit={handleSubmit}
+                        gridParams={gridParams}
+                        bpm={selectedQuery ? selectedQuery.bpm : DEFAULT_BPM}
+                        notes={getNotes()}
+                    />
+                    <div>
+                        {selectedStrategy && (
+                            <StrategySelector
+                                options={availableStrategies}
+                                onChange={setSelectedStrategy}
+                                selectedValue={selectedStrategy}
+                            />
+                        )}
+                        <StrategySelector
+                            options={getQueryOptions()}
+                            onChange={handleExampleQueryChange}
+                            selectedValue={getSelectedQueryOption()}
+                        />
+                    </div>
+                    <SearchResults
+                        searchResults={searchResults}
+                        isBusy={isBusy}
+                    />
+                </PlaybackProvider>
+            )}
         </div>
     );
 }
