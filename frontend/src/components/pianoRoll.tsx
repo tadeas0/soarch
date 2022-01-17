@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Tone from "tone";
-import { useEffect, useState, FunctionComponent } from "react";
+import { useEffect, useState, useContext, FunctionComponent } from "react";
 import {
     DEFAULT_NOTE_LENGTH,
     MEASURE_LENGTH,
@@ -9,7 +9,7 @@ import {
     DEFAULT_BPM,
 } from "../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
-import { MdDelete, MdOutlineSearch } from "react-icons/md";
+import { MdDelete, MdOutlineSearch, MdSearchOff } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
 import SixteenthNote from "../notes/sixteenth.svg";
@@ -22,6 +22,7 @@ import useKeyboardListener from "../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../sequencer";
 import "./pianoRoll.css";
 import PianoRollGrid, { GridParams } from "./pianoRollGrid";
+import { AvailabilityContext } from "../context/serverAvailabilityContext";
 
 interface PianoRollProps {
     gridParams: GridParams;
@@ -36,6 +37,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
     const [currentBPM, setCurrentBPM] = useState(DEFAULT_BPM);
+    const { isServerAvailable } = useContext(AvailabilityContext);
 
     const [playbackEnabled, setPlaybackEnabled] = useKeyboardListener(
         (note: Note) => {
@@ -168,8 +170,9 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                         gridParams.width &&
                         props.onSubmit(notes, gridParams.width)
                     }
+                    disabled={!isServerAvailable}
                 >
-                    <MdOutlineSearch />
+                    {isServerAvailable ? <MdOutlineSearch /> : <MdSearchOff />}
                 </button>
                 <button onClick={handleClear}>
                     <MdDelete />

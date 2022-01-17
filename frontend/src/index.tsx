@@ -2,11 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
+import { AvailabilityProvider } from "./context/serverAvailabilityContext";
 import reportWebVitals from "./reportWebVitals";
 
 ReactDOM.render(
     <React.StrictMode>
-        <App />
+        <AvailabilityProvider>
+            <App />
+        </AvailabilityProvider>
     </React.StrictMode>,
     document.getElementById("root")
 );
