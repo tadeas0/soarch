@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useState, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 import Modal from "react-modal";
@@ -19,6 +19,7 @@ import { Note } from "./sequencer";
 import { API, NoteForm, Song } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";
+import { AvailabilityContext } from "./context/serverAvailabilityContext";
 
 export interface SearchResult {
     artist: string;
@@ -58,6 +59,22 @@ function App() {
         useState<GridParams>(DEFAULT_GRID_PARAMS);
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
+    const { setServerAvailable } = useContext(AvailabilityContext);
+
+    const handleRequestErrors = useCallback(
+        (err: any) => {
+            if (err.response) {
+                if (err.response.status === 500) {
+                    setServerAvailable(false);
+                } else {
+                    console.log(err);
+                }
+            } else {
+                console.log(err);
+            }
+        },
+        [setServerAvailable]
+    );
 
     useEffect(() => {
         setInitializing(true);
@@ -72,10 +89,11 @@ function App() {
                 setAvailableStrategies(options);
                 setSelectedStrategy(options[0]);
                 setExampleQueries([EMPTY_QUERY, ...resExamQ.data]);
+                setServerAvailable(true);
             })
-            .catch((err) => console.log(err))
+            .catch(handleRequestErrors)
             .finally(() => setInitializing(false));
-    }, []);
+    }, [setServerAvailable, handleRequestErrors]);
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
         setBusy(true);
@@ -111,9 +129,7 @@ function App() {
                 });
                 setSearchResults(result);
             })
-            .catch((err) => {
-                console.error(err); // TODO: Handle error
-            })
+            .catch(handleRequestErrors)
             .finally(() => setBusy(false));
     };
 
