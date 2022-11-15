@@ -20,7 +20,8 @@ import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../../sequencer";
 import "./pianoRoll.css";
-import PianoRollGrid, { GridParams } from "./pianoRollGrid";
+import PianoRollGrid from "./pianoRollGrid";
+import GridParams from "../../interfaces/GridParams";
 import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 
 interface PianoRollProps {

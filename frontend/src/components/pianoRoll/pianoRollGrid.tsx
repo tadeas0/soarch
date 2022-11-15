@@ -10,12 +10,8 @@ import {
 } from "../../constants";
 import { Sequencer, Note } from "../../sequencer";
 import PianoRollCanvas from "./pianoRollCanvas";
-
-export interface GridParams {
-    width: number;
-    height: number;
-    lowestNote: Tone.Unit.Note;
-}
+import GridParams from "../../interfaces/GridParams";
+import RollCoordinates from "../../interfaces/RollCoordinates";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -41,8 +37,9 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const [currentDrawState, setCurrentDrawState] = useState<DrawState>(
         DrawState.NOTHING
     );
+    const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
-    const isNoteHandle = (ri: number, ci: number) => {
+    const isNoteHandle = (coords: RollCoordinates) => {
         const noteEnds = notes.map((n) => [
             Sequencer.tonePitchToRollPitch(
                 n.pitch,
@@ -53,10 +50,14 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 Sequencer.toneTimeToRollTime(n.length) -
                 1,
         ]);
-        return noteEnds.findIndex((n) => n[0] === ri && n[1] === ci) !== -1;
+        return (
+            noteEnds.findIndex(
+                (n) => n[0] === coords.row && n[1] === coords.column
+            ) !== -1
+        );
     };
 
-    const getNotesAt = (ri: number, ci: number): Note[] =>
+    const getNotesAt = (coords: RollCoordinates): Note[] =>
         notes.filter((n) => {
             const s = Sequencer.toneTimeToRollTime(n.time);
             const e = s + Sequencer.toneTimeToRollTime(n.length);
@@ -65,22 +66,31 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 gridParams.lowestNote,
                 gridParams.height
             );
-            return p === ri && s <= ci && e > ci;
+            return p === coords.row && s <= coords.column && e > coords.column;
         });
 
-    const deleteByCoordinates = (ri: number, ci: number) => {
-        const notes = getNotesAt(ri, ci);
+    const deleteByCoordinates = (coords: RollCoordinates) => {
+        const notes = getNotesAt(coords);
         if (notes.length > 0) onDeleteNote(notes[notes.length - 1]);
     };
 
-    const handleLeftClick = (ri: number, ci: number) => {
-        if (isNoteHandle(ri, ci) && currentDrawState === DrawState.NOTHING) {
+    const handleLeftClick = (coords: RollCoordinates) => {
+        const n = getNotesAt(coords);
+        if (isNoteHandle(coords) && currentDrawState === DrawState.NOTHING) {
             setCurrentDrawState(DrawState.EDITING);
+        } else if (
+            n.length > 0 &&
+            currentDrawState === DrawState.NOTHING &&
+            n.findIndex((s) => s === selectedNote) !== -1
+        ) {
+            setSelectedNote(null);
+        } else if (n.length > 0 && currentDrawState === DrawState.NOTHING) {
+            setSelectedNote(n[n.length - 1]);
         } else {
             const newNote = {
-                time: Sequencer.rollTimeToToneTime(ci),
+                time: Sequencer.rollTimeToToneTime(coords.column),
                 pitch: Tone.Frequency(gridParams.lowestNote)
-                    .transpose(gridParams.height - ri - 1)
+                    .transpose(gridParams.height - coords.row - 1)
                     .toNote(),
                 length: Sequencer.rollTimeToToneTime(DEFAULT_NOTE_LENGTH),
             };
@@ -89,22 +99,30 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         }
     };
 
+    const handleRightClick = (coords: RollCoordinates) => {
+        deleteByCoordinates(coords);
+        setCurrentDrawState(DrawState.DELETING);
+    };
+
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
         e.preventDefault();
         const { offsetX, offsetY } = e.nativeEvent;
-        const [ri, ci] = getCoordsAtOffset(offsetX, offsetY);
-        if (ri >= 0) {
+        const coords = getCoordsAtOffset(offsetX, offsetY);
+        if (coords.row >= 0) {
             if (e.button === 0) {
-                handleLeftClick(ri, ci);
+                handleLeftClick(coords);
             } else if (e.button === 2) {
-                deleteByCoordinates(ri, ci);
-                setCurrentDrawState(DrawState.DELETING);
+                handleRightClick(coords);
             }
         }
     };
 
     const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
-        if (e.button === 0 && currentDrawState === DrawState.DRAWING) {
+        if (
+            e.button === 0 &&
+            (currentDrawState === DrawState.DRAWING ||
+                currentDrawState === DrawState.EDITING)
+        ) {
             setCurrentDrawState(DrawState.NOTHING);
         } else if (e.button === 2 && currentDrawState === DrawState.DELETING) {
             setCurrentDrawState(DrawState.NOTHING);
@@ -113,19 +131,22 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         const { offsetX, offsetY } = e.nativeEvent;
-        const [ri, ci] = getCoordsAtOffset(offsetX, offsetY);
+        const coords = getCoordsAtOffset(offsetX, offsetY);
         if (currentDrawState === DrawState.DELETING) {
-            deleteByCoordinates(ri, ci);
+            deleteByCoordinates(coords);
         }
     };
 
-    const getCoordsAtOffset = (offsetX: number, offsetY: number) => {
-        return [
-            Math.floor(
+    const getCoordsAtOffset = (
+        offsetX: number,
+        offsetY: number
+    ): RollCoordinates => {
+        return {
+            row: Math.floor(
                 (offsetY - PIANO_ROLL_HEADER_SIZE) / PIANO_ROLL_NOTE_HEIGHT
             ),
-            Math.floor(offsetX / PIANO_ROLL_NOTE_WIDTH),
-        ];
+            column: Math.floor(offsetX / PIANO_ROLL_NOTE_WIDTH),
+        };
     };
 
     return (
@@ -133,6 +154,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
             <PianoRollCanvas
                 gridParams={gridParams}
                 notes={notes}
+                selectedNote={selectedNote}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}

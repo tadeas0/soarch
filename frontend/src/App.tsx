@@ -4,7 +4,7 @@ import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll/pianoRoll";
-import { GridParams } from "./components/pianoRoll/pianoRollGrid";
+import GridParams from "./interfaces/GridParams";
 import SearchResults from "./components/searchResults";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";

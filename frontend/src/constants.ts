@@ -46,6 +46,7 @@ export const MEDIUM_BG_COLOR = "#1f2833";
 export const LIGHT_BG_COLOR = "#c5c6c7";
 export const SECONDARY_COLOR = "#45a29e";
 export const PRIMARY_COLOR = "#66fcf1";
+export const NOTE_HIGHLIGHT_COLOR = "#ffffff";
 
 export const PIANO_ROLL_GRID_COLORS = ["gray", "gray", SECONDARY_COLOR];
 export const PIANO_ROLL_BLACK_KEY_COLOR = BG_COLOR;

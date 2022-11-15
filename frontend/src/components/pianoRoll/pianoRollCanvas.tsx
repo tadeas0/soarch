@@ -12,9 +12,10 @@ import {
     SECONDARY_COLOR,
     LIGHT_BG_COLOR,
     PRIMARY_COLOR,
+    NOTE_HIGHLIGHT_COLOR,
 } from "../../constants";
 import { Note, Sequencer } from "../../sequencer";
-import { GridParams } from "./pianoRollGrid";
+import GridParams from "../../interfaces/GridParams";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -22,6 +23,7 @@ interface PianoRollCanvasProps {
     onMouseMove: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     gridParams: GridParams;
     notes: Note[];
+    selectedNote: Note | null;
 }
 
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
@@ -137,9 +139,8 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
 
     const drawNotes = useCallback(
         (ctx: CanvasRenderingContext2D) => {
-            ctx.strokeStyle = SECONDARY_COLOR;
-
             props.notes.forEach((n) => {
+                ctx.strokeStyle = SECONDARY_COLOR;
                 const x =
                     Sequencer.toneTimeToRollTime(n.time) *
                     PIANO_ROLL_NOTE_WIDTH;
@@ -162,10 +163,17 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
 
                 ctx.fillStyle = grd;
                 ctx.fillRect(x, y, w, h);
+                if (n === props.selectedNote)
+                    ctx.strokeStyle = NOTE_HIGHLIGHT_COLOR;
                 ctx.strokeRect(x, y, w, h);
             });
         },
-        [props.gridParams, props.notes]
+        [
+            props.gridParams.height,
+            props.gridParams.lowestNote,
+            props.notes,
+            props.selectedNote,
+        ]
     );
 
     useEffect(() => {
