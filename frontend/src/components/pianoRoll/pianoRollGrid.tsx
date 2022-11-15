@@ -7,8 +7,8 @@ import {
     PIANO_ROLL_HEADER_SIZE,
     PIANO_ROLL_NOTE_HEIGHT,
     PIANO_ROLL_NOTE_WIDTH,
-} from "../constants";
-import { Sequencer, Note } from "../sequencer";
+} from "../../constants";
+import { Sequencer, Note } from "../../sequencer";
 import PianoRollCanvas from "./pianoRollCanvas";
 
 export interface GridParams {

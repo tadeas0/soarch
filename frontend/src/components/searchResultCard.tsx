@@ -3,7 +3,7 @@ import { FunctionComponent, useState } from "react";
 import ReactModal from "react-modal";
 import { SearchResult } from "../App";
 import { Sequencer } from "../sequencer";
-import PianoRollGrid from "./pianoRollGrid";
+import PianoRollGrid from "./pianoRoll/pianoRollGrid";
 import { MdClose } from "react-icons/md";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import "./result.css";

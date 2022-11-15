@@ -12,8 +12,8 @@ import {
     SECONDARY_COLOR,
     LIGHT_BG_COLOR,
     PRIMARY_COLOR,
-} from "../constants";
-import { Note, Sequencer } from "../sequencer";
+} from "../../constants";
+import { Note, Sequencer } from "../../sequencer";
 import { GridParams } from "./pianoRollGrid";
 
 interface PianoRollCanvasProps {

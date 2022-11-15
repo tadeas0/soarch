@@ -6,22 +6,22 @@ import {
     MIN_BPM,
     MAX_BPM,
     DEFAULT_BPM,
-} from "../constants";
+} from "../../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch, MdSearchOff } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
-import SixteenthNote from "../notes/sixteenth.svg";
-import EighthNote from "../notes/eighth.svg";
-import QuarterNote from "../notes/quarter.svg";
-import HalfNote from "../notes/half.svg";
-import WholeNote from "../notes/whole.svg";
-import usePlayback from "../hooks/usePlayback";
-import useKeyboardListener from "../hooks/useKeyboardListener";
-import { Note, Sequencer } from "../sequencer";
+import SixteenthNote from "../../notes/sixteenth.svg";
+import EighthNote from "../../notes/eighth.svg";
+import QuarterNote from "../../notes/quarter.svg";
+import HalfNote from "../../notes/half.svg";
+import WholeNote from "../../notes/whole.svg";
+import usePlayback from "../../hooks/usePlayback";
+import useKeyboardListener from "../../hooks/useKeyboardListener";
+import { Note, Sequencer } from "../../sequencer";
 import "./pianoRoll.css";
 import PianoRollGrid, { GridParams } from "./pianoRollGrid";
-import { AvailabilityContext } from "../context/serverAvailabilityContext";
+import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 
 interface PianoRollProps {
     gridParams: GridParams;

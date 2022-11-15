@@ -4,7 +4,7 @@ import {
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
 } from "./constants";
-import { GridParams } from "./components/pianoRollGrid";
+import { GridParams } from "./components/pianoRoll/pianoRollGrid";
 
 export interface Note {
     time: Tone.Unit.Time;
