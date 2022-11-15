@@ -29,6 +29,18 @@ interface PianoRollCanvasProps {
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    const drawCircle = (
+        ctx: CanvasRenderingContext2D,
+        x: number,
+        y: number,
+        radius: number
+    ) => {
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.stroke();
+    };
+
     const isBlackKey = useCallback(
         (row: number) => {
             return Tone.Frequency(props.gridParams.lowestNote)
@@ -137,43 +149,54 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         });
     }, []);
 
-    const drawNotes = useCallback(
-        (ctx: CanvasRenderingContext2D) => {
-            props.notes.forEach((n) => {
-                ctx.strokeStyle = SECONDARY_COLOR;
-                const x =
-                    Sequencer.toneTimeToRollTime(n.time) *
-                    PIANO_ROLL_NOTE_WIDTH;
-                const y =
-                    Sequencer.tonePitchToRollPitch(
-                        n.pitch,
-                        props.gridParams.lowestNote,
-                        props.gridParams.height
-                    ) *
-                        PIANO_ROLL_NOTE_HEIGHT +
-                    PIANO_ROLL_HEADER_SIZE;
-                const w =
-                    Sequencer.toneTimeToRollTime(n.length) *
-                    PIANO_ROLL_NOTE_WIDTH;
-                const h = PIANO_ROLL_NOTE_HEIGHT;
+    const drawNote = useCallback(
+        (ctx: CanvasRenderingContext2D, note: Note) => {
+            ctx.strokeStyle = SECONDARY_COLOR;
+            const x =
+                Sequencer.toneTimeToRollTime(note.time) * PIANO_ROLL_NOTE_WIDTH;
+            const y =
+                Sequencer.tonePitchToRollPitch(
+                    note.pitch,
+                    props.gridParams.lowestNote,
+                    props.gridParams.height
+                ) *
+                    PIANO_ROLL_NOTE_HEIGHT +
+                PIANO_ROLL_HEADER_SIZE;
+            const w =
+                Sequencer.toneTimeToRollTime(note.length) *
+                PIANO_ROLL_NOTE_WIDTH;
+            const h = PIANO_ROLL_NOTE_HEIGHT;
 
-                const grd = ctx.createLinearGradient(x - 30, y, x + w, y);
-                grd.addColorStop(0, LIGHT_BG_COLOR);
-                grd.addColorStop(0.7, PRIMARY_COLOR);
+            const grd = ctx.createLinearGradient(x - 30, y, x + w, y);
+            grd.addColorStop(0, LIGHT_BG_COLOR);
+            grd.addColorStop(0.7, PRIMARY_COLOR);
 
-                ctx.fillStyle = grd;
-                ctx.fillRect(x, y, w, h);
-                if (n === props.selectedNote)
-                    ctx.strokeStyle = NOTE_HIGHLIGHT_COLOR;
-                ctx.strokeRect(x, y, w, h);
-            });
+            ctx.fillStyle = grd;
+            ctx.fillRect(x, y, w, h);
+            if (note === props.selectedNote)
+                ctx.strokeStyle = NOTE_HIGHLIGHT_COLOR;
+            ctx.strokeRect(x, y, w, h);
+            ctx.fillStyle = SECONDARY_COLOR;
+            const handleX = x + w - PIANO_ROLL_NOTE_WIDTH / 3;
+            const radius = 1;
+            const yOffset = PIANO_ROLL_NOTE_WIDTH / 3.5;
+            drawCircle(ctx, handleX, y + yOffset, radius);
+            drawCircle(ctx, handleX, y + h - yOffset, radius);
         },
         [
             props.gridParams.height,
             props.gridParams.lowestNote,
-            props.notes,
             props.selectedNote,
         ]
+    );
+
+    const drawNotes = useCallback(
+        (ctx: CanvasRenderingContext2D) => {
+            props.notes.forEach((n) => {
+                drawNote(ctx, n);
+            });
+        },
+        [drawNote, props.notes]
     );
 
     useEffect(() => {
