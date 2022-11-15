@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as Tone from "tone";
 import { useEffect, useState, useContext, FunctionComponent } from "react";
 import {
     DEFAULT_NOTE_LENGTH,
