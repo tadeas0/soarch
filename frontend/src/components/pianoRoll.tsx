@@ -58,34 +58,16 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         // eslint-disable-next-line
     }, [props.notes, props.gridParams, props.bpm]);
 
-    const handleAddNote = (pitch: number, position: number, length: number) => {
-        const newNote = {
-            time: Sequencer.rollTimeToToneTime(position),
-            pitch: Tone.Frequency(gridParams.lowestNote)
-                .transpose(gridParams.height - pitch - 1)
-                .toNote(),
-            length: Sequencer.rollTimeToToneTime(length),
-        };
-        Sequencer.addNoteToBuffer(newNote);
+    const handleAddNote = (note: Note) => {
+        Sequencer.addNoteToBuffer(note);
 
-        const newNotes = [...notes, newNote];
+        const newNotes = [...notes, note];
         setNotes(newNotes);
     };
 
-    const handleDeleteNote = (pitch: number, position: number) => {
-        let newNotes = notes.filter((n) => {
-            const s = Sequencer.toneTimeToRollTime(n.time);
-            const e = s + Sequencer.toneTimeToRollTime(n.length);
-            const p = Sequencer.tonePitchToRollPitch(
-                n.pitch,
-                gridParams.lowestNote,
-                gridParams.height
-            );
-            if (p === pitch && s <= position && e >= position)
-                Sequencer.deleteNoteFromBuffer(n);
-            return !(p === pitch && s <= position && e >= position);
-        });
-        setNotes(newNotes);
+    const handleDeleteNote = (note: Note) => {
+        Sequencer.deleteNoteFromBuffer(note);
+        setNotes((curr) => curr.filter((n) => n !== note));
     };
 
     const handleClear = () => {
@@ -209,9 +191,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 ></input>
             </div>
             <PianoRollGrid
-                onAddNote={(pitch: number, position: number) => {
-                    handleAddNote(pitch, position, noteLength);
-                }}
+                onAddNote={handleAddNote}
                 onDeleteNote={handleDeleteNote}
                 gridParams={gridParams}
                 notes={notes}

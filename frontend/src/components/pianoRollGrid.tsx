@@ -10,6 +10,7 @@ import "./pianoRoll.css";
 import * as Tone from "tone";
 import {
     BG_COLOR,
+    DEFAULT_NOTE_LENGTH,
     LIGHT_BG_COLOR,
     PIANO_ROLL_BG_COLOR,
     PIANO_ROLL_BLACK_KEY_COLOR,
@@ -32,13 +33,14 @@ export interface GridParams {
 interface PianoRollGridProps {
     notes: Note[];
     gridParams: GridParams;
-    onDeleteNote?: (ri: number, ci: number) => void;
-    onAddNote?: (ri: number, ci: number) => void;
+    onDeleteNote?: (note: Note) => void;
+    onAddNote?: (note: Note) => void;
 }
 
 enum DrawState {
     DRAWING,
     DELETING,
+    EDITING,
     NOTHING,
 }
 
@@ -46,8 +48,8 @@ enum DrawState {
 const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     notes,
     gridParams,
-    onAddNote = (ri: number, ci: number) => {},
-    onDeleteNote = (ri: number, ci: number) => {},
+    onAddNote = (note: Note) => {},
+    onDeleteNote = (note: Note) => {},
 }: PianoRollGridProps) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [currentDrawState, setCurrentDrawState] = useState<DrawState>(
@@ -63,6 +65,37 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         },
         [gridParams]
     );
+
+    const isNoteHandle = (ri: number, ci: number) => {
+        const noteEnds = notes.map((n) => [
+            Sequencer.tonePitchToRollPitch(
+                n.pitch,
+                gridParams.lowestNote,
+                gridParams.height
+            ),
+            Sequencer.toneTimeToRollTime(n.time) +
+                Sequencer.toneTimeToRollTime(n.length) -
+                1,
+        ]);
+        return noteEnds.findIndex((n) => n[0] === ri && n[1] === ci) !== -1;
+    };
+
+    const getNotesAt = (ri: number, ci: number): Note[] =>
+        notes.filter((n) => {
+            const s = Sequencer.toneTimeToRollTime(n.time);
+            const e = s + Sequencer.toneTimeToRollTime(n.length);
+            const p = Sequencer.tonePitchToRollPitch(
+                n.pitch,
+                gridParams.lowestNote,
+                gridParams.height
+            );
+            return p === ri && s <= ci && e > ci;
+        });
+
+    const deleteByCoordinates = (ri: number, ci: number) => {
+        const notes = getNotesAt(ri, ci);
+        if (notes.length > 0) onDeleteNote(notes[notes.length - 1]);
+    };
 
     const drawVLines = useCallback(
         (
@@ -225,16 +258,31 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         }
     }, [drawHeader]);
 
+    const handleLeftClick = (ri: number, ci: number) => {
+        if (isNoteHandle(ri, ci) && currentDrawState === DrawState.NOTHING) {
+            setCurrentDrawState(DrawState.EDITING);
+        } else {
+            const newNote = {
+                time: Sequencer.rollTimeToToneTime(ci),
+                pitch: Tone.Frequency(gridParams.lowestNote)
+                    .transpose(gridParams.height - ri - 1)
+                    .toNote(),
+                length: Sequencer.rollTimeToToneTime(DEFAULT_NOTE_LENGTH),
+            };
+            onAddNote(newNote);
+            setCurrentDrawState(DrawState.DRAWING);
+        }
+    };
+
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
         e.preventDefault();
         const { offsetX, offsetY } = e.nativeEvent;
         const [ri, ci] = getCoordsAtOffset(offsetX, offsetY);
         if (ri >= 0) {
             if (e.button === 0) {
-                onAddNote(ri, ci);
-                setCurrentDrawState(DrawState.DRAWING);
+                handleLeftClick(ri, ci);
             } else if (e.button === 2) {
-                onDeleteNote(ri, ci);
+                deleteByCoordinates(ri, ci);
                 setCurrentDrawState(DrawState.DELETING);
             }
         }
@@ -252,7 +300,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         const { offsetX, offsetY } = e.nativeEvent;
         const [ri, ci] = getCoordsAtOffset(offsetX, offsetY);
         if (currentDrawState === DrawState.DELETING) {
-            onDeleteNote(ri, ci);
+            deleteByCoordinates(ri, ci);
         }
     };
 
