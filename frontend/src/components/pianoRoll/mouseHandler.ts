@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import GridParams from "../../interfaces/GridParams";
 import RollCoordinates from "../../interfaces/RollCoordinates";
 import { Note, Sequencer } from "../../sequencer";
@@ -24,6 +24,10 @@ export class MouseHandler {
         this._gridParams = gridParams;
         this.changeSelectedNote = changeSelectedNote;
         this._selectedNote = null;
+    }
+
+    public set gridParams(value: GridParams) {
+        this._gridParams = value;
     }
 
     public getNotesAt(coords: RollCoordinates, notes: Note[]): Note[] {
@@ -128,5 +132,9 @@ export function useMouseHandler(
             gridParams
         );
     }
+    useEffect(() => {
+        if (mouseHandler.current) mouseHandler.current.gridParams = gridParams;
+    }, [gridParams]);
+
     return mouseHandler.current;
 }
