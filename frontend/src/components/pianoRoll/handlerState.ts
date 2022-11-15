@@ -11,6 +11,18 @@ export abstract class State {
         this.mouseHandler = mouseHandler;
     }
 
+    protected setMoveCursor() {
+        document.body.style.cursor = "move";
+    }
+
+    protected setDefaultCursor() {
+        document.body.style.cursor = "default";
+    }
+
+    protected setResizeCursor() {
+        document.body.style.cursor = "ew-resize";
+    }
+
     public abstract handleLeftClick(
         coords: RollCoordinates,
         currentNotes: Note[]
@@ -57,6 +69,7 @@ export class ReadyState extends State {
             };
             this.mouseHandler.addNote(newNote);
             this.mouseHandler.selectNote(newNote);
+            this.setMoveCursor();
             this.mouseHandler.changeState(new MovingState(this.mouseHandler));
         }
     }
@@ -69,7 +82,17 @@ export class ReadyState extends State {
 
     public handleLeftRelease(coords: RollCoordinates) {}
     public handleRightRelease(coords: RollCoordinates) {}
-    public handleMouseMove(coords: RollCoordinates) {}
+    public handleMouseMove(coords: RollCoordinates, currentNotes: Note[]) {
+        const noteHandle = this.mouseHandler.noteHandle(coords, currentNotes);
+        const n = this.mouseHandler.getNotesAt(coords, currentNotes);
+        if (noteHandle !== null) {
+            this.setResizeCursor();
+        } else if (n.length > 0) {
+            this.setMoveCursor();
+        } else {
+            this.setDefaultCursor();
+        }
+    }
 }
 
 class MovingState extends State {
