@@ -39,22 +39,32 @@ export class MouseHandler {
         });
     }
 
-    public isNoteHandle(coords: RollCoordinates, notes: Note[]) {
-        const noteEnds = notes.map((n) => [
-            Sequencer.tonePitchToRollPitch(
-                n.pitch,
-                this.gridParams.lowestNote,
-                this.gridParams.height
-            ),
-            Sequencer.toneTimeToRollTime(n.time) +
-                Sequencer.toneTimeToRollTime(n.length) -
-                1,
-        ]);
-        return (
-            noteEnds.findIndex(
-                (n) => n[0] === coords.row && n[1] === coords.column
-            ) !== -1
+    /**
+     * Returns note, whose handle is on specified coordinates
+     * Returns null if there is no note handle on specified coordinates
+     * @param coords coordinates to check
+     * @param notes notes for which the coordinates should be checked
+     * @returns Note | null
+     */
+    public noteHandle(coords: RollCoordinates, notes: Note[]): Note | null {
+        const clickedNotes = this.getNotesAt(coords, notes);
+        if (clickedNotes.length <= 0) {
+            return null;
+        }
+        const topNote = clickedNotes[clickedNotes.length - 1];
+        const pitch = Sequencer.tonePitchToRollPitch(
+            topNote.pitch,
+            this.gridParams.lowestNote,
+            this.gridParams.height
         );
+        const endTime =
+            Sequencer.toneTimeToRollTime(topNote.time) +
+            Sequencer.toneTimeToRollTime(topNote.length) -
+            1;
+        if (pitch === coords.row && endTime === coords.column) {
+            return topNote;
+        }
+        return null;
     }
 
     get selectedNote(): Note | null {

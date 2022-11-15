@@ -36,8 +36,15 @@ export abstract class State {
 export class ReadyState extends State {
     public handleLeftClick(coords: RollCoordinates, currentNotes: Note[]) {
         const n = this.mouseHandler.getNotesAt(coords, currentNotes);
-        if (n.length > 0) {
+        const noteHandle = this.mouseHandler.noteHandle(coords, currentNotes);
+        if (noteHandle !== null) {
+            this.mouseHandler.selectNote(noteHandle);
+            this.mouseHandler.changeState(
+                new ChangingLengthState(this.mouseHandler)
+            );
+        } else if (n.length > 0) {
             this.mouseHandler.selectNote(n[n.length - 1]);
+            this.mouseHandler.changeState(new MovingState(this.mouseHandler));
         } else {
             const newNote = {
                 time: Sequencer.rollTimeToToneTime(coords.column),
@@ -50,8 +57,8 @@ export class ReadyState extends State {
             };
             this.mouseHandler.addNote(newNote);
             this.mouseHandler.selectNote(newNote);
+            this.mouseHandler.changeState(new MovingState(this.mouseHandler));
         }
-        this.mouseHandler.changeState(new MovingState(this.mouseHandler));
     }
 
     public handleRightClick(coords: RollCoordinates, notes: Note[]) {
@@ -65,7 +72,7 @@ export class ReadyState extends State {
     public handleMouseMove(coords: RollCoordinates) {}
 }
 
-export class MovingState extends State {
+class MovingState extends State {
     public handleLeftClick() {}
     public handleRightClick() {}
     public handleLeftRelease() {
@@ -104,5 +111,33 @@ class DeletingState extends State {
     public handleMouseMove(coords: RollCoordinates, currentNotes: Note[]) {
         const n = this.mouseHandler.getNotesAt(coords, currentNotes);
         if (n.length > 0) this.mouseHandler.deleteNote(n[n.length - 1]);
+    }
+}
+
+class ChangingLengthState extends State {
+    public handleLeftClick(coords: RollCoordinates, currentNotes: Note[]) {}
+    public handleRightClick(coords: RollCoordinates, currentNotes: Note[]) {}
+    public handleRightRelease(coords: RollCoordinates, currentNotes: Note[]) {}
+
+    public handleLeftRelease(coords: RollCoordinates, currentNotes: Note[]) {
+        this.mouseHandler.changeState(new ReadyState(this.mouseHandler));
+    }
+
+    public handleMouseMove(coords: RollCoordinates, currentNotes: Note[]) {
+        const oldNote = this.mouseHandler.selectedNote;
+        if (oldNote === null) {
+            throw new Error("Note is not selected");
+        }
+
+        const start = Sequencer.toneTimeToRollTime(oldNote.time);
+        const newLen = Math.max(1, coords.column - start + 1);
+        const newNote: Note = {
+            length: Sequencer.rollTimeToToneTime(newLen),
+            pitch: oldNote.pitch,
+            time: oldNote.time,
+        };
+        this.mouseHandler.addNote(newNote);
+        this.mouseHandler.selectNote(newNote);
+        this.mouseHandler.deleteNote(oldNote);
     }
 }
