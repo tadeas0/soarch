@@ -61,8 +61,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const handleAddNote = (note: Note) => {
         Sequencer.addNoteToBuffer(note);
 
-        const newNotes = [...notes, note];
-        setNotes(newNotes);
+        setNotes((current) => [...current, note]);
     };
 
     const handleDeleteNote = (note: Note) => {
