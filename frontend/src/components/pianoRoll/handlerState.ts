@@ -56,7 +56,9 @@ export class ReadyState extends State {
             );
         } else if (n.length > 0) {
             this.mouseHandler.selectNote(n[n.length - 1]);
-            this.mouseHandler.changeState(new MovingState(this.mouseHandler));
+            this.mouseHandler.changeState(
+                new MovingState(this.mouseHandler, coords)
+            );
         } else {
             const newNote = {
                 time: Sequencer.rollTimeToToneTime(coords.column),
@@ -70,7 +72,9 @@ export class ReadyState extends State {
             this.mouseHandler.addNote(newNote);
             this.mouseHandler.selectNote(newNote);
             this.setMoveCursor();
-            this.mouseHandler.changeState(new MovingState(this.mouseHandler));
+            this.mouseHandler.changeState(
+                new MovingState(this.mouseHandler, coords)
+            );
         }
     }
 
@@ -96,6 +100,19 @@ export class ReadyState extends State {
 }
 
 class MovingState extends State {
+    private columnOffset: number;
+
+    constructor(mouseHandler: MouseHandler, mouseCoords: RollCoordinates) {
+        super(mouseHandler);
+        if (this.mouseHandler.selectedNote === null)
+            throw new Error("Note is not selected");
+        const sel = Sequencer.getStartCoords(
+            this.mouseHandler.selectedNote,
+            this.mouseHandler.gridParams
+        );
+        this.columnOffset = mouseCoords.column - sel.column;
+    }
+
     public handleLeftClick() {}
     public handleRightClick() {}
     public handleLeftRelease() {
@@ -109,8 +126,9 @@ class MovingState extends State {
         if (oldNote === null) {
             throw new Error("Note is not selected");
         }
+        const newColumn = Math.max(0, coords.column - this.columnOffset);
         const newNote = {
-            time: Sequencer.rollTimeToToneTime(coords.column),
+            time: Sequencer.rollTimeToToneTime(newColumn),
             pitch: Tone.Frequency(this.mouseHandler.gridParams.lowestNote)
                 .transpose(this.mouseHandler.gridParams.height - coords.row - 1)
                 .toNote(),
