@@ -9,17 +9,33 @@
     display: flex;
 }
 
-.tab {
-    display: inline-block;
+.tab-container {
+    display: flex;
+    flex-direction: row;
     border: 3px solid transparent;
     border-radius: 20px 2px 0 0;
     border-bottom: none;
     bottom: -1px;
     position: relative;
     list-style: none;
-    padding: 6px 12px;
+    padding: 6px 6px 6px 12px;
     cursor: pointer;
+    color: var(--primary-color);
     border-color: var(--primary-color);
+}
+
+.tab-container-selected {
+    background-color: var(--primary-color);
+    color: var(--bg-color);
+}
+
+.close-tab-button {
+    background: none;
+    padding: 0px;
+    outline: none;
+    border: none;
+    margin-left: 16px;
+    color: inherit;
 }
 
 .tab-selected {

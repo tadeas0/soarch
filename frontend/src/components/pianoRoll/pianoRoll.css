@@ -22,13 +22,13 @@
     transition: background-color 0.2s, box-shadow 0.2s;
 }
 
-.pianoroll button.recording {
+.pianoroll .button-container button.recording {
     background-color: var(--warn-color);
     box-shadow: 0 4px 8px 0 var(--warn-color);
     transition: background-color 0.2s, box-shadow 0.2s;
 }
 
-.pianoroll button:active:enabled {
+.pianoroll .button-container button:active:enabled {
     box-shadow: 0px 0px 0px;
     transform: translateY(4px);
 }

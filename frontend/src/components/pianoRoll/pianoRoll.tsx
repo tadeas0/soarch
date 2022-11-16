@@ -13,6 +13,7 @@ import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch, MdSearchOff } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { TiMediaRecord, TiMediaRecordOutline, TiPlus } from "react-icons/ti";
+import { IoClose } from "react-icons/io5";
 import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../../sequencer";
@@ -196,6 +197,16 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         setSelectedSongIndex(songs.length);
     };
 
+    const handleCloseTab = (tabIndex: number) => {
+        setSongs((current) => {
+            const newSongs = [...current];
+            newSongs.splice(tabIndex, 1);
+            if (selectedSongIndex >= newSongs.length)
+                setSelectedSongIndex(newSongs.length - 1);
+            return newSongs;
+        });
+    };
+
     return (
         <div className="pianoroll">
             <div className="button-container">
@@ -251,20 +262,32 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                     disabled={isPlaying}
                 ></input>
             </div>
-            <Tabs
-                selectedIndex={selectedSongIndex}
-                onSelect={(index) => setSelectedSongIndex(index)}
-                className="tabs"
-            >
+            <Tabs selectedIndex={selectedSongIndex} className="tabs">
                 <TabList className="tab-list">
                     {songs.map((s, i) => (
-                        <Tab
-                            selectedClassName="tab-selected"
-                            className="tab"
-                            key={i}
+                        <div
+                            className={
+                                "tab-container" +
+                                (i === selectedSongIndex
+                                    ? " tab-container-selected"
+                                    : "")
+                            }
                         >
-                            {s.name}
-                        </Tab>
+                            <Tab
+                                selectedClassName="tab-selected"
+                                className="tab"
+                                key={i}
+                                onClick={() => setSelectedSongIndex(i)}
+                            >
+                                {s.name}
+                            </Tab>
+                            <button
+                                className="close-tab-button"
+                                onClick={() => handleCloseTab(i)}
+                            >
+                                <IoClose />
+                            </button>
+                        </div>
                     ))}
                     <button className="add-tab-button" onClick={handleAddSong}>
                         <TiPlus />
