@@ -32,14 +32,13 @@ export class MouseHandler {
 
     public getNotesAt(coords: RollCoordinates, notes: Note[]): Note[] {
         return notes.filter((n) => {
-            const s = Sequencer.toneTimeToRollTime(n.time);
-            const e = s + Sequencer.toneTimeToRollTime(n.length);
-            const p = Sequencer.tonePitchToRollPitch(
-                n.pitch,
-                this._gridParams.lowestNote,
-                this._gridParams.height
+            const s = Sequencer.getStartCoords(n, this._gridParams);
+            const e = Sequencer.getEndCoords(n, this._gridParams);
+            return (
+                s.row === coords.row &&
+                s.column <= coords.column &&
+                e.column >= coords.column
             );
-            return p === coords.row && s <= coords.column && e > coords.column;
         });
     }
 
@@ -56,19 +55,18 @@ export class MouseHandler {
             return null;
         }
         const topNote = clickedNotes[clickedNotes.length - 1];
-        const pitch = Sequencer.tonePitchToRollPitch(
-            topNote.pitch,
-            this.gridParams.lowestNote,
-            this.gridParams.height
-        );
-        const endTime =
-            Sequencer.toneTimeToRollTime(topNote.time) +
-            Sequencer.toneTimeToRollTime(topNote.length) -
-            1;
-        if (pitch === coords.row && endTime === coords.column) {
+        const endCoords = Sequencer.getEndCoords(topNote, this._gridParams);
+        if (this.cmpCoords(coords, endCoords)) {
             return topNote;
         }
         return null;
+    }
+
+    private cmpCoords(
+        coords1: RollCoordinates,
+        coords2: RollCoordinates
+    ): boolean {
+        return coords1.row === coords2.row && coords1.column === coords2.column;
     }
 
     get selectedNote(): Note | null {
