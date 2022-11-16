@@ -10,7 +10,7 @@ export const MEASURE_LENGTH = 16;
 export const NOTES = ["C", "D", "E", "F", "G", "A", "B"];
 export const PIANO_ROLL_NOTE_HEIGHT = 20;
 export const PIANO_ROLL_NOTE_WIDTH = 20;
-export const DEFAULT_NOTE_LENGTH = 4;
+export const DEFAULT_NOTE_LENGTH = 2;
 export const PIANO_ROLL_HEADER_SIZE = 20;
 
 export const KEYBOARD_NOTE_MAP: { [keyCode: string]: number } = {
