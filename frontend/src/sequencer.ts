@@ -4,7 +4,8 @@ import {
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
 } from "./constants";
-import { GridParams } from "./components/pianoRollGrid";
+import GridParams from "./interfaces/GridParams";
+import RollCoordinates from "./interfaces/RollCoordinates";
 
 export interface Note {
     time: Tone.Unit.Time;
@@ -45,6 +46,37 @@ export abstract class Sequencer {
 
     public static async init() {
         await Tone.start();
+    }
+
+    public static getStartCoords(
+        note: Note,
+        gridParams: GridParams
+    ): RollCoordinates {
+        return {
+            row: this.tonePitchToRollPitch(
+                note.pitch,
+                gridParams.lowestNote,
+                gridParams.height
+            ),
+            column: this.toneTimeToRollTime(note.time),
+        };
+    }
+
+    public static getEndCoords(
+        note: Note,
+        gridParams: GridParams
+    ): RollCoordinates {
+        return {
+            row: this.tonePitchToRollPitch(
+                note.pitch,
+                gridParams.lowestNote,
+                gridParams.height
+            ),
+            column:
+                this.toneTimeToRollTime(note.time) +
+                this.toneTimeToRollTime(note.length) -
+                1,
+        };
     }
 
     public static fillBuffer(notes: Note[], gridLength: number) {
