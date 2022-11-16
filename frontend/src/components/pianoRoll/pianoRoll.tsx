@@ -1,139 +1,192 @@
 import * as React from "react";
 import { useEffect, useState, useContext, FunctionComponent } from "react";
 import {
-    DEFAULT_NOTE_LENGTH,
     MEASURE_LENGTH,
     MIN_BPM,
     MAX_BPM,
     DEFAULT_BPM,
+    DEFAULT_PIANO_ROLL_WIDTH,
+    DEFAULT_PIANO_ROLL_HEIGHT,
+    PIANO_ROLL_LOWEST_NOTE,
 } from "../../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch, MdSearchOff } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
-import SixteenthNote from "../../notes/sixteenth.svg";
-import EighthNote from "../../notes/eighth.svg";
-import QuarterNote from "../../notes/quarter.svg";
-import HalfNote from "../../notes/half.svg";
-import WholeNote from "../../notes/whole.svg";
 import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../../sequencer";
 import "./pianoRoll.css";
+import "./tabs.css";
 import PianoRollGrid from "./pianoRollGrid";
 import GridParams from "../../interfaces/GridParams";
 import { AvailabilityContext } from "../../context/serverAvailabilityContext";
+import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
+
+interface SongParams {
+    name: string;
+    bpm: number;
+    notes: Note[];
+    gridParams: GridParams;
+}
 
 interface PianoRollProps {
-    gridParams: GridParams;
-    bpm: number;
-    notes?: Note[];
+    songs: {
+        name?: string;
+        bpm: number;
+        notes?: Note[];
+        gridParams: GridParams;
+    }[];
     onSubmit: (notes: Note[], gridLength: number) => void;
 }
 
+const DEFAULT_SONG_PARAMS: SongParams = {
+    bpm: DEFAULT_BPM,
+    gridParams: {
+        height: DEFAULT_PIANO_ROLL_HEIGHT,
+        width: DEFAULT_PIANO_ROLL_WIDTH,
+        lowestNote: PIANO_ROLL_LOWEST_NOTE,
+    },
+    name: "Song 1",
+    notes: [],
+};
+
 const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
-    const [notes, setNotes] = useState<Note[]>([]);
-    const [gridParams, setGridParams] = useState<GridParams>(props.gridParams);
-    const [noteLength, setNoteLength] = useState(DEFAULT_NOTE_LENGTH);
     const [isPlaying, handleStart, handleStop] = usePlayback();
-    const [currentBPM, setCurrentBPM] = useState(DEFAULT_BPM);
     const { isServerAvailable } = useContext(AvailabilityContext);
+    const [songs, setSongs] = useState<SongParams[]>([DEFAULT_SONG_PARAMS]);
+    const [selectedSongIndex, setSelectedSongIndex] = useState(0);
+
+    const getSelectedSong = () => songs[selectedSongIndex];
+
+    const getGridParams = () => getSelectedSong().gridParams;
+
+    const getNotes = () => getSelectedSong().notes;
+
+    const updateSelectedSong = (
+        updateFn: (current: SongParams) => SongParams
+    ) => {
+        setSongs((current) => {
+            const newSongs = [...current];
+            const oldSong = newSongs[selectedSongIndex];
+            const newSong = updateFn(oldSong);
+            newSongs[selectedSongIndex] = newSong;
+            return newSongs;
+        });
+    };
 
     const [playbackEnabled, setPlaybackEnabled] = useKeyboardListener(
         (note: Note) => {
             if (isPlaying) {
-                const newNotes = [...notes, note];
-                Sequencer.fillBuffer([note], gridParams.width);
-                setNotes(newNotes);
+                const newNotes = [...getNotes(), note];
+                Sequencer.fillBuffer([note], getGridParams().width);
+                updateSelectedSong((current) => ({
+                    ...current,
+                    notes: newNotes,
+                }));
             }
         },
-        gridParams.lowestNote
+        getGridParams().lowestNote
     );
 
     useEffect(() => {
-        setGridParams(props.gridParams);
-        setCurrentBPM(props.bpm);
-        if (props.notes) setNotes(props.notes);
+        if (props.songs.length <= 0) {
+            setSongs([DEFAULT_SONG_PARAMS]);
+        } else {
+            setSongs(
+                props.songs.map((s, i) => ({
+                    bpm: s.bpm,
+                    gridParams: s.gridParams,
+                    name: s.name === undefined ? "Song " + (i + 1) : s.name,
+                    notes: s.notes === undefined ? [] : s.notes,
+                }))
+            );
+        }
+
         handleStop();
         // eslint-disable-next-line
-    }, [props.notes, props.gridParams, props.bpm]);
+    }, []);
 
     const handleAddNote = (note: Note) => {
         Sequencer.addNoteToBuffer(note);
 
-        setNotes((current) => [...current, note]);
+        updateSelectedSong((current) => ({
+            ...current,
+            notes: [...current.notes, note],
+        }));
     };
 
     const handleDeleteNote = (note: Note) => {
         Sequencer.deleteNoteFromBuffer(note);
-        setNotes((curr) => curr.filter((n) => n !== note));
+
+        updateSelectedSong((current) => ({
+            ...current,
+            notes: current.notes.filter((n) => n !== note),
+        }));
     };
 
     const handleClear = () => {
-        setNotes([]);
+        updateSelectedSong((current) => ({
+            ...current,
+            notes: [],
+        }));
         if (isPlaying) {
             handleStop();
         }
     };
 
-    const handleChangeNoteLength = () => {
-        setNoteLength((noteLength * 2) % 31);
-    };
-
     const handlePlayClick = () => {
         if (!isPlaying) {
             let bpm = DEFAULT_BPM;
-            if (currentBPM >= MIN_BPM && currentBPM <= MAX_BPM)
-                bpm = currentBPM;
-            handleStart(notes, bpm, gridParams.width);
+            if (
+                getSelectedSong().bpm >= MIN_BPM &&
+                getSelectedSong().bpm <= MAX_BPM
+            )
+                bpm = getSelectedSong().bpm;
+            handleStart(getNotes(), bpm, getGridParams().width);
         } else {
             handleStop();
         }
     };
 
     const handleAddMeasure = () => {
-        setGridParams({
-            ...gridParams,
-            width: gridParams.width + MEASURE_LENGTH,
-        });
+        updateSelectedSong((current) => ({
+            ...current,
+            gridParams: {
+                ...current.gridParams,
+                width: getGridParams().width + MEASURE_LENGTH,
+            },
+        }));
     };
 
     const canRemoveMeasure = () => {
-        return gridParams.width > 2 * MEASURE_LENGTH;
+        return getGridParams().width > 2 * MEASURE_LENGTH;
     };
 
     const handleRemoveMeasure = () => {
         if (canRemoveMeasure()) {
-            const newGridLength = gridParams.width - MEASURE_LENGTH;
-            const newNotes = notes.filter((n) => {
+            const newGridLength = getGridParams().width - MEASURE_LENGTH;
+            const newNotes = getNotes().filter((n) => {
                 return (
                     Sequencer.toneTimeToRollTime(n.time) +
                         Sequencer.toneTimeToRollTime(n.length) <
                     newGridLength
                 );
             });
-            setGridParams({ ...gridParams, width: newGridLength });
+            updateSelectedSong((current) => ({
+                ...current,
+                gridParams: { ...current.gridParams, width: newGridLength },
+                notes: newNotes,
+            }));
             handleStop();
-            setNotes(newNotes);
         }
     };
 
     const handleChangeBPM = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         const value = Number(e.target.value);
-        e.target.value.length <= 3 && setCurrentBPM(value);
-    };
-
-    const renderNoteIcon = () => {
-        const iconDict: { [key: number]: JSX.Element } = {
-            1: <img src={SixteenthNote} width={30} height={40} alt="1" />,
-            2: <img src={EighthNote} width={30} height={40} alt="2" />,
-            4: <img src={QuarterNote} width={30} height={40} alt="4" />,
-            8: <img src={HalfNote} width={30} height={40} alt="8" />,
-            16: <img src={WholeNote} width={30} height={10} alt="16" />,
-        };
-
-        return iconDict[noteLength];
+        e.target.value.length <= 3 &&
+            updateSelectedSong((current) => ({ ...current, bpm: value }));
     };
 
     return (
@@ -141,15 +194,20 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             <div className="button-container">
                 <button
                     onClick={handlePlayClick}
-                    disabled={!(currentBPM >= MIN_BPM && currentBPM <= MAX_BPM)}
+                    disabled={
+                        !(
+                            getSelectedSong().bpm >= MIN_BPM &&
+                            getSelectedSong().bpm <= MAX_BPM
+                        )
+                    }
                 >
                     {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                 </button>
                 <button
                     className="right"
                     onClick={() =>
-                        gridParams.width &&
-                        props.onSubmit(notes, gridParams.width)
+                        getGridParams().width &&
+                        props.onSubmit(getNotes(), getGridParams().width)
                     }
                     disabled={!isServerAvailable}
                 >
@@ -167,9 +225,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 <button onClick={handleAddMeasure}>
                     <AiOutlinePlus />
                 </button>
-                <button onClick={handleChangeNoteLength}>
-                    {renderNoteIcon()}
-                </button>
                 <button
                     className={playbackEnabled ? "recording" : ""}
                     onClick={() => setPlaybackEnabled(!playbackEnabled)}
@@ -182,19 +237,44 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 </button>
                 <input
                     type="number"
-                    value={currentBPM}
+                    value={getSelectedSong().bpm}
                     onChange={handleChangeBPM}
                     max={250}
                     min={30}
                     disabled={isPlaying}
                 ></input>
             </div>
-            <PianoRollGrid
-                onAddNote={handleAddNote}
-                onDeleteNote={handleDeleteNote}
-                gridParams={gridParams}
-                notes={notes}
-            />
+            <Tabs
+                selectedIndex={selectedSongIndex}
+                onSelect={(index) => setSelectedSongIndex(index)}
+                className="tabs"
+            >
+                <TabList className="tab-list">
+                    {songs.map((s, i) => (
+                        <Tab
+                            selectedClassName="tab-selected"
+                            className="tab"
+                            key={i}
+                        >
+                            {s.name}
+                        </Tab>
+                    ))}
+                </TabList>
+                {songs.map((s, i) => (
+                    <TabPanel
+                        className="tab-panel"
+                        selectedClassName="tab-panel-selected"
+                        key={i}
+                    >
+                        <PianoRollGrid
+                            onAddNote={handleAddNote}
+                            onDeleteNote={handleDeleteNote}
+                            gridParams={getGridParams()}
+                            notes={s.notes}
+                        />
+                    </TabPanel>
+                ))}
+            </Tabs>
         </div>
     );
 };

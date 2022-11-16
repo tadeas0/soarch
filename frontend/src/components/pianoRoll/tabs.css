@@ -1,0 +1,48 @@
+.tabs {
+    margin-top: 16px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.tab-list {
+    margin: 0px 0px 0px 32px;
+    padding: 0;
+    display: flex;
+}
+
+.tab {
+    display: inline-block;
+    border: 3px solid transparent;
+    border-radius: 20px 2px 0 0;
+    border-bottom: none;
+    bottom: -1px;
+    position: relative;
+    list-style: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-color: var(--primary-color);
+}
+
+.tab-selected {
+    background-color: var(--primary-color);
+}
+
+.tab:focus {
+    outline: none;
+}
+
+.tab:focus:after {
+    content: "";
+    position: absolute;
+    height: 5px;
+    left: -4px;
+    right: -4px;
+    bottom: -5px;
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel-selected {
+    display: block;
+}
