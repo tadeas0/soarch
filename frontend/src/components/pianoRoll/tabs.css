@@ -24,6 +24,7 @@
 
 .tab-selected {
     background-color: var(--primary-color);
+    color: var(--bg-color);
 }
 
 .tab:focus {
@@ -45,4 +46,19 @@
 
 .tab-panel-selected {
     display: block;
+}
+
+.add-tab-button {
+    background-color: var(--bg-color);
+    color: var(--primary-color);
+    display: inline-block;
+    border: 3px solid transparent;
+    border-radius: 16px 4px 0 0;
+    border-bottom: none;
+    bottom: -1px;
+    position: relative;
+    list-style: none;
+    cursor: pointer;
+    padding: 8px;
+    border-color: var(--primary-color);
 }

@@ -12,7 +12,7 @@ import {
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch, MdSearchOff } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
-import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
+import { TiMediaRecord, TiMediaRecordOutline, TiPlus } from "react-icons/ti";
 import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../../sequencer";
@@ -189,6 +189,13 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             updateSelectedSong((current) => ({ ...current, bpm: value }));
     };
 
+    const handleAddSong = () => {
+        const newSong = { ...DEFAULT_SONG_PARAMS };
+        newSong.name = "Song " + (songs.length + 1);
+        setSongs((current) => [...current, newSong]);
+        setSelectedSongIndex(songs.length);
+    };
+
     return (
         <div className="pianoroll">
             <div className="button-container">
@@ -259,6 +266,9 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                             {s.name}
                         </Tab>
                     ))}
+                    <button className="add-tab-button" onClick={handleAddSong}>
+                        <TiPlus />
+                    </button>
                 </TabList>
                 {songs.map((s, i) => (
                     <TabPanel

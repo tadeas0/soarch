@@ -9,7 +9,7 @@
     justify-content: space-evenly;
 }
 
-.pianoroll button {
+.pianoroll .button-container button {
     flex-grow: 1;
     outline: none;
     border-radius: 10px;
