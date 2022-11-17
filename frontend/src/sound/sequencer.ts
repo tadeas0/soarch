@@ -15,7 +15,7 @@ export interface Note {
 }
 
 export abstract class Sequencer {
-    private static synth: Tone.PolySynth | Tone.Synth =
+    private static synth: Tone.PolySynth | Tone.Synth | Tone.Sampler =
         SYNTH_PRESETS[0].preset.toDestination();
 
     private static part: Tone.Part = new Tone.Part();
