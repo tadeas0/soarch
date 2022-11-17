@@ -12,26 +12,16 @@ import {
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch, MdSearchOff } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
-import { TiMediaRecord, TiMediaRecordOutline, TiPlus } from "react-icons/ti";
+import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
 import { GiDrumKit, GiTrumpet, GiGrandPiano } from "react-icons/gi";
-import { IoClose } from "react-icons/io5";
 import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import InstrumentSelector from "../instrumentSelector";
 import { Note, Sequencer } from "../../sequencer";
 import "./pianoRoll.css";
-import "./tabs.css";
-import PianoRollGrid from "./pianoRollGrid";
 import GridParams from "../../interfaces/GridParams";
 import { AvailabilityContext } from "../../context/serverAvailabilityContext";
-import { Tab, TabList, TabPanel, Tabs } from "react-tabs";
-
-interface SongParams {
-    name: string;
-    bpm: number;
-    notes: Note[];
-    gridParams: GridParams;
-}
+import SongTabs, { SongParams } from "./songTabs";
 
 interface PianoRollProps {
     songs: {
@@ -43,7 +33,7 @@ interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
 }
 
-const DEFAULT_SONG_PARAMS: SongParams = {
+export const DEFAULT_SONG_PARAMS: SongParams = {
     bpm: DEFAULT_BPM,
     gridParams: {
         height: DEFAULT_PIANO_ROLL_HEIGHT,
@@ -279,52 +269,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                     disabled={isPlaying}
                 ></input>
             </div>
-            <Tabs selectedIndex={selectedSongIndex} className="tabs">
-                <TabList className="tab-list">
-                    {songs.map((s, i) => (
-                        <div
-                            className={
-                                "tab-container" +
-                                (i === selectedSongIndex
-                                    ? " tab-container-selected"
-                                    : "")
-                            }
-                        >
-                            <Tab
-                                selectedClassName="tab-selected"
-                                className="tab"
-                                key={i}
-                                onClick={() => setSelectedSongIndex(i)}
-                            >
-                                {s.name}
-                            </Tab>
-                            <button
-                                className="close-tab-button"
-                                onClick={() => handleCloseTab(i)}
-                            >
-                                <IoClose />
-                            </button>
-                        </div>
-                    ))}
-                    <button className="add-tab-button" onClick={handleAddSong}>
-                        <TiPlus />
-                    </button>
-                </TabList>
-                {songs.map((s, i) => (
-                    <TabPanel
-                        className="tab-panel"
-                        selectedClassName="tab-panel-selected"
-                        key={i}
-                    >
-                        <PianoRollGrid
-                            onAddNote={handleAddNote}
-                            onDeleteNote={handleDeleteNote}
-                            gridParams={getGridParams()}
-                            notes={s.notes}
-                        />
-                    </TabPanel>
-                ))}
-            </Tabs>
+            <SongTabs
+                onAddNote={handleAddNote}
+                onDeleteNote={handleDeleteNote}
+                onAddTab={handleAddSong}
+                onCloseTab={handleCloseTab}
+                onChangeIndex={setSelectedSongIndex}
+                selectedSongIndex={selectedSongIndex}
+                songs={songs}
+            />
         </div>
     );
 };
