@@ -1,13 +1,14 @@
-import { FunctionComponent } from "react";
-import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
+import { FunctionComponent, useContext } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdOutlineSearch, MdSearchOff, MdDelete } from "react-icons/md";
-import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
 import { CgPiano } from "react-icons/cg";
-import { MIN_BPM, MAX_BPM, MEASURE_LENGTH } from "../../constants";
+import { GiMetronome } from "react-icons/gi";
+import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
 import { SongParams } from "./songTabs";
 import "./topButtons.css";
+import { FaSave } from "react-icons/fa";
+import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 
 interface TopButtonsProps {
     onPlayClick: () => void;
@@ -18,15 +19,12 @@ interface TopButtonsProps {
     togglePlayback: () => void;
     onChangeBPM: (bpm: number) => void;
     selectedSong: SongParams;
-    isServerAvailable: boolean;
     isPlaying: boolean;
     playbackEnabled: boolean;
 }
 
 const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
-    const canRemoveMeasure = () => {
-        return props.selectedSong.gridParams.width > 2 * MEASURE_LENGTH;
-    };
+    const { isServerAvailable } = useContext(AvailabilityContext);
 
     return (
         <div className="top-button-container">
@@ -46,44 +44,10 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
                 <CgPiano />
             </button>
             <InstrumentSelector />
-            <button
-                className="top-button right"
-                onClick={() =>
-                    props.selectedSong.gridParams.width && props.onSubmit()
-                }
-                disabled={!props.isServerAvailable}
-            >
-                {props.isServerAvailable ? (
-                    <MdOutlineSearch />
-                ) : (
-                    <MdSearchOff />
-                )}
+            <button className="top-button">
+                <GiMetronome />
             </button>
-            <button className="top-button" onClick={props.onClear}>
-                <MdDelete />
-            </button>
-            <button
-                className="top-button"
-                onClick={props.onRemoveMeasure}
-                disabled={!canRemoveMeasure()}
-            >
-                <AiOutlineMinus />
-            </button>
-            <button className="top-button" onClick={props.onAddMeasure}>
-                <AiOutlinePlus />
-            </button>
-            <button
-                className={
-                    "top-button" + (props.playbackEnabled ? " recording" : "")
-                }
-                onClick={props.togglePlayback}
-            >
-                {props.playbackEnabled ? (
-                    <TiMediaRecord />
-                ) : (
-                    <TiMediaRecordOutline />
-                )}
-            </button>
+            <div className="top-spacer" />
             <input
                 type="number"
                 value={props.selectedSong.bpm}
@@ -96,6 +60,23 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
                 min={30}
                 disabled={props.isPlaying}
             ></input>
+            <div className="top-spacer" />
+            <div className="top-spacer" />
+            <button className="top-button" onClick={props.onClear}>
+                <MdDelete />
+            </button>
+            <button className="top-button">
+                <FaSave />
+            </button>
+            <button
+                className="top-button"
+                onClick={() =>
+                    props.selectedSong.gridParams.width && props.onSubmit()
+                }
+                disabled={!isServerAvailable}
+            >
+                {isServerAvailable ? <MdOutlineSearch /> : <MdSearchOff />}
+            </button>
         </div>
     );
 };

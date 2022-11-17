@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext, FunctionComponent } from "react";
+import { useEffect, useState, FunctionComponent } from "react";
 import {
     MEASURE_LENGTH,
     MIN_BPM,
@@ -13,7 +13,6 @@ import useKeyboardListener from "../../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
 import GridParams from "../../interfaces/GridParams";
-import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 import SongTabs, { SongParams } from "./songTabs";
 import TopButtons from "./topButtons";
 
@@ -40,7 +39,6 @@ export const DEFAULT_SONG_PARAMS: SongParams = {
 
 const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const [isPlaying, handleStart, handleStop] = usePlayback();
-    const { isServerAvailable } = useContext(AvailabilityContext);
     const [songs, setSongs] = useState<SongParams[]>([DEFAULT_SONG_PARAMS]);
     const [selectedSongIndex, setSelectedSongIndex] = useState(0);
 
@@ -194,7 +192,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         <div className="pianoroll">
             <TopButtons
                 isPlaying={isPlaying}
-                isServerAvailable={isServerAvailable}
                 onAddMeasure={handleAddMeasure}
                 onChangeBPM={handleChangeBPM}
                 onClear={handleClear}
