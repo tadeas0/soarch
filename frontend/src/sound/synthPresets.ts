@@ -43,7 +43,7 @@ export const SYNTH_PRESETS: SynthPreset[] = [
         icon: GiGuitar,
         preset: new Tone.Sampler({
             urls: {
-                C4: "/samples/electric_guitar_C3.mp3",
+                C3: "/samples/electric_guitar_C3.mp3",
             },
             release: 1,
         }),
