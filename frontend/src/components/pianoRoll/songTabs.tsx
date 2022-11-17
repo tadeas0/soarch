@@ -3,7 +3,7 @@ import { IoClose } from "react-icons/io5";
 import { TiPlus } from "react-icons/ti";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import GridParams from "../../interfaces/GridParams";
-import { Note } from "../../sequencer";
+import { Note } from "../../sound/sequencer";
 import { DEFAULT_SONG_PARAMS } from "./pianoRoll";
 import PianoRollGrid from "./pianoRollGrid";
 import "./tabs.css";
