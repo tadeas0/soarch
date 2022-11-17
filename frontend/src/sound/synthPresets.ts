@@ -1,6 +1,6 @@
 import { IconType } from "react-icons";
 import { TbWaveSawTool, TbWaveSine } from "react-icons/tb";
-import { GiXylophone } from "react-icons/gi";
+import { GiXylophone, GiGuitar } from "react-icons/gi";
 import { FaGuitar } from "react-icons/fa";
 import * as Tone from "tone";
 
@@ -12,16 +12,6 @@ export interface SynthPreset {
 }
 
 export const SYNTH_PRESETS: SynthPreset[] = [
-    {
-        name: "Acoustic guitar",
-        icon: FaGuitar,
-        preset: new Tone.Sampler({
-            urls: {
-                C4: "/samples/acoustic_guitar_C4.mp3",
-            },
-            release: 1,
-        }),
-    },
     {
         name: "Xylophone",
         icon: GiXylophone,
@@ -46,6 +36,26 @@ export const SYNTH_PRESETS: SynthPreset[] = [
                 sustain: 0,
                 release: 0.2,
             },
+        }),
+    },
+    {
+        name: "Electric guitar",
+        icon: GiGuitar,
+        preset: new Tone.Sampler({
+            urls: {
+                C4: "/samples/electric_guitar_C3.mp3",
+            },
+            release: 1,
+        }),
+    },
+    {
+        name: "Acoustic guitar",
+        icon: FaGuitar,
+        preset: new Tone.Sampler({
+            urls: {
+                C4: "/samples/acoustic_guitar_C4.mp3",
+            },
+            release: 1,
         }),
     },
     {
