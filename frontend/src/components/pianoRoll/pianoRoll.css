@@ -9,7 +9,7 @@
     justify-content: space-evenly;
 }
 
-.pianoroll button {
+.pianoroll .button-container button {
     flex-grow: 1;
     outline: none;
     border-radius: 10px;
@@ -22,13 +22,13 @@
     transition: background-color 0.2s, box-shadow 0.2s;
 }
 
-.pianoroll button.recording {
+.pianoroll .button-container button.recording {
     background-color: var(--warn-color);
     box-shadow: 0 4px 8px 0 var(--warn-color);
     transition: background-color 0.2s, box-shadow 0.2s;
 }
 
-.pianoroll button:active:enabled {
+.pianoroll .button-container button:active:enabled {
     box-shadow: 0px 0px 0px;
     transform: translateY(4px);
 }
@@ -60,7 +60,7 @@
 .pianoroll .table-container {
     overflow-x: scroll;
     overflow-y: scroll;
-    max-height: 60vh;
+    height: 55vh;
     max-width: 95vw;
     margin: 0 auto;
     border-radius: 8px;

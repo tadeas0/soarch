@@ -55,8 +55,7 @@ function App() {
     const [selectedStrategy, setSelectedStrategy] = useState<Option>();
     const [exampleQueries, setExampleQueries] = useState<Song[]>([EMPTY_QUERY]);
     const [selectedQuery, setSelectedQuery] = useState<Song>();
-    const [gridParams, setGridParams] =
-        useState<GridParams>(DEFAULT_GRID_PARAMS);
+    const [, setGridParams] = useState<GridParams>(DEFAULT_GRID_PARAMS);
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
@@ -149,17 +148,6 @@ function App() {
         }
     };
 
-    const getNotes = useCallback(() => {
-        if (selectedQuery)
-            return selectedQuery.notes.map((n) => {
-                return {
-                    ...n,
-                    pitch: Tone.Frequency(n.pitch, "midi").toNote(),
-                };
-            });
-        return undefined;
-    }, [selectedQuery]);
-
     const getQueryOptions = () => {
         return exampleQueries.map((query) => {
             return {
@@ -187,12 +175,7 @@ function App() {
                 </div>
             ) : (
                 <PlaybackProvider>
-                    <PianoRoll
-                        onSubmit={handleSubmit}
-                        gridParams={gridParams}
-                        bpm={selectedQuery ? selectedQuery.bpm : DEFAULT_BPM}
-                        notes={getNotes()}
-                    />
+                    <PianoRoll onSubmit={handleSubmit} songs={[]} />
                     <div>
                         {selectedStrategy && (
                             <StrategySelector
