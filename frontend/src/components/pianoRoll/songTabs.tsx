@@ -27,7 +27,11 @@ interface SongTabsProps {
 
 const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
     return (
-        <Tabs selectedIndex={props.selectedSongIndex} className="tabs">
+        <Tabs
+            selectedIndex={props.selectedSongIndex}
+            className="tabs"
+            onSelect={() => {}}
+        >
             <TabList className="tab-list">
                 {props.songs.map((s, i) => (
                     <div
@@ -37,11 +41,11 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                                 ? " tab-container-selected"
                                 : "")
                         }
+                        key={i}
                     >
                         <Tab
                             selectedClassName="tab-selected"
                             className="tab"
-                            key={i}
                             onClick={() => props.onChangeIndex(i)}
                         >
                             {s.name}
