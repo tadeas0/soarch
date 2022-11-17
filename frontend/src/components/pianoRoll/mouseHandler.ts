@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import GridParams from "../../interfaces/GridParams";
 import RollCoordinates from "../../interfaces/RollCoordinates";
-import { Note, Sequencer } from "../../sequencer";
+import { Note, Sequencer } from "../../sound/sequencer";
 import { ReadyState, State } from "./handlerState";
 
 export class MouseHandler {

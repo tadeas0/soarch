@@ -1,7 +1,7 @@
 import * as Tone from "tone";
 import { DEFAULT_NOTE_LENGTH } from "../../constants";
 import RollCoordinates from "../../interfaces/RollCoordinates";
-import { Note, Sequencer } from "../../sequencer";
+import { Note, Sequencer } from "../../sound/sequencer";
 import { MouseHandler } from "./mouseHandler";
 
 export abstract class State {

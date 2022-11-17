@@ -6,7 +6,7 @@ import {
     PIANO_ROLL_NOTE_HEIGHT,
     PIANO_ROLL_NOTE_WIDTH,
 } from "../../constants";
-import { Note } from "../../sequencer";
+import { Note } from "../../sound/sequencer";
 import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
 import RollCoordinates from "../../interfaces/RollCoordinates";

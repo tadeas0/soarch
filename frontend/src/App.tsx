@@ -8,7 +8,7 @@ import SearchResults from "./components/searchResults";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
 import { SECONDARY_COLOR } from "./constants";
-import { Note } from "./sequencer";
+import { Note } from "./sound/sequencer";
 import { API, NoteForm } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";

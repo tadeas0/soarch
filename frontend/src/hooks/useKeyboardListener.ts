@@ -1,6 +1,6 @@
 import * as Tone from "tone";
 import { useCallback, useEffect, useState } from "react";
-import { Sequencer, Note } from "../sequencer";
+import { Sequencer, Note } from "../sound/sequencer";
 import { KEYBOARD_NOTE_MAP, PIANO_ROLL_LOWEST_NOTE } from "../constants";
 
 const useKeyboardListener = (

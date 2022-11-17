@@ -14,7 +14,7 @@ import {
     PRIMARY_COLOR,
     NOTE_HIGHLIGHT_COLOR,
 } from "../../constants";
-import { Note, Sequencer } from "../../sequencer";
+import { Note, Sequencer } from "../../sound/sequencer";
 import GridParams from "../../interfaces/GridParams";
 
 interface PianoRollCanvasProps {
