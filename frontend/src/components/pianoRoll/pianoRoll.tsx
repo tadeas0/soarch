@@ -1,5 +1,4 @@
 import * as React from "react";
-import * as Tone from "tone";
 import { useEffect, useState, useContext, FunctionComponent } from "react";
 import {
     DEFAULT_NOTE_LENGTH,
@@ -7,24 +6,25 @@ import {
     MIN_BPM,
     MAX_BPM,
     DEFAULT_BPM,
-} from "../constants";
+} from "../../constants";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdDelete, MdOutlineSearch, MdSearchOff } from "react-icons/md";
 import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
 import { GiDrumKit, GiTrumpet, GiGrandPiano } from "react-icons/gi";
-import SixteenthNote from "../notes/sixteenth.svg";
-import EighthNote from "../notes/eighth.svg";
-import QuarterNote from "../notes/quarter.svg";
-import HalfNote from "../notes/half.svg";
-import WholeNote from "../notes/whole.svg";
-import usePlayback from "../hooks/usePlayback";
-import InstrumentSelector from "../components/instrumentSelector"
-import useKeyboardListener from "../hooks/useKeyboardListener";
-import { Note, Sequencer } from "../sequencer";
+import SixteenthNote from "../../notes/sixteenth.svg";
+import EighthNote from "../../notes/eighth.svg";
+import QuarterNote from "../../notes/quarter.svg";
+import HalfNote from "../../notes/half.svg";
+import WholeNote from "../../notes/whole.svg";
+import usePlayback from "../../hooks/usePlayback";
+import useKeyboardListener from "../../hooks/useKeyboardListener";
+import InstrumentSelector from "../instrumentSelector"
+import { Note, Sequencer } from "../../sequencer";
 import "./pianoRoll.css";
-import PianoRollGrid, { GridParams } from "./pianoRollGrid";
-import { AvailabilityContext } from "../context/serverAvailabilityContext";
+import PianoRollGrid from "./pianoRollGrid";
+import GridParams from "../../interfaces/GridParams";
+import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 
 interface PianoRollProps {
     gridParams: GridParams;
@@ -60,34 +60,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         // eslint-disable-next-line
     }, [props.notes, props.gridParams, props.bpm]);
 
-    const handleAddNote = (pitch: number, position: number, length: number) => {
-        const newNote = {
-            time: Sequencer.rollTimeToToneTime(position),
-            pitch: Tone.Frequency(gridParams.lowestNote)
-                .transpose(gridParams.height - pitch - 1)
-                .toNote(),
-            length: Sequencer.rollTimeToToneTime(length),
-        };
-        Sequencer.addNoteToBuffer(newNote);
+    const handleAddNote = (note: Note) => {
+        Sequencer.addNoteToBuffer(note);
 
-        const newNotes = [...notes, newNote];
-        setNotes(newNotes);
+        setNotes((current) => [...current, note]);
     };
 
-    const handleDeleteNote = (pitch: number, position: number) => {
-        let newNotes = notes.filter((n) => {
-            const s = Sequencer.toneTimeToRollTime(n.time);
-            const e = s + Sequencer.toneTimeToRollTime(n.length);
-            const p = Sequencer.tonePitchToRollPitch(
-                n.pitch,
-                gridParams.lowestNote,
-                gridParams.height
-            );
-            if (p === pitch && s <= position && e >= position)
-                Sequencer.deleteNoteFromBuffer(n);
-            return !(p === pitch && s <= position && e >= position);
-        });
-        setNotes(newNotes);
+    const handleDeleteNote = (note: Note) => {
+        Sequencer.deleteNoteFromBuffer(note);
+        setNotes((curr) => curr.filter((n) => n !== note));
     };
 
     const handleClear = () => {
@@ -223,9 +204,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 ></input>
             </div>
             <PianoRollGrid
-                onAddNote={(pitch: number, position: number) => {
-                    handleAddNote(pitch, position, noteLength);
-                }}
+                onAddNote={handleAddNote}
                 onDeleteNote={handleDeleteNote}
                 gridParams={gridParams}
                 notes={notes}
