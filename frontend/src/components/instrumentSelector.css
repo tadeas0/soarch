@@ -1,0 +1,32 @@
+.instrument-selector {
+    display: inline-block;
+    position: relative;
+    font-size: 32px;
+}
+
+.selected-instrument {
+    padding: 8px 16px !important;  /* TODO: rewrite this when layout is changed */
+    cursor: pointer;
+    position: relative;
+}
+
+.instrument-selector-arrow {
+    position: absolute;
+    font-size: 14px;
+    bottom: 0;
+    right: 0;
+}
+
+.instrument-container {
+    display: block;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+}
+
+.instrument-container div {
+    display: block;
+    padding: 8px 4px;
+    background-color: var(--bg-color);
+    cursor: pointer;
+}
