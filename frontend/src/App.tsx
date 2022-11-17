@@ -1,22 +1,15 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { useState, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll/pianoRoll";
-import GridParams from "./interfaces/GridParams";
 import SearchResults from "./components/searchResults";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
-import {
-    DEFAULT_PIANO_ROLL_HEIGHT,
-    DEFAULT_PIANO_ROLL_WIDTH,
-    PIANO_ROLL_LOWEST_NOTE,
-    DEFAULT_BPM,
-    SECONDARY_COLOR,
-} from "./constants";
+import { SECONDARY_COLOR } from "./constants";
 import { Note } from "./sequencer";
-import { API, NoteForm, Song } from "./services/api";
+import { API, NoteForm } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";
 import { AvailabilityContext } from "./context/serverAvailabilityContext";
@@ -30,32 +23,12 @@ export interface SearchResult {
 
 Modal.setAppElement("#root");
 
-const DEFAULT_GRID_PARAMS: GridParams = {
-    height: DEFAULT_PIANO_ROLL_HEIGHT,
-    width: DEFAULT_PIANO_ROLL_WIDTH,
-    lowestNote: PIANO_ROLL_LOWEST_NOTE,
-};
-
-const EMPTY_QUERY: Song = {
-    name: "<None>",
-    artist: "<None>",
-    bpm: DEFAULT_BPM,
-    notes: [],
-    gridParams: {
-        ...DEFAULT_GRID_PARAMS,
-        lowestNote: Tone.Frequency(DEFAULT_GRID_PARAMS.lowestNote).toMidi(),
-    },
-};
-
 function App() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [availableStrategies, setAvailableStrategies] = useState<Option[]>(
         []
     );
     const [selectedStrategy, setSelectedStrategy] = useState<Option>();
-    const [exampleQueries, setExampleQueries] = useState<Song[]>([EMPTY_QUERY]);
-    const [selectedQuery, setSelectedQuery] = useState<Song>();
-    const [, setGridParams] = useState<GridParams>(DEFAULT_GRID_PARAMS);
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
@@ -87,7 +60,6 @@ function App() {
                 });
                 setAvailableStrategies(options);
                 setSelectedStrategy(options[0]);
-                setExampleQueries([EMPTY_QUERY, ...resExamQ.data]);
                 setServerAvailable(true);
             })
             .catch(handleRequestErrors)
@@ -132,40 +104,6 @@ function App() {
             .finally(() => setBusy(false));
     };
 
-    const handleExampleQueryChange = (option: Option) => {
-        const res = exampleQueries.find(
-            (f) => f.artist + " - " + f.name === option.value
-        );
-        if (res) setSelectedQuery(res);
-        if (res && res.gridParams) {
-            setGridParams({
-                ...res.gridParams,
-                lowestNote: Tone.Frequency(
-                    res.gridParams.lowestNote,
-                    "midi"
-                ).toNote(),
-            });
-        }
-    };
-
-    const getQueryOptions = () => {
-        return exampleQueries.map((query) => {
-            return {
-                name: query.artist + " - " + query.name,
-                value: query.artist + " - " + query.name,
-            };
-        });
-    };
-
-    const getSelectedQueryOption = () => {
-        if (selectedQuery)
-            return {
-                name: selectedQuery.artist + " - " + selectedQuery.name,
-                value: selectedQuery.artist + " - " + selectedQuery.name,
-            };
-        return undefined;
-    };
-
     return (
         <div className="App">
             {initializing ? (
@@ -184,11 +122,6 @@ function App() {
                                 selectedValue={selectedStrategy}
                             />
                         )}
-                        <StrategySelector
-                            options={getQueryOptions()}
-                            onChange={handleExampleQueryChange}
-                            selectedValue={getSelectedQueryOption()}
-                        />
                     </div>
                     <SearchResults
                         searchResults={searchResults}
