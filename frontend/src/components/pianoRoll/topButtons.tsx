@@ -3,9 +3,11 @@ import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdOutlineSearch, MdSearchOff, MdDelete } from "react-icons/md";
 import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
+import { CgPiano } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM, MEASURE_LENGTH } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
 import { SongParams } from "./songTabs";
+import "./topButtons.css";
 
 interface TopButtonsProps {
     onPlayClick: () => void;
@@ -27,8 +29,9 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
     };
 
     return (
-        <div className="button-container">
+        <div className="top-button-container">
             <button
+                className="top-button"
                 onClick={props.onPlayClick}
                 disabled={
                     !(
@@ -39,9 +42,12 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
             >
                 {props.isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
             </button>
+            <button className="top-button">
+                <CgPiano />
+            </button>
             <InstrumentSelector />
             <button
-                className="right"
+                className="top-button right"
                 onClick={() =>
                     props.selectedSong.gridParams.width && props.onSubmit()
                 }
@@ -53,20 +59,23 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
                     <MdSearchOff />
                 )}
             </button>
-            <button onClick={props.onClear}>
+            <button className="top-button" onClick={props.onClear}>
                 <MdDelete />
             </button>
             <button
+                className="top-button"
                 onClick={props.onRemoveMeasure}
                 disabled={!canRemoveMeasure()}
             >
                 <AiOutlineMinus />
             </button>
-            <button onClick={props.onAddMeasure}>
+            <button className="top-button" onClick={props.onAddMeasure}>
                 <AiOutlinePlus />
             </button>
             <button
-                className={props.playbackEnabled ? "recording" : ""}
+                className={
+                    "top-button" + (props.playbackEnabled ? " recording" : "")
+                }
                 onClick={props.togglePlayback}
             >
                 {props.playbackEnabled ? (
