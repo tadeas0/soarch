@@ -33,30 +33,6 @@
     transform: translateY(4px);
 }
 
-.pianoroll input {
-    background-color: var(--medium-bg-color);
-    color: white;
-    outline: none;
-    border-radius: 8px;
-    border: 3px solid var(--primary-color);
-    margin: 12px;
-    border-radius: 8px;
-    font-size: 50px;
-    max-width: 120px;
-    text-align: center;
-}
-
-.pianoroll input::-webkit-outer-spin-button,
-.pianoroll input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-/* Firefox */
-.pianoroll input[type="number"] {
-    -moz-appearance: textfield;
-}
-
 .pianoroll .table-container {
     overflow-x: scroll;
     overflow-y: scroll;
