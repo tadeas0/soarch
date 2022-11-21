@@ -1,0 +1,53 @@
+.drawer-button {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    padding: 16px;
+    background-color: var(--bg-color);
+    border-radius: 6px 0px 0px 6px;
+    color: var(--primary-color);
+    border: 3px solid var(--primary-color);
+    border-right: 0px;
+}
+
+.drawer-container {
+    height: 100%;
+    background: var(--bg-color);
+    overflow-x: scroll;
+}
+
+.drawer-container h1 {
+    margin-top: 0px;
+    padding-top: 32px;
+}
+
+.empty-results {
+    flex-direction: column;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 32px;
+}
+
+.result-card {
+    width: 99%;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.result-card .inner {
+    padding: 3px;
+}
+
+.result-card h4 {
+    margin-bottom: 0px;
+    cursor: pointer;
+}
+
+.result-card h4:hover {
+    text-decoration: underline;
+}
+
+.result-card p {
+    margin-top: 0px;
+}

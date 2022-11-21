@@ -4,7 +4,6 @@ import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
 import PianoRoll from "./components/pianoRoll/pianoRoll";
-import SearchResults from "./components/searchResults";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
 import { SECONDARY_COLOR } from "./constants";
@@ -13,6 +12,7 @@ import { API, NoteForm } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";
 import { AvailabilityContext } from "./context/serverAvailabilityContext";
+import SearchResultsDrawer from "./components/searchResultsDrawer";
 
 export interface SearchResult {
     artist: string;
@@ -123,7 +123,7 @@ function App() {
                             />
                         )}
                     </div>
-                    <SearchResults
+                    <SearchResultsDrawer
                         searchResults={searchResults}
                         isBusy={isBusy}
                     />
