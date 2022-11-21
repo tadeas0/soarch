@@ -9,6 +9,7 @@ import { SongParams } from "./songTabs";
 import "./topButtons.css";
 import { FaSave } from "react-icons/fa";
 import { AvailabilityContext } from "../../context/serverAvailabilityContext";
+import BPMInput from "./bpmInput";
 
 interface TopButtonsProps {
     onPlayClick: () => void;
@@ -48,18 +49,14 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
                 <GiMetronome />
             </button>
             <div className="top-spacer" />
-            <input
-                type="number"
+            <BPMInput
                 value={props.selectedSong.bpm}
-                onChange={(e) => {
-                    e.preventDefault();
-                    const value = Number(e.target.value);
-                    if (e.target.value.length <= 3) props.onChangeBPM(value);
-                }}
-                max={250}
+                onChange={props.onChangeBPM}
+                increment={5}
                 min={30}
+                max={250}
                 disabled={props.isPlaying}
-            ></input>
+            />
             <div className="top-spacer" />
             <div className="top-spacer" />
             <button className="top-button" onClick={props.onClear}>
