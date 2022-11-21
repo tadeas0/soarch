@@ -179,13 +179,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     };
 
     const handleCloseTab = (tabIndex: number) => {
-        setSongs((current) => {
-            const newSongs = [...current];
-            newSongs.splice(tabIndex, 1);
-            if (selectedSongIndex >= newSongs.length)
-                setSelectedSongIndex(newSongs.length - 1);
-            return newSongs;
-        });
+        if (songs.length > 1) {
+            setSongs((current) => {
+                const newSongs = [...current];
+                newSongs.splice(tabIndex, 1);
+                if (selectedSongIndex >= newSongs.length)
+                    setSelectedSongIndex(newSongs.length - 1);
+                return newSongs;
+            });
+        }
     };
 
     return (
