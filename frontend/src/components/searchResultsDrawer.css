@@ -14,11 +14,14 @@
     height: 100%;
     background: var(--bg-color);
     overflow-x: scroll;
+    text-align: left;
 }
 
 .drawer-container h1 {
     margin-top: 0px;
-    padding-top: 32px;
+    padding: 24px 0px 0px 16px;
+    font-size: 28px;
+    margin-bottom: 4px;
 }
 
 .empty-results {
@@ -31,12 +34,38 @@
 }
 
 .result-card {
-    width: 99%;
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 1px solid var(--primary-color);
+    padding: 2px 24px;
 }
 
-.result-card .inner {
-    padding: 3px;
+.result-card .card-inner {
+    display: flex;
+    flex-direction: row;
+}
+
+.result-card .card-inner .card-text {
+    flex: 4;
+    display: flex;
+    flex-direction: column;
+}
+
+.result-card .card-inner .card-buttons {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 0px;
+}
+
+.result-card .card-inner .card-buttons button {
+    flex: 1;
+    background: none;
+    color: var(--primary-color);
+    border: none;
+    font-size: 16px;
+}
+
+.result-card.card-inner {
+    display: flex;
 }
 
 .result-card h4 {
@@ -44,10 +73,14 @@
     cursor: pointer;
 }
 
-.result-card h4:hover {
-    text-decoration: underline;
-}
-
 .result-card p {
     margin-top: 0px;
+}
+
+.loader {
+    flex-direction: column;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

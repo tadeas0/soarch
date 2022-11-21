@@ -1,14 +1,13 @@
-import * as React from "react";
 import { FunctionComponent, useEffect, useState } from "react";
 import { SlArrowLeft } from "react-icons/sl";
 import { SearchResult } from "../App";
 import { HiOutlineMagnifyingGlassMinus } from "react-icons/hi2";
 import SearchResultCard from "./searchResultCard";
-import RiseLoader from "react-spinners/RiseLoader";
 import "./searchResultsDrawer.css";
 import { SECONDARY_COLOR } from "../constants";
 import Drawer from "react-modern-drawer";
 import "react-modern-drawer/dist/index.css";
+import PuffLoader from "react-spinners/PuffLoader";
 
 interface SearchResultsDrawerProps {
     searchResults: SearchResult[];
@@ -33,7 +32,7 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
         if (isBusy) {
             return (
                 <div className="loader">
-                    <RiseLoader size={100} color={SECONDARY_COLOR} />
+                    <PuffLoader size={100} color={SECONDARY_COLOR} />
                 </div>
             );
         } else if (!isBusy && searchResults.length === 0) {

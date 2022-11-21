@@ -1,4 +1,6 @@
 import { FunctionComponent } from "react";
+import { BsFillPlayFill } from "react-icons/bs";
+import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../App";
 
 interface SearchResultProps {
@@ -10,9 +12,19 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
 }) => {
     return (
         <div className="result-card">
-            <div className="inner">
-                <h4>{searchResult.name}</h4>
-                <p>{searchResult.artist}</p>
+            <div className="card-inner">
+                <div className="card-text">
+                    <h4>{searchResult.name}</h4>
+                    <p>{searchResult.artist}</p>
+                </div>
+                <div className="card-buttons">
+                    <button>
+                        <BsFillPlayFill />
+                    </button>
+                    <button>
+                        <MdModeEdit />
+                    </button>
+                </div>
             </div>
         </div>
     );
