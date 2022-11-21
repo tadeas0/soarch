@@ -22,6 +22,7 @@ interface SongTabsProps {
     onAddNote: (note: Note) => void;
     onDeleteNote: (note: Note) => void;
     songs: SongParams[];
+    disabled?: boolean;
 }
 
 const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
@@ -76,11 +77,16 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                         onDeleteNote={props.onDeleteNote}
                         gridParams={s.gridParams}
                         notes={s.notes}
+                        disabled={props.disabled}
                     />
                 </TabPanel>
             ))}
         </Tabs>
     );
+};
+
+SongTabs.defaultProps = {
+    disabled: false,
 };
 
 export default SongTabs;

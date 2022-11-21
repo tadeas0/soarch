@@ -1,4 +1,4 @@
-import { FunctionComponent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { SlArrowLeft } from "react-icons/sl";
 import { SearchResult } from "../App";
 import { HiOutlineMagnifyingGlassMinus } from "react-icons/hi2";
@@ -11,17 +11,18 @@ import PuffLoader from "react-spinners/PuffLoader";
 import usePlayback from "../hooks/usePlayback";
 import { Sequencer } from "../sound/sequencer";
 
-interface SearchResultsDrawerProps {
+const defaultProps = {
+    onToggle: () => {},
+};
+
+type SearchResultsDrawerProps = {
     searchResults: SearchResult[];
     isBusy: boolean;
     onEdit: (searchResult: SearchResult) => void;
-}
+    onToggle?: (current: boolean) => void;
+} & typeof defaultProps;
 
-const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
-    searchResults,
-    isBusy,
-    onEdit,
-}) => {
+const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [playingResult, setPlayingResult] = useState<SearchResult | null>(
         null
@@ -29,12 +30,13 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
     const [, handleStart, handleStop] = usePlayback();
 
     const toggleOpen = () => {
+        props.onToggle(!isOpen);
         setIsOpen((prevState) => !prevState);
     };
 
     const handleEdit = (searchResult: SearchResult) => {
         setIsOpen(false);
-        onEdit(searchResult);
+        props.onEdit(searchResult);
     };
 
     const handlePlay = (searchResult: SearchResult) => {
@@ -51,17 +53,17 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
     };
 
     useEffect(() => {
-        if (searchResults.length > 0 || isBusy) setIsOpen(true);
-    }, [searchResults, isBusy]);
+        if (props.searchResults.length > 0 || props.isBusy) setIsOpen(true);
+    }, [props.searchResults, props.isBusy]);
 
     const renderDrawerBody = () => {
-        if (isBusy) {
+        if (props.isBusy) {
             return (
                 <div className="loader">
                     <PuffLoader size={100} color={SECONDARY_COLOR} />
                 </div>
             );
-        } else if (!isBusy && searchResults.length === 0) {
+        } else if (!props.isBusy && props.searchResults.length === 0) {
             return (
                 <div className="empty-results">
                     <div>
@@ -74,7 +76,7 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
             return (
                 <>
                     <h1>Search results</h1>
-                    {searchResults.map((s) => (
+                    {props.searchResults.map((s) => (
                         <SearchResultCard
                             searchResult={s}
                             isPlaying={s === playingResult}
@@ -102,6 +104,10 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
             </Drawer>
         </>
     );
+};
+
+SearchResultsDrawer.defaultProps = {
+    onToggle: () => {},
 };
 
 export default SearchResultsDrawer;

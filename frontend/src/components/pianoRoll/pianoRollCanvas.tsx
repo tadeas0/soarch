@@ -24,6 +24,7 @@ interface PianoRollCanvasProps {
     gridParams: GridParams;
     notes: Note[];
     selectedNote: Note | null;
+    disabled?: boolean;
 }
 
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
@@ -220,14 +221,14 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         const canvas = canvasRef.current;
         if (canvas) {
             const context = canvas.getContext("2d");
-            if (context) {
+            if (context && !props.disabled) {
                 drawHeader(context);
                 Sequencer.runCallbackOnBeat(() => {
                     drawHeader(context);
                 });
             }
         }
-    }, [drawHeader]);
+    }, [drawHeader, props.disabled]);
 
     return (
         <canvas
@@ -238,6 +239,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             onContextMenu={(e) => e.preventDefault()}
         />
     );
+};
+
+PianoRollCanvas.defaultProps = {
+    disabled: false,
 };
 
 export default PianoRollCanvas;
