@@ -1,5 +1,4 @@
-import * as React from "react";
-import { useEffect, useState, useContext, FunctionComponent } from "react";
+import { useEffect, useState, FunctionComponent } from "react";
 import {
     MEASURE_LENGTH,
     MIN_BPM,
@@ -9,19 +8,13 @@ import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     PIANO_ROLL_LOWEST_NOTE,
 } from "../../constants";
-import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
-import { MdDelete, MdOutlineSearch, MdSearchOff } from "react-icons/md";
-import { AiOutlineMinus, AiOutlinePlus } from "react-icons/ai";
-import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
 import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
-import InstrumentSelector from "./instrumentSelector";
-import BPMInput from "./bpmInput";
 import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
 import GridParams from "../../interfaces/GridParams";
-import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 import SongTabs, { SongParams } from "./songTabs";
+import TopButtons from "./topButtons";
 
 interface PianoRollProps {
     songs: {
@@ -46,7 +39,6 @@ export const DEFAULT_SONG_PARAMS: SongParams = {
 
 const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const [isPlaying, handleStart, handleStop] = usePlayback();
-    const { isServerAvailable } = useContext(AvailabilityContext);
     const [songs, setSongs] = useState<SongParams[]>([DEFAULT_SONG_PARAMS]);
     const [selectedSongIndex, setSelectedSongIndex] = useState(0);
 
@@ -187,71 +179,33 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     };
 
     const handleCloseTab = (tabIndex: number) => {
-        setSongs((current) => {
-            const newSongs = [...current];
-            newSongs.splice(tabIndex, 1);
-            if (selectedSongIndex >= newSongs.length)
-                setSelectedSongIndex(newSongs.length - 1);
-            return newSongs;
-        });
+        if (songs.length > 1) {
+            setSongs((current) => {
+                const newSongs = [...current];
+                newSongs.splice(tabIndex, 1);
+                if (selectedSongIndex >= newSongs.length)
+                    setSelectedSongIndex(newSongs.length - 1);
+                return newSongs;
+            });
+        }
     };
 
     return (
         <div className="pianoroll">
-            <div className="button-container">
-                <button
-                    onClick={handlePlayClick}
-                    disabled={
-                        !(
-                            getSelectedSong().bpm >= MIN_BPM &&
-                            getSelectedSong().bpm <= MAX_BPM
-                        )
-                    }
-                >
-                    {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
-                </button>
-                <InstrumentSelector />
-                <button
-                    className="right"
-                    onClick={() =>
-                        getGridParams().width &&
-                        props.onSubmit(getNotes(), getGridParams().width)
-                    }
-                    disabled={!isServerAvailable}
-                >
-                    {isServerAvailable ? <MdOutlineSearch /> : <MdSearchOff />}
-                </button>
-                <button onClick={handleClear}>
-                    <MdDelete />
-                </button>
-                <button
-                    onClick={handleRemoveMeasure}
-                    disabled={!canRemoveMeasure()}
-                >
-                    <AiOutlineMinus />
-                </button>
-                <button onClick={handleAddMeasure}>
-                    <AiOutlinePlus />
-                </button>
-                <button
-                    className={playbackEnabled ? "recording" : ""}
-                    onClick={() => setPlaybackEnabled(!playbackEnabled)}
-                >
-                    {playbackEnabled ? (
-                        <TiMediaRecord />
-                    ) : (
-                        <TiMediaRecordOutline />
-                    )}
-                </button>
-                <BPMInput
-                    value={getSelectedSong().bpm}
-                    onChange={onChangeBPM}
-                    increment={5}
-                    min={30}
-                    max={250}
-                    disabled={isPlaying}
-                />
-            </div>
+            <TopButtons
+                isPlaying={isPlaying}
+                onAddMeasure={handleAddMeasure}
+                onChangeBPM={onChangeBPM}
+                onClear={handleClear}
+                onPlayClick={handlePlayClick}
+                onRemoveMeasure={handleRemoveMeasure}
+                onSubmit={() =>
+                    props.onSubmit(getNotes(), getGridParams().width)
+                }
+                playbackEnabled={playbackEnabled}
+                selectedSong={getSelectedSong()}
+                togglePlayback={() => setPlaybackEnabled(!playbackEnabled)}
+            />
             <SongTabs
                 onAddNote={handleAddNote}
                 onDeleteNote={handleDeleteNote}

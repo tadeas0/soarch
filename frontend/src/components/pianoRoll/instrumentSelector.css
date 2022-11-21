@@ -1,32 +1,37 @@
 .instrument-selector {
-    display: inline-block;
     position: relative;
-    font-size: 32px;
+    display: inline-block;
+    padding: 0px !important;
 }
 
-.selected-instrument {
-    padding: 8px 16px !important;  /* TODO: rewrite this when layout is changed */
-    cursor: pointer;
-    position: relative;
+.instrument-selector-button {
+    width: 100%;
+    height: 100%;
+    font-size: 40px;
+    background: none;
+    border: none;
 }
 
 .instrument-selector-arrow {
     position: absolute;
-    font-size: 14px;
+    font-size: 24px;
     bottom: 0;
-    right: 0;
+    right: 10px;
 }
 
 .instrument-container {
     display: block;
     position: absolute;
-    width: 100%;
+    width: calc(100% - 3px);
     z-index: 1;
+    color: var(--primary-color);
+    background-color: var(--bg-color);
+    border: 3px solid var(--primary-color);
+    box-shadow: 0 4px 8px 0 var(--secondary-color);
+    border-radius: 16px;
 }
 
 .instrument-container div {
     display: block;
-    padding: 8px 4px;
-    background-color: var(--bg-color);
-    cursor: pointer;
+    margin-top: 8px;
 }

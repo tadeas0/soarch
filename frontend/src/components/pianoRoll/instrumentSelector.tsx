@@ -24,9 +24,9 @@ const InstrumentSelector: FunctionComponent = () => {
     };
 
     return (
-        <div className="instrument-selector">
+        <button className="top-button instrument-selector">
             <button
-                className="selected-instrument"
+                className="instrument-selector-button"
                 onClick={(e) => {
                     setIsOpen(!isOpen);
                 }}
@@ -36,9 +36,9 @@ const InstrumentSelector: FunctionComponent = () => {
                     {isOpen ? <IoMdArrowDropup /> : <IoMdArrowDropdown />}
                 </div>
             </button>
-            <div className="instrument-container">
-                {isOpen &&
-                    Sequencer.getSynthPresets().map((o, i) => (
+            {isOpen && (
+                <div className="instrument-container">
+                    {Sequencer.getSynthPresets().map((o, i) => (
                         <div
                             key={i}
                             title={o.name}
@@ -49,8 +49,9 @@ const InstrumentSelector: FunctionComponent = () => {
                             {<o.icon />}
                         </div>
                     ))}
-            </div>
-        </div>
+                </div>
+            )}
+        </button>
     );
 };
 
