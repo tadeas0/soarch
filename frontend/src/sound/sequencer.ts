@@ -235,4 +235,8 @@ export abstract class Sequencer {
     public static releaseNote(note: Tone.Unit.Frequency) {
         this.synth.triggerRelease(note, Tone.context.currentTime);
     }
+
+    public static getProgress() {
+        return Tone.Transport.progress;
+    }
 }

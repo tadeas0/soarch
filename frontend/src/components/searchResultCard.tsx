@@ -1,7 +1,8 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../App";
+import { Sequencer } from "../sound/sequencer";
 
 interface SearchResultProps {
     searchResult: SearchResult;
@@ -16,8 +17,29 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     onEdit,
     onPlay,
 }) => {
+    const [progress, setProgress] = useState(0);
+
+    const getInlineStyles = () => {
+        if (!isPlaying) return {};
+        return {
+            backgroundImage: `linear-gradient(
+                                    90deg,
+                                    var(--secondary-color) 0%,
+                                    var(--secondary-color) ${progress}%,
+                                    var(--bg-color) ${progress + 1}%
+                               )`,
+        };
+    };
+
+    useEffect(() => {
+        if (isPlaying)
+            Sequencer.runCallbackOnBeat(() =>
+                setProgress(Sequencer.getProgress() * 100)
+            );
+    }, [isPlaying]);
+
     return (
-        <div className="result-card">
+        <div className="result-card" style={getInlineStyles()}>
             <div className="card-inner">
                 <div className="card-text">
                     <h4>{searchResult.name}</h4>

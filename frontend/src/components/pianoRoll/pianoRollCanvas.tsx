@@ -134,7 +134,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             let grd = ctx.createLinearGradient(
                 0,
                 0,
-                Tone.Transport.progress * ctx.canvas.width,
+                Sequencer.getProgress() * ctx.canvas.width,
                 0
             );
             grd.addColorStop(0, PIANO_ROLL_BG_COLOR);
@@ -143,7 +143,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             ctx.fillRect(
                 0,
                 0,
-                Tone.Transport.progress * ctx.canvas.width,
+                Sequencer.getProgress() * ctx.canvas.width,
                 PIANO_ROLL_HEADER_SIZE
             );
         });
