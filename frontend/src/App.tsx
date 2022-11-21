@@ -1,18 +1,19 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { useState, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
-import PianoRoll from "./components/pianoRoll/pianoRoll";
-import SearchResults from "./components/searchResults";
+import PianoRoll, { PianoRollHandle } from "./components/pianoRoll/pianoRoll";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
 import { SECONDARY_COLOR } from "./constants";
-import { Note } from "./sound/sequencer";
+import { Note, Sequencer } from "./sound/sequencer";
 import { API, NoteForm } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";
 import { AvailabilityContext } from "./context/serverAvailabilityContext";
+import SearchResultsDrawer from "./components/searchResultsDrawer";
+import usePlayback from "./hooks/usePlayback";
 
 export interface SearchResult {
     artist: string;
@@ -32,6 +33,9 @@ function App() {
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
+    const pianoRollRef = useRef<PianoRollHandle>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [, , handleStop] = usePlayback();
 
     const handleRequestErrors = useCallback(
         (err: any) => {
@@ -51,7 +55,7 @@ function App() {
     useEffect(() => {
         setInitializing(true);
         Promise.all([API.getSimilarityStrategies(), API.getExampleQueries()])
-            .then(([resSimStrat, resExamQ]) => {
+            .then(([resSimStrat]) => {
                 const options = resSimStrat.data.map((r) => {
                     return {
                         name: r.name,
@@ -67,7 +71,9 @@ function App() {
     }, [setServerAvailable, handleRequestErrors]);
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
+        handleStop();
         setBusy(true);
+        setIsDrawerOpen(true);
         let reqBody: NoteForm = {
             gridLength: gridLength,
             notes: notes.map((n) => {
@@ -104,6 +110,26 @@ function App() {
             .finally(() => setBusy(false));
     };
 
+    const handleEdit = (searchResult: SearchResult) => {
+        if (pianoRollRef.current) {
+            setIsDrawerOpen(false);
+            handleStop();
+            pianoRollRef.current.addTab({
+                bpm: searchResult.bpm,
+                name: searchResult.name,
+                notes: searchResult.notes,
+                gridParams: Sequencer.getGridParamsFromNotes(
+                    searchResult.notes
+                ),
+            });
+        }
+    };
+
+    const handleDrawerToggle = () => {
+        handleStop();
+        setIsDrawerOpen((current) => !current);
+    };
+
     return (
         <div className="App">
             {initializing ? (
@@ -113,7 +139,11 @@ function App() {
                 </div>
             ) : (
                 <PlaybackProvider>
-                    <PianoRoll onSubmit={handleSubmit} songs={[]} />
+                    <PianoRoll
+                        onSubmit={handleSubmit}
+                        ref={pianoRollRef}
+                        disabled={isDrawerOpen}
+                    />
                     <div>
                         {selectedStrategy && (
                             <StrategySelector
@@ -123,10 +153,16 @@ function App() {
                             />
                         )}
                     </div>
-                    <SearchResults
-                        searchResults={searchResults}
-                        isBusy={isBusy}
-                    />
+                    {(searchResults.length > 0 || isBusy) && (
+                        <SearchResultsDrawer
+                            onOpen={handleDrawerToggle}
+                            onClose={handleDrawerToggle}
+                            isOpen={isDrawerOpen}
+                            searchResults={searchResults}
+                            isBusy={isBusy}
+                            onEdit={handleEdit}
+                        />
+                    )}
                 </PlaybackProvider>
             )}
         </div>

@@ -228,11 +228,23 @@ export abstract class Sequencer {
         this.onMeasureCallbacks.push(callback);
     }
 
+    public static async clearOnBeatCallbacks() {
+        this.onBeatCallbacks = [];
+    }
+
+    public static async clearOnMeasureCallbacks() {
+        this.onMeasureCallbacks = [];
+    }
+
     public static pressNote(note: Tone.Unit.Frequency) {
         this.synth.triggerAttack(note, Tone.context.currentTime);
     }
 
     public static releaseNote(note: Tone.Unit.Frequency) {
         this.synth.triggerRelease(note, Tone.context.currentTime);
+    }
+
+    public static getProgress() {
+        return Tone.Transport.progress;
     }
 }

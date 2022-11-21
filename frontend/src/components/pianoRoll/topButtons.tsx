@@ -1,4 +1,4 @@
-import { FunctionComponent, useContext } from "react";
+import { useContext } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdOutlineSearch, MdSearchOff, MdDelete } from "react-icons/md";
 import { CgPiano } from "react-icons/cg";
@@ -11,7 +11,11 @@ import { FaSave } from "react-icons/fa";
 import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 import BPMInput from "./bpmInput";
 
-interface TopButtonsProps {
+const defaultProps = {
+    disabled: false,
+};
+
+type TopButtonsProps = {
     onPlayClick: () => void;
     onSubmit: () => void;
     onClear: () => void;
@@ -22,10 +26,17 @@ interface TopButtonsProps {
     selectedSong: SongParams;
     isPlaying: boolean;
     playbackEnabled: boolean;
-}
+    disabled?: boolean;
+} & typeof defaultProps;
 
-const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
+const TopButtons = (props: TopButtonsProps) => {
     const { isServerAvailable } = useContext(AvailabilityContext);
+
+    const getPlayIcon = () => {
+        if (props.disabled) return <BsFillPlayFill />;
+        else if (props.isPlaying) return <BsPauseFill />;
+        else return <BsFillPlayFill />;
+    };
 
     return (
         <div className="top-button-container">
@@ -36,16 +47,16 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
                     !(
                         props.selectedSong.bpm >= MIN_BPM &&
                         props.selectedSong.bpm <= MAX_BPM
-                    )
+                    ) || props.disabled
                 }
             >
-                {props.isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
+                {getPlayIcon()}
             </button>
-            <button className="top-button">
+            <button className="top-button" disabled={props.disabled}>
                 <CgPiano />
             </button>
-            <InstrumentSelector />
-            <button className="top-button">
+            <InstrumentSelector disabled={props.disabled} />
+            <button className="top-button" disabled={props.disabled}>
                 <GiMetronome />
             </button>
             <div className="top-spacer" />
@@ -55,14 +66,18 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
                 increment={5}
                 min={30}
                 max={250}
-                disabled={props.isPlaying}
+                disabled={props.isPlaying || props.disabled}
             />
             <div className="top-spacer" />
             <div className="top-spacer" />
-            <button className="top-button" onClick={props.onClear}>
+            <button
+                className="top-button"
+                onClick={props.onClear}
+                disabled={props.disabled}
+            >
                 <MdDelete />
             </button>
-            <button className="top-button">
+            <button className="top-button" disabled={props.disabled}>
                 <FaSave />
             </button>
             <button
@@ -70,12 +85,16 @@ const TopButtons: FunctionComponent<TopButtonsProps> = (props) => {
                 onClick={() =>
                     props.selectedSong.gridParams.width && props.onSubmit()
                 }
-                disabled={!isServerAvailable}
+                disabled={!isServerAvailable || props.disabled}
             >
                 {isServerAvailable ? <MdOutlineSearch /> : <MdSearchOff />}
             </button>
         </div>
     );
+};
+
+TopButtons.defaultProps = {
+    disabled: false,
 };
 
 export default TopButtons;

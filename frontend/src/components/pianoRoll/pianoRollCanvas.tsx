@@ -24,6 +24,7 @@ interface PianoRollCanvasProps {
     gridParams: GridParams;
     notes: Note[];
     selectedNote: Note | null;
+    disabled?: boolean;
 }
 
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
@@ -134,7 +135,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             let grd = ctx.createLinearGradient(
                 0,
                 0,
-                Tone.Transport.progress * ctx.canvas.width,
+                Sequencer.getProgress() * ctx.canvas.width,
                 0
             );
             grd.addColorStop(0, PIANO_ROLL_BG_COLOR);
@@ -143,7 +144,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             ctx.fillRect(
                 0,
                 0,
-                Tone.Transport.progress * ctx.canvas.width,
+                Sequencer.getProgress() * ctx.canvas.width,
                 PIANO_ROLL_HEADER_SIZE
             );
         });
@@ -219,15 +220,16 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas) {
+            Sequencer.clearOnBeatCallbacks();
             const context = canvas.getContext("2d");
-            if (context) {
+            if (context && !props.disabled) {
                 drawHeader(context);
                 Sequencer.runCallbackOnBeat(() => {
                     drawHeader(context);
                 });
             }
         }
-    }, [drawHeader]);
+    }, [drawHeader, props.disabled]);
 
     return (
         <canvas
@@ -238,6 +240,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             onContextMenu={(e) => e.preventDefault()}
         />
     );
+};
+
+PianoRollCanvas.defaultProps = {
+    disabled: false,
 };
 
 export default PianoRollCanvas;

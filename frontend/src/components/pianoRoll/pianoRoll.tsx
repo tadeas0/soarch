@@ -1,4 +1,10 @@
-import { useEffect, useState, FunctionComponent } from "react";
+import {
+    useEffect,
+    useState,
+    useImperativeHandle,
+    ForwardRefRenderFunction,
+    forwardRef,
+} from "react";
 import {
     MEASURE_LENGTH,
     MIN_BPM,
@@ -12,18 +18,16 @@ import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
-import GridParams from "../../interfaces/GridParams";
 import SongTabs, { SongParams } from "./songTabs";
 import TopButtons from "./topButtons";
 
 interface PianoRollProps {
-    songs: {
-        name?: string;
-        bpm: number;
-        notes?: Note[];
-        gridParams: GridParams;
-    }[];
     onSubmit: (notes: Note[], gridLength: number) => void;
+    disabled?: boolean;
+}
+
+export interface PianoRollHandle {
+    addTab: (song: SongParams) => void;
 }
 
 export const DEFAULT_SONG_PARAMS: SongParams = {
@@ -37,10 +41,19 @@ export const DEFAULT_SONG_PARAMS: SongParams = {
     notes: [],
 };
 
-const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
+const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
+    { onSubmit, disabled = false },
+    ref
+) => {
     const [isPlaying, handleStart, handleStop] = usePlayback();
     const [songs, setSongs] = useState<SongParams[]>([DEFAULT_SONG_PARAMS]);
     const [selectedSongIndex, setSelectedSongIndex] = useState(0);
+
+    useImperativeHandle(ref, () => ({
+        addTab(song: SongParams) {
+            handleAddSong(song);
+        },
+    }));
 
     const getSelectedSong = () => songs[selectedSongIndex];
 
@@ -51,13 +64,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     const updateSelectedSong = (
         updateFn: (current: SongParams) => SongParams
     ) => {
-        setSongs((current) => {
-            const newSongs = [...current];
-            const oldSong = newSongs[selectedSongIndex];
-            const newSong = updateFn(oldSong);
-            newSongs[selectedSongIndex] = newSong;
-            return newSongs;
-        });
+        if (!disabled)
+            setSongs((current) => {
+                const newSongs = [...current];
+                const oldSong = newSongs[selectedSongIndex];
+                const newSong = updateFn(oldSong);
+                newSongs[selectedSongIndex] = newSong;
+                return newSongs;
+            });
     };
 
     const [playbackEnabled, setPlaybackEnabled] = useKeyboardListener(
@@ -75,73 +89,71 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     );
 
     useEffect(() => {
-        if (props.songs.length <= 0) {
-            setSongs([DEFAULT_SONG_PARAMS]);
-        } else {
-            setSongs(
-                props.songs.map((s, i) => ({
-                    bpm: s.bpm,
-                    gridParams: s.gridParams,
-                    name: s.name === undefined ? "Song " + (i + 1) : s.name,
-                    notes: s.notes === undefined ? [] : s.notes,
-                }))
-            );
-        }
-
+        setSongs([DEFAULT_SONG_PARAMS]);
         handleStop();
         // eslint-disable-next-line
     }, []);
 
     const handleAddNote = (note: Note) => {
-        Sequencer.addNoteToBuffer(note);
+        if (!disabled) {
+            Sequencer.addNoteToBuffer(note);
 
-        updateSelectedSong((current) => ({
-            ...current,
-            notes: [...current.notes, note],
-        }));
+            updateSelectedSong((current) => ({
+                ...current,
+                notes: [...current.notes, note],
+            }));
+        }
     };
 
     const handleDeleteNote = (note: Note) => {
-        Sequencer.deleteNoteFromBuffer(note);
+        if (!disabled) {
+            Sequencer.deleteNoteFromBuffer(note);
 
-        updateSelectedSong((current) => ({
-            ...current,
-            notes: current.notes.filter((n) => n !== note),
-        }));
+            updateSelectedSong((current) => ({
+                ...current,
+                notes: current.notes.filter((n) => n !== note),
+            }));
+        }
     };
 
     const handleClear = () => {
-        updateSelectedSong((current) => ({
-            ...current,
-            notes: [],
-        }));
-        if (isPlaying) {
-            handleStop();
+        if (!disabled) {
+            updateSelectedSong((current) => ({
+                ...current,
+                notes: [],
+            }));
+            if (isPlaying) {
+                handleStop();
+            }
         }
     };
 
     const handlePlayClick = () => {
-        if (!isPlaying) {
-            let bpm = DEFAULT_BPM;
-            if (
-                getSelectedSong().bpm >= MIN_BPM &&
-                getSelectedSong().bpm <= MAX_BPM
-            )
-                bpm = getSelectedSong().bpm;
-            handleStart(getNotes(), bpm, getGridParams().width);
-        } else {
-            handleStop();
+        if (!disabled) {
+            if (!isPlaying) {
+                let bpm = DEFAULT_BPM;
+                if (
+                    getSelectedSong().bpm >= MIN_BPM &&
+                    getSelectedSong().bpm <= MAX_BPM
+                )
+                    bpm = getSelectedSong().bpm;
+                handleStart(getNotes(), bpm, getGridParams().width);
+            } else {
+                handleStop();
+            }
         }
     };
 
     const handleAddMeasure = () => {
-        updateSelectedSong((current) => ({
-            ...current,
-            gridParams: {
-                ...current.gridParams,
-                width: getGridParams().width + MEASURE_LENGTH,
-            },
-        }));
+        if (!disabled) {
+            updateSelectedSong((current) => ({
+                ...current,
+                gridParams: {
+                    ...current.gridParams,
+                    width: getGridParams().width + MEASURE_LENGTH,
+                },
+            }));
+        }
     };
 
     const canRemoveMeasure = () => {
@@ -149,7 +161,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     };
 
     const handleRemoveMeasure = () => {
-        if (canRemoveMeasure()) {
+        if (canRemoveMeasure() && !disabled) {
             const newGridLength = getGridParams().width - MEASURE_LENGTH;
             const newNotes = getNotes().filter((n) => {
                 return (
@@ -168,18 +180,25 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     };
 
     const onChangeBPM = (newBMP: number) => {
-        updateSelectedSong((current) => ({ ...current, bpm: newBMP }));
+        if (!disabled)
+            updateSelectedSong((current) => ({ ...current, bpm: newBMP }));
     };
 
-    const handleAddSong = () => {
-        const newSong = { ...DEFAULT_SONG_PARAMS };
-        newSong.name = "Song " + (songs.length + 1);
+    const handleAddSong = (song?: SongParams) => {
+        handleStop();
+        let newSong: SongParams;
+        if (song === undefined) {
+            newSong = { ...DEFAULT_SONG_PARAMS };
+            newSong.name = "Song " + (songs.length + 1);
+        } else {
+            newSong = { ...song };
+        }
         setSongs((current) => [...current, newSong]);
         setSelectedSongIndex(songs.length);
     };
 
     const handleCloseTab = (tabIndex: number) => {
-        if (songs.length > 1) {
+        if (songs.length > 1 && !disabled) {
             setSongs((current) => {
                 const newSongs = [...current];
                 newSongs.splice(tabIndex, 1);
@@ -199,12 +218,13 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 onClear={handleClear}
                 onPlayClick={handlePlayClick}
                 onRemoveMeasure={handleRemoveMeasure}
-                onSubmit={() =>
-                    props.onSubmit(getNotes(), getGridParams().width)
-                }
+                onSubmit={() => {
+                    if (!disabled) onSubmit(getNotes(), getGridParams().width);
+                }}
                 playbackEnabled={playbackEnabled}
                 selectedSong={getSelectedSong()}
                 togglePlayback={() => setPlaybackEnabled(!playbackEnabled)}
+                disabled={disabled}
             />
             <SongTabs
                 onAddNote={handleAddNote}
@@ -214,9 +234,10 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                 onChangeIndex={setSelectedSongIndex}
                 selectedSongIndex={selectedSongIndex}
                 songs={songs}
+                disabled={disabled}
             />
         </div>
     );
 };
 
-export default PianoRoll;
+export default forwardRef(PianoRoll);

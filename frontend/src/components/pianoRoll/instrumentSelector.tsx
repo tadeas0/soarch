@@ -1,10 +1,18 @@
-import { FunctionComponent, useState } from "react";
+import { useState } from "react";
 import "./instrumentSelector.css";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { SynthPreset } from "../../sound/synthPresets";
 import { Sequencer } from "../../sound/sequencer";
 
-const InstrumentSelector: FunctionComponent = () => {
+const defaultProps = {
+    disabled: false,
+};
+
+type InstrumentSelectorProps = {
+    disabled?: boolean;
+} & typeof defaultProps;
+
+const InstrumentSelector = (props: InstrumentSelectorProps) => {
     const initOption = Sequencer.getSynthPresets()[0];
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] =
@@ -15,21 +23,27 @@ const InstrumentSelector: FunctionComponent = () => {
     }
 
     const onOptionSelected = (option: SynthPreset) => {
-        if (!Sequencer.isInitialized()) Sequencer.init();
-        if (isOpen) {
-            setIsOpen(false);
+        if (!props.disabled) {
+            if (!Sequencer.isInitialized()) Sequencer.init();
+            if (isOpen) {
+                setIsOpen(false);
+            }
+            setSelectedOption(option);
+            Sequencer.setSynthPreset(option);
         }
-        setSelectedOption(option);
-        Sequencer.setSynthPreset(option);
     };
 
     return (
-        <button className="top-button instrument-selector">
+        <button
+            className="top-button instrument-selector"
+            disabled={props.disabled}
+        >
             <button
                 className="instrument-selector-button"
                 onClick={(e) => {
                     setIsOpen(!isOpen);
                 }}
+                disabled={props.disabled}
             >
                 {<selectedOption.icon />}
                 <div className="instrument-selector-arrow">
@@ -54,5 +68,7 @@ const InstrumentSelector: FunctionComponent = () => {
         </button>
     );
 };
+
+InstrumentSelector.defaultProps = defaultProps;
 
 export default InstrumentSelector;
