@@ -167,8 +167,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         }
     };
 
-    const handleChangeBPM = (value: number) => {
-        updateSelectedSong((current) => ({ ...current, bpm: value }));
+    const onChangeBPM = (newBMP: number) => {
+        updateSelectedSong((current) => ({ ...current, bpm: newBMP }));
     };
 
     const handleAddSong = () => {
@@ -193,7 +193,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
             <TopButtons
                 isPlaying={isPlaying}
                 onAddMeasure={handleAddMeasure}
-                onChangeBPM={handleChangeBPM}
+                onChangeBPM={onChangeBPM}
                 onClear={handleClear}
                 onPlayClick={handlePlayClick}
                 onRemoveMeasure={handleRemoveMeasure}
