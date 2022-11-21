@@ -13,6 +13,7 @@ import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";
 import { AvailabilityContext } from "./context/serverAvailabilityContext";
 import SearchResultsDrawer from "./components/searchResultsDrawer";
+import usePlayback from "./hooks/usePlayback";
 
 export interface SearchResult {
     artist: string;
@@ -34,6 +35,7 @@ function App() {
     const { setServerAvailable } = useContext(AvailabilityContext);
     const pianoRollRef = useRef<PianoRollHandle>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [, , handleStop] = usePlayback();
 
     const handleRequestErrors = useCallback(
         (err: any) => {
@@ -53,7 +55,7 @@ function App() {
     useEffect(() => {
         setInitializing(true);
         Promise.all([API.getSimilarityStrategies(), API.getExampleQueries()])
-            .then(([resSimStrat, resExamQ]) => {
+            .then(([resSimStrat]) => {
                 const options = resSimStrat.data.map((r) => {
                     return {
                         name: r.name,
@@ -69,6 +71,7 @@ function App() {
     }, [setServerAvailable, handleRequestErrors]);
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
+        handleStop();
         setBusy(true);
         setIsDrawerOpen(true);
         let reqBody: NoteForm = {
@@ -110,6 +113,7 @@ function App() {
     const handleEdit = (searchResult: SearchResult) => {
         if (pianoRollRef.current) {
             setIsDrawerOpen(false);
+            handleStop();
             pianoRollRef.current.addTab({
                 bpm: searchResult.bpm,
                 name: searchResult.name,
@@ -122,6 +126,7 @@ function App() {
     };
 
     const handleDrawerToggle = () => {
+        handleStop();
         setIsDrawerOpen((current) => !current);
     };
 

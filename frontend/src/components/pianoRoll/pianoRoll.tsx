@@ -185,6 +185,7 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
     };
 
     const handleAddSong = (song?: SongParams) => {
+        handleStop();
         let newSong: SongParams;
         if (song === undefined) {
             newSong = { ...DEFAULT_SONG_PARAMS };

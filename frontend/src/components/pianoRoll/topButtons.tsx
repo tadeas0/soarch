@@ -32,6 +32,12 @@ type TopButtonsProps = {
 const TopButtons = (props: TopButtonsProps) => {
     const { isServerAvailable } = useContext(AvailabilityContext);
 
+    const getPlayIcon = () => {
+        if (props.disabled) return <BsFillPlayFill />;
+        else if (props.isPlaying) return <BsPauseFill />;
+        else return <BsFillPlayFill />;
+    };
+
     return (
         <div className="top-button-container">
             <button
@@ -44,7 +50,7 @@ const TopButtons = (props: TopButtonsProps) => {
                     ) || props.disabled
                 }
             >
-                {props.isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
+                {getPlayIcon()}
             </button>
             <button className="top-button" disabled={props.disabled}>
                 <CgPiano />
