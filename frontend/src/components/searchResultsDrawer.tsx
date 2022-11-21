@@ -12,16 +12,23 @@ import PuffLoader from "react-spinners/PuffLoader";
 interface SearchResultsDrawerProps {
     searchResults: SearchResult[];
     isBusy: boolean;
+    onEdit: (searchResult: SearchResult) => void;
 }
 
 const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
     searchResults,
     isBusy,
+    onEdit,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleOpen = () => {
         setIsOpen((prevState) => !prevState);
+    };
+
+    const handleEdit = (searchResult: SearchResult) => {
+        setIsOpen(false);
+        onEdit(searchResult);
     };
 
     useEffect(() => {
@@ -49,9 +56,10 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
                 <>
                     <h1>Search results</h1>
                     {searchResults.map((s) => (
-                        <>
-                            <SearchResultCard searchResult={s} />
-                        </>
+                        <SearchResultCard
+                            searchResult={s}
+                            onEdit={handleEdit}
+                        />
                     ))}
                 </>
             );

@@ -9,11 +9,13 @@ import { SECONDARY_COLOR } from "../constants";
 interface SearchResultsProps {
     searchResults: SearchResult[];
     isBusy: boolean;
+    onEdit: (searchResult: SearchResult) => void;
 }
 
 const SearchResults: FunctionComponent<SearchResultsProps> = ({
     searchResults,
     isBusy,
+    onEdit,
 }) => {
     return (
         <div className="results-container">
@@ -22,7 +24,9 @@ const SearchResults: FunctionComponent<SearchResultsProps> = ({
                     <RiseLoader size={100} color={SECONDARY_COLOR} />
                 </div>
             ) : (
-                searchResults.map((s) => <SearchResultCard searchResult={s} />)
+                searchResults.map((s) => (
+                    <SearchResultCard searchResult={s} onEdit={onEdit} />
+                ))
             )}
         </div>
     );

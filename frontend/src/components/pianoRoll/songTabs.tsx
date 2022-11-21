@@ -4,7 +4,6 @@ import { TiPlus } from "react-icons/ti";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import GridParams from "../../interfaces/GridParams";
 import { Note } from "../../sound/sequencer";
-import { DEFAULT_SONG_PARAMS } from "./pianoRoll";
 import PianoRollGrid from "./pianoRollGrid";
 import "./tabs.css";
 
@@ -19,7 +18,7 @@ interface SongTabsProps {
     selectedSongIndex: number;
     onChangeIndex: (newIndex: number) => void;
     onCloseTab: (index: number) => void;
-    onAddTab: (song: SongParams) => void;
+    onAddTab: (song?: SongParams) => void;
     onAddNote: (note: Note) => void;
     onDeleteNote: (note: Note) => void;
     songs: SongParams[];
@@ -61,7 +60,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                 ))}
                 <button
                     className="add-tab-button"
-                    onClick={() => props.onAddTab(DEFAULT_SONG_PARAMS)}
+                    onClick={() => props.onAddTab()}
                 >
                     <TiPlus />
                 </button>

@@ -5,10 +5,12 @@ import { SearchResult } from "../App";
 
 interface SearchResultProps {
     searchResult: SearchResult;
+    onEdit: (searchResult: SearchResult) => void;
 }
 
 const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     searchResult,
+    onEdit,
 }) => {
     return (
         <div className="result-card">
@@ -21,7 +23,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     <button>
                         <BsFillPlayFill />
                     </button>
-                    <button>
+                    <button onClick={() => onEdit(searchResult)}>
                         <MdModeEdit />
                     </button>
                 </div>

@@ -1,13 +1,13 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { useState, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
-import PianoRoll from "./components/pianoRoll/pianoRoll";
+import PianoRoll, { PianoRollHandle } from "./components/pianoRoll/pianoRoll";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
 import { SECONDARY_COLOR } from "./constants";
-import { Note } from "./sound/sequencer";
+import { Note, Sequencer } from "./sound/sequencer";
 import { API, NoteForm } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";
@@ -32,6 +32,7 @@ function App() {
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
+    const pianoRollRef = useRef<PianoRollHandle>(null);
 
     const handleRequestErrors = useCallback(
         (err: any) => {
@@ -104,6 +105,19 @@ function App() {
             .finally(() => setBusy(false));
     };
 
+    const handleEdit = (searchResult: SearchResult) => {
+        if (pianoRollRef.current) {
+            pianoRollRef.current.addTab({
+                bpm: searchResult.bpm,
+                name: searchResult.name,
+                notes: searchResult.notes,
+                gridParams: Sequencer.getGridParamsFromNotes(
+                    searchResult.notes
+                ),
+            });
+        }
+    };
+
     return (
         <div className="App">
             {initializing ? (
@@ -113,7 +127,7 @@ function App() {
                 </div>
             ) : (
                 <PlaybackProvider>
-                    <PianoRoll onSubmit={handleSubmit} songs={[]} />
+                    <PianoRoll onSubmit={handleSubmit} ref={pianoRollRef} />
                     <div>
                         {selectedStrategy && (
                             <StrategySelector
@@ -127,6 +141,7 @@ function App() {
                         <SearchResultsDrawer
                             searchResults={searchResults}
                             isBusy={isBusy}
+                            onEdit={handleEdit}
                         />
                     )}
                 </PlaybackProvider>

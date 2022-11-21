@@ -1,4 +1,11 @@
-import { useEffect, useState, FunctionComponent } from "react";
+import {
+    useEffect,
+    useState,
+    FunctionComponent,
+    useImperativeHandle,
+    ForwardRefRenderFunction,
+    forwardRef,
+} from "react";
 import {
     MEASURE_LENGTH,
     MIN_BPM,
@@ -12,18 +19,15 @@ import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
-import GridParams from "../../interfaces/GridParams";
 import SongTabs, { SongParams } from "./songTabs";
 import TopButtons from "./topButtons";
 
 interface PianoRollProps {
-    songs: {
-        name?: string;
-        bpm: number;
-        notes?: Note[];
-        gridParams: GridParams;
-    }[];
     onSubmit: (notes: Note[], gridLength: number) => void;
+}
+
+export interface PianoRollHandle {
+    addTab: (song: SongParams) => void;
 }
 
 export const DEFAULT_SONG_PARAMS: SongParams = {
@@ -37,10 +41,19 @@ export const DEFAULT_SONG_PARAMS: SongParams = {
     notes: [],
 };
 
-const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
+const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
+    props,
+    ref
+) => {
     const [isPlaying, handleStart, handleStop] = usePlayback();
     const [songs, setSongs] = useState<SongParams[]>([DEFAULT_SONG_PARAMS]);
     const [selectedSongIndex, setSelectedSongIndex] = useState(0);
+
+    useImperativeHandle(ref, () => ({
+        addTab(song: SongParams) {
+            handleAddSong(song);
+        },
+    }));
 
     const getSelectedSong = () => songs[selectedSongIndex];
 
@@ -75,19 +88,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     );
 
     useEffect(() => {
-        if (props.songs.length <= 0) {
-            setSongs([DEFAULT_SONG_PARAMS]);
-        } else {
-            setSongs(
-                props.songs.map((s, i) => ({
-                    bpm: s.bpm,
-                    gridParams: s.gridParams,
-                    name: s.name === undefined ? "Song " + (i + 1) : s.name,
-                    notes: s.notes === undefined ? [] : s.notes,
-                }))
-            );
-        }
-
+        setSongs([DEFAULT_SONG_PARAMS]);
         handleStop();
         // eslint-disable-next-line
     }, []);
@@ -171,9 +172,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         updateSelectedSong((current) => ({ ...current, bpm: newBMP }));
     };
 
-    const handleAddSong = () => {
-        const newSong = { ...DEFAULT_SONG_PARAMS };
-        newSong.name = "Song " + (songs.length + 1);
+    const handleAddSong = (song?: SongParams) => {
+        let newSong: SongParams;
+        if (song === undefined) {
+            newSong = { ...DEFAULT_SONG_PARAMS };
+            newSong.name = "Song " + (songs.length + 1);
+        } else {
+            newSong = { ...song };
+        }
         setSongs((current) => [...current, newSong]);
         setSelectedSongIndex(songs.length);
     };
@@ -219,4 +225,4 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
     );
 };
 
-export default PianoRoll;
+export default forwardRef(PianoRoll);
