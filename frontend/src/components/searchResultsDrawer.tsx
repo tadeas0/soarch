@@ -8,6 +8,8 @@ import { SECONDARY_COLOR } from "../constants";
 import Drawer from "react-modern-drawer";
 import "react-modern-drawer/dist/index.css";
 import PuffLoader from "react-spinners/PuffLoader";
+import usePlayback from "../hooks/usePlayback";
+import { Sequencer } from "../sound/sequencer";
 
 interface SearchResultsDrawerProps {
     searchResults: SearchResult[];
@@ -21,6 +23,10 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
     onEdit,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [playingResult, setPlayingResult] = useState<SearchResult | null>(
+        null
+    );
+    const [, handleStart, handleStop] = usePlayback();
 
     const toggleOpen = () => {
         setIsOpen((prevState) => !prevState);
@@ -29,6 +35,19 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
     const handleEdit = (searchResult: SearchResult) => {
         setIsOpen(false);
         onEdit(searchResult);
+    };
+
+    const handlePlay = (searchResult: SearchResult) => {
+        handleStop();
+        if (searchResult !== playingResult) {
+            const gridParams = Sequencer.getGridParamsFromNotes(
+                searchResult.notes
+            );
+            handleStart(searchResult.notes, searchResult.bpm, gridParams.width);
+            setPlayingResult(searchResult);
+        } else {
+            setPlayingResult(null);
+        }
     };
 
     useEffect(() => {
@@ -58,7 +77,9 @@ const SearchResultsDrawer: FunctionComponent<SearchResultsDrawerProps> = ({
                     {searchResults.map((s) => (
                         <SearchResultCard
                             searchResult={s}
+                            isPlaying={s === playingResult}
                             onEdit={handleEdit}
+                            onPlay={handlePlay}
                         />
                     ))}
                 </>
