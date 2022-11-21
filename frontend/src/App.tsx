@@ -33,6 +33,7 @@ function App() {
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
     const pianoRollRef = useRef<PianoRollHandle>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const handleRequestErrors = useCallback(
         (err: any) => {
@@ -69,6 +70,7 @@ function App() {
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
         setBusy(true);
+        setIsDrawerOpen(true);
         let reqBody: NoteForm = {
             gridLength: gridLength,
             notes: notes.map((n) => {
@@ -107,6 +109,7 @@ function App() {
 
     const handleEdit = (searchResult: SearchResult) => {
         if (pianoRollRef.current) {
+            setIsDrawerOpen(false);
             pianoRollRef.current.addTab({
                 bpm: searchResult.bpm,
                 name: searchResult.name,
@@ -118,6 +121,10 @@ function App() {
         }
     };
 
+    const handleDrawerToggle = () => {
+        setIsDrawerOpen((current) => !current);
+    };
+
     return (
         <div className="App">
             {initializing ? (
@@ -127,7 +134,11 @@ function App() {
                 </div>
             ) : (
                 <PlaybackProvider>
-                    <PianoRoll onSubmit={handleSubmit} ref={pianoRollRef} />
+                    <PianoRoll
+                        onSubmit={handleSubmit}
+                        ref={pianoRollRef}
+                        disabled={isDrawerOpen}
+                    />
                     <div>
                         {selectedStrategy && (
                             <StrategySelector
@@ -139,6 +150,9 @@ function App() {
                     </div>
                     {(searchResults.length > 0 || isBusy) && (
                         <SearchResultsDrawer
+                            onOpen={handleDrawerToggle}
+                            onClose={handleDrawerToggle}
+                            isOpen={isDrawerOpen}
                             searchResults={searchResults}
                             isBusy={isBusy}
                             onEdit={handleEdit}

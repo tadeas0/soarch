@@ -185,17 +185,15 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
     };
 
     const handleAddSong = (song?: SongParams) => {
-        if (!disabled) {
-            let newSong: SongParams;
-            if (song === undefined) {
-                newSong = { ...DEFAULT_SONG_PARAMS };
-                newSong.name = "Song " + (songs.length + 1);
-            } else {
-                newSong = { ...song };
-            }
-            setSongs((current) => [...current, newSong]);
-            setSelectedSongIndex(songs.length);
+        let newSong: SongParams;
+        if (song === undefined) {
+            newSong = { ...DEFAULT_SONG_PARAMS };
+            newSong.name = "Song " + (songs.length + 1);
+        } else {
+            newSong = { ...song };
         }
+        setSongs((current) => [...current, newSong]);
+        setSelectedSongIndex(songs.length);
     };
 
     const handleCloseTab = (tabIndex: number) => {

@@ -17,7 +17,6 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] =
         useState<SynthPreset>(initOption);
-    console.log(props.disabled);
 
     if (initOption === undefined) {
         return <div className="instrument-selector"></div>; // return empty div

@@ -220,6 +220,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas) {
+            Sequencer.clearOnBeatCallbacks();
             const context = canvas.getContext("2d");
             if (context && !props.disabled) {
                 drawHeader(context);

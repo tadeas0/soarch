@@ -32,10 +32,12 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     };
 
     useEffect(() => {
-        if (isPlaying)
+        if (isPlaying) {
+            Sequencer.clearOnBeatCallbacks();
             Sequencer.runCallbackOnBeat(() =>
                 setProgress(Sequencer.getProgress() * 100)
             );
+        }
     }, [isPlaying]);
 
     return (

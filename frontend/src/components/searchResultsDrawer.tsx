@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { SlArrowLeft } from "react-icons/sl";
 import { SearchResult } from "../App";
 import { HiOutlineMagnifyingGlassMinus } from "react-icons/hi2";
@@ -19,23 +19,18 @@ type SearchResultsDrawerProps = {
     searchResults: SearchResult[];
     isBusy: boolean;
     onEdit: (searchResult: SearchResult) => void;
-    onToggle?: (current: boolean) => void;
+    onOpen: () => void;
+    onClose: () => void;
+    isOpen: boolean;
 } & typeof defaultProps;
 
 const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
-    const [isOpen, setIsOpen] = useState(false);
     const [playingResult, setPlayingResult] = useState<SearchResult | null>(
         null
     );
     const [, handleStart, handleStop] = usePlayback();
 
-    const toggleOpen = () => {
-        props.onToggle(!isOpen);
-        setIsOpen((prevState) => !prevState);
-    };
-
     const handleEdit = (searchResult: SearchResult) => {
-        setIsOpen(false);
         props.onEdit(searchResult);
     };
 
@@ -51,10 +46,6 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
             setPlayingResult(null);
         }
     };
-
-    useEffect(() => {
-        if (props.searchResults.length > 0 || props.isBusy) setIsOpen(true);
-    }, [props.searchResults, props.isBusy]);
 
     const renderDrawerBody = () => {
         if (props.isBusy) {
@@ -91,12 +82,12 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
 
     return (
         <>
-            <button className="drawer-button" onClick={toggleOpen}>
+            <button className="drawer-button" onClick={props.onOpen}>
                 <SlArrowLeft />
             </button>
             <Drawer
-                open={isOpen}
-                onClose={toggleOpen}
+                open={props.isOpen}
+                onClose={props.onClose}
                 direction="right"
                 className="drawer"
             >
