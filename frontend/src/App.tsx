@@ -123,10 +123,12 @@ function App() {
                             />
                         )}
                     </div>
-                    <SearchResultsDrawer
-                        searchResults={searchResults}
-                        isBusy={isBusy}
-                    />
+                    {(searchResults.length > 0 || isBusy) && (
+                        <SearchResultsDrawer
+                            searchResults={searchResults}
+                            isBusy={isBusy}
+                        />
+                    )}
                 </PlaybackProvider>
             )}
         </div>
