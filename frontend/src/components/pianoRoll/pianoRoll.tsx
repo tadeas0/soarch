@@ -16,6 +16,7 @@ import { TiMediaRecord, TiMediaRecordOutline } from "react-icons/ti";
 import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import InstrumentSelector from "./instrumentSelector";
+import BPMInput from "./bpmInput";
 import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
 import GridParams from "../../interfaces/GridParams";
@@ -174,11 +175,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
         }
     };
 
-    const handleChangeBPM = (e: React.ChangeEvent<HTMLInputElement>) => {
-        e.preventDefault();
-        const value = Number(e.target.value);
-        e.target.value.length <= 3 &&
-            updateSelectedSong((current) => ({ ...current, bpm: value }));
+    const onChangeBPM = (newBMP: number) => {
+        updateSelectedSong((current) => ({ ...current, bpm: newBMP }));
     };
 
     const handleAddSong = () => {
@@ -245,14 +243,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = (props) => {
                         <TiMediaRecordOutline />
                     )}
                 </button>
-                <input
-                    type="number"
+                <BPMInput
                     value={getSelectedSong().bpm}
-                    onChange={handleChangeBPM}
-                    max={250}
+                    onChange={onChangeBPM}
+                    increment={5}
                     min={30}
+                    max={250}
                     disabled={isPlaying}
-                ></input>
+                />
             </div>
             <SongTabs
                 onAddNote={handleAddNote}
