@@ -10,7 +10,7 @@ export const MEASURE_LENGTH = 16;
 export const NOTES = ["C", "D", "E", "F", "G", "A", "B"];
 export const PIANO_ROLL_NOTE_HEIGHT = 20;
 export const PIANO_ROLL_NOTE_WIDTH = 20;
-export const DEFAULT_NOTE_LENGTH = 4;
+export const DEFAULT_NOTE_LENGTH = 2;
 export const PIANO_ROLL_HEADER_SIZE = 20;
 
 export const KEYBOARD_NOTE_MAP: { [keyCode: string]: number } = {
@@ -46,6 +46,7 @@ export const MEDIUM_BG_COLOR = "#1f2833";
 export const LIGHT_BG_COLOR = "#c5c6c7";
 export const SECONDARY_COLOR = "#45a29e";
 export const PRIMARY_COLOR = "#66fcf1";
+export const NOTE_HIGHLIGHT_COLOR = "#ffffff";
 
 export const PIANO_ROLL_GRID_COLORS = ["gray", "gray", SECONDARY_COLOR];
 export const PIANO_ROLL_BLACK_KEY_COLOR = BG_COLOR;

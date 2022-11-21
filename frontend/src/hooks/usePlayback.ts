@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { PlaybackContext } from "../context/playbackContext";
-import { Sequencer, Note } from "../sequencer";
+import { Sequencer, Note } from "../sound/sequencer";
 
 const usePlayback = (): [
     boolean,

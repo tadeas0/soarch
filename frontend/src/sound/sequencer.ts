@@ -3,8 +3,10 @@ import {
     MEASURE_LENGTH,
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
-} from "./constants";
-import { GridParams } from "./components/pianoRollGrid";
+} from "../constants";
+import GridParams from "../interfaces/GridParams";
+import RollCoordinates from "../interfaces/RollCoordinates";
+import { SynthPreset, SYNTH_PRESETS } from "./synthPresets";
 
 export interface Note {
     time: Tone.Unit.Time;
@@ -13,29 +15,8 @@ export interface Note {
 }
 
 export abstract class Sequencer {
-    private static filter: Tone.Filter = new Tone.Filter(
-        400,
-        "lowpass"
-    ).toDestination();
-    private static synth: Tone.PolySynth | Tone.Synth = new Tone.PolySynth(
-        Tone.Synth,
-        {
-            envelope: {
-                attack: 0.005,
-                attackCurve: "linear",
-                decay: 0.1,
-                decayCurve: "exponential",
-                release: 1,
-                releaseCurve: "exponential",
-                sustain: 0.3,
-            },
-            oscillator: {
-                partialCount: 0,
-                phase: 0,
-                type: "sawtooth",
-            },
-        }
-    ).connect(this.filter);
+    private static synth: Tone.PolySynth | Tone.Synth | Tone.Sampler =
+        SYNTH_PRESETS[0].preset.toDestination();
 
     private static part: Tone.Part = new Tone.Part();
 
@@ -45,6 +26,41 @@ export abstract class Sequencer {
 
     public static async init() {
         await Tone.start();
+    }
+
+    public static getSynthPresets() {
+        return SYNTH_PRESETS;
+    }
+
+    public static getStartCoords(
+        note: Note,
+        gridParams: GridParams
+    ): RollCoordinates {
+        return {
+            row: this.tonePitchToRollPitch(
+                note.pitch,
+                gridParams.lowestNote,
+                gridParams.height
+            ),
+            column: this.toneTimeToRollTime(note.time),
+        };
+    }
+
+    public static getEndCoords(
+        note: Note,
+        gridParams: GridParams
+    ): RollCoordinates {
+        return {
+            row: this.tonePitchToRollPitch(
+                note.pitch,
+                gridParams.lowestNote,
+                gridParams.height
+            ),
+            column:
+                this.toneTimeToRollTime(note.time) +
+                this.toneTimeToRollTime(note.length) -
+                1,
+        };
     }
 
     public static fillBuffer(notes: Note[], gridLength: number) {
@@ -107,8 +123,16 @@ export abstract class Sequencer {
         Tone.Transport.bpm.value = bpm;
     }
 
-    public static setSynth(synth: Tone.Synth) {
-        this.synth = synth;
+    public static setSynthPreset(synth: SynthPreset) {
+        let newSynth = synth.preset;
+        if (synth.filter !== undefined) {
+            const newFilter = synth.filter;
+            newSynth = newSynth.connect(newFilter);
+            newFilter.toDestination();
+        } else {
+            newSynth.toDestination();
+        }
+        this.synth = newSynth;
     }
 
     public static getSynth() {
@@ -204,11 +228,23 @@ export abstract class Sequencer {
         this.onMeasureCallbacks.push(callback);
     }
 
+    public static async clearOnBeatCallbacks() {
+        this.onBeatCallbacks = [];
+    }
+
+    public static async clearOnMeasureCallbacks() {
+        this.onMeasureCallbacks = [];
+    }
+
     public static pressNote(note: Tone.Unit.Frequency) {
         this.synth.triggerAttack(note, Tone.context.currentTime);
     }
 
     public static releaseNote(note: Tone.Unit.Frequency) {
         this.synth.triggerRelease(note, Tone.context.currentTime);
+    }
+
+    public static getProgress() {
+        return Tone.Transport.progress;
     }
 }

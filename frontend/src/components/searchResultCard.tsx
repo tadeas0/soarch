@@ -1,71 +1,60 @@
-import * as React from "react";
-import { FunctionComponent, useState } from "react";
-import ReactModal from "react-modal";
+import { FunctionComponent, useEffect, useState } from "react";
+import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
+import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../App";
-import { Sequencer } from "../sequencer";
-import PianoRollGrid from "./pianoRollGrid";
-import { MdClose } from "react-icons/md";
-import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
-import "./result.css";
-import usePlayback from "../hooks/usePlayback";
-import { PRIMARY_COLOR } from "../constants";
+import { Sequencer } from "../sound/sequencer";
 
 interface SearchResultProps {
     searchResult: SearchResult;
+    isPlaying: boolean;
+    onPlay: (searchResult: SearchResult) => void;
+    onEdit: (searchResult: SearchResult) => void;
 }
 
 const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     searchResult,
+    isPlaying,
+    onEdit,
+    onPlay,
 }) => {
-    const [isOpen, setOpen] = useState<boolean>(false);
-    const [isPlaying, handleStart, handleStop] = usePlayback();
+    const [progress, setProgress] = useState(0);
 
-    const handleModalOpen = () => {
-        handleStop();
-        setOpen(true);
+    const getInlineStyles = () => {
+        if (!isPlaying) return {};
+        return {
+            backgroundImage: `linear-gradient(
+                                    90deg,
+                                    var(--secondary-color) 0%,
+                                    var(--secondary-color) ${progress}%,
+                                    var(--bg-color) ${progress + 1}%
+                               )`,
+        };
     };
 
-    const handleModalClose = () => {
-        handleStop();
-        setOpen(false);
-    };
-
-    const handlePlayClick = () => {
-        if (!isPlaying) {
-            const params = Sequencer.getGridParamsFromNotes(searchResult.notes);
-            handleStart(searchResult.notes, searchResult.bpm, params.width);
-        } else {
-            handleStop();
+    useEffect(() => {
+        if (isPlaying) {
+            Sequencer.clearOnBeatCallbacks();
+            Sequencer.runCallbackOnBeat(() =>
+                setProgress(Sequencer.getProgress() * 100)
+            );
         }
-    };
+    }, [isPlaying]);
 
     return (
-        <div className="result-card">
-            <div className="inner">
-                <h4 onClick={handleModalOpen}>{searchResult.name}</h4>
-                <p>{searchResult.artist}</p>
-                <ReactModal
-                    isOpen={isOpen}
-                    shouldCloseOnOverlayClick={true}
-                    className="result-overlay-content"
-                    overlayClassName="result-overlay-overlay"
-                    onRequestClose={handleModalClose}
-                >
-                    <button className="close-btn" onClick={handleModalClose}>
-                        <MdClose color={PRIMARY_COLOR} />
-                    </button>
-                    <button className="play-btn" onClick={handlePlayClick}>
+        <div className="result-card" style={getInlineStyles()}>
+            <div className="card-inner">
+                <div className="card-text">
+                    <h4>{searchResult.name}</h4>
+                    <p>{searchResult.artist}</p>
+                </div>
+                <div className="card-buttons">
+                    <button onClick={() => onPlay(searchResult)}>
                         {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                     </button>
-                    <div className="pianoroll">
-                        <PianoRollGrid
-                            gridParams={Sequencer.getGridParamsFromNotes(
-                                searchResult.notes
-                            )}
-                            notes={searchResult.notes}
-                        />
-                    </div>
-                </ReactModal>
+                    <button onClick={() => onEdit(searchResult)}>
+                        <MdModeEdit />
+                    </button>
+                </div>
             </div>
         </div>
     );

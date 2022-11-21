@@ -1,25 +1,18 @@
-import React, { useContext } from "react";
+import { useContext, useRef } from "react";
 import { useState, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
-import PianoRoll from "./components/pianoRoll";
-import { GridParams } from "./components/pianoRollGrid";
-import SearchResults from "./components/searchResults";
+import PianoRoll, { PianoRollHandle } from "./components/pianoRoll/pianoRoll";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
-import {
-    DEFAULT_PIANO_ROLL_HEIGHT,
-    DEFAULT_PIANO_ROLL_WIDTH,
-    PIANO_ROLL_LOWEST_NOTE,
-    DEFAULT_BPM,
-    SECONDARY_COLOR,
-} from "./constants";
-import { Note } from "./sequencer";
-import { API, NoteForm, Song } from "./services/api";
+import { SECONDARY_COLOR } from "./constants";
+import { Note, Sequencer } from "./sound/sequencer";
+import { API, NoteForm } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";
 import { AvailabilityContext } from "./context/serverAvailabilityContext";
+import SearchResultsDrawer from "./components/searchResultsDrawer";
 
 export interface SearchResult {
     artist: string;
@@ -30,36 +23,17 @@ export interface SearchResult {
 
 Modal.setAppElement("#root");
 
-const DEFAULT_GRID_PARAMS: GridParams = {
-    height: DEFAULT_PIANO_ROLL_HEIGHT,
-    width: DEFAULT_PIANO_ROLL_WIDTH,
-    lowestNote: PIANO_ROLL_LOWEST_NOTE,
-};
-
-const EMPTY_QUERY: Song = {
-    name: "<None>",
-    artist: "<None>",
-    bpm: DEFAULT_BPM,
-    notes: [],
-    gridParams: {
-        ...DEFAULT_GRID_PARAMS,
-        lowestNote: Tone.Frequency(DEFAULT_GRID_PARAMS.lowestNote).toMidi(),
-    },
-};
-
 function App() {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [availableStrategies, setAvailableStrategies] = useState<Option[]>(
         []
     );
     const [selectedStrategy, setSelectedStrategy] = useState<Option>();
-    const [exampleQueries, setExampleQueries] = useState<Song[]>([EMPTY_QUERY]);
-    const [selectedQuery, setSelectedQuery] = useState<Song>();
-    const [gridParams, setGridParams] =
-        useState<GridParams>(DEFAULT_GRID_PARAMS);
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
+    const pianoRollRef = useRef<PianoRollHandle>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const handleRequestErrors = useCallback(
         (err: any) => {
@@ -88,7 +62,6 @@ function App() {
                 });
                 setAvailableStrategies(options);
                 setSelectedStrategy(options[0]);
-                setExampleQueries([EMPTY_QUERY, ...resExamQ.data]);
                 setServerAvailable(true);
             })
             .catch(handleRequestErrors)
@@ -97,6 +70,7 @@ function App() {
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
         setBusy(true);
+        setIsDrawerOpen(true);
         let reqBody: NoteForm = {
             gridLength: gridLength,
             notes: notes.map((n) => {
@@ -133,49 +107,22 @@ function App() {
             .finally(() => setBusy(false));
     };
 
-    const handleExampleQueryChange = (option: Option) => {
-        const res = exampleQueries.find(
-            (f) => f.artist + " - " + f.name === option.value
-        );
-        if (res) setSelectedQuery(res);
-        if (res && res.gridParams) {
-            setGridParams({
-                ...res.gridParams,
-                lowestNote: Tone.Frequency(
-                    res.gridParams.lowestNote,
-                    "midi"
-                ).toNote(),
+    const handleEdit = (searchResult: SearchResult) => {
+        if (pianoRollRef.current) {
+            setIsDrawerOpen(false);
+            pianoRollRef.current.addTab({
+                bpm: searchResult.bpm,
+                name: searchResult.name,
+                notes: searchResult.notes,
+                gridParams: Sequencer.getGridParamsFromNotes(
+                    searchResult.notes
+                ),
             });
         }
     };
 
-    const getNotes = useCallback(() => {
-        if (selectedQuery)
-            return selectedQuery.notes.map((n) => {
-                return {
-                    ...n,
-                    pitch: Tone.Frequency(n.pitch, "midi").toNote(),
-                };
-            });
-        return undefined;
-    }, [selectedQuery]);
-
-    const getQueryOptions = () => {
-        return exampleQueries.map((query) => {
-            return {
-                name: query.artist + " - " + query.name,
-                value: query.artist + " - " + query.name,
-            };
-        });
-    };
-
-    const getSelectedQueryOption = () => {
-        if (selectedQuery)
-            return {
-                name: selectedQuery.artist + " - " + selectedQuery.name,
-                value: selectedQuery.artist + " - " + selectedQuery.name,
-            };
-        return undefined;
+    const handleDrawerToggle = () => {
+        setIsDrawerOpen((current) => !current);
     };
 
     return (
@@ -189,9 +136,8 @@ function App() {
                 <PlaybackProvider>
                     <PianoRoll
                         onSubmit={handleSubmit}
-                        gridParams={gridParams}
-                        bpm={selectedQuery ? selectedQuery.bpm : DEFAULT_BPM}
-                        notes={getNotes()}
+                        ref={pianoRollRef}
+                        disabled={isDrawerOpen}
                     />
                     <div>
                         {selectedStrategy && (
@@ -201,16 +147,17 @@ function App() {
                                 selectedValue={selectedStrategy}
                             />
                         )}
-                        <StrategySelector
-                            options={getQueryOptions()}
-                            onChange={handleExampleQueryChange}
-                            selectedValue={getSelectedQueryOption()}
-                        />
                     </div>
-                    <SearchResults
-                        searchResults={searchResults}
-                        isBusy={isBusy}
-                    />
+                    {(searchResults.length > 0 || isBusy) && (
+                        <SearchResultsDrawer
+                            onOpen={handleDrawerToggle}
+                            onClose={handleDrawerToggle}
+                            isOpen={isDrawerOpen}
+                            searchResults={searchResults}
+                            isBusy={isBusy}
+                            onEdit={handleEdit}
+                        />
+                    )}
                 </PlaybackProvider>
             )}
         </div>
