@@ -18,7 +18,18 @@ export abstract class Sequencer {
     private static synth: Tone.PolySynth | Tone.Synth | Tone.Sampler =
         SYNTH_PRESETS[0].preset.toDestination();
 
+    private static metronomeSampler: Tone.Sampler = new Tone.Sampler({
+        urls: {
+            G4: "/samples/metronome_down.mp3",
+            C4: "/samples/metronome_up.mp3",
+        },
+        release: 1,
+        volume: -100,
+    }).toDestination();
+
     private static part: Tone.Part = new Tone.Part();
+
+    private static metronomePart: Tone.Part = new Tone.Part();
 
     private static onBeatCallbacks: (() => void)[] = [];
 
@@ -46,6 +57,18 @@ export abstract class Sequencer {
         };
     }
 
+    public static getMetronomeEnabled() {
+        return this.metronomeSampler.volume.value === 0;
+    }
+
+    public static enableMetronome() {
+        this.metronomeSampler.volume.value = 0;
+    }
+
+    public static disableMetronome() {
+        this.metronomeSampler.volume.value = -100;
+    }
+
     public static getEndCoords(
         note: Note,
         gridParams: GridParams
@@ -67,6 +90,20 @@ export abstract class Sequencer {
         this.part = new Tone.Part((time, note) => {
             this.synth.triggerAttackRelease(note.pitch, note.length, time);
         }, notes).start(0);
+
+        const metronomeNotes = [];
+        for (let i = 0; i < gridLength / 2; i++) {
+            const pitch = i % 4 === 0 ? "G4" : "C4";
+            metronomeNotes.push({ time: `0:${i}:0`, pitch: pitch });
+        }
+
+        this.metronomePart = new Tone.Part((time, note) => {
+            this.metronomeSampler.triggerAttackRelease(
+                note.pitch,
+                "0:0:1",
+                time
+            );
+        }, metronomeNotes).start(0);
 
         Tone.Transport.setLoopPoints(0, this.rollTimeToToneTime(gridLength));
 
