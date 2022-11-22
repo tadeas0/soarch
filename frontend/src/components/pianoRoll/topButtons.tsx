@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdOutlineSearch, MdSearchOff, MdDelete } from "react-icons/md";
 import { CgPiano } from "react-icons/cg";
-import { GiMetronome } from "react-icons/gi";
 import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
 import { SongParams } from "./songTabs";
@@ -10,6 +9,7 @@ import "./topButtons.css";
 import { FaSave } from "react-icons/fa";
 import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 import BPMInput from "./bpmInput";
+import Metronome from "./metronome";
 
 const defaultProps = {
     disabled: false,
@@ -21,7 +21,6 @@ type TopButtonsProps = {
     onClear: () => void;
     onRemoveMeasure: () => void;
     onAddMeasure: () => void;
-    togglePlayback: () => void;
     onChangeBPM: (bpm: number) => void;
     selectedSong: SongParams;
     isPlaying: boolean;
@@ -56,9 +55,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 <CgPiano />
             </button>
             <InstrumentSelector disabled={props.disabled} />
-            <button className="top-button" disabled={props.disabled}>
-                <GiMetronome />
-            </button>
+            <Metronome disabled={props.disabled} />
             <div className="top-spacer" />
             <BPMInput
                 value={props.selectedSong.bpm}
