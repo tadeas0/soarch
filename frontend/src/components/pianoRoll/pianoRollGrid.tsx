@@ -16,6 +16,7 @@ interface PianoRollGridProps {
     notes: Note[];
     gridParams: GridParams;
     disabled?: boolean;
+    playbackEnabled?: boolean;
     onDeleteNote?: (note: Note) => void;
     onAddNote?: (note: Note) => void;
 }
@@ -26,6 +27,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     gridParams,
     onAddNote = (note: Note) => {},
     onDeleteNote = (note: Note) => {},
+    playbackEnabled = true,
     disabled = false,
 }: PianoRollGridProps) => {
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -33,7 +35,8 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         onAddNote,
         onDeleteNote,
         setSelectedNote,
-        gridParams
+        gridParams,
+        playbackEnabled
     );
 
     const handleLeftClick = (coords: RollCoordinates) => {

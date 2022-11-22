@@ -219,6 +219,9 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
                 onClear={handleClear}
                 onPlayClick={handlePlayClick}
                 onRemoveMeasure={handleRemoveMeasure}
+                onPlaybackClick={() =>
+                    setPlaybackEnabled((current) => !current)
+                }
                 onSubmit={() => {
                     if (!disabled) onSubmit(getNotes(), getGridParams().width);
                 }}
@@ -233,6 +236,7 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
                 onCloseTab={handleCloseTab}
                 onChangeIndex={setSelectedSongIndex}
                 selectedSongIndex={selectedSongIndex}
+                playbackEnabled={playbackEnabled}
                 songs={songs}
                 disabled={disabled}
             />
