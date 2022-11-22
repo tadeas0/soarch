@@ -20,6 +20,7 @@ import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
 import SongTabs, { SongParams } from "./songTabs";
 import TopButtons from "./topButtons";
+import { TiMinus, TiPlus } from "react-icons/ti";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -229,17 +230,33 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
                 selectedSong={getSelectedSong()}
                 disabled={disabled}
             />
-            <SongTabs
-                onAddNote={handleAddNote}
-                onDeleteNote={handleDeleteNote}
-                onAddTab={handleAddSong}
-                onCloseTab={handleCloseTab}
-                onChangeIndex={setSelectedSongIndex}
-                selectedSongIndex={selectedSongIndex}
-                playbackEnabled={playbackEnabled}
-                songs={songs}
-                disabled={disabled}
-            />
+            <div className="roll-row-container">
+                <button
+                    className="grid-button"
+                    onClick={handleRemoveMeasure}
+                    disabled={disabled || !canRemoveMeasure()}
+                >
+                    <TiMinus />
+                </button>
+                <SongTabs
+                    onAddNote={handleAddNote}
+                    onDeleteNote={handleDeleteNote}
+                    onAddTab={handleAddSong}
+                    onCloseTab={handleCloseTab}
+                    onChangeIndex={setSelectedSongIndex}
+                    selectedSongIndex={selectedSongIndex}
+                    playbackEnabled={playbackEnabled}
+                    songs={songs}
+                    disabled={disabled}
+                />
+                <button
+                    className="grid-button"
+                    onClick={handleAddMeasure}
+                    disabled={disabled}
+                >
+                    <TiPlus />
+                </button>
+            </div>
         </div>
     );
 };
