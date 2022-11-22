@@ -6,7 +6,7 @@ import "./App.css";
 import PianoRoll, { PianoRollHandle } from "./components/pianoRoll/pianoRoll";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
-import { SECONDARY_COLOR } from "./constants";
+import { HIDE_STRATEGIES, SECONDARY_COLOR } from "./constants";
 import { Note, Sequencer } from "./sound/sequencer";
 import { API, NoteForm } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
@@ -29,7 +29,10 @@ function App() {
     const [availableStrategies, setAvailableStrategies] = useState<Option[]>(
         []
     );
-    const [selectedStrategy, setSelectedStrategy] = useState<Option>();
+    const [selectedStrategy, setSelectedStrategy] = useState<Option>({
+        name: "Local alignment (Biopython lib)",
+        value: "lcabp",
+    });
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
@@ -145,7 +148,7 @@ function App() {
                         disabled={isDrawerOpen}
                     />
                     <div>
-                        {selectedStrategy && (
+                        {selectedStrategy && !HIDE_STRATEGIES && (
                             <StrategySelector
                                 options={availableStrategies}
                                 onChange={setSelectedStrategy}
