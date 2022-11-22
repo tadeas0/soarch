@@ -21,7 +21,6 @@ type TopButtonsProps = {
     onClear: () => void;
     onRemoveMeasure: () => void;
     onAddMeasure: () => void;
-    togglePlayback: () => void;
     onChangeBPM: (bpm: number) => void;
     selectedSong: SongParams;
     isPlaying: boolean;

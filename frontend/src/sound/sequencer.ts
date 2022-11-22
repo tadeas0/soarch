@@ -91,6 +91,12 @@ export abstract class Sequencer {
             this.synth.triggerAttackRelease(note.pitch, note.length, time);
         }, notes).start(0);
 
+        Tone.Transport.setLoopPoints(0, this.rollTimeToToneTime(gridLength));
+
+        Tone.Transport.loop = true;
+    }
+
+    public static fillMetronome(gridLength: number) {
         const metronomeNotes = [];
         for (let i = 0; i < gridLength / 2; i++) {
             const pitch = i % 4 === 0 ? "G4" : "C4";
@@ -104,10 +110,6 @@ export abstract class Sequencer {
                 time
             );
         }, metronomeNotes).start(0);
-
-        Tone.Transport.setLoopPoints(0, this.rollTimeToToneTime(gridLength));
-
-        Tone.Transport.loop = true;
     }
 
     public static addNoteToBuffer(note: Note) {

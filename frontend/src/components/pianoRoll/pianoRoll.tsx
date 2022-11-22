@@ -90,6 +90,7 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
 
     useEffect(() => {
         setSongs([DEFAULT_SONG_PARAMS]);
+        setPlaybackEnabled(true);
         handleStop();
         // eslint-disable-next-line
     }, []);
@@ -223,7 +224,6 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
                 }}
                 playbackEnabled={playbackEnabled}
                 selectedSong={getSelectedSong()}
-                togglePlayback={() => setPlaybackEnabled(!playbackEnabled)}
                 disabled={disabled}
             />
             <SongTabs
