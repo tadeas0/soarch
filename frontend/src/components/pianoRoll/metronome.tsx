@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { GiMetronome } from "react-icons/gi";
 import { Sequencer } from "../../sound/sequencer";
 
@@ -17,6 +17,13 @@ const Metronome: FunctionComponent<MetronomeProps> = ({ disabled = false }) => {
         }
         setActive(Sequencer.getMetronomeEnabled());
     };
+
+    useEffect(() => {
+        if (disabled) {
+            Sequencer.disableMetronome();
+            setActive(false);
+        }
+    }, [disabled]);
 
     return (
         <button

@@ -55,7 +55,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 <CgPiano />
             </button>
             <InstrumentSelector disabled={props.disabled} />
-            <Metronome />
+            <Metronome disabled={props.disabled} />
             <div className="top-spacer" />
             <BPMInput
                 value={props.selectedSong.bpm}
