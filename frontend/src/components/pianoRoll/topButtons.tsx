@@ -6,7 +6,7 @@ import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
 import { SongParams } from "./songTabs";
 import "./topButtons.css";
-import { FaSave } from "react-icons/fa";
+import { FaHeadphonesAlt, FaSave } from "react-icons/fa";
 import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 import BPMInput from "./bpmInput";
 import Metronome from "./metronome";
@@ -22,6 +22,7 @@ type TopButtonsProps = {
     onRemoveMeasure: () => void;
     onAddMeasure: () => void;
     onChangeBPM: (bpm: number) => void;
+    onPlaybackClick: () => void;
     selectedSong: SongParams;
     isPlaying: boolean;
     playbackEnabled: boolean;
@@ -56,6 +57,15 @@ const TopButtons = (props: TopButtonsProps) => {
             </button>
             <InstrumentSelector disabled={props.disabled} />
             <Metronome disabled={props.disabled} />
+            <button
+                className={
+                    "top-button" + (props.playbackEnabled ? " pressed" : "")
+                }
+                onClick={props.onPlaybackClick}
+                disabled={props.disabled}
+            >
+                <FaHeadphonesAlt />
+            </button>
             <div className="top-spacer" />
             <BPMInput
                 value={props.selectedSong.bpm}

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import * as Tone from "tone";
 import GridParams from "../../interfaces/GridParams";
 import RollCoordinates from "../../interfaces/RollCoordinates";
 import { Note, Sequencer } from "../../sound/sequencer";
@@ -11,23 +12,34 @@ export class MouseHandler {
     private onAddNote: (note: Note) => void;
     private onDeleteNote: (note: Note) => void;
     private changeSelectedNote: (note: Note) => void;
+    private _playbackEnabled: boolean;
 
     constructor(
         onAddNote: (note: Note) => void,
         onDeleteNote: (note: Note) => void,
         changeSelectedNote: (note: Note) => void,
-        gridParams: GridParams
+        gridParams: GridParams,
+        playbackEnabled: boolean
     ) {
         this.state = new ReadyState(this);
         this.onAddNote = onAddNote;
         this.onDeleteNote = onDeleteNote;
         this._gridParams = gridParams;
         this.changeSelectedNote = changeSelectedNote;
+        this._playbackEnabled = playbackEnabled;
         this._selectedNote = null;
     }
 
     public set gridParams(value: GridParams) {
         this._gridParams = value;
+    }
+
+    public get playbackEnabled(): boolean {
+        return this._playbackEnabled;
+    }
+
+    public set playbackEnabled(value: boolean) {
+        this._playbackEnabled = value;
     }
 
     public getNotesAt(coords: RollCoordinates, notes: Note[]): Note[] {
@@ -113,13 +125,22 @@ export class MouseHandler {
     public onRightRelease(coords: RollCoordinates, currentNotes: Note[]) {
         this.state.handleRightRelease(coords, currentNotes);
     }
+
+    public pressNote(note: Tone.Unit.Note) {
+        if (this.playbackEnabled) Sequencer.pressNote(note);
+    }
+
+    public releaseNote(note: Tone.Unit.Note) {
+        Sequencer.releaseNote(note);
+    }
 }
 
 export function useMouseHandler(
     onAddNote: (note: Note) => void,
     onDeleteNote: (note: Note) => void,
     setSelectedNote: (note: Note) => void,
-    gridParams: GridParams
+    gridParams: GridParams,
+    playbackEnabled: boolean
 ) {
     const mouseHandler = useRef<MouseHandler | null>(null);
     if (!mouseHandler.current) {
@@ -127,12 +148,18 @@ export function useMouseHandler(
             onAddNote,
             onDeleteNote,
             setSelectedNote,
-            gridParams
+            gridParams,
+            playbackEnabled
         );
     }
     useEffect(() => {
         if (mouseHandler.current) mouseHandler.current.gridParams = gridParams;
     }, [gridParams]);
+
+    useEffect(() => {
+        if (mouseHandler.current)
+            mouseHandler.current.playbackEnabled = playbackEnabled;
+    }, [playbackEnabled]);
 
     return mouseHandler.current;
 }

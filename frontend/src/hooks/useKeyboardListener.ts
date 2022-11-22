@@ -1,12 +1,18 @@
 import * as Tone from "tone";
-import { useCallback, useEffect, useState } from "react";
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
 import { Sequencer, Note } from "../sound/sequencer";
 import { KEYBOARD_NOTE_MAP, PIANO_ROLL_LOWEST_NOTE } from "../constants";
 
 const useKeyboardListener = (
     onKeyUp: (note: Note) => void,
     lowestNote: Tone.Unit.Note = PIANO_ROLL_LOWEST_NOTE
-): [boolean, (playbackEnabled: boolean) => void] => {
+): [boolean, Dispatch<SetStateAction<boolean>>] => {
     const [pressedNotes, setPressedNotes] = useState<{
         [note: Tone.Unit.Frequency]: boolean;
     }>({});

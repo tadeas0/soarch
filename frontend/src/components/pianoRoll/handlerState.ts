@@ -57,7 +57,7 @@ export class ReadyState extends State {
         } else if (n.length > 0) {
             const selected = n[n.length - 1];
             this.mouseHandler.selectNote(selected);
-            Sequencer.pressNote(selected.pitch);
+            this.mouseHandler.pressNote(selected.pitch);
             this.mouseHandler.changeState(
                 new MovingState(this.mouseHandler, coords)
             );
@@ -73,7 +73,7 @@ export class ReadyState extends State {
             };
             this.mouseHandler.addNote(newNote);
             this.mouseHandler.selectNote(newNote);
-            Sequencer.pressNote(newNote.pitch);
+            this.mouseHandler.pressNote(newNote.pitch);
             this.setMoveCursor();
             this.mouseHandler.changeState(
                 new MovingState(this.mouseHandler, coords)
@@ -123,7 +123,7 @@ class MovingState extends State {
         if (selectedNote === null) {
             throw new Error("Note is not selected");
         }
-        Sequencer.releaseNote(selectedNote.pitch);
+        this.mouseHandler.releaseNote(selectedNote.pitch);
 
         this.mouseHandler.changeState(new ReadyState(this.mouseHandler));
     }
@@ -144,8 +144,8 @@ class MovingState extends State {
             length: oldNote.length,
         };
         if (oldNote.pitch !== newNote.pitch) {
-            Sequencer.releaseNote(oldNote.pitch);
-            Sequencer.pressNote(newNote.pitch);
+            this.mouseHandler.releaseNote(oldNote.pitch);
+            this.mouseHandler.pressNote(newNote.pitch);
         }
         this.mouseHandler.addNote(newNote);
         this.mouseHandler.selectNote(newNote);
