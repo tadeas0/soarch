@@ -14,6 +14,7 @@ import { BeatLoader } from "react-spinners";
 import { AvailabilityContext } from "./context/serverAvailabilityContext";
 import SearchResultsDrawer from "./components/searchResultsDrawer";
 import usePlayback from "./hooks/usePlayback";
+import { PianoRollContextProvider } from "./context/pianoRollContext";
 
 export interface SearchResult {
     artist: string;
@@ -74,9 +75,7 @@ function App() {
     }, [setServerAvailable, handleRequestErrors]);
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
-        handleStop();
         setBusy(true);
-        setIsDrawerOpen(true);
         let reqBody: NoteForm = {
             gridLength: gridLength,
             notes: notes.map((n) => {
@@ -142,11 +141,16 @@ function App() {
                 </div>
             ) : (
                 <PlaybackProvider>
-                    <PianoRoll
-                        onSubmit={handleSubmit}
-                        ref={pianoRollRef}
-                        disabled={isDrawerOpen}
-                    />
+                    <PianoRollContextProvider>
+                        <PianoRoll
+                            isFetchingResults={isBusy}
+                            topSearchResult={searchResults.at(0)}
+                            onShowMore={handleDrawerToggle}
+                            onSubmit={handleSubmit}
+                            ref={pianoRollRef}
+                            disabled={isDrawerOpen}
+                        />
+                    </PianoRollContextProvider>
                     <div>
                         {selectedStrategy && !HIDE_STRATEGIES && (
                             <StrategySelector

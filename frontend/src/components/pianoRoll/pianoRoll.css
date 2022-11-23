@@ -53,3 +53,8 @@
 .pianoroll .table-container::-webkit-scrollbar {
     width: 16px;
 }
+
+.pianoroll .top-bar {
+    display: flex;
+    gap: 32px;
+}
