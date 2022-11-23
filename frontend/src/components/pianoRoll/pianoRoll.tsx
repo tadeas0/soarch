@@ -6,7 +6,7 @@ import {
     useCallback,
 } from "react";
 import { MEASURE_LENGTH, MIN_NOTES_FOR_FETCHING } from "../../constants";
-import { Note } from "../../sound/sequencer";
+import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
 import SongTabs, { SongParams } from "./songTabs";
 import TopButtons from "./topButtons";
@@ -18,6 +18,7 @@ import {
     usePianoRollDispatch,
     usePianoRollState,
 } from "../../context/pianoRollContext";
+import usePlayback from "../../hooks/usePlayback";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -41,6 +42,7 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
     },
     ref
 ) => {
+    const [, handleStart, handleStop] = usePlayback();
     const state = usePianoRollState();
     const dispatch = usePianoRollDispatch();
 
@@ -82,6 +84,22 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
         onSubmit,
         state.hasChanged,
     ]);
+
+    useEffect(() => {
+        if (state.isResultPlaying && topSearchResult) {
+            handleStart(
+                topSearchResult.notes,
+                topSearchResult.bpm,
+                Sequencer.getGridParamsFromNotes(topSearchResult.notes).width
+            );
+        } else if (state.isRollPlaying) {
+            const s = state.songs[state.selectedIndex];
+            handleStart(s.notes, s.bpm, s.gridParams.width);
+        } else {
+            handleStop();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [state.isResultPlaying, state.isRollPlaying, state.selectedIndex]);
 
     const canRemoveMeasure = () => {
         return (

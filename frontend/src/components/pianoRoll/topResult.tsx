@@ -7,7 +7,6 @@ import {
     usePianoRollDispatch,
     usePianoRollState,
 } from "../../context/pianoRollContext";
-import usePlayback from "../../hooks/usePlayback";
 import { Sequencer } from "../../sound/sequencer";
 import "./topResult.css";
 
@@ -21,23 +20,6 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [progress, setProgress] = useState(0);
     const dispatch = usePianoRollDispatch();
     const state = usePianoRollState();
-    const [, handleStart, handleStop] = usePlayback();
-
-    const handlePlayResult = () => {
-        if (!state.isResultPlaying && props.searchResult) {
-            const s = props.searchResult;
-            handleStart(
-                s.notes,
-                s.bpm,
-                Sequencer.getGridParamsFromNotes(s.notes).width
-            );
-        } else {
-            handleStop();
-        }
-        dispatch({
-            type: PianoRollActionType.PLAY_RESULT,
-        });
-    };
 
     const getInlineStyles = () => {
         if (!state.isResultPlaying) return {};
@@ -81,7 +63,13 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                         <p>{sr.artist}</p>
                     </div>
                     <div className="top-card-buttons">
-                        <button onClick={handlePlayResult}>
+                        <button
+                            onClick={() =>
+                                dispatch({
+                                    type: PianoRollActionType.PLAY_RESULT,
+                                })
+                            }
+                        >
                             {state.isResultPlaying ? (
                                 <BsPauseFill />
                             ) : (

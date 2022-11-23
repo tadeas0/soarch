@@ -12,9 +12,9 @@ import {
     usePianoRollDispatch,
     usePianoRollState,
 } from "../../context/pianoRollContext";
-import usePlayback from "../../hooks/usePlayback";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import { Note, Sequencer } from "../../sound/sequencer";
+import { useEffect } from "react";
 
 const defaultProps = {
     disabled: false,
@@ -27,7 +27,6 @@ type TopButtonsProps = {
 const TopButtons = (props: TopButtonsProps) => {
     const state = usePianoRollState();
     const dispatch = usePianoRollDispatch();
-    const [, handleStart, handleStop] = usePlayback();
 
     const selectedSong = state.songs[state.selectedIndex];
 
@@ -35,20 +34,6 @@ const TopButtons = (props: TopButtonsProps) => {
         if (props.disabled) return <BsFillPlayFill />;
         else if (state.isRollPlaying) return <BsPauseFill />;
         else return <BsFillPlayFill />;
-    };
-
-    const handlePlay = () => {
-        if (!state.isRollPlaying) {
-            const selected = state.songs[state.selectedIndex];
-            handleStart(
-                selected.notes,
-                selected.bpm,
-                selected.gridParams.width
-            );
-        } else {
-            handleStop();
-        }
-        dispatch({ type: PianoRollActionType.PLAY_ROLL });
     };
 
     const [, setPlaybackEnabled] = useKeyboardListener((note: Note) => {
@@ -59,17 +44,17 @@ const TopButtons = (props: TopButtonsProps) => {
         }
     }, state.songs[state.selectedIndex].gridParams.lowestNote);
 
-    const handlePlaybackToggle = () => {
-        if (!state.playbackEnabled) setPlaybackEnabled(true);
-        else setPlaybackEnabled(false);
-        dispatch({ type: PianoRollActionType.TOGGLE_PLAYBACK });
-    };
+    useEffect(() => {
+        setPlaybackEnabled(state.playbackEnabled);
+    }, [setPlaybackEnabled, state.playbackEnabled]);
 
     return (
         <div className="top-button-container">
             <button
                 className="top-button"
-                onClick={handlePlay}
+                onClick={() =>
+                    dispatch({ type: PianoRollActionType.PLAY_ROLL })
+                }
                 disabled={
                     !(
                         selectedSong.bpm >= MIN_BPM &&
@@ -88,7 +73,9 @@ const TopButtons = (props: TopButtonsProps) => {
                 className={
                     "top-button" + (state.playbackEnabled ? " pressed" : "")
                 }
-                onClick={handlePlaybackToggle}
+                onClick={() =>
+                    dispatch({ type: PianoRollActionType.TOGGLE_PLAYBACK })
+                }
                 disabled={props.disabled}
             >
                 <FaHeadphonesAlt />

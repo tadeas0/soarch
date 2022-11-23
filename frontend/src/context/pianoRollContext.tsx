@@ -75,11 +75,14 @@ const initialState: PianoRollState = {
     selectedIndex: 0,
     isResultPlaying: false,
     isRollPlaying: false,
-    playbackEnabled: false,
+    playbackEnabled: true,
     hasChanged: false,
 };
 
-const rollReducer = (state: PianoRollState, action: PianoRollAction) => {
+const rollReducer = (
+    state: PianoRollState,
+    action: PianoRollAction
+): PianoRollState => {
     const updateSelectedSong = (
         updateFn: (current: SongParams) => SongParams
     ) => {
@@ -159,6 +162,8 @@ const rollReducer = (state: PianoRollState, action: PianoRollAction) => {
                 ...state,
                 songs: [...state.songs, newSong],
                 selectedIndex: state.songs.length,
+                isRollPlaying: false,
+                isResultPlaying: false,
             };
         case PianoRollActionType.REMOVE_TAB:
             if (state.songs.length <= 1) return state;
@@ -172,11 +177,15 @@ const rollReducer = (state: PianoRollState, action: PianoRollAction) => {
                 ...state,
                 songs: newSongs,
                 selectedIndex: newIndex,
+                isRollPlaying: false,
+                isResultPlaying: false,
             };
         case PianoRollActionType.SELECT_TAB:
             if (action.payload >= state.songs.length) return state;
             return {
                 ...state,
+                isRollPlaying: false,
+                isResultPlaying: false,
                 selectedIndex: action.payload,
             };
         case PianoRollActionType.ADD_MEASURE:
