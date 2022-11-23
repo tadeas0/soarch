@@ -2,6 +2,12 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../../App";
+import {
+    PianoRollActionType,
+    usePianoRollDispatch,
+    usePianoRollState,
+} from "../../context/pianoRollContext";
+import usePlayback from "../../hooks/usePlayback";
 import { Sequencer } from "../../sound/sequencer";
 import "./topResult.css";
 
@@ -9,16 +15,32 @@ interface TopResultProps {
     searchResult?: SearchResult;
     isBusy: boolean;
     onShowMore: () => void;
-    isPlaying: boolean;
-    onPlayClick?: (searchResult: SearchResult) => void;
-    onEdit: (searchResult: SearchResult) => void;
 }
 
 const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [progress, setProgress] = useState(0);
+    const dispatch = usePianoRollDispatch();
+    const state = usePianoRollState();
+    const [, handleStart, handleStop] = usePlayback();
+
+    const handlePlayResult = () => {
+        if (!state.isResultPlaying && props.searchResult) {
+            const s = props.searchResult;
+            handleStart(
+                s.notes,
+                s.bpm,
+                Sequencer.getGridParamsFromNotes(s.notes).width
+            );
+        } else {
+            handleStop();
+        }
+        dispatch({
+            type: PianoRollActionType.PLAY_RESULT,
+        });
+    };
 
     const getInlineStyles = () => {
-        if (!props.isPlaying) return {};
+        if (!state.isResultPlaying) return {};
         return {
             backgroundImage: `linear-gradient(
                                     90deg,
@@ -31,14 +53,14 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
 
     useEffect(() => {
         (async () => {
-            if (props.isPlaying) {
+            if (state.isResultPlaying) {
                 await Sequencer.clearOnBeatCallbacks();
                 await Sequencer.runCallbackOnBeat(() => {
                     setProgress(Sequencer.getProgress() * 100);
                 });
             }
         })();
-    }, [props.isPlaying]);
+    }, [state.isResultPlaying]);
 
     const renderResult = () => {
         const sr = props.searchResult;
@@ -59,18 +81,27 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                         <p>{sr.artist}</p>
                     </div>
                     <div className="top-card-buttons">
-                        <button
-                            onClick={() => {
-                                if (props.onPlayClick) props.onPlayClick(sr);
-                            }}
-                        >
-                            {props.isPlaying ? (
+                        <button onClick={handlePlayResult}>
+                            {state.isResultPlaying ? (
                                 <BsPauseFill />
                             ) : (
                                 <BsFillPlayFill />
                             )}
                         </button>
-                        <button onClick={() => props.onEdit(sr)}>
+                        <button
+                            onClick={() =>
+                                dispatch({
+                                    type: PianoRollActionType.ADD_TAB,
+                                    payload: {
+                                        ...sr,
+                                        gridParams:
+                                            Sequencer.getGridParamsFromNotes(
+                                                sr.notes
+                                            ),
+                                    },
+                                })
+                            }
+                        >
                             <MdModeEdit />
                         </button>
                     </div>

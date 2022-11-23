@@ -2,6 +2,11 @@ import { FunctionComponent } from "react";
 import { IoClose } from "react-icons/io5";
 import { TiPlus } from "react-icons/ti";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
+import {
+    PianoRollActionType,
+    usePianoRollDispatch,
+    usePianoRollState,
+} from "../../context/pianoRollContext";
 import GridParams from "../../interfaces/GridParams";
 import { Note } from "../../sound/sequencer";
 import PianoRollGrid from "./pianoRollGrid";
@@ -15,31 +20,26 @@ export interface SongParams {
 }
 
 interface SongTabsProps {
-    selectedSongIndex: number;
-    onChangeIndex: (newIndex: number) => void;
-    onCloseTab: (index: number) => void;
-    onAddTab: (song?: SongParams) => void;
-    onAddNote: (note: Note) => void;
-    onDeleteNote: (note: Note) => void;
-    songs: SongParams[];
-    playbackEnabled: boolean;
     disabled?: boolean;
     disabledHeader?: boolean;
 }
 
 const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
+    const state = usePianoRollState();
+    const dispatch = usePianoRollDispatch();
+
     return (
         <Tabs
-            selectedIndex={props.selectedSongIndex}
+            selectedIndex={state.selectedIndex}
             className="tabs"
             onSelect={() => {}}
         >
             <TabList className="tab-list">
-                {props.songs.map((s, i) => (
+                {state.songs.map((s, i) => (
                     <div
                         className={
                             "tab-container" +
-                            (i === props.selectedSongIndex
+                            (i === state.selectedIndex
                                 ? " tab-container-selected"
                                 : "")
                         }
@@ -48,14 +48,24 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                         <Tab
                             selectedClassName="tab-selected"
                             className="tab"
-                            onClick={() => props.onChangeIndex(i)}
+                            onClick={() =>
+                                dispatch({
+                                    type: PianoRollActionType.SELECT_TAB,
+                                    payload: i,
+                                })
+                            }
                         >
                             {s.name}
                         </Tab>
                         <button
                             className="close-tab-button"
-                            onClick={() => props.onCloseTab(i)}
-                            disabled={props.songs.length <= 1}
+                            onClick={() =>
+                                dispatch({
+                                    type: PianoRollActionType.REMOVE_TAB,
+                                    payload: i,
+                                })
+                            }
+                            disabled={state.songs.length <= 1}
                         >
                             <IoClose />
                         </button>
@@ -63,23 +73,24 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                 ))}
                 <button
                     className="add-tab-button"
-                    onClick={() => props.onAddTab()}
+                    onClick={() =>
+                        dispatch({
+                            type: PianoRollActionType.ADD_TAB,
+                        })
+                    }
                 >
                     <TiPlus />
                 </button>
             </TabList>
-            {props.songs.map((s, i) => (
+            {state.songs.map((s, i) => (
                 <TabPanel
                     className="tab-panel"
                     selectedClassName="tab-panel-selected"
                     key={i}
                 >
                     <PianoRollGrid
-                        onAddNote={props.onAddNote}
-                        onDeleteNote={props.onDeleteNote}
                         gridParams={s.gridParams}
                         notes={s.notes}
-                        playbackEnabled={props.playbackEnabled}
                         disabled={props.disabled}
                         disabledHeader={props.disabledHeader}
                     />
