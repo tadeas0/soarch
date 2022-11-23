@@ -1,13 +1,11 @@
-import { useContext } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
-import { MdOutlineSearch, MdSearchOff, MdDelete } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 import { CgPiano } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
 import { SongParams } from "./songTabs";
 import "./topButtons.css";
 import { FaHeadphonesAlt, FaSave } from "react-icons/fa";
-import { AvailabilityContext } from "../../context/serverAvailabilityContext";
 import BPMInput from "./bpmInput";
 import Metronome from "./metronome";
 
@@ -17,10 +15,7 @@ const defaultProps = {
 
 type TopButtonsProps = {
     onPlayClick: () => void;
-    onSubmit: () => void;
     onClear: () => void;
-    onRemoveMeasure: () => void;
-    onAddMeasure: () => void;
     onChangeBPM: (bpm: number) => void;
     onPlaybackClick: () => void;
     selectedSong: SongParams;
@@ -30,8 +25,6 @@ type TopButtonsProps = {
 } & typeof defaultProps;
 
 const TopButtons = (props: TopButtonsProps) => {
-    const { isServerAvailable } = useContext(AvailabilityContext);
-
     const getPlayIcon = () => {
         if (props.disabled) return <BsFillPlayFill />;
         else if (props.isPlaying) return <BsPauseFill />;
@@ -76,7 +69,6 @@ const TopButtons = (props: TopButtonsProps) => {
                 disabled={props.isPlaying || props.disabled}
             />
             <div className="top-spacer" />
-            <div className="top-spacer" />
             <button
                 className="top-button"
                 onClick={props.onClear}
@@ -86,15 +78,6 @@ const TopButtons = (props: TopButtonsProps) => {
             </button>
             <button className="top-button" disabled={props.disabled}>
                 <FaSave />
-            </button>
-            <button
-                className="top-button"
-                onClick={() =>
-                    props.selectedSong.gridParams.width && props.onSubmit()
-                }
-                disabled={!isServerAvailable || props.disabled}
-            >
-                {isServerAvailable ? <MdOutlineSearch /> : <MdSearchOff />}
             </button>
         </div>
     );

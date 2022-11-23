@@ -19,6 +19,7 @@ interface PianoRollGridProps {
     playbackEnabled?: boolean;
     onDeleteNote?: (note: Note) => void;
     onAddNote?: (note: Note) => void;
+    disabledHeader?: boolean;
 }
 
 // TODO: cleanup event handling
@@ -29,6 +30,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     onDeleteNote = (note: Note) => {},
     playbackEnabled = true,
     disabled = false,
+    disabledHeader = false,
 }: PianoRollGridProps) => {
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
     const mouseHandler = useMouseHandler(
@@ -112,6 +114,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 disabled={disabled}
+                disabledHeader={disabledHeader}
             />
         </div>
     );

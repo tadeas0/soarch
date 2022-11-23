@@ -74,9 +74,7 @@ function App() {
     }, [setServerAvailable, handleRequestErrors]);
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
-        handleStop();
         setBusy(true);
-        setIsDrawerOpen(true);
         let reqBody: NoteForm = {
             gridLength: gridLength,
             notes: notes.map((n) => {
@@ -143,6 +141,9 @@ function App() {
             ) : (
                 <PlaybackProvider>
                     <PianoRoll
+                        isFetchingResults={isBusy}
+                        topSearchResult={searchResults.at(0)}
+                        onShowMore={handleDrawerToggle}
                         onSubmit={handleSubmit}
                         ref={pianoRollRef}
                         disabled={isDrawerOpen}

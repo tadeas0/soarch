@@ -24,6 +24,7 @@ interface SongTabsProps {
     songs: SongParams[];
     playbackEnabled: boolean;
     disabled?: boolean;
+    disabledHeader?: boolean;
 }
 
 const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
@@ -80,6 +81,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                         notes={s.notes}
                         playbackEnabled={props.playbackEnabled}
                         disabled={props.disabled}
+                        disabledHeader={props.disabledHeader}
                     />
                 </TabPanel>
             ))}
@@ -89,6 +91,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
 
 SongTabs.defaultProps = {
     disabled: false,
+    disabledHeader: false,
 };
 
 export default SongTabs;

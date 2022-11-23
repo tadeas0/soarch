@@ -25,6 +25,7 @@ interface PianoRollCanvasProps {
     notes: Note[];
     selectedNote: Note | null;
     disabled?: boolean;
+    disabledHeader?: boolean;
 }
 
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
@@ -128,27 +129,37 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         [props.gridParams, isBlackKey, drawVLines, drawHLines]
     );
 
-    const drawHeader = useCallback((ctx: CanvasRenderingContext2D) => {
-        requestAnimationFrame(() => {
-            ctx.fillStyle = BG_COLOR;
-            ctx.fillRect(0, 0, ctx.canvas.width, PIANO_ROLL_HEADER_SIZE);
-            let grd = ctx.createLinearGradient(
-                0,
-                0,
-                Sequencer.getProgress() * ctx.canvas.width,
-                0
-            );
-            grd.addColorStop(0, PIANO_ROLL_BG_COLOR);
-            grd.addColorStop(0.5, PIANO_ROLL_PLAYHEAD_COLOR);
-            ctx.fillStyle = grd;
-            ctx.fillRect(
-                0,
-                0,
-                Sequencer.getProgress() * ctx.canvas.width,
-                PIANO_ROLL_HEADER_SIZE
-            );
-        });
-    }, []);
+    const drawHeader = useCallback(
+        (ctx: CanvasRenderingContext2D) => {
+            if (!props.disabledHeader) {
+                requestAnimationFrame(() => {
+                    ctx.fillStyle = BG_COLOR;
+                    ctx.fillRect(
+                        0,
+                        0,
+                        ctx.canvas.width,
+                        PIANO_ROLL_HEADER_SIZE
+                    );
+                    let grd = ctx.createLinearGradient(
+                        0,
+                        0,
+                        Sequencer.getProgress() * ctx.canvas.width,
+                        0
+                    );
+                    grd.addColorStop(0, PIANO_ROLL_BG_COLOR);
+                    grd.addColorStop(0.5, PIANO_ROLL_PLAYHEAD_COLOR);
+                    ctx.fillStyle = grd;
+                    ctx.fillRect(
+                        0,
+                        0,
+                        Sequencer.getProgress() * ctx.canvas.width,
+                        PIANO_ROLL_HEADER_SIZE
+                    );
+                });
+            }
+        },
+        [props.disabledHeader]
+    );
 
     const drawNote = useCallback(
         (ctx: CanvasRenderingContext2D, note: Note) => {
@@ -244,6 +255,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
 
 PianoRollCanvas.defaultProps = {
     disabled: false,
+    disabledHeader: false,
 };
 
 export default PianoRollCanvas;
