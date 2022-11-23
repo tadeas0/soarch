@@ -8,7 +8,9 @@ import {
     usePianoRollState,
 } from "../../context/pianoRollContext";
 import { Sequencer } from "../../sound/sequencer";
+import ClipLoader from "react-spinners/ClipLoader";
 import "./topResult.css";
+import { PRIMARY_COLOR } from "../../constants";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -104,7 +106,18 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     return (
         <fieldset className="top-card" style={getInlineStyles()}>
             <legend>Best result</legend>
-            {props.isBusy ? <p>Loading</p> : renderResult()}
+            {props.isBusy ? (
+                <div className="top-card-spinner-container">
+                    <ClipLoader
+                        className="top-spinner"
+                        size={24}
+                        color={PRIMARY_COLOR}
+                    />
+                    <h4>Loading...</h4>
+                </div>
+            ) : (
+                renderResult()
+            )}
         </fieldset>
     );
 };
