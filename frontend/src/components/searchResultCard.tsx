@@ -3,6 +3,7 @@ import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../App";
 import { Sequencer } from "../sound/sequencer";
+import { useTabControls } from "../stores/pianoRollStore";
 
 interface SearchResultProps {
     searchResult: SearchResult;
@@ -18,6 +19,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     onPlay,
 }) => {
     const [progress, setProgress] = useState(0);
+    const { canAddTab } = useTabControls();
 
     const getInlineStyles = () => {
         if (!isPlaying) return {};
@@ -53,7 +55,10 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     <button onClick={() => onPlay(searchResult)}>
                         {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                     </button>
-                    <button onClick={() => onEdit(searchResult)}>
+                    <button
+                        className={canAddTab ? "" : "inactive"}
+                        onClick={() => onEdit(searchResult)}
+                    >
                         <MdModeEdit />
                     </button>
                 </div>

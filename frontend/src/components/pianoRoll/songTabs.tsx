@@ -4,7 +4,7 @@ import { TiPlus } from "react-icons/ti";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import GridParams from "../../interfaces/GridParams";
 import { Note } from "../../sound/sequencer";
-import { usePianoRollStore } from "../../stores/pianoRollStore";
+import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
 import PianoRollGrid from "./pianoRollGrid";
 import "./tabs.css";
 
@@ -25,11 +25,8 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
         state.selectedIndex,
         state.songs,
     ]);
-    const [selectTab, removeTab, addTab] = usePianoRollStore((state) => [
-        state.selectTab,
-        state.removeTab,
-        state.addTab,
-    ]);
+    const { canAddTab, selectTab, addTab, removeTab } = useTabControls();
+
     return (
         <Tabs
             selectedIndex={selectedIndex}
@@ -57,13 +54,17 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                         <button
                             className="close-tab-button"
                             onClick={() => removeTab(i)}
-                            disabled={songs.length <= 1}
                         >
                             <IoClose />
                         </button>
                     </div>
                 ))}
-                <button className="add-tab-button" onClick={() => addTab()}>
+                <button
+                    className={
+                        "add-tab-button" + (canAddTab ? "" : " inactive")
+                    }
+                    onClick={() => addTab()}
+                >
                     <TiPlus />
                 </button>
             </TabList>

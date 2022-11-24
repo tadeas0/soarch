@@ -57,3 +57,4 @@ export const MIN_NOTES_FOR_FETCHING = 3;
 export const MAX_OCTAVE_OFFSET = 3;
 export const ON_SCREEN_PIANO_LOW = "C4";
 export const ON_SCREEN_PIANO_HIGH = "E5";
+export const MAX_TABS = 12;

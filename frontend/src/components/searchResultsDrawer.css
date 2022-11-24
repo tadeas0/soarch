@@ -64,6 +64,10 @@
     font-size: 16px;
 }
 
+.result-card .card-inner .card-buttons button.inactive {
+    color: var(--medium-bg-color);
+}
+
 .result-card.card-inner {
     display: flex;
 }
