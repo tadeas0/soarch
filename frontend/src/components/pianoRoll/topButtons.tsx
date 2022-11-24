@@ -1,87 +1,109 @@
-import { useContext } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
-import { MdOutlineSearch, MdSearchOff, MdDelete } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
 import { CgPiano } from "react-icons/cg";
-import { GiMetronome } from "react-icons/gi";
 import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
-import { SongParams } from "./songTabs";
 import "./topButtons.css";
-import { FaSave } from "react-icons/fa";
-import { AvailabilityContext } from "../../context/serverAvailabilityContext";
+import { FaHeadphonesAlt, FaSave } from "react-icons/fa";
 import BPMInput from "./bpmInput";
+import Metronome from "./metronome";
+import {
+    PianoRollActionType,
+    usePianoRollDispatch,
+    usePianoRollState,
+} from "../../context/pianoRollContext";
+import useKeyboardListener from "../../hooks/useKeyboardListener";
+import { Note, Sequencer } from "../../sound/sequencer";
+import { useEffect } from "react";
 
 const defaultProps = {
     disabled: false,
 };
 
 type TopButtonsProps = {
-    onPlayClick: () => void;
-    onSubmit: () => void;
-    onClear: () => void;
-    onRemoveMeasure: () => void;
-    onAddMeasure: () => void;
-    togglePlayback: () => void;
-    onChangeBPM: (bpm: number) => void;
-    selectedSong: SongParams;
-    isPlaying: boolean;
-    playbackEnabled: boolean;
     disabled?: boolean;
 } & typeof defaultProps;
 
 const TopButtons = (props: TopButtonsProps) => {
-    const { isServerAvailable } = useContext(AvailabilityContext);
+    const state = usePianoRollState();
+    const dispatch = usePianoRollDispatch();
+
+    const selectedSong = state.songs[state.selectedIndex];
+
+    const getPlayIcon = () => {
+        if (props.disabled) return <BsFillPlayFill />;
+        else if (state.isRollPlaying) return <BsPauseFill />;
+        else return <BsFillPlayFill />;
+    };
+
+    const [, setPlaybackEnabled] = useKeyboardListener((note: Note) => {
+        const s = state.songs[state.selectedIndex];
+        if (state.isRollPlaying) {
+            Sequencer.fillBuffer([note], s.gridParams.width);
+            dispatch({ type: PianoRollActionType.ADD_NOTE, payload: note });
+        }
+    }, state.songs[state.selectedIndex].gridParams.lowestNote);
+
+    useEffect(() => {
+        setPlaybackEnabled(state.playbackEnabled);
+    }, [setPlaybackEnabled, state.playbackEnabled]);
 
     return (
         <div className="top-button-container">
             <button
                 className="top-button"
-                onClick={props.onPlayClick}
+                onClick={() =>
+                    dispatch({ type: PianoRollActionType.PLAY_ROLL })
+                }
                 disabled={
                     !(
-                        props.selectedSong.bpm >= MIN_BPM &&
-                        props.selectedSong.bpm <= MAX_BPM
+                        selectedSong.bpm >= MIN_BPM &&
+                        selectedSong.bpm <= MAX_BPM
                     ) || props.disabled
                 }
             >
-                {props.isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
+                {getPlayIcon()}
             </button>
             <button className="top-button" disabled={props.disabled}>
                 <CgPiano />
             </button>
             <InstrumentSelector disabled={props.disabled} />
-            <button className="top-button" disabled={props.disabled}>
-                <GiMetronome />
+            <Metronome disabled={props.disabled} />
+            <button
+                className={
+                    "top-button" + (state.playbackEnabled ? " pressed" : "")
+                }
+                onClick={() =>
+                    dispatch({ type: PianoRollActionType.TOGGLE_PLAYBACK })
+                }
+                disabled={props.disabled}
+            >
+                <FaHeadphonesAlt />
             </button>
             <div className="top-spacer" />
             <BPMInput
-                value={props.selectedSong.bpm}
-                onChange={props.onChangeBPM}
+                value={selectedSong.bpm}
+                onChange={(value: number) =>
+                    dispatch({
+                        type: PianoRollActionType.CHANGE_BPM,
+                        payload: value,
+                    })
+                }
                 increment={5}
                 min={30}
                 max={250}
-                disabled={props.isPlaying || props.disabled}
+                disabled={state.isRollPlaying || props.disabled}
             />
-            <div className="top-spacer" />
             <div className="top-spacer" />
             <button
                 className="top-button"
-                onClick={props.onClear}
+                onClick={() => dispatch({ type: PianoRollActionType.CLEAR })}
                 disabled={props.disabled}
             >
                 <MdDelete />
             </button>
             <button className="top-button" disabled={props.disabled}>
                 <FaSave />
-            </button>
-            <button
-                className="top-button"
-                onClick={() =>
-                    props.selectedSong.gridParams.width && props.onSubmit()
-                }
-                disabled={!isServerAvailable || props.disabled}
-            >
-                {isServerAvailable ? <MdOutlineSearch /> : <MdSearchOff />}
             </button>
         </div>
     );

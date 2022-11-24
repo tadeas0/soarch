@@ -20,6 +20,7 @@ const usePlayback = (): [
         Sequencer.stop();
         Sequencer.clearBuffer();
         Sequencer.fillBuffer(notes, gridLength);
+        Sequencer.fillMetronome(gridLength);
         Sequencer.setBpm(bpm);
         Sequencer.start();
         setPlaying(true);

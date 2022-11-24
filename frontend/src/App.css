@@ -18,7 +18,6 @@
     display: flex;
     flex-direction: column;
     grid-template-rows: 2fr 1fr;
-    justify-content: center;
     color: white;
     height: 100vh;
 }

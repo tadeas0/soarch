@@ -1,12 +1,18 @@
 import * as Tone from "tone";
-import { useCallback, useEffect, useState } from "react";
+import {
+    Dispatch,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
 import { Sequencer, Note } from "../sound/sequencer";
 import { KEYBOARD_NOTE_MAP, PIANO_ROLL_LOWEST_NOTE } from "../constants";
 
 const useKeyboardListener = (
     onKeyUp: (note: Note) => void,
     lowestNote: Tone.Unit.Note = PIANO_ROLL_LOWEST_NOTE
-): [boolean, (playbackEnabled: boolean) => void] => {
+): [boolean, Dispatch<SetStateAction<boolean>>] => {
     const [pressedNotes, setPressedNotes] = useState<{
         [note: Tone.Unit.Frequency]: boolean;
     }>({});
@@ -16,12 +22,17 @@ const useKeyboardListener = (
     const [playbackEnabled, setPlaybackEnabled] = useState(false);
 
     const getCurrentQTime = () => {
-        const qTime = Tone.Time(Tone.Transport.position).quantize("16n");
+        const t = Tone.Time(Tone.Transport.position).toBarsBeatsSixteenths();
+        const splitNum = t.split(":");
+        const sixteenths = Number.parseFloat(splitNum[2]);
+        const qTime =
+            splitNum[0] + ":" + splitNum[1] + ":" + Math.floor(sixteenths);
         return Tone.Time(qTime).toBarsBeatsSixteenths();
     };
 
     const keyDownListener = useCallback(
         (event: KeyboardEvent) => {
+            const qTime = getCurrentQTime();
             if (
                 playbackEnabled &&
                 event.code in KEYBOARD_NOTE_MAP &&
@@ -33,7 +44,7 @@ const useKeyboardListener = (
                 };
                 setNoteStarts({
                     ...noteStarts,
-                    [KEYBOARD_NOTE_MAP[event.code]]: getCurrentQTime(),
+                    [KEYBOARD_NOTE_MAP[event.code]]: qTime,
                 });
                 setPressedNotes(newPressedNotes);
                 Sequencer.pressNote(

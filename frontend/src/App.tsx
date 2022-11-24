@@ -6,13 +6,15 @@ import "./App.css";
 import PianoRoll, { PianoRollHandle } from "./components/pianoRoll/pianoRoll";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
-import { SECONDARY_COLOR } from "./constants";
+import { HIDE_STRATEGIES, SECONDARY_COLOR } from "./constants";
 import { Note, Sequencer } from "./sound/sequencer";
 import { API, NoteForm } from "./services/api";
 import { PlaybackProvider } from "./context/playbackContext";
 import { BeatLoader } from "react-spinners";
 import { AvailabilityContext } from "./context/serverAvailabilityContext";
 import SearchResultsDrawer from "./components/searchResultsDrawer";
+import usePlayback from "./hooks/usePlayback";
+import { PianoRollContextProvider } from "./context/pianoRollContext";
 
 export interface SearchResult {
     artist: string;
@@ -28,12 +30,16 @@ function App() {
     const [availableStrategies, setAvailableStrategies] = useState<Option[]>(
         []
     );
-    const [selectedStrategy, setSelectedStrategy] = useState<Option>();
+    const [selectedStrategy, setSelectedStrategy] = useState<Option>({
+        name: "Local alignment (Biopython lib)",
+        value: "lcabp",
+    });
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
     const pianoRollRef = useRef<PianoRollHandle>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [, , handleStop] = usePlayback();
 
     const handleRequestErrors = useCallback(
         (err: any) => {
@@ -53,7 +59,7 @@ function App() {
     useEffect(() => {
         setInitializing(true);
         Promise.all([API.getSimilarityStrategies(), API.getExampleQueries()])
-            .then(([resSimStrat, resExamQ]) => {
+            .then(([resSimStrat]) => {
                 const options = resSimStrat.data.map((r) => {
                     return {
                         name: r.name,
@@ -70,7 +76,6 @@ function App() {
 
     const handleSubmit = (notes: Note[], gridLength: number) => {
         setBusy(true);
-        setIsDrawerOpen(true);
         let reqBody: NoteForm = {
             gridLength: gridLength,
             notes: notes.map((n) => {
@@ -110,6 +115,7 @@ function App() {
     const handleEdit = (searchResult: SearchResult) => {
         if (pianoRollRef.current) {
             setIsDrawerOpen(false);
+            handleStop();
             pianoRollRef.current.addTab({
                 bpm: searchResult.bpm,
                 name: searchResult.name,
@@ -122,6 +128,7 @@ function App() {
     };
 
     const handleDrawerToggle = () => {
+        handleStop();
         setIsDrawerOpen((current) => !current);
     };
 
@@ -134,13 +141,18 @@ function App() {
                 </div>
             ) : (
                 <PlaybackProvider>
-                    <PianoRoll
-                        onSubmit={handleSubmit}
-                        ref={pianoRollRef}
-                        disabled={isDrawerOpen}
-                    />
+                    <PianoRollContextProvider>
+                        <PianoRoll
+                            isFetchingResults={isBusy}
+                            topSearchResult={searchResults.at(0)}
+                            onShowMore={handleDrawerToggle}
+                            onSubmit={handleSubmit}
+                            ref={pianoRollRef}
+                            disabled={isDrawerOpen}
+                        />
+                    </PianoRollContextProvider>
                     <div>
-                        {selectedStrategy && (
+                        {selectedStrategy && !HIDE_STRATEGIES && (
                             <StrategySelector
                                 options={availableStrategies}
                                 onChange={setSelectedStrategy}

@@ -23,6 +23,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         const value = Number(e.target.value);
+        e.target.value = value.toString();  // remove prefix 0
         
         props.onChange(value);
     }

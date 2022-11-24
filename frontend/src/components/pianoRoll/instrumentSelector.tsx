@@ -35,7 +35,9 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
 
     return (
         <button
-            className="top-button instrument-selector"
+            className={
+                "top-button instrument-selector" + (isOpen ? " pressed" : "")
+            }
             disabled={props.disabled}
         >
             <button

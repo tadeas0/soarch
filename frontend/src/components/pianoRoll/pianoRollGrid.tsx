@@ -11,29 +11,38 @@ import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
 import RollCoordinates from "../../interfaces/RollCoordinates";
 import { useMouseHandler } from "./mouseHandler";
+import {
+    PianoRollActionType,
+    usePianoRollDispatch,
+    usePianoRollState,
+} from "../../context/pianoRollContext";
 
 interface PianoRollGridProps {
     notes: Note[];
     gridParams: GridParams;
     disabled?: boolean;
-    onDeleteNote?: (note: Note) => void;
-    onAddNote?: (note: Note) => void;
+    disabledHeader?: boolean;
 }
 
 // TODO: cleanup event handling
 const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     notes,
     gridParams,
-    onAddNote = (note: Note) => {},
-    onDeleteNote = (note: Note) => {},
     disabled = false,
+    disabledHeader = false,
 }: PianoRollGridProps) => {
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+    const dispatch = usePianoRollDispatch();
+    const state = usePianoRollState();
+
     const mouseHandler = useMouseHandler(
-        onAddNote,
-        onDeleteNote,
+        (note) =>
+            dispatch({ type: PianoRollActionType.ADD_NOTE, payload: note }),
+        (note) =>
+            dispatch({ type: PianoRollActionType.DELETE_NOTE, payload: note }),
         setSelectedNote,
-        gridParams
+        gridParams,
+        state.playbackEnabled
     );
 
     const handleLeftClick = (coords: RollCoordinates) => {
@@ -109,6 +118,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 disabled={disabled}
+                disabledHeader={disabledHeader}
             />
         </div>
     );

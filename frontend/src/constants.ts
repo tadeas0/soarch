@@ -1,5 +1,5 @@
 export const MIDI_NOTES = 128;
-export const DEFAULT_PIANO_ROLL_HEIGHT = 24;
+export const DEFAULT_PIANO_ROLL_HEIGHT = 36;
 export const DEFAULT_PIANO_ROLL_WIDTH = 64;
 export const MIN_BPM = 30;
 export const MAX_BPM = 250;
@@ -52,3 +52,5 @@ export const PIANO_ROLL_GRID_COLORS = ["gray", "gray", SECONDARY_COLOR];
 export const PIANO_ROLL_BLACK_KEY_COLOR = BG_COLOR;
 export const PIANO_ROLL_BG_COLOR = MEDIUM_BG_COLOR;
 export const PIANO_ROLL_PLAYHEAD_COLOR = SECONDARY_COLOR;
+export const HIDE_STRATEGIES = true;
+export const MIN_NOTES_FOR_FETCHING = 3;
