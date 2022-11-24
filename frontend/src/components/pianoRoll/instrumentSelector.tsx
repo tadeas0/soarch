@@ -34,11 +34,10 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
     };
 
     return (
-        <button
+        <div
             className={
                 "top-button instrument-selector" + (isOpen ? " pressed" : "")
             }
-            disabled={props.disabled}
         >
             <button
                 className="instrument-selector-button"
@@ -67,7 +66,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
                     ))}
                 </div>
             )}
-        </button>
+        </div>
     );
 };
 

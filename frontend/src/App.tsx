@@ -1,9 +1,9 @@
-import { useContext, useRef } from "react";
+import { useContext } from "react";
 import { useState, useEffect, useCallback } from "react";
 import * as Tone from "tone";
 import Modal from "react-modal";
 import "./App.css";
-import PianoRoll, { PianoRollHandle } from "./components/pianoRoll/pianoRoll";
+import PianoRoll from "./components/pianoRoll/pianoRoll";
 import StrategySelector from "./components/strategySelector";
 import { Option } from "./components/strategySelector";
 import { HIDE_STRATEGIES, SECONDARY_COLOR } from "./constants";
@@ -14,7 +14,8 @@ import { BeatLoader } from "react-spinners";
 import { AvailabilityContext } from "./context/serverAvailabilityContext";
 import SearchResultsDrawer from "./components/searchResultsDrawer";
 import usePlayback from "./hooks/usePlayback";
-import { PianoRollContextProvider } from "./context/pianoRollContext";
+import { usePianoRollStore } from "./stores/pianoRollStore";
+import DownloadingOverlay from "./components/downloadingOverlay";
 
 export interface SearchResult {
     artist: string;
@@ -37,8 +38,9 @@ function App() {
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
-    const pianoRollRef = useRef<PianoRollHandle>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const addTab = usePianoRollStore((state) => state.addTab);
     const [, , handleStop] = usePlayback();
 
     const handleRequestErrors = useCallback(
@@ -113,18 +115,14 @@ function App() {
     };
 
     const handleEdit = (searchResult: SearchResult) => {
-        if (pianoRollRef.current) {
-            setIsDrawerOpen(false);
-            handleStop();
-            pianoRollRef.current.addTab({
-                bpm: searchResult.bpm,
-                name: searchResult.name,
-                notes: searchResult.notes,
-                gridParams: Sequencer.getGridParamsFromNotes(
-                    searchResult.notes
-                ),
-            });
-        }
+        setIsDrawerOpen(false);
+        handleStop();
+        addTab({
+            bpm: searchResult.bpm,
+            name: searchResult.name,
+            notes: searchResult.notes,
+            gridParams: Sequencer.getGridParamsFromNotes(searchResult.notes),
+        });
     };
 
     const handleDrawerToggle = () => {
@@ -141,16 +139,16 @@ function App() {
                 </div>
             ) : (
                 <PlaybackProvider>
-                    <PianoRollContextProvider>
-                        <PianoRoll
-                            isFetchingResults={isBusy}
-                            topSearchResult={searchResults.at(0)}
-                            onShowMore={handleDrawerToggle}
-                            onSubmit={handleSubmit}
-                            ref={pianoRollRef}
-                            disabled={isDrawerOpen}
-                        />
-                    </PianoRollContextProvider>
+                    {isDownloading && <DownloadingOverlay />}
+                    <PianoRoll
+                        setIsDownloading={setIsDownloading}
+                        isDownloading={isDownloading}
+                        isFetchingResults={isBusy}
+                        topSearchResult={searchResults.at(0)}
+                        onShowMore={handleDrawerToggle}
+                        onSubmit={handleSubmit}
+                        disabled={isDrawerOpen}
+                    />
                     <div>
                         {selectedStrategy && !HIDE_STRATEGIES && (
                             <StrategySelector
