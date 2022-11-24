@@ -2,13 +2,9 @@ import { FunctionComponent } from "react";
 import { IoClose } from "react-icons/io5";
 import { TiPlus } from "react-icons/ti";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
-import {
-    PianoRollActionType,
-    usePianoRollDispatch,
-    usePianoRollState,
-} from "../../context/pianoRollContext";
 import GridParams from "../../interfaces/GridParams";
 import { Note } from "../../sound/sequencer";
+import { usePianoRollStore } from "../../stores/pianoRollStore";
 import PianoRollGrid from "./pianoRollGrid";
 import "./tabs.css";
 
@@ -25,21 +21,27 @@ interface SongTabsProps {
 }
 
 const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
-    const state = usePianoRollState();
-    const dispatch = usePianoRollDispatch();
-
+    const [selectedIndex, songs] = usePianoRollStore((state) => [
+        state.selectedIndex,
+        state.songs,
+    ]);
+    const [selectTab, removeTab, addTab] = usePianoRollStore((state) => [
+        state.selectTab,
+        state.removeTab,
+        state.addTab,
+    ]);
     return (
         <Tabs
-            selectedIndex={state.selectedIndex}
+            selectedIndex={selectedIndex}
             className="tabs"
             onSelect={() => {}}
         >
             <TabList className="tab-list">
-                {state.songs.map((s, i) => (
+                {songs.map((s, i) => (
                     <div
                         className={
                             "tab-container" +
-                            (i === state.selectedIndex
+                            (i === selectedIndex
                                 ? " tab-container-selected"
                                 : "")
                         }
@@ -48,41 +50,24 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                         <Tab
                             selectedClassName="tab-selected"
                             className="tab"
-                            onClick={() =>
-                                dispatch({
-                                    type: PianoRollActionType.SELECT_TAB,
-                                    payload: i,
-                                })
-                            }
+                            onClick={() => selectTab(i)}
                         >
                             {s.name}
                         </Tab>
                         <button
                             className="close-tab-button"
-                            onClick={() =>
-                                dispatch({
-                                    type: PianoRollActionType.REMOVE_TAB,
-                                    payload: i,
-                                })
-                            }
-                            disabled={state.songs.length <= 1}
+                            onClick={() => removeTab(i)}
+                            disabled={songs.length <= 1}
                         >
                             <IoClose />
                         </button>
                     </div>
                 ))}
-                <button
-                    className="add-tab-button"
-                    onClick={() =>
-                        dispatch({
-                            type: PianoRollActionType.ADD_TAB,
-                        })
-                    }
-                >
+                <button className="add-tab-button" onClick={() => addTab()}>
                     <TiPlus />
                 </button>
             </TabList>
-            {state.songs.map((s, i) => (
+            {songs.map((s, i) => (
                 <TabPanel
                     className="tab-panel"
                     selectedClassName="tab-panel-selected"

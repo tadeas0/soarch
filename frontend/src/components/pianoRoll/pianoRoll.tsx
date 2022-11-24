@@ -1,10 +1,4 @@
-import {
-    useEffect,
-    useImperativeHandle,
-    ForwardRefRenderFunction,
-    forwardRef,
-    useCallback,
-} from "react";
+import { useEffect, ForwardRefRenderFunction, forwardRef } from "react";
 import { MEASURE_LENGTH, MIN_NOTES_FOR_FETCHING } from "../../constants";
 import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
@@ -13,12 +7,11 @@ import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
 import TopResult from "./topResult";
 import { SearchResult } from "../../App";
-import {
-    PianoRollActionType,
-    usePianoRollDispatch,
-    usePianoRollState,
-} from "../../context/pianoRollContext";
 import usePlayback from "../../hooks/usePlayback";
+import {
+    usePianoRollStore,
+    useSelectedSong,
+} from "../../stores/pianoRollStore";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -43,69 +36,56 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
     ref
 ) => {
     const [, handleStart, handleStop] = usePlayback();
-    const state = usePianoRollState();
-    const dispatch = usePianoRollDispatch();
-
-    const getSelectedSong = useCallback(
-        () => state.songs[state.selectedIndex],
-        [state.selectedIndex, state.songs]
-    );
-
-    const getGridParams = useCallback(
-        () => getSelectedSong().gridParams,
-        [getSelectedSong]
-    );
-
-    const getNotes = useCallback(
-        () => getSelectedSong().notes,
-        [getSelectedSong]
-    );
-
-    useImperativeHandle(ref, () => ({
-        addTab(song: SongParams) {
-            dispatch({ type: PianoRollActionType.ADD_TAB, payload: song });
-        },
-    }));
-
-    useEffect(() => {
-        if (
-            state.hasChanged &&
-            !isFetchingResults &&
-            getNotes().length > MIN_NOTES_FOR_FETCHING
-        ) {
-            onSubmit(getNotes(), getGridParams().width);
-        }
-        dispatch({ type: PianoRollActionType.CLEAR_HAS_CHANGED_FLAG });
-    }, [
-        dispatch,
-        getGridParams,
-        getNotes,
-        isFetchingResults,
-        onSubmit,
+    const selectedSong = useSelectedSong();
+    const [isRollPlaying, isResultPlaying] = usePianoRollStore((state) => [
+        state.isRollPlaying,
+        state.isResultPlaying,
+    ]);
+    const [hasChanged, clearChangeFlag] = usePianoRollStore((state) => [
         state.hasChanged,
+        state.clearChangeFlag,
+    ]);
+    const [addMeasure, removeMeasure] = usePianoRollStore((state) => [
+        state.addMeasure,
+        state.removeMeasure,
     ]);
 
     useEffect(() => {
-        if (state.isResultPlaying && topSearchResult) {
+        if (
+            hasChanged &&
+            !isFetchingResults &&
+            selectedSong.notes.length > MIN_NOTES_FOR_FETCHING
+        ) {
+            onSubmit(selectedSong.notes, selectedSong.gridParams.width);
+        }
+        clearChangeFlag();
+    }, [
+        clearChangeFlag,
+        hasChanged,
+        isFetchingResults,
+        onSubmit,
+        selectedSong.gridParams.width,
+        selectedSong.notes,
+    ]);
+
+    useEffect(() => {
+        if (isResultPlaying && topSearchResult) {
             handleStart(
                 topSearchResult.notes,
                 topSearchResult.bpm,
                 Sequencer.getGridParamsFromNotes(topSearchResult.notes).width
             );
-        } else if (state.isRollPlaying) {
-            const s = state.songs[state.selectedIndex];
+        } else if (isRollPlaying) {
+            const s = selectedSong;
             handleStart(s.notes, s.bpm, s.gridParams.width);
         } else {
             handleStop();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [state.isResultPlaying, state.isRollPlaying, state.selectedIndex]);
+    }, [isResultPlaying, isRollPlaying, selectedSong, topSearchResult]);
 
     const canRemoveMeasure = () => {
-        return (
-            state.songs[state.selectedIndex].gridParams.width >
-            2 * MEASURE_LENGTH
-        );
+        return selectedSong.gridParams.width > 2 * MEASURE_LENGTH;
     };
 
     return (
@@ -121,22 +101,18 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
             <div className="roll-row-container">
                 <button
                     className="grid-button"
-                    onClick={() =>
-                        dispatch({ type: PianoRollActionType.REMOVE_MEASURE })
-                    }
+                    onClick={removeMeasure}
                     disabled={disabled || !canRemoveMeasure()}
                 >
                     <TiMinus />
                 </button>
                 <SongTabs
-                    disabledHeader={disabled || state.isResultPlaying}
+                    disabledHeader={disabled || isResultPlaying}
                     disabled={disabled}
                 />
                 <button
                     className="grid-button"
-                    onClick={() =>
-                        dispatch({ type: PianoRollActionType.ADD_MEASURE })
-                    }
+                    onClick={addMeasure}
                     disabled={disabled}
                 >
                     <TiPlus />

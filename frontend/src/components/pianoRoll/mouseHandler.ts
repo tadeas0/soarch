@@ -12,12 +12,14 @@ export class MouseHandler {
     private onAddNote: (note: Note) => void;
     private onDeleteNote: (note: Note) => void;
     private changeSelectedNote: (note: Note) => void;
+    private getNotes: () => Note[];
     private _playbackEnabled: boolean;
 
     constructor(
         onAddNote: (note: Note) => void,
         onDeleteNote: (note: Note) => void,
         changeSelectedNote: (note: Note) => void,
+        getNotes: () => Note[],
         gridParams: GridParams,
         playbackEnabled: boolean
     ) {
@@ -26,6 +28,7 @@ export class MouseHandler {
         this.onDeleteNote = onDeleteNote;
         this._gridParams = gridParams;
         this.changeSelectedNote = changeSelectedNote;
+        this.getNotes = getNotes;
         this._playbackEnabled = playbackEnabled;
         this._selectedNote = null;
     }
@@ -42,8 +45,8 @@ export class MouseHandler {
         this._playbackEnabled = value;
     }
 
-    public getNotesAt(coords: RollCoordinates, notes: Note[]): Note[] {
-        return notes.filter((n) => {
+    public getNotesAt(coords: RollCoordinates): Note[] {
+        return this.getNotes().filter((n) => {
             const s = Sequencer.getStartCoords(n, this._gridParams);
             const e = Sequencer.getEndCoords(n, this._gridParams);
             return (
@@ -61,8 +64,8 @@ export class MouseHandler {
      * @param notes notes for which the coordinates should be checked
      * @returns Note | null
      */
-    public noteHandle(coords: RollCoordinates, notes: Note[]): Note | null {
-        const clickedNotes = this.getNotesAt(coords, notes);
+    public noteHandle(coords: RollCoordinates): Note | null {
+        const clickedNotes = this.getNotesAt(coords);
         if (clickedNotes.length <= 0) {
             return null;
         }
@@ -106,24 +109,24 @@ export class MouseHandler {
         this.state = state;
     }
 
-    public onLeftClick(coords: RollCoordinates, currentNotes: Note[]) {
-        this.state.handleLeftClick(coords, currentNotes);
+    public onLeftClick(coords: RollCoordinates) {
+        this.state.handleLeftClick(coords);
     }
 
-    public onRightClick(coords: RollCoordinates, currentNotes: Note[]) {
-        this.state.handleRightClick(coords, currentNotes);
+    public onRightClick(coords: RollCoordinates) {
+        this.state.handleRightClick(coords);
     }
 
-    public onMouseMove(coords: RollCoordinates, currentNotes: Note[]) {
-        this.state.handleMouseMove(coords, currentNotes);
+    public onMouseMove(coords: RollCoordinates) {
+        this.state.handleMouseMove(coords);
     }
 
-    public onLeftRelease(coords: RollCoordinates, currentNotes: Note[]) {
-        this.state.handleLeftRelease(coords, currentNotes);
+    public onLeftRelease(coords: RollCoordinates) {
+        this.state.handleLeftRelease(coords);
     }
 
-    public onRightRelease(coords: RollCoordinates, currentNotes: Note[]) {
-        this.state.handleRightRelease(coords, currentNotes);
+    public onRightRelease(coords: RollCoordinates) {
+        this.state.handleRightRelease(coords);
     }
 
     public pressNote(note: Tone.Unit.Note) {
@@ -139,6 +142,7 @@ export function useMouseHandler(
     onAddNote: (note: Note) => void,
     onDeleteNote: (note: Note) => void,
     setSelectedNote: (note: Note) => void,
+    getNotes: () => Note[],
     gridParams: GridParams,
     playbackEnabled: boolean
 ) {
@@ -148,6 +152,7 @@ export function useMouseHandler(
             onAddNote,
             onDeleteNote,
             setSelectedNote,
+            getNotes,
             gridParams,
             playbackEnabled
         );
