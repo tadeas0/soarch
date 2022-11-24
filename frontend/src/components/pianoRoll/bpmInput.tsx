@@ -29,7 +29,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
     
     return (
         <div className="bpm-input">
-            <div className={`bpm-input-icon ${props.value <= props.min ? 'disabled' : ''}`} onClick={e => changeValue(-increment)} ><HiMinus/></div>
+            <div className={`bpm-input-icon ${props.disabled || props.value <= props.min ? 'disabled' : ''}`} onClick={e => changeValue(-increment)} ><HiMinus/></div>
             <input
                 type="number"
                 value={props.value}
@@ -38,7 +38,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
                 min={props.min}
                 disabled={props.disabled}
             ></input>
-            <div className={`bpm-input-icon ${props.value >= props.max ? 'disabled' : ''}`} onClick={e => changeValue(increment)}><HiPlus/></div>
+            <div className={`bpm-input-icon ${props.disabled || props.value >= props.max ? 'disabled' : ''}`} onClick={e => changeValue(increment)}><HiPlus/></div>
         </div>
         
     );
