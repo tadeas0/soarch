@@ -5,6 +5,10 @@
     margin: 12px;
 }
 
+.bpm-input input:disabled {
+    color: gray;
+}
+
 .bpm-input-icon {
     display: inline;
     font-size: 24px;
