@@ -54,7 +54,6 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                         <button
                             className="close-tab-button"
                             onClick={() => removeTab(i)}
-                            disabled={songs.length <= 1}
                         >
                             <IoClose />
                         </button>

@@ -150,6 +150,13 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
                     isRollPlaying: false,
                     isResultPlaying: false,
                 };
+            } else if (value === 0 && state.songs.length === 1) {
+                return {
+                    songs: [{ ...DEFAULT_SONG_PARAMS }],
+                    selectedIndex: 0,
+                    isRollPlaying: false,
+                    isResultPlaying: false,
+                };
             }
             return {};
         }),
