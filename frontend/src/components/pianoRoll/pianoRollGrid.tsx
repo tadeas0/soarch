@@ -1,15 +1,9 @@
 import * as React from "react";
 import { FunctionComponent, useState } from "react";
 import "./pianoRoll.css";
-import {
-    PIANO_ROLL_HEADER_SIZE,
-    PIANO_ROLL_NOTE_HEIGHT,
-    PIANO_ROLL_NOTE_WIDTH,
-} from "../../constants";
 import { Note } from "../../sound/sequencer";
 import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
-import RollCoordinates from "../../interfaces/RollCoordinates";
 import { useMouseHandler } from "./mouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 
@@ -42,67 +36,47 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         playbackEnabled
     );
 
-    const handleLeftClick = (coords: RollCoordinates) => {
+    const handleLeftClick = (coords: MouseEvent) => {
         if (!disabled) mouseHandler.onLeftClick(coords);
     };
 
-    const handleRightClick = (coords: RollCoordinates) => {
+    const handleRightClick = (coords: MouseEvent) => {
         if (!disabled) mouseHandler.onRightClick(coords);
     };
 
-    const handleLeftRelease = (coords: RollCoordinates) => {
+    const handleLeftRelease = (coords: MouseEvent) => {
         if (!disabled) mouseHandler.onLeftRelease(coords);
     };
 
-    const handleRightRelease = (coords: RollCoordinates) => {
+    const handleRightRelease = (coords: MouseEvent) => {
         if (!disabled) mouseHandler.onRightRelease(coords);
     };
 
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!disabled) {
             e.preventDefault();
-            const { offsetX, offsetY } = e.nativeEvent;
-            const coords = getCoordsAtOffset(offsetX, offsetY);
-            if (coords.row >= 0) {
-                if (e.button === 0) {
-                    handleLeftClick(coords);
-                } else if (e.button === 2) {
-                    handleRightClick(coords);
-                }
+            if (e.button === 0) {
+                handleLeftClick(e.nativeEvent);
+            } else if (e.button === 2) {
+                handleRightClick(e.nativeEvent);
             }
         }
     };
 
     const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!disabled) {
-            const { offsetX, offsetY } = e.nativeEvent;
-            const coords = getCoordsAtOffset(offsetX, offsetY);
             if (e.button === 0) {
-                handleLeftRelease(coords);
+                handleLeftRelease(e.nativeEvent);
             } else if (e.button === 2) {
-                handleRightRelease(coords);
+                handleRightRelease(e.nativeEvent);
             }
         }
     };
 
     const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!disabled) {
-            const { offsetX, offsetY } = e.nativeEvent;
-            const coords = getCoordsAtOffset(offsetX, offsetY);
-            mouseHandler.onMouseMove(coords);
+            mouseHandler.onMouseMove(e.nativeEvent);
         }
-    };
-
-    const getCoordsAtOffset = (
-        offsetX: number,
-        offsetY: number
-    ): RollCoordinates => {
-        return {
-            row: Math.floor(
-                (offsetY - PIANO_ROLL_HEADER_SIZE) / PIANO_ROLL_NOTE_HEIGHT
-            ),
-            column: Math.floor(offsetX / PIANO_ROLL_NOTE_WIDTH),
-        };
     };
 
     return (

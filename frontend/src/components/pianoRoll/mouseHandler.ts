@@ -1,9 +1,19 @@
 import { useEffect, useRef } from "react";
 import * as Tone from "tone";
+import {
+    PIANO_ROLL_HEADER_SIZE,
+    PIANO_ROLL_NOTE_HEIGHT,
+    PIANO_ROLL_NOTE_WIDTH,
+} from "../../constants";
 import GridParams from "../../interfaces/GridParams";
 import RollCoordinates from "../../interfaces/RollCoordinates";
 import { Note, Sequencer } from "../../sound/sequencer";
 import { ReadyState, State } from "./handlerState";
+
+export interface MouseCoords {
+    offsetX: number;
+    offsetY: number;
+}
 
 export class MouseHandler {
     private state: State;
@@ -31,6 +41,16 @@ export class MouseHandler {
         this.getNotes = getNotes;
         this._playbackEnabled = playbackEnabled;
         this._selectedNote = null;
+    }
+
+    private getRollCoordsFromMouseCoords(coords: MouseCoords): RollCoordinates {
+        const { offsetX, offsetY } = coords;
+        return {
+            row: Math.floor(
+                (offsetY - PIANO_ROLL_HEADER_SIZE) / PIANO_ROLL_NOTE_HEIGHT
+            ),
+            column: Math.floor(offsetX / PIANO_ROLL_NOTE_WIDTH),
+        };
     }
 
     public set gridParams(value: GridParams) {
@@ -109,24 +129,26 @@ export class MouseHandler {
         this.state = state;
     }
 
-    public onLeftClick(coords: RollCoordinates) {
-        this.state.handleLeftClick(coords);
+    public onLeftClick(coords: MouseCoords) {
+        this.state.handleLeftClick(this.getRollCoordsFromMouseCoords(coords));
     }
 
-    public onRightClick(coords: RollCoordinates) {
-        this.state.handleRightClick(coords);
+    public onRightClick(coords: MouseCoords) {
+        this.state.handleRightClick(this.getRollCoordsFromMouseCoords(coords));
     }
 
-    public onMouseMove(coords: RollCoordinates) {
-        this.state.handleMouseMove(coords);
+    public onMouseMove(coords: MouseCoords) {
+        this.state.handleMouseMove(this.getRollCoordsFromMouseCoords(coords));
     }
 
-    public onLeftRelease(coords: RollCoordinates) {
-        this.state.handleLeftRelease(coords);
+    public onLeftRelease(coords: MouseCoords) {
+        this.state.handleLeftRelease(this.getRollCoordsFromMouseCoords(coords));
     }
 
-    public onRightRelease(coords: RollCoordinates) {
-        this.state.handleRightRelease(coords);
+    public onRightRelease(coords: MouseCoords) {
+        this.state.handleRightRelease(
+            this.getRollCoordsFromMouseCoords(coords)
+        );
     }
 
     public pressNote(note: Tone.Unit.Note) {
