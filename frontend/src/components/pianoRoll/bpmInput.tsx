@@ -29,7 +29,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
 
     const onFocusLose = (e: React.FocusEvent<HTMLInputElement>) => {
         const clamped = Math.min(Math.max(props.value, props.min), props.max);
-        if (clamped != props.value) {
+        if (clamped !== props.value) {
             props.onChange(clamped);
         }
     }
