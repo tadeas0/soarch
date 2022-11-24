@@ -125,8 +125,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 </button>
             </div>
             <OnScreenPiano
-                firstNote="C4"
-                lastNote="E5"
                 onKeyUp={handleKeyUp}
                 hidden={isPianoHidden}
                 playbackEnabled={playbackEnabled}

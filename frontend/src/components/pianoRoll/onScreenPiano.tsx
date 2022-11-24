@@ -3,22 +3,35 @@ import { Piano, KeyboardShortcuts } from "react-piano";
 import * as Tone from "tone";
 import { Note, Sequencer } from "../../sound/sequencer";
 import "./onScreenPiano.css";
+import {
+    MAX_OCTAVE_OFFSET,
+    ON_SCREEN_PIANO_HIGH,
+    ON_SCREEN_PIANO_LOW,
+} from "../../constants";
+import { HiMinus, HiPlus } from "react-icons/hi";
 
 interface OnScreenPianoProps {
     onKeyUp: (note: Note) => void;
     playbackEnabled: boolean;
-    firstNote: Tone.Unit.Note;
-    lastNote: Tone.Unit.Note;
     hidden?: boolean;
 }
 
 const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
-    const firstNote = Tone.Frequency(props.firstNote).toMidi();
-    const lastNote = Tone.Frequency(props.lastNote).toMidi();
+    const [octaveOffset, setOctaveOffset] = useState(0);
+    const octaveSize = 12;
+    const range = {
+        first:
+            Tone.Frequency(ON_SCREEN_PIANO_LOW).toMidi() +
+            octaveOffset * octaveSize,
+        last:
+            Tone.Frequency(ON_SCREEN_PIANO_HIGH).toMidi() +
+            octaveOffset * octaveSize,
+    };
+
     const shouldPlay = props.playbackEnabled || !props.hidden;
     const keyboardShortcuts = KeyboardShortcuts.create({
-        firstNote: firstNote,
-        lastNote: lastNote,
+        firstNote: range.first,
+        lastNote: range.last,
         keyboardConfig: KeyboardShortcuts.HOME_ROW,
     });
     const [pressedNotes, setPressedNotes] = useState<{
@@ -87,15 +100,39 @@ const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
         }
     };
 
+    const handleMoveUp = () => {
+        if (octaveOffset < MAX_OCTAVE_OFFSET)
+            setOctaveOffset((current) => current + 1);
+    };
+
+    const handleMoveDown = () => {
+        if (octaveOffset > -MAX_OCTAVE_OFFSET)
+            setOctaveOffset((current) => current - 1);
+    };
+
+    const getOctaveString = () => {
+        if (octaveOffset > 0) return "+" + octaveOffset;
+        return octaveOffset;
+    };
+
     return (
         <div
             className="piano-container"
             style={props.hidden ? { display: "none" } : {}}
         >
+            <div className="piano-button-container">
+                <button onClick={handleMoveDown}>
+                    <HiMinus />
+                </button>
+                <div className="octave-display">{getOctaveString()}</div>
+                <button onClick={handleMoveUp}>
+                    <HiPlus />
+                </button>
+            </div>
             <Piano
                 playNote={handlePlayNote}
                 stopNote={handleStopNote}
-                noteRange={{ first: firstNote, last: lastNote }}
+                noteRange={range}
                 keyboardShortcuts={keyboardShortcuts}
             />
         </div>
