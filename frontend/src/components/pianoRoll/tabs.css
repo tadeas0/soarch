@@ -76,7 +76,11 @@
     bottom: -1px;
     position: relative;
     list-style: none;
-    cursor: pointer;
     padding: 8px;
     border-color: var(--primary-color);
+}
+
+.add-tab-button.inactive {
+    color: var(--medium-bg-color);
+    border-color: var(--medium-bg-color);
 }

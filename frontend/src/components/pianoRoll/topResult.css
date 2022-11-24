@@ -30,7 +30,10 @@
     border: none;
     font-size: 16px;
     padding: 0px;
-    cursor: pointer;
+}
+
+.top-card-buttons button.inactive {
+    color: var(--medium-bg-color);
 }
 
 .top-card .more-button {

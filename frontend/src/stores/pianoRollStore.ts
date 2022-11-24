@@ -4,6 +4,7 @@ import {
     DEFAULT_BPM,
     DEFAULT_PIANO_ROLL_HEIGHT,
     DEFAULT_PIANO_ROLL_WIDTH,
+    MAX_TABS,
     MEASURE_LENGTH,
     PIANO_ROLL_LOWEST_NOTE,
 } from "../constants";
@@ -42,6 +43,10 @@ const getTabName = (existingNames: string[], newName: string) => {
         targetName = `${newName} (${i})`;
         i++;
     }
+};
+
+const canAddTab = (existingTabs: SongParams[]) => {
+    return existingTabs.length <= MAX_TABS;
 };
 
 export const DEFAULT_SONG_PARAMS: SongParams = {
@@ -112,6 +117,7 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
 
     addTab: (value: SongParams = { ...DEFAULT_SONG_PARAMS }) =>
         set((state) => {
+            if (!canAddTab(state.songs)) return {};
             let newSong = value;
             const newName = getTabName(
                 state.songs.map((s) => s.name),
@@ -202,3 +208,11 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
 export const useSelectedSong = () => {
     return usePianoRollStore((state) => state.songs[state.selectedIndex]);
 };
+
+export const useTabControls = () =>
+    usePianoRollStore((state) => ({
+        canAddTab: canAddTab(state.songs),
+        selectTab: state.selectTab,
+        addTab: state.addTab,
+        removeTab: state.removeTab,
+    }));

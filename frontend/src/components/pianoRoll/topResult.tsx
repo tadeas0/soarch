@@ -6,7 +6,7 @@ import { Sequencer } from "../../sound/sequencer";
 import ClipLoader from "react-spinners/ClipLoader";
 import "./topResult.css";
 import { PRIMARY_COLOR } from "../../constants";
-import { usePianoRollStore } from "../../stores/pianoRollStore";
+import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -16,7 +16,7 @@ interface TopResultProps {
 
 const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [progress, setProgress] = useState(0);
-    const addTab = usePianoRollStore((state) => state.addTab);
+    const { canAddTab, addTab } = useTabControls();
     const [isResultPlaying, setIsResultPlaying] = usePianoRollStore((state) => [
         state.isResultPlaying,
         state.setIsResultPlaying,
@@ -83,6 +83,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                                         ),
                                 })
                             }
+                            className={canAddTab ? "" : "inactive"}
                         >
                             <MdModeEdit />
                         </button>
