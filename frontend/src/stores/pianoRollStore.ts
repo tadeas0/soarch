@@ -16,6 +16,7 @@ export interface PianoRollState {
     isRollPlaying: boolean;
     playbackEnabled: boolean;
     hasChanged: boolean;
+    isPianoHidden: boolean;
     setIsRollPlaying: (value: boolean) => void;
     setIsResultPlaying: (value: boolean) => void;
     addNote: (note: Note) => void;
@@ -29,6 +30,7 @@ export interface PianoRollState {
     addMeasure: () => void;
     removeMeasure: () => void;
     clearChangeFlag: () => void;
+    setIsPianoHidden: (value: boolean) => void;
 }
 
 export const DEFAULT_SONG_PARAMS: SongParams = {
@@ -49,6 +51,7 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
     isRollPlaying: false,
     playbackEnabled: false,
     hasChanged: false,
+    isPianoHidden: true,
     setIsRollPlaying: (value: boolean) =>
         set((state) => ({ isRollPlaying: value, isResultPlaying: false })),
 
@@ -181,6 +184,9 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
         set((state) => ({
             hasChanged: false,
         })),
+
+    setIsPianoHidden: (value: boolean) =>
+        set((state) => ({ isPianoHidden: value })),
 }));
 
 export const useSelectedSong = () => {

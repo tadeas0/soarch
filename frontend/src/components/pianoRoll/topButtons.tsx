@@ -7,9 +7,6 @@ import "./topButtons.css";
 import { FaHeadphonesAlt, FaSave } from "react-icons/fa";
 import BPMInput from "./bpmInput";
 import Metronome from "./metronome";
-import useKeyboardListener from "../../hooks/useKeyboardListener";
-import { Note, Sequencer } from "../../sound/sequencer";
-import { useEffect } from "react";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 
 const defaultProps = {
@@ -21,14 +18,13 @@ type TopButtonsProps = {
 } & typeof defaultProps;
 
 const TopButtons = (props: TopButtonsProps) => {
-    const [setRollPlayback, rollPlayback] = usePianoRollStore((state) => [
-        state.setPlaybackEnabled,
+    const [rollPlayback, setRollPlayback] = usePianoRollStore((state) => [
         state.playbackEnabled,
+        state.setPlaybackEnabled,
     ]);
-    const [songs, selectedIndex, addNote] = usePianoRollStore((state) => [
+    const [songs, selectedIndex] = usePianoRollStore((state) => [
         state.songs,
         state.selectedIndex,
-        state.addNote,
     ]);
     const [isRollPlaying, setIsRollPlaying, changeBPM, clear] =
         usePianoRollStore((state) => [
@@ -37,6 +33,10 @@ const TopButtons = (props: TopButtonsProps) => {
             state.changeBPM,
             state.clear,
         ]);
+    const [isPianoHidden, setIsPianoHidden] = usePianoRollStore((state) => [
+        state.isPianoHidden,
+        state.setIsPianoHidden,
+    ]);
 
     const selectedSong = songs[selectedIndex];
 
@@ -45,18 +45,6 @@ const TopButtons = (props: TopButtonsProps) => {
         else if (isRollPlaying) return <BsPauseFill />;
         else return <BsFillPlayFill />;
     };
-
-    const [, setPlaybackEnabled] = useKeyboardListener((note: Note) => {
-        const s = songs[selectedIndex];
-        if (isRollPlaying) {
-            Sequencer.fillBuffer([note], s.gridParams.width);
-            addNote(note);
-        }
-    }, songs[selectedIndex].gridParams.lowestNote);
-
-    useEffect(() => {
-        setPlaybackEnabled(rollPlayback);
-    }, [setPlaybackEnabled, rollPlayback]);
 
     return (
         <div className="top-button-container">
@@ -72,7 +60,11 @@ const TopButtons = (props: TopButtonsProps) => {
             >
                 {getPlayIcon()}
             </button>
-            <button className="top-button" disabled={props.disabled}>
+            <button
+                className={"top-button" + (isPianoHidden ? "" : " pressed")}
+                onClick={() => setIsPianoHidden(!isPianoHidden)}
+                disabled={props.disabled}
+            >
                 <CgPiano />
             </button>
             <InstrumentSelector disabled={props.disabled} />

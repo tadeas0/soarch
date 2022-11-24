@@ -12,6 +12,7 @@ import {
     usePianoRollStore,
     useSelectedSong,
 } from "../../stores/pianoRollStore";
+import OnScreenPiano from "./onScreenPiano";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -33,6 +34,11 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     const [isRollPlaying, isResultPlaying] = usePianoRollStore((state) => [
         state.isRollPlaying,
         state.isResultPlaying,
+    ]);
+    const addNote = usePianoRollStore((state) => state.addNote);
+    const [playbackEnabled, isPianoHidden] = usePianoRollStore((state) => [
+        state.playbackEnabled,
+        state.isPianoHidden,
     ]);
     const [hasChanged, clearChangeFlag] = usePianoRollStore((state) => [
         state.hasChanged,
@@ -75,10 +81,17 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             handleStop();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isResultPlaying, isRollPlaying, selectedSong, topSearchResult]);
+    }, [isResultPlaying, isRollPlaying, selectedSong]);
 
     const canRemoveMeasure = () => {
         return selectedSong.gridParams.width > 2 * MEASURE_LENGTH;
+    };
+
+    const handleKeyUp = (note: Note) => {
+        if (isRollPlaying) {
+            Sequencer.fillBuffer([note], selectedSong.gridParams.width);
+            addNote(note);
+        }
     };
 
     return (
@@ -111,6 +124,13 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                     <TiPlus />
                 </button>
             </div>
+            <OnScreenPiano
+                firstNote="C4"
+                lastNote="E5"
+                onKeyUp={handleKeyUp}
+                hidden={isPianoHidden}
+                playbackEnabled={playbackEnabled}
+            />
         </div>
     );
 };
