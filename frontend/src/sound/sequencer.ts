@@ -7,6 +7,7 @@ import {
 import GridParams from "../interfaces/GridParams";
 import RollCoordinates from "../interfaces/RollCoordinates";
 import { SynthPreset, SYNTH_PRESETS } from "./synthPresets";
+import { saveAs } from "file-saver";
 
 export interface Note {
     time: Tone.Unit.Time;
@@ -14,8 +15,10 @@ export interface Note {
     length: Tone.Unit.Time;
 }
 
+type SequencerSynth = Tone.PolySynth | Tone.Synth | Tone.Sampler;
+
 export abstract class Sequencer {
-    private static synth: Tone.PolySynth | Tone.Synth | Tone.Sampler =
+    private static synth: SequencerSynth =
         SYNTH_PRESETS[0].preset.toDestination();
 
     private static metronomeSampler: Tone.Sampler = new Tone.Sampler({
@@ -285,5 +288,37 @@ export abstract class Sequencer {
 
     public static getProgress() {
         return Tone.Transport.progress;
+    }
+
+    public static async saveToFile(
+        notes: Note[],
+        bpm: number,
+        gridLength: number,
+        filename: string
+    ) {
+        if (!this.isInitialized()) {
+            await this.init();
+        }
+        Sequencer.stop();
+        Sequencer.clearBuffer();
+
+        new Tone.Part((time, note) => {
+            this.synth.triggerAttackRelease(note.pitch, note.length, time);
+        }, notes).start(0);
+        Tone.Transport.setLoopPoints(0, this.rollTimeToToneTime(gridLength));
+        Tone.Transport.loop = false;
+        Sequencer.setBpm(bpm);
+        const recorder = new Tone.Recorder();
+        this.synth.disconnect();
+        this.synth.connect(recorder);
+        const p = new Promise<Blob>((resolve, reject) => {
+            Tone.Transport.scheduleOnce(() => {
+                resolve(recorder.stop());
+            }, this.rollTimeToToneTime(gridLength));
+        });
+        await recorder.start();
+        Tone.Transport.start();
+        saveAs(await p, filename);
+        this.synth.toDestination();
     }
 }

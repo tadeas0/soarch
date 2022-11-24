@@ -17,6 +17,8 @@ import OnScreenPiano from "./onScreenPiano";
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
     onShowMore: () => void;
+    isDownloading: boolean;
+    setIsDownloading: (v: boolean) => void;
     topSearchResult?: SearchResult;
     isFetchingResults: boolean;
     disabled?: boolean;
@@ -25,6 +27,8 @@ interface PianoRollProps {
 const PianoRoll: FunctionComponent<PianoRollProps> = ({
     onSubmit,
     onShowMore,
+    isDownloading,
+    setIsDownloading,
     disabled = false,
     isFetchingResults,
     topSearchResult,
@@ -97,7 +101,11 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     return (
         <div className="pianoroll">
             <div className="top-bar">
-                <TopButtons disabled={disabled} />
+                <TopButtons
+                    isDownloading={isDownloading}
+                    setIsDownloading={setIsDownloading}
+                    disabled={disabled}
+                />
                 <TopResult
                     searchResult={topSearchResult}
                     isBusy={isFetchingResults}
