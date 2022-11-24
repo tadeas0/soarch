@@ -54,3 +54,6 @@ export const PIANO_ROLL_BG_COLOR = MEDIUM_BG_COLOR;
 export const PIANO_ROLL_PLAYHEAD_COLOR = SECONDARY_COLOR;
 export const HIDE_STRATEGIES = true;
 export const MIN_NOTES_FOR_FETCHING = 3;
+export const MAX_OCTAVE_OFFSET = 3;
+export const ON_SCREEN_PIANO_LOW = "C4";
+export const ON_SCREEN_PIANO_HIGH = "E5";
