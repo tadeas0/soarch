@@ -15,6 +15,7 @@ import { AvailabilityContext } from "./context/serverAvailabilityContext";
 import SearchResultsDrawer from "./components/searchResultsDrawer";
 import usePlayback from "./hooks/usePlayback";
 import { usePianoRollStore } from "./stores/pianoRollStore";
+import DownloadingOverlay from "./components/downloadingOverlay";
 
 export interface SearchResult {
     artist: string;
@@ -38,6 +39,7 @@ function App() {
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
     const addTab = usePianoRollStore((state) => state.addTab);
     const [, , handleStop] = usePlayback();
 
@@ -137,7 +139,10 @@ function App() {
                 </div>
             ) : (
                 <PlaybackProvider>
+                    {isDownloading && <DownloadingOverlay />}
                     <PianoRoll
+                        setIsDownloading={setIsDownloading}
+                        isDownloading={isDownloading}
                         isFetchingResults={isBusy}
                         topSearchResult={searchResults.at(0)}
                         onShowMore={handleDrawerToggle}

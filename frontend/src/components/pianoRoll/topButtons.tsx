@@ -8,12 +8,15 @@ import { FaHeadphonesAlt, FaSave } from "react-icons/fa";
 import BPMInput from "./bpmInput";
 import Metronome from "./metronome";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
+import { Sequencer } from "../../sound/sequencer";
 
 const defaultProps = {
     disabled: false,
 };
 
 type TopButtonsProps = {
+    isDownloading: boolean;
+    setIsDownloading: (v: boolean) => void;
     disabled?: boolean;
 } & typeof defaultProps;
 
@@ -44,6 +47,22 @@ const TopButtons = (props: TopButtonsProps) => {
         if (props.disabled) return <BsFillPlayFill />;
         else if (isRollPlaying) return <BsPauseFill />;
         else return <BsFillPlayFill />;
+    };
+
+    const handleSave = async () => {
+        try {
+            props.setIsDownloading(true);
+            await Sequencer.saveToFile(
+                selectedSong.notes,
+                selectedSong.bpm,
+                selectedSong.gridParams.width,
+                selectedSong.name
+            );
+        } catch (err) {
+            console.error(err);
+        } finally {
+            props.setIsDownloading(false);
+        }
     };
 
     return (
@@ -93,7 +112,11 @@ const TopButtons = (props: TopButtonsProps) => {
             >
                 <MdDelete />
             </button>
-            <button className="top-button" disabled={props.disabled}>
+            <button
+                className="top-button"
+                disabled={props.disabled}
+                onClick={handleSave}
+            >
                 <FaSave />
             </button>
         </div>
