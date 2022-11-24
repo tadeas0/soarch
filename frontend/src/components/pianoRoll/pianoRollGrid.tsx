@@ -11,11 +11,7 @@ import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
 import RollCoordinates from "../../interfaces/RollCoordinates";
 import { useMouseHandler } from "./mouseHandler";
-import {
-    PianoRollActionType,
-    usePianoRollDispatch,
-    usePianoRollState,
-} from "../../context/pianoRollContext";
+import { usePianoRollStore } from "../../stores/pianoRollStore";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -32,33 +28,34 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     disabledHeader = false,
 }: PianoRollGridProps) => {
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-    const dispatch = usePianoRollDispatch();
-    const state = usePianoRollState();
+    const playbackEnabled = usePianoRollStore((state) => state.playbackEnabled);
 
     const mouseHandler = useMouseHandler(
-        (note) =>
-            dispatch({ type: PianoRollActionType.ADD_NOTE, payload: note }),
-        (note) =>
-            dispatch({ type: PianoRollActionType.DELETE_NOTE, payload: note }),
+        usePianoRollStore.getState().addNote,
+        usePianoRollStore.getState().deleteNote,
         setSelectedNote,
+        () =>
+            usePianoRollStore.getState().songs[
+                usePianoRollStore.getState().selectedIndex
+            ].notes,
         gridParams,
-        state.playbackEnabled
+        playbackEnabled
     );
 
     const handleLeftClick = (coords: RollCoordinates) => {
-        if (!disabled) mouseHandler.onLeftClick(coords, notes);
+        if (!disabled) mouseHandler.onLeftClick(coords);
     };
 
     const handleRightClick = (coords: RollCoordinates) => {
-        if (!disabled) mouseHandler.onRightClick(coords, notes);
+        if (!disabled) mouseHandler.onRightClick(coords);
     };
 
     const handleLeftRelease = (coords: RollCoordinates) => {
-        if (!disabled) mouseHandler.onLeftRelease(coords, notes);
+        if (!disabled) mouseHandler.onLeftRelease(coords);
     };
 
     const handleRightRelease = (coords: RollCoordinates) => {
-        if (!disabled) mouseHandler.onRightRelease(coords, notes);
+        if (!disabled) mouseHandler.onRightRelease(coords);
     };
 
     const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -92,7 +89,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         if (!disabled) {
             const { offsetX, offsetY } = e.nativeEvent;
             const coords = getCoordsAtOffset(offsetX, offsetY);
-            mouseHandler.onMouseMove(coords, notes);
+            mouseHandler.onMouseMove(coords);
         }
     };
 
