@@ -26,6 +26,13 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
         
         props.onChange(value);
     }
+
+    const onFocusLose = (e: React.FocusEvent<HTMLInputElement>) => {
+        const clamped = Math.min(Math.max(props.value, props.min), props.max);
+        if (clamped != props.value) {
+            props.onChange(clamped);
+        }
+    }
     
     return (
         <div className="bpm-input">
@@ -37,6 +44,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
                 max={props.max}
                 min={props.min}
                 disabled={props.disabled}
+                onBlur={onFocusLose}
             ></input>
             <div className={`bpm-input-icon ${props.disabled || props.value >= props.max ? 'disabled' : ''}`} onClick={e => changeValue(increment)}><HiPlus/></div>
         </div>
