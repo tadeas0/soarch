@@ -1,8 +1,8 @@
-import { useEffect, ForwardRefRenderFunction, forwardRef } from "react";
+import { useEffect, FunctionComponent } from "react";
 import { MEASURE_LENGTH, MIN_NOTES_FOR_FETCHING } from "../../constants";
 import { Note, Sequencer } from "../../sound/sequencer";
 import "./pianoRoll.css";
-import SongTabs, { SongParams } from "./songTabs";
+import SongTabs from "./songTabs";
 import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
 import TopResult from "./topResult";
@@ -21,20 +21,13 @@ interface PianoRollProps {
     disabled?: boolean;
 }
 
-export interface PianoRollHandle {
-    addTab: (song: SongParams) => void;
-}
-
-const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
-    {
-        onSubmit,
-        onShowMore,
-        disabled = false,
-        isFetchingResults,
-        topSearchResult,
-    },
-    ref
-) => {
+const PianoRoll: FunctionComponent<PianoRollProps> = ({
+    onSubmit,
+    onShowMore,
+    disabled = false,
+    isFetchingResults,
+    topSearchResult,
+}) => {
     const [, handleStart, handleStop] = usePlayback();
     const selectedSong = useSelectedSong();
     const [isRollPlaying, isResultPlaying] = usePianoRollStore((state) => [
@@ -122,4 +115,4 @@ const PianoRoll: ForwardRefRenderFunction<PianoRollHandle, PianoRollProps> = (
     );
 };
 
-export default forwardRef(PianoRoll);
+export default PianoRoll;
