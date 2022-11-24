@@ -23,32 +23,17 @@ export abstract class State {
         document.body.style.cursor = "ew-resize";
     }
 
-    public abstract handleLeftClick(
-        coords: RollCoordinates,
-        currentNotes: Note[]
-    ): void;
-    public abstract handleRightClick(
-        coords: RollCoordinates,
-        currentNotes: Note[]
-    ): void;
-    public abstract handleLeftRelease(
-        coords: RollCoordinates,
-        currentNotes: Note[]
-    ): void;
-    public abstract handleRightRelease(
-        coords: RollCoordinates,
-        currentNotes: Note[]
-    ): void;
-    public abstract handleMouseMove(
-        coords: RollCoordinates,
-        currentNotes: Note[]
-    ): void;
+    public abstract handleLeftClick(coords: RollCoordinates): void;
+    public abstract handleRightClick(coords: RollCoordinates): void;
+    public abstract handleLeftRelease(coords: RollCoordinates): void;
+    public abstract handleRightRelease(coords: RollCoordinates): void;
+    public abstract handleMouseMove(coords: RollCoordinates): void;
 }
 
 export class ReadyState extends State {
-    public handleLeftClick(coords: RollCoordinates, currentNotes: Note[]) {
-        const n = this.mouseHandler.getNotesAt(coords, currentNotes);
-        const noteHandle = this.mouseHandler.noteHandle(coords, currentNotes);
+    public handleLeftClick(coords: RollCoordinates) {
+        const n = this.mouseHandler.getNotesAt(coords);
+        const noteHandle = this.mouseHandler.noteHandle(coords);
         if (noteHandle !== null) {
             this.mouseHandler.selectNote(noteHandle);
             this.mouseHandler.changeState(
@@ -81,17 +66,17 @@ export class ReadyState extends State {
         }
     }
 
-    public handleRightClick(coords: RollCoordinates, notes: Note[]) {
-        const n = this.mouseHandler.getNotesAt(coords, notes);
+    public handleRightClick(coords: RollCoordinates) {
+        const n = this.mouseHandler.getNotesAt(coords);
         if (n.length > 0) this.mouseHandler.deleteNote(n[n.length - 1]);
         this.mouseHandler.changeState(new DeletingState(this.mouseHandler));
     }
 
     public handleLeftRelease(coords: RollCoordinates) {}
     public handleRightRelease(coords: RollCoordinates) {}
-    public handleMouseMove(coords: RollCoordinates, currentNotes: Note[]) {
-        const noteHandle = this.mouseHandler.noteHandle(coords, currentNotes);
-        const n = this.mouseHandler.getNotesAt(coords, currentNotes);
+    public handleMouseMove(coords: RollCoordinates) {
+        const noteHandle = this.mouseHandler.noteHandle(coords);
+        const n = this.mouseHandler.getNotesAt(coords);
         if (noteHandle !== null) {
             this.setResizeCursor();
         } else if (n.length > 0) {
@@ -158,26 +143,26 @@ class DeletingState extends State {
     public handleRightClick() {}
     public handleLeftRelease() {}
 
-    public handleRightRelease(coords: RollCoordinates, currentNotes: Note[]) {
+    public handleRightRelease(coords: RollCoordinates) {
         this.mouseHandler.changeState(new ReadyState(this.mouseHandler));
     }
 
-    public handleMouseMove(coords: RollCoordinates, currentNotes: Note[]) {
-        const n = this.mouseHandler.getNotesAt(coords, currentNotes);
+    public handleMouseMove(coords: RollCoordinates) {
+        const n = this.mouseHandler.getNotesAt(coords);
         if (n.length > 0) this.mouseHandler.deleteNote(n[n.length - 1]);
     }
 }
 
 class ChangingLengthState extends State {
-    public handleLeftClick(coords: RollCoordinates, currentNotes: Note[]) {}
-    public handleRightClick(coords: RollCoordinates, currentNotes: Note[]) {}
-    public handleRightRelease(coords: RollCoordinates, currentNotes: Note[]) {}
+    public handleLeftClick(coords: RollCoordinates) {}
+    public handleRightClick(coords: RollCoordinates) {}
+    public handleRightRelease(coords: RollCoordinates) {}
 
-    public handleLeftRelease(coords: RollCoordinates, currentNotes: Note[]) {
+    public handleLeftRelease(coords: RollCoordinates) {
         this.mouseHandler.changeState(new ReadyState(this.mouseHandler));
     }
 
-    public handleMouseMove(coords: RollCoordinates, currentNotes: Note[]) {
+    public handleMouseMove(coords: RollCoordinates) {
         const oldNote = this.mouseHandler.selectedNote;
         if (oldNote === null) {
             throw new Error("Note is not selected");
