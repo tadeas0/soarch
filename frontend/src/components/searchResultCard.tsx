@@ -1,7 +1,7 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
-import { SearchResult } from "../App";
+import { SearchResult } from "../routes/pianoRollRoute";
 import { Sequencer } from "../sound/sequencer";
 import { useTabControls } from "../stores/pianoRollStore";
 

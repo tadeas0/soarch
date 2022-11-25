@@ -5,9 +5,24 @@ body {
         "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-color);
 }
 
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
         monospace;
+}
+
+:root {
+    --bg-color: #0b0c10;
+    --medium-bg-color: #1f2833;
+    --light-bg-color: #c5c6c7;
+    --secondary-color: #45a29e;
+    --primary-color: #66fcf1;
+    --warn-color: #ed254e;
+    --medium-bg-color-rgb: 31, 40, 51;
+}
+
+::-webkit-scrollbar-corner {
+    background-color: transparent;
 }

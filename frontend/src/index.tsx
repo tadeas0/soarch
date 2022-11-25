@@ -1,14 +1,34 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import App from "./App";
 import { AvailabilityProvider } from "./context/serverAvailabilityContext";
 import reportWebVitals from "./reportWebVitals";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import LandingPage from "./routes/landingPage";
+import PianoRollRoute from "./routes/pianoRollRoute";
+import ErrorRoute from "./routes/errorRoute";
+import FaqPage from "./routes/faqPage";
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <LandingPage />,
+        errorElement: <ErrorRoute />,
+    },
+    {
+        path: "/pianoroll",
+        element: <PianoRollRoute />,
+    },
+    {
+        path: "/faq",
+        element: <FaqPage />,
+    },
+]);
 
 ReactDOM.render(
     <React.StrictMode>
         <AvailabilityProvider>
-            <App />
+            <RouterProvider router={router} />
         </AvailabilityProvider>
     </React.StrictMode>,
     document.getElementById("root")

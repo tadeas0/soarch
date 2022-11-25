@@ -6,7 +6,7 @@ import SongTabs from "./songTabs";
 import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
 import TopResult from "./topResult";
-import { SearchResult } from "../../App";
+import { SearchResult } from "../../routes/pianoRollRoute";
 import usePlayback from "../../hooks/usePlayback";
 import {
     usePianoRollStore,

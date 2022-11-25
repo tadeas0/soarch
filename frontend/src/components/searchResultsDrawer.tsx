@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SlArrowLeft } from "react-icons/sl";
-import { SearchResult } from "../App";
+import { SearchResult } from "../routes/pianoRollRoute";
 import { HiOutlineMagnifyingGlassMinus } from "react-icons/hi2";
 import SearchResultCard from "./searchResultCard";
 import "./searchResultsDrawer.css";
