@@ -4,19 +4,24 @@ import "./index.css";
 import { AvailabilityProvider } from "./context/serverAvailabilityContext";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Root from "./routes/root";
+import LandingPage from "./routes/landingPage";
 import PianoRollRoute from "./routes/pianoRollRoute";
 import ErrorRoute from "./routes/errorRoute";
+import FaqPage from "./routes/faqPage";
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Root />,
+        element: <LandingPage />,
         errorElement: <ErrorRoute />,
     },
     {
         path: "/pianoroll",
         element: <PianoRollRoute />,
+    },
+    {
+        path: "/faq",
+        element: <FaqPage />,
     },
 ]);
 
