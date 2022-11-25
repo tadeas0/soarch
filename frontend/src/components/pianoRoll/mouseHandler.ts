@@ -1,9 +1,20 @@
 import { useEffect, useRef } from "react";
 import * as Tone from "tone";
+import {
+    PIANO_ROLL_HANDLE_PART,
+    PIANO_ROLL_HEADER_SIZE,
+    PIANO_ROLL_NOTE_HEIGHT,
+    PIANO_ROLL_NOTE_WIDTH,
+} from "../../constants";
 import GridParams from "../../interfaces/GridParams";
 import RollCoordinates from "../../interfaces/RollCoordinates";
 import { Note, Sequencer } from "../../sound/sequencer";
 import { ReadyState, State } from "./handlerState";
+
+export interface MouseCoords {
+    offsetX: number;
+    offsetY: number;
+}
 
 export class MouseHandler {
     private state: State;
@@ -33,6 +44,16 @@ export class MouseHandler {
         this._selectedNote = null;
     }
 
+    public getRollCoordsFromMouseCoords(coords: MouseCoords): RollCoordinates {
+        const { offsetX, offsetY } = coords;
+        return {
+            row: Math.floor(
+                (offsetY - PIANO_ROLL_HEADER_SIZE) / PIANO_ROLL_NOTE_HEIGHT
+            ),
+            column: Math.floor(offsetX / PIANO_ROLL_NOTE_WIDTH),
+        };
+    }
+
     public set gridParams(value: GridParams) {
         this._gridParams = value;
     }
@@ -45,14 +66,13 @@ export class MouseHandler {
         this._playbackEnabled = value;
     }
 
-    public getNotesAt(coords: RollCoordinates): Note[] {
+    public getNotesAt(coords: MouseCoords): Note[] {
+        const c = this.getRollCoordsFromMouseCoords(coords);
         return this.getNotes().filter((n) => {
             const s = Sequencer.getStartCoords(n, this._gridParams);
             const e = Sequencer.getEndCoords(n, this._gridParams);
             return (
-                s.row === coords.row &&
-                s.column <= coords.column &&
-                e.column >= coords.column
+                s.row === c.row && s.column <= c.column && e.column >= c.column
             );
         });
     }
@@ -64,20 +84,26 @@ export class MouseHandler {
      * @param notes notes for which the coordinates should be checked
      * @returns Note | null
      */
-    public noteHandle(coords: RollCoordinates): Note | null {
+    public noteHandle(coords: MouseCoords): Note | null {
+        const { offsetX } = coords;
+        const isHandle =
+            offsetX % PIANO_ROLL_NOTE_WIDTH >
+            PIANO_ROLL_NOTE_WIDTH * (1 - PIANO_ROLL_HANDLE_PART);
+        if (!isHandle) return null;
         const clickedNotes = this.getNotesAt(coords);
         if (clickedNotes.length <= 0) {
             return null;
         }
         const topNote = clickedNotes[clickedNotes.length - 1];
         const endCoords = Sequencer.getEndCoords(topNote, this._gridParams);
-        if (this.cmpCoords(coords, endCoords)) {
+        const rollCoords = this.getRollCoordsFromMouseCoords(coords);
+        if (this.cmpRollCoords(rollCoords, endCoords)) {
             return topNote;
         }
         return null;
     }
 
-    private cmpCoords(
+    private cmpRollCoords(
         coords1: RollCoordinates,
         coords2: RollCoordinates
     ): boolean {
@@ -109,23 +135,23 @@ export class MouseHandler {
         this.state = state;
     }
 
-    public onLeftClick(coords: RollCoordinates) {
+    public onLeftClick(coords: MouseCoords) {
         this.state.handleLeftClick(coords);
     }
 
-    public onRightClick(coords: RollCoordinates) {
+    public onRightClick(coords: MouseCoords) {
         this.state.handleRightClick(coords);
     }
 
-    public onMouseMove(coords: RollCoordinates) {
+    public onMouseMove(coords: MouseCoords) {
         this.state.handleMouseMove(coords);
     }
 
-    public onLeftRelease(coords: RollCoordinates) {
+    public onLeftRelease(coords: MouseCoords) {
         this.state.handleLeftRelease(coords);
     }
 
-    public onRightRelease(coords: RollCoordinates) {
+    public onRightRelease(coords: MouseCoords) {
         this.state.handleRightRelease(coords);
     }
 

@@ -12,6 +12,7 @@ export const PIANO_ROLL_NOTE_HEIGHT = 20;
 export const PIANO_ROLL_NOTE_WIDTH = 20;
 export const DEFAULT_NOTE_LENGTH = 2;
 export const PIANO_ROLL_HEADER_SIZE = 20;
+export const PIANO_ROLL_HANDLE_PART = 1 / 2; // part of the note, that is considered handle
 
 export const KEYBOARD_NOTE_MAP: { [keyCode: string]: number } = {
     KeyZ: 0,
