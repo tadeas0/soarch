@@ -1,21 +1,25 @@
-import { useContext } from "react";
-import { useState, useEffect, useCallback } from "react";
-import * as Tone from "tone";
-import Modal from "react-modal";
-import "./App.css";
-import PianoRoll from "./components/pianoRoll/pianoRoll";
-import StrategySelector from "./components/strategySelector";
-import { Option } from "./components/strategySelector";
-import { HIDE_STRATEGIES, SECONDARY_COLOR } from "./constants";
-import { Note, Sequencer } from "./sound/sequencer";
-import { API, NoteForm } from "./services/api";
-import { PlaybackProvider } from "./context/playbackContext";
+import {
+    FunctionComponent,
+    useState,
+    useContext,
+    useCallback,
+    useEffect,
+} from "react";
 import { BeatLoader } from "react-spinners";
-import { AvailabilityContext } from "./context/serverAvailabilityContext";
-import SearchResultsDrawer from "./components/searchResultsDrawer";
-import usePlayback from "./hooks/usePlayback";
-import { usePianoRollStore } from "./stores/pianoRollStore";
-import DownloadingOverlay from "./components/downloadingOverlay";
+import * as Tone from "tone";
+import DownloadingOverlay from "../components/downloadingOverlay";
+import PianoRoll from "../components/pianoRoll/pianoRoll";
+import SearchResultsDrawer from "../components/searchResultsDrawer";
+import StrategySelector from "../components/strategySelector";
+import { SECONDARY_COLOR, HIDE_STRATEGIES } from "../constants";
+import { PlaybackProvider } from "../context/playbackContext";
+import { AvailabilityContext } from "../context/serverAvailabilityContext";
+import usePlayback from "../hooks/usePlayback";
+import { API, NoteForm } from "../services/api";
+import { Note, Sequencer } from "../sound/sequencer";
+import { Option } from "../components/strategySelector";
+import { usePianoRollStore } from "../stores/pianoRollStore";
+import "./pianoRollRoute.css";
 
 export interface SearchResult {
     artist: string;
@@ -24,9 +28,9 @@ export interface SearchResult {
     bpm: number;
 }
 
-Modal.setAppElement("#root");
+interface PianoRollRouteProps {}
 
-function App() {
+const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [availableStrategies, setAvailableStrategies] = useState<Option[]>(
         []
@@ -131,7 +135,7 @@ function App() {
     };
 
     return (
-        <div className="App">
+        <div className="piano-roll-route">
             {initializing ? (
                 <div>
                     <BeatLoader size={100} color={SECONDARY_COLOR} />
@@ -172,6 +176,6 @@ function App() {
             )}
         </div>
     );
-}
+};
 
-export default App;
+export default PianoRollRoute;

@@ -1,7 +1,7 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
-import { SearchResult } from "../../App";
+import { SearchResult } from "../../routes/pianoRollRoute";
 import { Sequencer } from "../../sound/sequencer";
 import ClipLoader from "react-spinners/ClipLoader";
 import "./topResult.css";

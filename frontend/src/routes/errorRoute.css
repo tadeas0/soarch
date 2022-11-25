@@ -1,0 +1,14 @@
+.error-route {
+    background-color: var(--bg-color);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    grid-template-rows: 2fr 1fr;
+    color: white;
+    height: 100vh;
+    justify-content: center;
+}
+
+.error-route .error-icon {
+    font-size: 128px;
+}
