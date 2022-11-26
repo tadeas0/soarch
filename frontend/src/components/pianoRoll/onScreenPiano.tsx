@@ -2,6 +2,7 @@ import { FunctionComponent, useState } from "react";
 import { Piano, KeyboardShortcuts } from "react-piano";
 import * as Tone from "tone";
 import { Note, Sequencer } from "../../sound/sequencer";
+import "./onScreenPiano.css";
 import {
     MAX_OCTAVE_OFFSET,
     ON_SCREEN_PIANO_HIGH,
@@ -119,12 +120,20 @@ const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
             className="piano-container"
             style={props.hidden ? { display: "none" } : {}}
         >
-            <div className="piano-button-container">
-                <button onClick={handleMoveDown}>
+            <div className="flex flex-row justify-end">
+                <button
+                    className=" flex w-1/3 items-center justify-center rounded-t border-2 border-b-0 border-dark-primary bg-light-primary text-3xl text-white hover:bg-medium-primary hover:text-black"
+                    onClick={handleMoveDown}
+                >
                     <HiMinus />
                 </button>
-                <div className="octave-display">{getOctaveString()}</div>
-                <button onClick={handleMoveUp}>
+                <div className="w-1/3 rounded-t border-2 border-b-0 border-dark-primary bg-light-primary p-2 text-center text-3xl text-white">
+                    {getOctaveString()}
+                </div>
+                <button
+                    className="flex w-1/3 items-center justify-center rounded-t border-2 border-b-0 border-dark-primary bg-light-primary text-3xl text-white hover:bg-medium-primary hover:text-black"
+                    onClick={handleMoveUp}
+                >
                     <HiPlus />
                 </button>
             </div>

@@ -1,9 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+:root {
+    --bg-color: #f2e8cfff;
+    --light-primary-color: #477998ff;
+    --medium-primary-color: #9c7a97ff;
+    --dark-primary-color: #1e152aff;
+    --warn-color: #b24c63ff;
+    --white-color: #e5e5db;
+    --black-color: #2e3436;
+}
+
 html {
     padding: 2rem;
-    background-color: #f2e8cfff;
+    background-color: var(--bg-color);
 }
 
 input[type="number"]::-webkit-inner-spin-button,
