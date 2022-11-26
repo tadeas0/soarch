@@ -6,7 +6,6 @@ import GridParams from "../../interfaces/GridParams";
 import { Note } from "../../sound/sequencer";
 import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
 import PianoRollGrid from "./pianoRollGrid";
-import "./tabs.css";
 
 export interface SongParams {
     name: string;
@@ -28,45 +27,34 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
     const { canAddTab, selectTab, addTab, removeTab } = useTabControls();
 
     return (
-        <Tabs
-            selectedIndex={selectedIndex}
-            className="tabs"
-            onSelect={() => {}}
-        >
-            <TabList className="tab-list">
+        <Tabs selectedIndex={selectedIndex} onSelect={() => {}}>
+            <TabList className="ml-4 flex">
                 {songs.map((s, i) => (
                     <div
                         className={
-                            "tab-container" +
+                            "flex flex-row justify-center rounded-t border-2 border-b-0 border-dark-primary hover:bg-medium-primary hover:text-black" +
                             (i === selectedIndex
-                                ? " tab-container-selected"
-                                : "")
+                                ? " bg-medium-primary text-black"
+                                : " bg-light-primary text-white")
                         }
                         key={i}
                     >
-                        <Tab
-                            selectedClassName="tab-selected"
-                            className="tab"
-                            onClick={() => selectTab(i)}
-                        >
+                        <Tab className="p-2" onClick={() => selectTab(i)}>
                             {s.name}
                         </Tab>
-                        <button
-                            className="close-tab-button"
-                            onClick={() => removeTab(i)}
-                        >
+                        <button className="p-1" onClick={() => removeTab(i)}>
                             <IoClose />
                         </button>
                     </div>
                 ))}
-                <button
-                    className={
-                        "add-tab-button" + (canAddTab ? "" : " inactive")
-                    }
-                    onClick={() => addTab()}
-                >
-                    <TiPlus />
-                </button>
+                {canAddTab && (
+                    <button
+                        className="mt-2 rounded-tr border-2 border-b-0 border-l-0 border-dark-primary  bg-light-primary p-2 text-white hover:bg-medium-primary hover:text-black"
+                        onClick={() => addTab()}
+                    >
+                        <TiPlus />
+                    </button>
+                )}
             </TabList>
             {songs.map((s, i) => (
                 <TabPanel

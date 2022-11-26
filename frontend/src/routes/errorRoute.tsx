@@ -1,7 +1,6 @@
 import { FunctionComponent } from "react";
 import { useRouteError } from "react-router-dom";
 import { BiError } from "react-icons/bi";
-import "./errorRoute.css";
 
 const ErrorRoute: FunctionComponent = () => {
     const error = useRouteError();

@@ -1,7 +1,6 @@
 import { FunctionComponent } from "react";
 import { PulseLoader } from "react-spinners";
 import { PRIMARY_COLOR } from "../constants";
-import "./downloadingOverlay.css";
 
 interface DownloadingOverlayProps {}
 

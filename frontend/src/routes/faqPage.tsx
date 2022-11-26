@@ -6,7 +6,6 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from "react-accessible-accordion";
-import "./faqPage.css";
 
 const FaqPage: FunctionComponent = () => {
     return (

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import "./instrumentSelector.css";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { SynthPreset } from "../../sound/synthPresets";
 import { Sequencer } from "../../sound/sequencer";
+import Button from "../basic/button";
 
 const defaultProps = {
     disabled: false,
@@ -36,25 +36,28 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
     return (
         <div
             className={
-                "top-button instrument-selector" + (isOpen ? " pressed" : "")
+                "relative col-span-1 inline-block rounded bg-transparent p-0 text-4xl" +
+                (isOpen ? " bg-medium-primary" : "")
             }
         >
-            <button
-                className="instrument-selector-button"
+            <Button
+                className="flex h-full w-full items-center justify-center p-4"
                 onClick={(e) => {
                     setIsOpen(!isOpen);
                 }}
+                pressed={isOpen}
                 disabled={props.disabled}
             >
                 {<selectedOption.icon />}
-                <div className="instrument-selector-arrow">
+                <div className="text-md absolute right-1 bottom-0">
                     {isOpen ? <IoMdArrowDropup /> : <IoMdArrowDropdown />}
                 </div>
-            </button>
+            </Button>
             {isOpen && (
-                <div className="instrument-container">
+                <div className="absolute block w-full rounded border-2 border-dark-primary bg-light-primary">
                     {Sequencer.getSynthPresets().map((o, i) => (
                         <div
+                            className="flex justify-center py-2 px-4 hover:bg-medium-primary"
                             key={i}
                             title={o.name}
                             onClick={(_) =>

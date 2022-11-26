@@ -3,12 +3,12 @@ import { MdDelete } from "react-icons/md";
 import { CgPiano } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
-import "./topButtons.css";
 import { FaHeadphonesAlt, FaSave } from "react-icons/fa";
 import BPMInput from "./bpmInput";
 import Metronome from "./metronome";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { Sequencer } from "../../sound/sequencer";
+import Button from "../basic/button";
 
 const defaultProps = {
     disabled: false,
@@ -66,9 +66,9 @@ const TopButtons = (props: TopButtonsProps) => {
     };
 
     return (
-        <div className="top-button-container">
-            <button
-                className="top-button"
+        <>
+            <Button
+                className="col-span-1 flex items-center justify-center p-4 text-4xl"
                 onClick={() => setIsRollPlaying(!isRollPlaying)}
                 disabled={
                     !(
@@ -78,24 +78,25 @@ const TopButtons = (props: TopButtonsProps) => {
                 }
             >
                 {getPlayIcon()}
-            </button>
-            <button
-                className={"top-button" + (isPianoHidden ? "" : " pressed")}
+            </Button>
+            <Button
+                className="col-span-1 flex items-center justify-center p-4 text-4xl"
+                pressed={!isPianoHidden}
                 onClick={() => setIsPianoHidden(!isPianoHidden)}
                 disabled={props.disabled}
             >
                 <CgPiano />
-            </button>
+            </Button>
             <InstrumentSelector disabled={props.disabled} />
             <Metronome disabled={props.disabled} />
-            <button
-                className={"top-button" + (rollPlayback ? " pressed" : "")}
+            <Button
+                className="col-span-1 flex items-center justify-center p-4 text-4xl"
+                pressed={rollPlayback}
                 onClick={() => setRollPlayback(!rollPlayback)}
                 disabled={props.disabled}
             >
                 <FaHeadphonesAlt />
-            </button>
-            <div className="top-spacer" />
+            </Button>
             <BPMInput
                 value={selectedSong.bpm}
                 onChange={(value: number) => changeBPM(value)}
@@ -104,22 +105,21 @@ const TopButtons = (props: TopButtonsProps) => {
                 max={250}
                 disabled={isRollPlaying || props.disabled}
             />
-            <div className="top-spacer" />
-            <button
-                className="top-button"
+            <Button
+                className="col-span-1 flex items-center justify-center p-4 text-4xl"
                 onClick={clear}
                 disabled={props.disabled}
             >
                 <MdDelete />
-            </button>
-            <button
-                className="top-button"
+            </Button>
+            <Button
+                className="col-span-1 flex items-center justify-center p-4 text-4xl"
                 disabled={props.disabled}
                 onClick={handleSave}
             >
                 <FaSave />
-            </button>
-        </div>
+            </Button>
+        </>
     );
 };
 

@@ -9,10 +9,9 @@ import {
     PIANO_ROLL_GRID_COLORS,
     BG_COLOR,
     PIANO_ROLL_PLAYHEAD_COLOR,
-    SECONDARY_COLOR,
-    LIGHT_BG_COLOR,
-    PRIMARY_COLOR,
     NOTE_HIGHLIGHT_COLOR,
+    PIANO_ROLL_NOTE_COLOR,
+    PIANO_ROLL_NOTE_OUTLINE_COLOR,
 } from "../../constants";
 import { Note, Sequencer } from "../../sound/sequencer";
 import GridParams from "../../interfaces/GridParams";
@@ -121,7 +120,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                 }
             }
             drawVLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
-            drawVLines(ctx, PIANO_ROLL_GRID_COLORS[1], 3, 8);
+            // drawVLines(ctx, PIANO_ROLL_GRID_COLORS[1], 1, 8);
             drawVLines(ctx, PIANO_ROLL_GRID_COLORS[2], 3, 16);
             drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
             drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 3, 12);
@@ -163,7 +162,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
 
     const drawNote = useCallback(
         (ctx: CanvasRenderingContext2D, note: Note) => {
-            ctx.strokeStyle = SECONDARY_COLOR;
+            ctx.strokeStyle = PIANO_ROLL_NOTE_OUTLINE_COLOR;
             const x =
                 Sequencer.toneTimeToRollTime(note.time) * PIANO_ROLL_NOTE_WIDTH;
             const y =
@@ -179,16 +178,12 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                 PIANO_ROLL_NOTE_WIDTH;
             const h = PIANO_ROLL_NOTE_HEIGHT;
 
-            const grd = ctx.createLinearGradient(x - 30, y, x + w, y);
-            grd.addColorStop(0, LIGHT_BG_COLOR);
-            grd.addColorStop(0.7, PRIMARY_COLOR);
-
-            ctx.fillStyle = grd;
+            ctx.fillStyle = PIANO_ROLL_NOTE_COLOR;
             ctx.fillRect(x, y, w, h);
             if (note === props.selectedNote)
                 ctx.strokeStyle = NOTE_HIGHLIGHT_COLOR;
             ctx.strokeRect(x, y, w, h);
-            ctx.fillStyle = SECONDARY_COLOR;
+            ctx.fillStyle = PIANO_ROLL_NOTE_COLOR;
             const handleX = x + w - PIANO_ROLL_NOTE_WIDTH / 3;
             const radius = 1;
             const yOffset = PIANO_ROLL_NOTE_WIDTH / 3.5;
@@ -243,13 +238,19 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     }, [drawHeader, props.disabled]);
 
     return (
-        <canvas
-            ref={canvasRef}
-            onMouseDown={props.onMouseDown}
-            onMouseMove={props.onMouseMove}
-            onMouseUp={props.onMouseUp}
-            onContextMenu={(e) => e.preventDefault()}
-        />
+        <div
+            style={{ width: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH }}
+            className="transition-[width]"
+        >
+            <canvas
+                className="transition-[width]"
+                ref={canvasRef}
+                onMouseDown={props.onMouseDown}
+                onMouseMove={props.onMouseMove}
+                onMouseUp={props.onMouseUp}
+                onContextMenu={(e) => e.preventDefault()}
+            />
+        </div>
     );
 };
 

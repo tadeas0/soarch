@@ -1,7 +1,6 @@
 import { useEffect, FunctionComponent } from "react";
 import { MEASURE_LENGTH, MIN_NOTES_FOR_FETCHING } from "../../constants";
 import { Note, Sequencer } from "../../sound/sequencer";
-import "./pianoRoll.css";
 import SongTabs from "./songTabs";
 import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
@@ -13,6 +12,7 @@ import {
     useSelectedSong,
 } from "../../stores/pianoRollStore";
 import OnScreenPiano from "./onScreenPiano";
+import Button from "../basic/button";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -99,8 +99,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     };
 
     return (
-        <div className="pianoroll">
-            <div className="top-bar">
+        <div className="flex flex-col items-center justify-start">
+            <div className="grid w-full grid-cols-12 justify-center gap-4">
                 <TopButtons
                     isDownloading={isDownloading}
                     setIsDownloading={setIsDownloading}
@@ -112,25 +112,25 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                     onShowMore={onShowMore}
                 />
             </div>
-            <div className="roll-row-container">
-                <button
-                    className="grid-button"
+            <div className="mt-10 flex w-full flex-row items-start justify-between gap-3">
+                <Button
+                    className="mt-44 p-3 text-xl"
                     onClick={removeMeasure}
                     disabled={disabled || !canRemoveMeasure()}
                 >
                     <TiMinus />
-                </button>
+                </Button>
                 <SongTabs
                     disabledHeader={disabled || isResultPlaying}
                     disabled={disabled}
                 />
-                <button
-                    className="grid-button"
+                <Button
+                    className="mt-44 p-3 text-xl"
                     onClick={addMeasure}
                     disabled={disabled}
                 >
                     <TiPlus />
-                </button>
+                </Button>
             </div>
             <OnScreenPiano
                 onKeyUp={handleKeyUp}

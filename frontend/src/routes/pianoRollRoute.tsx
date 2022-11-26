@@ -19,7 +19,6 @@ import { API, NoteForm } from "../services/api";
 import { Note, Sequencer } from "../sound/sequencer";
 import { Option } from "../components/strategySelector";
 import { usePianoRollStore } from "../stores/pianoRollStore";
-import "./pianoRollRoute.css";
 
 export interface SearchResult {
     artist: string;

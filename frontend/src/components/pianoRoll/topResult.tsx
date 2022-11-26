@@ -4,8 +4,6 @@ import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../../routes/pianoRollRoute";
 import { Sequencer } from "../../sound/sequencer";
 import ClipLoader from "react-spinners/ClipLoader";
-import "./topResult.css";
-import { PRIMARY_COLOR } from "../../constants";
 import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
 
 interface TopResultProps {
@@ -49,22 +47,22 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
         const sr = props.searchResult;
         if (sr === undefined) {
             return (
-                <div className="top-card-inner-row">
-                    <div className="top-card-text">
-                        <h4>No results yet. Try inputing some notes.</h4>
-                    </div>
+                <div>
+                    <h4>No results yet. Try inputing some notes.</h4>
                 </div>
             );
         }
         return (
             <>
-                <div className="top-card-inner-row">
-                    <div className="top-card-text">
-                        <h4>{sr.name}</h4>
-                        <p>{sr.artist}</p>
+                <h1 className="h-1/5 font-semibold">Best result:</h1>
+                <div className="flex h-3/5 w-full flex-row">
+                    <div className="w-5/6">
+                        <h4 className="text-xl">{sr.name}</h4>
+                        <p className="text-sm">{sr.artist}</p>
                     </div>
-                    <div className="top-card-buttons">
+                    <div className="flex h-full w-1/6 flex-col justify-evenly">
                         <button
+                            className="text-xl"
                             onClick={() => setIsResultPlaying(!isResultPlaying)}
                         >
                             {isResultPlaying ? (
@@ -83,13 +81,16 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                                         ),
                                 })
                             }
-                            className={canAddTab ? "" : "inactive"}
+                            className={"text-xl" + canAddTab ? "" : " inactive"}
                         >
                             <MdModeEdit />
                         </button>
                     </div>
                 </div>
-                <button onClick={props.onShowMore} className="more-button">
+                <button
+                    onClick={props.onShowMore}
+                    className="w-full pr-2 text-right underline"
+                >
                     Show more results
                 </button>
             </>
@@ -97,21 +98,19 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     };
 
     return (
-        <fieldset className="top-card" style={getInlineStyles()}>
-            <legend>Best result</legend>
+        <div
+            className="col-span-2 h-28 rounded bg-light-primary p-1 pb-2 text-white"
+            style={getInlineStyles()}
+        >
             {props.isBusy ? (
-                <div className="top-card-spinner-container">
-                    <ClipLoader
-                        className="top-spinner"
-                        size={24}
-                        color={PRIMARY_COLOR}
-                    />
-                    <h4>Loading...</h4>
+                <div className="flex h-full flex-row items-center justify-center">
+                    <ClipLoader size={24} />
+                    <h4 className="ml-2">Loading...</h4>
                 </div>
             ) : (
                 renderResult()
             )}
-        </fieldset>
+        </div>
     );
 };
 

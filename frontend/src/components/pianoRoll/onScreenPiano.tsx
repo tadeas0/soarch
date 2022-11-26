@@ -2,7 +2,6 @@ import { FunctionComponent, useState } from "react";
 import { Piano, KeyboardShortcuts } from "react-piano";
 import * as Tone from "tone";
 import { Note, Sequencer } from "../../sound/sequencer";
-import "./onScreenPiano.css";
 import {
     MAX_OCTAVE_OFFSET,
     ON_SCREEN_PIANO_HIGH,

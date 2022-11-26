@@ -45,22 +45,27 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     }, [isPlaying]);
 
     return (
-        <div className="result-card" style={getInlineStyles()}>
-            <div className="card-inner">
-                <div className="card-text">
+        <div style={getInlineStyles()}>
+            <div className="flex h-full w-full flex-row">
+                <div className="flex h-full w-5/6 flex-col">
                     <h4>{searchResult.name}</h4>
-                    <p>{searchResult.artist}</p>
+                    <p className="text-sm">{searchResult.artist}</p>
                 </div>
-                <div className="card-buttons">
-                    <button onClick={() => onPlay(searchResult)}>
+                <div className="flex h-full flex-col">
+                    <button
+                        className="h-1/2 text-xl"
+                        onClick={() => onPlay(searchResult)}
+                    >
                         {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                     </button>
-                    <button
-                        className={canAddTab ? "" : "inactive"}
-                        onClick={() => onEdit(searchResult)}
-                    >
-                        <MdModeEdit />
-                    </button>
+                    {canAddTab && (
+                        <button
+                            className="h-1/2 text-xl"
+                            onClick={() => onEdit(searchResult)}
+                        >
+                            <MdModeEdit />
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

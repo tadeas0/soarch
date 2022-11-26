@@ -1,7 +1,6 @@
 import { FunctionComponent } from "react";
 import { GrLinkNext } from "react-icons/gr";
 import { Link } from "react-router-dom";
-import "./landingPage.css";
 
 const LandingPage: FunctionComponent = () => {
     return (
