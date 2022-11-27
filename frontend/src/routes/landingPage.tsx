@@ -13,7 +13,7 @@ const LandingPage: FunctionComponent = () => {
                 <p>
                     MIDI Song Finder is a free online tool that enables musicians
                     to search similar songs to the tunes they enter through our 
-                    online midi controller. 
+                    online MIDI controller. 
                 </p>    
                 <p>    Feel free to experiment and use Midi
                     Song Finder as your digital playground!
