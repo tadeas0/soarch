@@ -19,6 +19,7 @@ import { API, NoteForm } from "../services/api";
 import { Note, Sequencer } from "../sound/sequencer";
 import { Option } from "../components/strategySelector";
 import { usePianoRollStore } from "../stores/pianoRollStore";
+import { ShepherdTourContext } from "react-shepherd";
 
 export interface SearchResult {
     artist: string;
@@ -45,6 +46,8 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     const [isDownloading, setIsDownloading] = useState(false);
     const addTab = usePianoRollStore((state) => state.addTab);
     const [, , handleStop] = usePlayback();
+    const storageKey = "already-took-tour";
+    const tour = useContext(ShepherdTourContext);
 
     const handleRequestErrors = useCallback(
         (err: any) => {
@@ -60,6 +63,14 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
         },
         [setServerAvailable]
     );
+
+    useEffect(() => {
+        const alreadyTookTour = localStorage.getItem(storageKey);
+        if (!alreadyTookTour && tour) {
+            tour.start();
+            localStorage.setItem(storageKey, String(true));
+        }
+    }, [tour]);
 
     useEffect(() => {
         setInitializing(true);

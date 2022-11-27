@@ -35,7 +35,10 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
     };
 
     return (
-        <div className="col-span-3 flex flex-row items-center justify-center self-center justify-self-center rounded bg-light-primary p-4">
+        <div
+            id="bpm-input"
+            className="col-span-3 flex flex-row items-center justify-center self-center justify-self-center rounded bg-light-primary p-4"
+        >
             <div
                 className={`flex-grow-0 p-0 text-white ${
                     props.disabled || props.value <= props.min ? "disabled" : ""

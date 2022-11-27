@@ -79,7 +79,10 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     };
 
     return (
-        <div className="flex h-[70vh] max-w-[90vw] justify-start overflow-scroll rounded border-2 border-dark-primary">
+        <div
+            id="roll-canvas"
+            className="flex h-[70vh] max-w-[90vw] justify-start overflow-scroll rounded border-2 border-dark-primary"
+        >
             <PianoRollCanvas
                 gridParams={gridParams}
                 notes={notes}

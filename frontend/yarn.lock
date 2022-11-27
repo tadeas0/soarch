@@ -1557,6 +1557,11 @@
     "schema-utils" "^3.0.0"
     "source-map" "^0.7.3"
 
+"@popperjs/core@^2.11.5":
+  "integrity" "sha512-50/17A98tWUfQ176raKiOGXuYpLyyVMkxxG6oylzL3BPOlA6ADGdK7EYunSa4I064xerltq9TGXs8HmOk5E+vw=="
+  "resolved" "https://registry.npmjs.org/@popperjs/core/-/core-2.11.6.tgz"
+  "version" "2.11.6"
+
 "@remix-run/router@1.0.3":
   "integrity" "sha512-ceuyTSs7PZ/tQqi19YZNBc5X7kj1f8p+4DIyrcIYFY9h+hd1OKm4RqtiWldR9eGEvIiJfsqwM4BsuCtRIuEw6Q=="
   "resolved" "https://registry.npmjs.org/@remix-run/router/-/router-1.0.3.tgz"
@@ -7539,7 +7544,7 @@
     "strip-ansi" "^6.0.1"
     "text-table" "^0.2.0"
 
-"react-dom@*", "react-dom@^16.0.0 || ^17.0.0 || ^18.0.0", "react-dom@^16.3.3 || ^17.0.0 || ^18.0.0", "react-dom@^18.2.0", "react-dom@>=16.8":
+"react-dom@*", "react-dom@^16.0.0 || ^17.0.0 || ^18.0.0", "react-dom@^16.3.3 || ^17.0.0 || ^18.0.0", "react-dom@^17.0.2 || 18.x", "react-dom@^18.2.0", "react-dom@>=16.8":
   "integrity" "sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g=="
   "resolved" "https://registry.npmjs.org/react-dom/-/react-dom-18.2.0.tgz"
   "version" "18.2.0"
@@ -7662,6 +7667,13 @@
   optionalDependencies:
     "fsevents" "^2.3.2"
 
+"react-shepherd@^4.1.0":
+  "integrity" "sha512-g+SCP5DDLFEqM/Q+ted6/yMNf2fpHvoyq6GDGWjDk1IlvfAcIshW/BulKjqkq5tAibd0bUpDFSGCYn3o7GWE+g=="
+  "resolved" "https://registry.npmjs.org/react-shepherd/-/react-shepherd-4.1.0.tgz"
+  "version" "4.1.0"
+  dependencies:
+    "shepherd.js" "^10.0.0"
+
 "react-spinners@^0.13.6":
   "integrity" "sha512-+VoSs1wN6oMhJy7PzCPiHUt6zUi9fvnGQizem8q/NzXhGovbdXFDWNhspk6KEKXQEafInUtpvtDlp/zJ5sES/A=="
   "resolved" "https://registry.npmjs.org/react-spinners/-/react-spinners-0.13.6.tgz"
@@ -7675,7 +7687,7 @@
     "clsx" "^1.1.0"
     "prop-types" "^15.5.0"
 
-"react@*", "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.3.2 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^18.0.0", "react@^18.2.0", "react@>= 16", "react@>=16.8", "react@>16.0.0":
+"react@*", "react@^16.0.0 || ^17.0.0 || ^18.0.0", "react@^16.3.2 || ^17.0.0 || ^18.0.0", "react@^16.8.0 || ^17.0.0 || ^18.0.0", "react@^17.0.2 || 18.x", "react@^18.0.0", "react@^18.2.0", "react@>= 16", "react@>=16.8", "react@>16.0.0":
   "integrity" "sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ=="
   "resolved" "https://registry.npmjs.org/react/-/react-18.2.0.tgz"
   "version" "18.2.0"
@@ -8149,6 +8161,15 @@
   "resolved" "https://registry.npmjs.org/shell-quote/-/shell-quote-1.7.4.tgz"
   "version" "1.7.4"
 
+"shepherd.js@^10.0.0":
+  "integrity" "sha512-R32v4b4b0N1gK/vxvRtdhty+SBZlBPcPTSYCwcaAQvFd0n6Xki7cRH6Sx0oD9WB/HCkqCNM1msyIyylXmq635w=="
+  "resolved" "https://registry.npmjs.org/shepherd.js/-/shepherd.js-10.0.1.tgz"
+  "version" "10.0.1"
+  dependencies:
+    "@popperjs/core" "^2.11.5"
+    "deepmerge" "^4.2.2"
+    "smoothscroll-polyfill" "^0.4.4"
+
 "side-channel@^1.0.4":
   "integrity" "sha512-q5XPytqFEIKHkGdiMIrY10mvLRvnQh42/+GoBlFW3b2LXLE2xxJpZFdm94we0BaoV3RwJyGqg5wS7epxTv0Zvw=="
   "resolved" "https://registry.npmjs.org/side-channel/-/side-channel-1.0.4.tgz"
@@ -8177,6 +8198,11 @@
   "integrity" "sha512-3dOsAHXXUkQTpOYcoAxLIorMTp4gIQr5IW3iVb7A7lFIp0VHhnynm9izx6TssdrIcVIESAlVjtnO2K8bg+Coew=="
   "resolved" "https://registry.npmjs.org/slash/-/slash-4.0.0.tgz"
   "version" "4.0.0"
+
+"smoothscroll-polyfill@^0.4.4":
+  "integrity" "sha512-TK5ZA9U5RqCwMpfoMq/l1mrH0JAR7y7KRvOBx0n2869aLxch+gT9GhN3yUfjiw+d/DiF1mKo14+hd62JyMmoBg=="
+  "resolved" "https://registry.npmjs.org/smoothscroll-polyfill/-/smoothscroll-polyfill-0.4.4.tgz"
+  "version" "0.4.4"
 
 "sockjs@^0.3.24":
   "integrity" "sha512-GJgLTZ7vYb/JtPSSZ10hsOYIvEYsjbNU+zPdIHcUaWVNUEPivzxku31865sSSud0Da0W4lEeOPlmw93zLQchuQ=="

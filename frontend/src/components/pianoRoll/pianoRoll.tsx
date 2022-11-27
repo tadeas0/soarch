@@ -125,6 +125,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                     disabled={disabled}
                 />
                 <Button
+                    id="add-measure-button"
                     className="mt-44 p-3 text-xl"
                     onClick={addMeasure}
                     disabled={disabled}

@@ -69,6 +69,7 @@ const TopButtons = (props: TopButtonsProps) => {
         <>
             <Button
                 className="col-span-1 flex items-center justify-center p-4 text-4xl"
+                id="play-button"
                 onClick={() => setIsRollPlaying(!isRollPlaying)}
                 disabled={
                     !(
@@ -81,6 +82,7 @@ const TopButtons = (props: TopButtonsProps) => {
             </Button>
             <Button
                 className="col-span-1 flex items-center justify-center p-4 text-4xl"
+                id="piano-button"
                 pressed={!isPianoHidden}
                 onClick={() => setIsPianoHidden(!isPianoHidden)}
                 disabled={props.disabled}
@@ -91,6 +93,7 @@ const TopButtons = (props: TopButtonsProps) => {
             <Metronome disabled={props.disabled} />
             <Button
                 className="col-span-1 flex items-center justify-center p-4 text-4xl"
+                id="playback-button"
                 pressed={rollPlayback}
                 onClick={() => setRollPlayback(!rollPlayback)}
                 disabled={props.disabled}
@@ -106,6 +109,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 disabled={isRollPlaying || props.disabled}
             />
             <Button
+                id="clear-button"
                 className="col-span-1 flex items-center justify-center p-4 text-4xl"
                 onClick={clear}
                 disabled={props.disabled}
@@ -113,6 +117,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 <MdDelete />
             </Button>
             <Button
+                id="export-button"
                 className="col-span-1 flex items-center justify-center p-4 text-4xl"
                 disabled={props.disabled}
                 onClick={handleSave}

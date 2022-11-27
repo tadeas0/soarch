@@ -100,6 +100,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
 
     return (
         <div
+            id="top-result"
             className="col-span-2 h-28 rounded bg-light-primary p-1 pb-2 text-white"
             style={getInlineStyles()}
         >
