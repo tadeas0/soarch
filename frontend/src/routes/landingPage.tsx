@@ -2,17 +2,14 @@ import { FunctionComponent } from "react";
 import { Link } from "react-router-dom";
 import { BsArrowRight } from "react-icons/bs";
 import LinkButton from "../components/basic/linkButton";
+import TopLogo from "../components/basic/topLogo";
 
 const LandingPage: FunctionComponent = () => {
     return (
         <div className="flex flex-col items-center p-6 text-black">
-            <img
-                src="/logo_text.svg"
-                className="absolute top-0 left-0 h-16"
-                alt="soarch logo"
-            />
+            <TopLogo />
             <header className="mb-10 flex w-1/2 items-end justify-start">
-                <h1 className="ml-1 text-4xl tracking-wide text-light-primary">
+                <h1 className="text-4xl tracking-wide text-light-primary">
                     New way of searching for music
                 </h1>
             </header>
