@@ -28,7 +28,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
 
     return (
         <Tabs selectedIndex={selectedIndex} onSelect={() => {}}>
-            <TabList className="ml-4 flex">
+            <TabList id="song-tabs" className="ml-4 flex">
                 {songs.map((s, i) => (
                     <div
                         className={

@@ -28,6 +28,7 @@ const Metronome: FunctionComponent<MetronomeProps> = ({ disabled = false }) => {
 
     return (
         <Button
+            id="metronome-button"
             className={"flex items-center justify-center text-4xl"}
             pressed={active}
             disabled={disabled}

@@ -11,7 +11,7 @@ import DownloadingOverlay from "../components/downloadingOverlay";
 import PianoRoll from "../components/pianoRoll/pianoRoll";
 import SearchResultsDrawer from "../components/searchResultsDrawer";
 import StrategySelector from "../components/strategySelector";
-import { SECONDARY_COLOR, HIDE_STRATEGIES } from "../constants";
+import { HIDE_STRATEGIES, LIGHT_PRIMARY } from "../constants";
 import { PlaybackProvider } from "../context/playbackContext";
 import { AvailabilityContext } from "../context/serverAvailabilityContext";
 import usePlayback from "../hooks/usePlayback";
@@ -19,6 +19,9 @@ import { API, NoteForm } from "../services/api";
 import { Note, Sequencer } from "../sound/sequencer";
 import { Option } from "../components/strategySelector";
 import { usePianoRollStore } from "../stores/pianoRollStore";
+import { ShepherdTourContext } from "react-shepherd";
+import BottomLogo from "../components/basic/bottomLogo";
+import TourButton from "../components/pianoRoll/tourButton";
 
 export interface SearchResult {
     artist: string;
@@ -45,6 +48,8 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     const [isDownloading, setIsDownloading] = useState(false);
     const addTab = usePianoRollStore((state) => state.addTab);
     const [, , handleStop] = usePlayback();
+    const storageKey = "already-took-tour";
+    const tour = useContext(ShepherdTourContext);
 
     const handleRequestErrors = useCallback(
         (err: any) => {
@@ -60,6 +65,14 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
         },
         [setServerAvailable]
     );
+
+    useEffect(() => {
+        const alreadyTookTour = localStorage.getItem(storageKey);
+        if (!alreadyTookTour && tour) {
+            tour.start();
+            localStorage.setItem(storageKey, String(true));
+        }
+    }, [tour]);
 
     useEffect(() => {
         setInitializing(true);
@@ -136,12 +149,16 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     return (
         <div className="piano-roll-route">
             {initializing ? (
-                <div>
-                    <BeatLoader size={100} color={SECONDARY_COLOR} />
-                    <h1>Connecting to the server...</h1>
+                <div className="flex h-screen w-screen flex-col items-center justify-center">
+                    <BeatLoader size={100} color={LIGHT_PRIMARY} />
+                    <h1 className="mt-4 text-2xl">
+                        Connecting to the server...
+                    </h1>
                 </div>
             ) : (
                 <PlaybackProvider>
+                    <TourButton />
+                    <BottomLogo />
                     {isDownloading && <DownloadingOverlay />}
                     <PianoRoll
                         setIsDownloading={setIsDownloading}

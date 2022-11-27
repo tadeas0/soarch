@@ -41,6 +41,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
             }
         >
             <Button
+                id="instrument-button"
                 className="flex h-full w-full items-center justify-center p-4"
                 onClick={(e) => {
                     setIsOpen(!isOpen);

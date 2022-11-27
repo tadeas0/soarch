@@ -8,6 +8,8 @@ import LandingPage from "./routes/landingPage";
 import PianoRollRoute from "./routes/pianoRollRoute";
 import ErrorRoute from "./routes/errorRoute";
 import FaqPage from "./routes/faqPage";
+import { steps, tourOptions } from "./tourSettings";
+import { ShepherdTour } from "react-shepherd";
 
 const router = createBrowserRouter([
     {
@@ -28,7 +30,9 @@ const router = createBrowserRouter([
 ReactDOM.render(
     <React.StrictMode>
         <AvailabilityProvider>
-            <RouterProvider router={router} />
+            <ShepherdTour steps={steps} tourOptions={tourOptions}>
+                <RouterProvider router={router} />
+            </ShepherdTour>
         </AvailabilityProvider>
     </React.StrictMode>,
     document.getElementById("root")
