@@ -152,6 +152,14 @@ export const steps: ShepherdOptionsWithType[] = [
         text: [`You can have up to ${MAX_TABS} different tabs open.`],
     },
     {
+        id: "tour-button",
+        attachTo: { element: "#tour-button", on: "auto" },
+        buttons: buttons,
+        scrollTo: true,
+        title: "Restart tutorial",
+        text: ["You can always restart the tutorial using this button."],
+    },
+    {
         id: "end",
         buttons: [
             {
