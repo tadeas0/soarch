@@ -7,16 +7,17 @@ const LandingPage: FunctionComponent = () => {
     return (
         <div className="landing-page">
             <header>
-                <h1>Song search idk</h1>
+                <h1>MIDI Song Finder</h1>
             </header>
             <main>
                 <p>
-                    Sem by to chtelo doplnit nejaky popis. Sem by to chtelo
-                    doplnit nejaky popis. Sem by to chtelo doplnit nejaky popis.
-                    Sem by to chtelo doplnit nejaky popis. Sem by to chtelo
-                    doplnit nejaky popis. Sem by to chtelo doplnit nejaky popis.
-                    Sem by to chtelo doplnit nejaky popis. Sem by to chtelo
-                    doplnit nejaky popis.
+                    MIDI Song Finder is a free online tool that enables musicians
+                    to search similar songs to the tunes they enter through our 
+                    online MIDI controller. 
+                </p>    
+                <p>    Feel free to experiment and use Midi
+                    Song Finder as your digital playground!
+
                 </p>
                 <Link to="/pianoroll" className="roll-button">
                     <GrLinkNext />

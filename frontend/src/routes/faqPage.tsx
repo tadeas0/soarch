@@ -19,75 +19,60 @@ const FaqPage: FunctionComponent = () => {
                     <AccordionItem>
                         <AccordionItemHeading>
                             <AccordionItemButton>
-                                Nemeli bychom sem doplnit nejake otazky?
+                                How Can I Delete A Note?
                             </AccordionItemButton>
                         </AccordionItemHeading>
                         <AccordionItemPanel>
                             <p>
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano.
+                               A simple right click on the note will do the trick!
                             </p>
                         </AccordionItemPanel>
                     </AccordionItem>
                     <AccordionItem>
                         <AccordionItemHeading>
                             <AccordionItemButton>
-                                Nemeli bychom sem doplnit nejake otazky?
+                                Can I Export A Tune I Created In MIDI Song Search?
                             </AccordionItemButton>
                         </AccordionItemHeading>
                         <AccordionItemPanel>
                             <p>
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano.
+                                Yes! We currently support Ogg format, so simply hit the export button in top button section to download your tune!
                             </p>
                         </AccordionItemPanel>
                     </AccordionItem>
                     <AccordionItem>
                         <AccordionItemHeading>
                             <AccordionItemButton>
-                                Nemeli bychom sem doplnit nejake otazky?
+                                How Can I Use The Piano?
                             </AccordionItemButton>
                         </AccordionItemHeading>
                         <AccordionItemPanel>
                             <p>
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano.
+                                To toggle a piano, simply press a piano button in the top button section. Once you are ready, press start button to record your piano play!
                             </p>
                         </AccordionItemPanel>
                     </AccordionItem>
                     <AccordionItem>
                         <AccordionItemHeading>
                             <AccordionItemButton>
-                                Nemeli bychom sem doplnit nejake otazky?
+                                How MIDI Song Search finds best matching songs?
                             </AccordionItemButton>
                         </AccordionItemHeading>
                         <AccordionItemPanel>
                             <p>
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano.
+                                Our search uses an esemble of machine learning algorithms, to find the best matches for your tune!
                             </p>
                         </AccordionItemPanel>
                     </AccordionItem>
                     <AccordionItem>
                         <AccordionItemHeading>
                             <AccordionItemButton>
-                                Nemeli bychom sem doplnit nejake otazky?
+                                Can MIDI Song Search Find Any Song?
                             </AccordionItemButton>
                         </AccordionItemHeading>
                         <AccordionItemPanel>
                             <p>
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano. Pravdepodobne ano.
-                                Pravdepodobne ano.
+                                Currently MIDI Song Finder searches in a database containing over 8 milion songs! So there are high chances it will find the song you are looking for!
                             </p>
                         </AccordionItemPanel>
                     </AccordionItem>
