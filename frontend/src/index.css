@@ -16,6 +16,7 @@
     html {
         padding: 2rem;
         background-color: var(--bg-color);
+        font-family: "Courier", monospace;
     }
 
     input[type="number"]::-webkit-inner-spin-button,

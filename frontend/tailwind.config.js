@@ -12,6 +12,9 @@ module.exports = {
             black: "#2e3436",
             transparent: "transparent",
         },
+        fontFamily: {
+            logo: "Latin Modern Mono Light",
+        },
         maxWidth: {
             "3xs": "100px",
             "2xs": "160px",

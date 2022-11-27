@@ -6,12 +6,17 @@ import LinkButton from "../components/basic/linkButton";
 const LandingPage: FunctionComponent = () => {
     return (
         <div className="flex flex-col items-center p-6 text-black">
-            <header className="mb-10 w-1/3 text-center">
-                <h1 className="text-5xl font-bold tracking-wide text-light-primary">
-                    SOARCH
+            <img
+                src="/logo_text.svg"
+                className="absolute top-0 left-0 h-16"
+                alt="soarch logo"
+            />
+            <header className="mb-10 flex w-1/2 items-end justify-start">
+                <h1 className="ml-1 text-4xl tracking-wide text-light-primary">
+                    New way of searching for music
                 </h1>
             </header>
-            <main className="w-1/3">
+            <main className="w-1/2">
                 <p className="my-3 text-xl">
                     <b>Soarch</b> is a{" "}
                     <i>
@@ -24,7 +29,7 @@ const LandingPage: FunctionComponent = () => {
                     Do you have a melody stuck in your head and can't figure out
                     where it's from?
                 </h3>
-                <p className="my-3 text-lg">
+                <p className="my-3 text-xl">
                     We've got you covered. Through the use of our
                     <i>
                         {" "}
