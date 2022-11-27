@@ -54,10 +54,10 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
                 </div>
             </Button>
             {isOpen && (
-                <div className="absolute block w-full rounded border-2 border-dark-primary bg-light-primary">
+                <div className="absolute block w-full rounded bg-light-primary">
                     {Sequencer.getSynthPresets().map((o, i) => (
                         <div
-                            className="flex justify-center py-2 px-4 hover:bg-medium-primary"
+                            className="flex justify-center rounded py-2 px-4 text-white hover:bg-medium-primary hover:text-black"
                             key={i}
                             title={o.name}
                             onClick={(_) =>
