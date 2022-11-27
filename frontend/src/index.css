@@ -1,28 +1,32 @@
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-        "Helvetica Neue", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: var(--bg-color);
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-        monospace;
-}
+@layer base {
+    :root {
+        --bg-color: #f2e8cfff;
+        --light-primary-color: #477998ff;
+        --medium-primary-color: #9c7a97ff;
+        --dark-primary-color: #1e152aff;
+        --warn-color: #b24c63ff;
+        --white-color: #e5e5db;
+        --black-color: #2e3436;
+    }
 
-:root {
-    --bg-color: #0b0c10;
-    --medium-bg-color: #1f2833;
-    --light-bg-color: #c5c6c7;
-    --secondary-color: #45a29e;
-    --primary-color: #66fcf1;
-    --warn-color: #ed254e;
-    --medium-bg-color-rgb: 31, 40, 51;
-}
+    html {
+        padding: 2rem;
+        background-color: var(--bg-color);
+        font-family: "Courier", monospace;
+    }
 
-::-webkit-scrollbar-corner {
-    background-color: transparent;
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
 }

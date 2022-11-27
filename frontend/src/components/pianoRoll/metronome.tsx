@@ -1,6 +1,7 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { GiMetronome } from "react-icons/gi";
 import { Sequencer } from "../../sound/sequencer";
+import Button from "../basic/button";
 
 interface MetronomeProps {
     disabled?: boolean;
@@ -26,13 +27,14 @@ const Metronome: FunctionComponent<MetronomeProps> = ({ disabled = false }) => {
     }, [disabled]);
 
     return (
-        <button
-            className={"top-button" + (active ? " pressed" : "")}
+        <Button
+            className={"flex items-center justify-center text-4xl"}
+            pressed={active}
             disabled={disabled}
             onClick={handleClick}
         >
             <GiMetronome />
-        </button>
+        </Button>
     );
 };
 

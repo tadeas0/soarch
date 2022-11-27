@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="2048"
+   height="499"
+   viewBox="0 0 541.86668 132.02708"
+   version="1.1"
+   id="svg5"
+   inkscape:export-filename="logo_text.svg"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   sodipodi:docname="logo_text.svg"
+   inkscape:version="1.2.1 (9c6d41e410, 2022-07-14)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.0973349"
+     inkscape:cx="395.95934"
+     inkscape:cy="257.89757"
+     inkscape:window-width="1902"
+     inkscape:window-height="1039"
+     inkscape:window-x="6"
+     inkscape:window-y="6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <rect
+       x="497.14666"
+       y="499"
+       width="439.15115"
+       height="499"
+       id="rect3717" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <text
+       xml:space="preserve"
+       style="font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:70.5556px;font-family:'Latin Modern Mono Light';-inkscape-font-specification:'Latin Modern Mono Light,  Oblique';fill:#477998;fill-opacity:1;stroke-width:0.264583"
+       x="139.31497"
+       y="113.51846"
+       id="text3647"><tspan
+         sodipodi:role="line"
+         id="tspan3645"
+         style="font-style:oblique;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:70.5556px;font-family:'Latin Modern Mono Light';-inkscape-font-specification:'Latin Modern Mono Light,  Oblique';stroke-width:0.264583"
+         x="139.31497"
+         y="113.51846">Soarch</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text3715"
+       style="fill:#477998;fill-opacity:1;font-size:266.66666667px;-inkscape-font-specification:'Latin Modern Mono Light,  Oblique';font-family:'Latin Modern Mono Light';font-weight:normal;font-style:oblique;font-stretch:normal;font-variant:normal;white-space:pre;shape-inside:url(#rect3717)" />
+    <g
+       id="g4543"
+       transform="translate(0.80468132,3.4978377)">
+      <path
+         style="fill:#477998;fill-opacity:1;stroke-width:0.247021"
+         d="M 77.192287,106.81041 89.921077,55.758027"
+         id="path4130" />
+      <path
+         style="fill:#477998;fill-opacity:1;stroke:#477998;stroke-width:2.39475;stroke-dasharray:none;stroke-opacity:1"
+         d="M 75.148585,106.81041 87.877375,55.758027"
+         id="path4132" />
+      <path
+         style="fill:#477998;fill-opacity:1;stroke:#477998;stroke-width:2.39475;stroke-dasharray:none;stroke-opacity:1"
+         d="M 112.76568,106.81041 125.49447,55.758028"
+         id="path4132-7" />
+      <path
+         style="fill:#477998;fill-opacity:1;stroke:#477998;stroke-width:2.39475;stroke-dasharray:none;stroke-opacity:1"
+         d="m 87.5603,57.029742 h 37.6171"
+         id="path4241" />
+      <path
+         style="fill:#477998;fill-opacity:1;stroke:#477998;stroke-width:2.39475;stroke-dasharray:none;stroke-opacity:1"
+         d="M 122.93707,66.015193 H 85.319975"
+         id="path4243" />
+      <path
+         style="fill:none;fill-opacity:1;stroke:#477998;stroke-width:2.8046;stroke-dasharray:none;stroke-opacity:1"
+         d="M 89.265629,50.19004 C 112.68567,18.472096 122.07538,27.648103 126.89169,50.1541"
+         id="path4245"
+         sodipodi:nodetypes="cc" />
+      <ellipse
+         style="fill:#477998;fill-opacity:1;stroke:#477998;stroke-width:1.07117;stroke-dasharray:none;stroke-opacity:1"
+         id="path4397"
+         cx="120.59664"
+         cy="40.812351"
+         rx="0.75173789"
+         ry="1.8110811"
+         transform="matrix(1,0,-0.2419219,0.97029573,0,0)" />
+      <path
+         style="fill:#477998;fill-opacity:1;stroke:#477998;stroke-width:0.760008;stroke-dasharray:none;stroke-opacity:1"
+         id="path4488"
+         sodipodi:type="arc"
+         sodipodi:cx="147.90855"
+         sodipodi:cy="110.08029"
+         sodipodi:rx="9.6654682"
+         sodipodi:ry="8.203537"
+         sodipodi:start="0"
+         sodipodi:end="6.2734912"
+         sodipodi:arc-type="slice"
+         d="m 157.57402,110.08029 a 9.6654682,8.203537 0 0 1 -9.64204,8.20351 9.6654682,8.203537 0 0 1 -9.68878,-8.16375 9.6654682,8.203537 0 0 1 9.59508,-8.24308 9.6654682,8.203537 0 0 1 9.73529,8.1238 l -9.66502,0.0795 z"
+         transform="matrix(1,0,-0.2419219,0.97029573,0,0)" />
+      <path
+         style="fill:#477998;fill-opacity:1;stroke:#477998;stroke-width:0.760008;stroke-dasharray:none;stroke-opacity:1"
+         id="path4488-7"
+         sodipodi:type="arc"
+         sodipodi:cx="93.531288"
+         sodipodi:cy="110.08029"
+         sodipodi:rx="9.6654682"
+         sodipodi:ry="8.203537"
+         sodipodi:start="0"
+         sodipodi:end="6.2734912"
+         sodipodi:arc-type="slice"
+         d="m 103.19676,110.08029 a 9.6654682,8.203537 0 0 1 -9.642047,8.20351 9.6654682,8.203537 0 0 1 -9.68878,-8.16375 9.6654682,8.203537 0 0 1 9.595082,-8.24308 9.6654682,8.203537 0 0 1 9.735285,8.1238 l -9.665012,0.0795 z"
+         transform="matrix(1,0,-0.2419219,0.97029573,0,0)" />
+    </g>
+  </g>
+</svg>

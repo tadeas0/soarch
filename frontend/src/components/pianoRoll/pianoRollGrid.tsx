@@ -1,6 +1,5 @@
 import * as React from "react";
 import { FunctionComponent, useState } from "react";
-import "./pianoRoll.css";
 import { Note } from "../../sound/sequencer";
 import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
@@ -80,7 +79,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     };
 
     return (
-        <div className="table-container">
+        <div className="flex h-[70vh] max-w-[90vw] justify-start overflow-scroll rounded border-2 border-dark-primary">
             <PianoRollCanvas
                 gridParams={gridParams}
                 notes={notes}

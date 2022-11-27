@@ -1,6 +1,5 @@
 import * as React from "react";
 import { FunctionComponent } from "react";
-import "./strategySelector.css";
 
 export interface Option {
     name: string;

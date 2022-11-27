@@ -1,9 +1,0 @@
-.piano-roll-route {
-    background-color: var(--bg-color);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    grid-template-rows: 2fr 1fr;
-    color: white;
-    height: 100vh;
-}
