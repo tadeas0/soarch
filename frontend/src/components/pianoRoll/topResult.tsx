@@ -76,6 +76,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                             onClick={() =>
                                 addTab({
                                     ...sr,
+                                    bpm: Math.round(sr.bpm),
                                     gridParams:
                                         Sequencer.getGridParamsFromNotes(
                                             sr.notes

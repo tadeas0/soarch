@@ -9,7 +9,7 @@ const Button: FunctionComponent<ButtonProps> = (props) => {
     const { className, ...other } = props;
     const colorClass = props.pressed
         ? "bg-medium-primary"
-        : "bg-light-primary text-white hover:text-black hover:bg-medium-primary";
+        : (props.disabled ? "bg-light-primary text-white" : "bg-light-primary text-white hover:text-black hover:bg-medium-primary");
     return (
         <button
             className={`rounded border-medium-primary p-2 ${colorClass} ${props.className}`}

@@ -134,7 +134,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
         setIsDrawerOpen(false);
         handleStop();
         addTab({
-            bpm: searchResult.bpm,
+            bpm: Math.round(searchResult.bpm),
             name: searchResult.name,
             notes: searchResult.notes,
             gridParams: Sequencer.getGridParamsFromNotes(searchResult.notes),
