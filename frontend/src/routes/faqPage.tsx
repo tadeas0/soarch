@@ -36,7 +36,7 @@ const FaqPage: FunctionComponent = () => {
                         </AccordionItemHeading>
                         <AccordionItemPanel>
                             <p>
-                                Yes! There are numerous formats in which you can export your tune. Simply hit the export button in top button section and choose by your liking!
+                                Yes! We currently support Ogg format, so simply hit the export button in top button section to download your tune!
                             </p>
                         </AccordionItemPanel>
                     </AccordionItem>
