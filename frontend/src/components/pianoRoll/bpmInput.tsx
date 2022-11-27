@@ -1,5 +1,6 @@
 import { FunctionComponent } from "react";
 import { HiPlus, HiMinus } from "react-icons/hi";
+import Button from '../basic/button'
 
 interface BPMInputProps {
     value: number;
@@ -36,14 +37,13 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
 
     return (
         <div className="col-span-3 flex flex-row items-center justify-center self-center justify-self-center rounded bg-light-primary p-4">
-            <div
-                className={`flex-grow-0 p-0 text-white ${
-                    props.disabled || props.value <= props.min ? "disabled" : ""
-                }`}
+            <Button
+                className="flex-grow-0 p-0 text-white text-xl"
+                disabled={props.disabled || props.value <= props.min}
                 onClick={(e) => changeValue(-increment)}
             >
                 <HiMinus />
-            </div>
+            </Button>
             <input
                 maxLength={3}
                 type="number"
@@ -55,14 +55,13 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
                 disabled={props.disabled}
                 onBlur={onFocusLose}
             ></input>
-            <div
-                className={`flex-grow-0 p-0 text-white ${
-                    props.disabled || props.value >= props.max ? "disabled" : ""
-                }`}
+            <Button
+                className="flex-grow-0 p-0 text-white text-xl"
+                disabled={props.disabled || props.value >= props.max}
                 onClick={(e) => changeValue(increment)}
             >
                 <HiPlus />
-            </div>
+            </Button>
         </div>
     );
 };
