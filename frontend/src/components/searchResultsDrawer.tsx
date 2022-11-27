@@ -9,6 +9,7 @@ import PuffLoader from "react-spinners/PuffLoader";
 import usePlayback from "../hooks/usePlayback";
 import { Sequencer } from "../sound/sequencer";
 import Button from "./basic/button";
+import { BLACK } from "../constants";
 
 const defaultProps = {
     onToggle: () => {},
@@ -49,8 +50,8 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
     const renderDrawerBody = () => {
         if (props.isBusy) {
             return (
-                <div className="flex h-full w-full flex-row items-center justify-center">
-                    <PuffLoader size={100} />
+                <div className="flex h-full w-full flex-row items-center justify-center bg-background">
+                    <PuffLoader size={100} color={BLACK} />
                 </div>
             );
         } else if (!props.isBusy && props.searchResults.length === 0) {
@@ -64,11 +65,11 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
             );
         } else {
             return (
-                <div className="h-full bg-background p-3">
+                <div className="h-full bg-background p-3 text-black">
                     <h1 className="mb-4 text-3xl">Search results</h1>
                     <ul className="mx-2">
                         {props.searchResults.map((s) => (
-                            <li className="my-2 w-full border-b-2 border-dark-primary py-2 last:border-b-0">
+                            <li className="w-full border-b-2 border-black last:border-b-0">
                                 <SearchResultCard
                                     searchResult={s}
                                     isPlaying={s === playingResult}

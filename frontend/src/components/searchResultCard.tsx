@@ -26,8 +26,8 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
         return {
             backgroundImage: `linear-gradient(
                                     90deg,
-                                    var(--secondary-color) 0%,
-                                    var(--secondary-color) ${progress}%,
+                                    var(--light-primary-color) 0%,
+                                    var(--light-primary-color) ${progress}%,
                                     var(--bg-color) ${progress + 1}%
                                )`,
         };
@@ -45,7 +45,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     }, [isPlaying]);
 
     return (
-        <div style={getInlineStyles()}>
+        <div className="py-3 px-2" style={getInlineStyles()}>
             <div className="flex h-full w-full flex-row">
                 <div className="flex h-full w-5/6 flex-col">
                     <h4>{searchResult.name}</h4>

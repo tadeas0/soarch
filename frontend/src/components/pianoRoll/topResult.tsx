@@ -5,6 +5,7 @@ import { SearchResult } from "../../routes/pianoRollRoute";
 import { Sequencer } from "../../sound/sequencer";
 import ClipLoader from "react-spinners/ClipLoader";
 import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
+import { WHITE } from "../../constants";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -25,9 +26,9 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
         return {
             backgroundImage: `linear-gradient(
                                     90deg,
-                                    var(--secondary-color) 0%,
-                                    var(--secondary-color) ${progress}%,
-                                    var(--bg-color) ${progress + 1}%
+                                    var(--medium-primary-color) 0%,
+                                    var(--medium-primary-color) ${progress}%,
+                                    var(--light-primary-color) ${progress + 1}%
                                )`,
         };
     };
@@ -104,8 +105,8 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
         >
             {props.isBusy ? (
                 <div className="flex h-full flex-row items-center justify-center">
-                    <ClipLoader size={24} />
-                    <h4 className="ml-2">Loading...</h4>
+                    <ClipLoader size={24} color={WHITE} />
+                    <h4 className="ml-2">Searching...</h4>
                 </div>
             ) : (
                 renderResult()
