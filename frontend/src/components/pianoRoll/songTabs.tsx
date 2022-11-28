@@ -25,6 +25,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
         state.songs,
     ]);
     const { canAddTab, selectTab, addTab, removeTab } = useTabControls();
+    const maxW = songs.length < 7 ? "max-w-2xs" : "max-w-3xs";
 
     return (
         <Tabs selectedIndex={selectedIndex} onSelect={() => {}}>
@@ -35,11 +36,16 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                             "flex flex-row justify-center rounded-t border-2 border-b-0 border-dark-primary hover:bg-medium-primary hover:text-black" +
                             (i === selectedIndex
                                 ? " bg-medium-primary text-black"
-                                : " bg-light-primary text-white")
+                                : " bg-light-primary text-white " + maxW)
                         }
                         key={i}
                     >
-                        <Tab className="p-2" onClick={() => selectTab(i)}>
+                        <Tab
+                            className={
+                                "p-2" + (i === selectedIndex ? "" : " truncate")
+                            }
+                            onClick={() => selectTab(i)}
+                        >
                             {s.name}
                         </Tab>
                         <button className="p-1" onClick={() => removeTab(i)}>
@@ -58,7 +64,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
             </TabList>
             {songs.map((s, i) => (
                 <TabPanel
-                    className="tab-panel"
+                    className="max-w-fit"
                     selectedClassName="tab-panel-selected"
                     key={i}
                 >

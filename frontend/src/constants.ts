@@ -1,6 +1,7 @@
 export const MIDI_NOTES = 128;
 export const DEFAULT_PIANO_ROLL_HEIGHT = 73;
 export const DEFAULT_PIANO_ROLL_WIDTH = 64;
+export const MIN_MEASURES = 4;
 export const MIN_BPM = 30;
 export const MAX_BPM = 250;
 export const DEFAULT_BPM = 120;
@@ -70,4 +71,4 @@ export const MIN_NOTES_FOR_FETCHING = 3;
 export const MAX_OCTAVE_OFFSET = 2;
 export const ON_SCREEN_PIANO_LOW = "C4";
 export const ON_SCREEN_PIANO_HIGH = "C5";
-export const MAX_TABS = 12;
+export const MAX_TABS = 10;
