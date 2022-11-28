@@ -209,7 +209,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             className="h-screen transition-[width]"
         >
             <div
-                className="sticky top-0 left-0 z-10 border-b-2 border-dark-primary bg-white transition-[width]"
+                className="sticky top-0 left-0 border-b-2 border-dark-primary bg-white transition-[width]"
                 style={{
                     width: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
                 }}
