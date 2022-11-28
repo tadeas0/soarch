@@ -7,7 +7,7 @@ import * as Tone from "tone";
 export interface SynthPreset {
     name: string;
     icon: IconType;
-    preset: Tone.Synth | Tone.PolySynth | Tone.Sampler;
+    preset: Tone.PolySynth | Tone.Sampler;
     filter?: Tone.Filter;
 }
 

@@ -1,4 +1,4 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { Piano, KeyboardShortcuts } from "react-piano";
 import * as Tone from "tone";
 import { Note, Sequencer } from "../../sound/sequencer";
@@ -9,6 +9,7 @@ import {
     ON_SCREEN_PIANO_LOW,
 } from "../../constants";
 import { HiMinus, HiPlus } from "react-icons/hi";
+import useMidiListener from "../../hooks/useMidiListener";
 
 interface OnScreenPianoProps {
     onKeyUp: (note: Note) => void;
@@ -40,6 +41,11 @@ const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
     const [noteStarts, setNoteStarts] = useState<{
         [note: number]: Tone.Unit.Time;
     }>({});
+    const [, setMidiPlayback] = useMidiListener(props.onKeyUp);
+
+    useEffect(() => {
+        setMidiPlayback(props.playbackEnabled);
+    }, [props.playbackEnabled, setMidiPlayback]);
 
     const getCurrentQTime = () => {
         const t = Tone.Time(Tone.Transport.position).toBarsBeatsSixteenths();
