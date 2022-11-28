@@ -1,5 +1,9 @@
 import { useEffect, FunctionComponent } from "react";
-import { MEASURE_LENGTH, MIN_NOTES_FOR_FETCHING } from "../../constants";
+import {
+    MEASURE_LENGTH,
+    MIN_MEASURES,
+    MIN_NOTES_FOR_FETCHING,
+} from "../../constants";
 import { Note, Sequencer } from "../../sound/sequencer";
 import SongTabs from "./songTabs";
 import TopButtons from "./topButtons";
@@ -88,7 +92,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     }, [isResultPlaying, isRollPlaying, selectedSong]);
 
     const canRemoveMeasure = () => {
-        return selectedSong.gridParams.width > 2 * MEASURE_LENGTH;
+        return selectedSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;
     };
 
     const handleKeyUp = (note: Note) => {
@@ -114,7 +118,12 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             </div>
             <div className="mt-10 flex w-full flex-row items-start justify-between gap-3">
                 <Button
-                    className="mt-44 p-3 text-xl"
+                    className={
+                        "mt-44 p-3 text-xl" +
+                        (canRemoveMeasure()
+                            ? ""
+                            : " bg-transparent text-transparent")
+                    }
                     onClick={removeMeasure}
                     disabled={disabled || !canRemoveMeasure()}
                 >

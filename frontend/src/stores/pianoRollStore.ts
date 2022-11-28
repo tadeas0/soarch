@@ -6,6 +6,7 @@ import {
     DEFAULT_PIANO_ROLL_WIDTH,
     MAX_TABS,
     MEASURE_LENGTH,
+    MIN_MEASURES,
     PIANO_ROLL_LOWEST_NOTE,
 } from "../constants";
 import { Note, Sequencer } from "../sound/sequencer";
@@ -189,7 +190,8 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
         set((state) => {
             const newSongs = [...state.songs];
             const selSong = newSongs[state.selectedIndex];
-            const canRemove = selSong.gridParams.width > 2 * MEASURE_LENGTH;
+            const canRemove =
+                selSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;
             if (!canRemove) return {};
             const newGridLength = selSong.gridParams.width - MEASURE_LENGTH;
             const newNotes = selSong.notes.filter(

@@ -64,7 +64,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
             </TabList>
             {songs.map((s, i) => (
                 <TabPanel
-                    className="tab-panel"
+                    className="max-w-fit"
                     selectedClassName="tab-panel-selected"
                     key={i}
                 >
