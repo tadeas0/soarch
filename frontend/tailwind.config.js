@@ -15,11 +15,12 @@ module.exports = {
         fontFamily: {
             logo: "Latin Modern Mono Light",
         },
-        maxWidth: {
-            "3xs": "100px",
-            "2xs": "160px",
+        extend: {
+            maxWidth: {
+                "3xs": "100px",
+                "2xs": "160px",
+            },
         },
-        extend: {},
     },
     plugins: [],
 };
