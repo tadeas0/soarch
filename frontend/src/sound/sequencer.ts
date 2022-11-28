@@ -1,5 +1,6 @@
 import * as Tone from "tone";
 import {
+    DEFAULT_PIANO_ROLL_HEIGHT,
     MEASURE_LENGTH,
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
@@ -127,33 +128,37 @@ export abstract class Sequencer {
         let minGridLength = 0;
         let minGridStart = this.toneTimeToRollTime(notes[0].time);
         let lowestNote: Tone.Unit.MidiNote = Tone.Frequency(
-            notes[0].pitch
+            PIANO_ROLL_LOWEST_NOTE
         ).toMidi();
-        let highestNote: Tone.Unit.MidiNote = 0;
+        let highestNote =
+            Tone.Frequency(PIANO_ROLL_LOWEST_NOTE).toMidi() +
+            DEFAULT_PIANO_ROLL_HEIGHT -
+            1;
+        // let highestNote: Tone.Unit.MidiNote = 0;
         for (const n of notes) {
             const nMin = this.toneTimeToRollTime(n.time);
             let length = this.toneTimeToRollTime(n.length);
             if (length === 0) length = 1;
             const nMax = nMin + length;
             const midiPitch = Tone.Frequency(n.pitch).toMidi();
-            if (midiPitch < lowestNote) lowestNote = midiPitch;
-            if (midiPitch > highestNote) highestNote = midiPitch;
+            if (midiPitch < lowestNote)
+                throw new Error("Note is lower than minimum piano roll pitch"); // TODO: move the note up by an octave, when it is too high
+
+            if (midiPitch > highestNote)
+                throw new Error("Note is higher than maximum piano roll pitch"); // TODO: move the note down by an octave, when it is too high
             if (minGridStart > nMin) minGridStart = nMin;
             if (nMax > minGridLength) minGridLength = nMax;
         }
 
-        const lowC = lowestNote - (lowestNote % 12);
-        const highB = highestNote + 12 - (highestNote % 12) - 1;
         const gridStart = minGridStart - (minGridStart % MEASURE_LENGTH);
         const gridEnd =
             minGridLength + MEASURE_LENGTH - (minGridLength % MEASURE_LENGTH);
         const gridWidth = gridEnd - gridStart;
-        const gridHeight = highB - lowC + 1;
 
         return {
             width: gridWidth,
-            height: gridHeight,
-            lowestNote: Tone.Frequency(lowC, "midi").toNote(),
+            height: DEFAULT_PIANO_ROLL_HEIGHT,
+            lowestNote: PIANO_ROLL_LOWEST_NOTE,
         };
     }
 
