@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import * as Tone from "tone";
 import {
     PIANO_ROLL_HANDLE_PART,
-    PIANO_ROLL_HEADER_SIZE,
     PIANO_ROLL_NOTE_HEIGHT,
     PIANO_ROLL_NOTE_WIDTH,
 } from "../../constants";
@@ -47,9 +46,7 @@ export class MouseHandler {
     public getRollCoordsFromMouseCoords(coords: MouseCoords): RollCoordinates {
         const { offsetX, offsetY } = coords;
         return {
-            row: Math.floor(
-                (offsetY - PIANO_ROLL_HEADER_SIZE) / PIANO_ROLL_NOTE_HEIGHT
-            ),
+            row: Math.floor(offsetY / PIANO_ROLL_NOTE_HEIGHT),
             column: Math.floor(offsetX / PIANO_ROLL_NOTE_WIDTH),
         };
     }

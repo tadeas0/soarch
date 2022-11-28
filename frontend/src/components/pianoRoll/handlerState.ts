@@ -48,6 +48,10 @@ export class ReadyState extends State {
         } else {
             const rollCoords =
                 this.mouseHandler.getRollCoordsFromMouseCoords(coords);
+            const len = Math.min(
+                DEFAULT_NOTE_LENGTH,
+                this.mouseHandler.gridParams.width - rollCoords.column
+            );
             const newNote = {
                 time: Sequencer.rollTimeToToneTime(rollCoords.column),
                 pitch: Tone.Frequency(this.mouseHandler.gridParams.lowestNote)
@@ -55,7 +59,7 @@ export class ReadyState extends State {
                         this.mouseHandler.gridParams.height - rollCoords.row - 1
                     )
                     .toNote(),
-                length: Sequencer.rollTimeToToneTime(DEFAULT_NOTE_LENGTH),
+                length: Sequencer.rollTimeToToneTime(len),
             };
             this.mouseHandler.addNote(newNote);
             this.mouseHandler.selectNote(newNote);
@@ -125,7 +129,11 @@ class MovingState extends State {
         }
         const rollCoords =
             this.mouseHandler.getRollCoordsFromMouseCoords(coords);
-        const newColumn = Math.max(0, rollCoords.column - this.columnOffset);
+        const newColumn = Math.min(
+            this.mouseHandler.gridParams.width -
+                Sequencer.toneTimeToRollTime(oldNote.length),
+            Math.max(0, rollCoords.column - this.columnOffset)
+        );
         const newNote = {
             time: Sequencer.rollTimeToToneTime(newColumn),
             pitch: Tone.Frequency(this.mouseHandler.gridParams.lowestNote)
