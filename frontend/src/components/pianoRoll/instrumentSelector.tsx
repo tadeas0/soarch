@@ -36,7 +36,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
     return (
         <div
             className={
-                "relative z-10 col-span-1 inline-block rounded bg-transparent p-0 text-4xl" +
+                "relative col-span-1 inline-block rounded bg-transparent p-0 text-4xl" +
                 (isOpen ? " bg-medium-primary" : "")
             }
         >
@@ -55,7 +55,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
                 </div>
             </Button>
             {isOpen && (
-                <div className="absolute block w-full rounded bg-light-primary">
+                <div className="absolute z-10 block w-full rounded bg-light-primary">
                     {Sequencer.getSynthPresets().map((o, i) => (
                         <Button
                             className="flex w-full justify-center rounded py-2 px-4 text-white hover:bg-medium-primary hover:text-black"
