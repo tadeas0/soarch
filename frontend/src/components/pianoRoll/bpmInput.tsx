@@ -9,6 +9,7 @@ interface BPMInputProps {
     disabled: boolean;
     onChange: Function;
     increment: number;
+    id?: string;
 }
 
 const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
@@ -39,7 +40,10 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
     };
 
     return (
-        <div className="col-span-3 flex flex-row items-center justify-center self-center justify-self-center rounded bg-light-primary p-4">
+        <div
+            id={props.id}
+            className="col-span-3 flex flex-row items-center justify-center self-center justify-self-center rounded bg-light-primary p-4"
+        >
             <Button
                 className="flex-grow-0 p-0 text-white text-xl"
                 disabled={props.disabled || props.value <= props.min}

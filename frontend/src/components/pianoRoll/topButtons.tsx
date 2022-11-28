@@ -101,6 +101,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 <FaHeadphonesAlt />
             </Button>
             <BPMInput
+                id="bpm-input"
                 value={selectedSong.bpm}
                 onChange={(value: number) => changeBPM(value)}
                 increment={5}
