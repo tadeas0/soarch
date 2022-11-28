@@ -1,6 +1,7 @@
 import * as Tone from "tone";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
+    MAX_POLYPHONY,
     MEASURE_LENGTH,
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
@@ -172,6 +173,9 @@ export abstract class Sequencer {
 
     public static setSynthPreset(synth: SynthPreset) {
         let newSynth = synth.preset;
+        if (newSynth instanceof Tone.PolySynth) {
+            newSynth.maxPolyphony = MAX_POLYPHONY;
+        }
         if (synth.filter !== undefined) {
             const newFilter = synth.filter;
             newSynth = newSynth.connect(newFilter);
