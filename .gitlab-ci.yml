@@ -1,4 +1,4 @@
-image: docker:20.10.12
+image: docker/compose:latest
 services:
     - docker:dind
 
