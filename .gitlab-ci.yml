@@ -5,18 +5,18 @@ stages:
     - Deploy
 
 variables:
-    - BACKEND_CONTAINER_NAME: "midi-search-backend"
-    - BACKEND_CONTAINER_PORT: "8080"
-    - BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
-    - FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
-    - BACKEND_RELEASE_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:latest
-    - FRONTEND_RELEASE_IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
+    BACKEND_CONTAINER_NAME: "midi-search-backend"
+    BACKEND_CONTAINER_PORT: "8080"
+    BACKEND_IMAGE_TAG: "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG"
+    FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
+    BACKEND_RELEASE_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:latest
+    FRONTEND_RELEASE_IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
 
 before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
 build:
-    - stage: Build
+    stage: Build
     image: docker:latest
     services:
         - docker:dind
@@ -35,7 +35,6 @@ flake8:
     script:
         - docker pull $BACKEND_IMAGE_TAG
         - docker run -it $BACKEND_IMAGE_TAG flake8 src/ --config setup.cfg
-
 # mypy:
 #     stage: Static Analysis
 #     image: docker:latest
