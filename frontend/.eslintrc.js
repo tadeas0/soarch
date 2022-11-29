@@ -13,7 +13,7 @@ module.exports = {
             parserOptions: {
                 project: "./tsconfig.json",
             },
-            files: ["*.ts", "*.tsx"],
+            files: ["src/**/*.ts", "src/**/*.tsx"],
             rules: {
                 "@typescript-eslint/no-shadow": ["error"],
                 "no-shadow": "off",
