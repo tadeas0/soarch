@@ -1,71 +1,75 @@
+import { FunctionComponent, useEffect, useState } from "react";
 import * as React from "react";
-import { FunctionComponent, useState } from "react";
-import ReactModal from "react-modal";
-import { SearchResult } from "../App";
-import { Sequencer } from "../sequencer";
-import PianoRollGrid from "./pianoRollGrid";
-import { MdClose } from "react-icons/md";
-import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
-import "./result.css";
-import usePlayback from "../hooks/usePlayback";
-import { PRIMARY_COLOR } from "../constants";
+import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
+import { MdModeEdit } from "react-icons/md";
+import { SearchResult } from "../interfaces/SearchResult";
+import { Sequencer } from "../sound/sequencer";
+import { useTabControls } from "../stores/pianoRollStore";
 
 interface SearchResultProps {
     searchResult: SearchResult;
+    isPlaying: boolean;
+    onPlay: (searchResult: SearchResult) => void;
+    onEdit: (searchResult: SearchResult) => void;
 }
 
 const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     searchResult,
+    isPlaying,
+    onEdit,
+    onPlay,
 }) => {
-    const [isOpen, setOpen] = useState<boolean>(false);
-    const [isPlaying, handleStart, handleStop] = usePlayback();
+    const [progress, setProgress] = useState(0);
+    const { canAddTab } = useTabControls();
 
-    const handleModalOpen = () => {
-        handleStop();
-        setOpen(true);
+    const getInlineStyles = () => {
+        if (!isPlaying) return {};
+        return {
+            backgroundImage: `linear-gradient(
+                                    90deg,
+                                    var(--light-primary-color) 0%,
+                                    var(--light-primary-color) ${progress}%,
+                                    var(--bg-color) ${progress + 1}%
+                               )`,
+        };
     };
 
-    const handleModalClose = () => {
-        handleStop();
-        setOpen(false);
-    };
-
-    const handlePlayClick = () => {
-        if (!isPlaying) {
-            const params = Sequencer.getGridParamsFromNotes(searchResult.notes);
-            handleStart(searchResult.notes, searchResult.bpm, params.width);
-        } else {
-            handleStop();
-        }
-    };
+    useEffect(() => {
+        (async () => {
+            if (isPlaying) {
+                await Sequencer.clearOnBeatCallbacks();
+                await Sequencer.runCallbackOnBeat(() =>
+                    setProgress(Sequencer.getProgress() * 100)
+                );
+            }
+        })();
+    }, [isPlaying]);
 
     return (
-        <div className="result-card">
-            <div className="inner">
-                <h4 onClick={handleModalOpen}>{searchResult.name}</h4>
-                <p>{searchResult.artist}</p>
-                <ReactModal
-                    isOpen={isOpen}
-                    shouldCloseOnOverlayClick={true}
-                    className="result-overlay-content"
-                    overlayClassName="result-overlay-overlay"
-                    onRequestClose={handleModalClose}
-                >
-                    <button className="close-btn" onClick={handleModalClose}>
-                        <MdClose color={PRIMARY_COLOR} />
-                    </button>
-                    <button className="play-btn" onClick={handlePlayClick}>
+        <div className="py-3 px-2" style={getInlineStyles()}>
+            <div className="flex h-full w-full flex-row">
+                <div className="flex h-full w-5/6 flex-col">
+                    <h4>{searchResult.name}</h4>
+                    <p className="text-sm">{searchResult.artist}</p>
+                </div>
+                <div className="flex h-full flex-col">
+                    <button
+                        className="h-1/2 text-xl"
+                        type="button"
+                        onClick={() => onPlay(searchResult)}
+                    >
                         {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                     </button>
-                    <div className="pianoroll">
-                        <PianoRollGrid
-                            gridParams={Sequencer.getGridParamsFromNotes(
-                                searchResult.notes
-                            )}
-                            notes={searchResult.notes}
-                        />
-                    </div>
-                </ReactModal>
+                    {canAddTab && (
+                        <button
+                            className="h-1/2 text-xl"
+                            type="button"
+                            onClick={() => onEdit(searchResult)}
+                        >
+                            <MdModeEdit />
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

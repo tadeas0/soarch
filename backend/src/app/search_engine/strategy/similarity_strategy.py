@@ -157,7 +157,7 @@ class LocalAlignmentStrategy(SimilarityStrategy):
         match = 1
         mismatch = -1
         gap = -2
-        score_mat = np.zeros((len(line1) + 1, len(line2) + 1))
+        score_mat = np.zeros((len(line1) + 1, len(line2) + 1), dtype=np.float64)
         for i in range(1, len(line1) + 1):
             for j in range(1, len(line2) + 1):
                 ln = self.__clamp_num(score_mat[i][j - 1] + gap)
@@ -167,7 +167,7 @@ class LocalAlignmentStrategy(SimilarityStrategy):
                 else:
                     dn = self.__clamp_num(score_mat[i - 1][j - 1] + mismatch)
                 score_mat[i][j] = max(ln, un, dn)
-        return np.max(score_mat)
+        return float(np.max(score_mat))
 
 
 class LocalAlignmentStrategyLib(SimilarityStrategy):
