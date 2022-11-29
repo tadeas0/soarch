@@ -76,11 +76,11 @@ deploy:
         - echo "Deploying images..."
         - eval $(ssh-agent -s)
         - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-        # - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
-        # - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
-        # - echo $BACKEND_ENV_VARS >> .env
-        - ssh -o StrictHostKeyChecking=no $PROD_SERVER_USER@$PROD_SERVER_IP "echo Hello"
-        # - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down
-        # - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" pull
-        # - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" up -d
-        # - echo "Deployment Complete!"
+        - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
+        - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
+        - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
+        - echo $BACKEND_ENV_VARS >> .env
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down --remove-orphans
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" pull
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" up -d
+        - echo "Deployment Complete!"
