@@ -63,34 +63,23 @@ release-images:
     script:
         - echo "BACKEND_IMAGE_TAG=$BACKEND_RELEASE_IMAGE_TAG" >> .env
         - echo "FRONTEND_IMAGE_TAG=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
-        - docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --pull
+        - docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
         - echo "Pushing images to $BACKEND_RELEASE_IMAGE_TAG $FRONTEND_RELEASE_IMAGE_TAG"
         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
-# deploy:
-#     stage: Deploy
-#     image: docker:latest
-#     services:
-#         - docker:dind
-#     script:
-#         - echo "Deploying images..."
-#         - eval $(ssh-agent -s)
-#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down --remove-orphans
-#         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "mkdir -p $APP_DIR"
-#         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd $APP_DIR && docker-compose up -f docker-compose.yml -f docker-compose.prod.yml"
-#         - echo "Backend deployment Complete!"
-#     only:
-#         - master
-# deploy-frontend:
-#     stage: Deploy
-#     image: docker:latest
-#     services:
-#         - docker:dind
-#     script:
-#         - echo "Deploying Frontend..."
-#         - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
-#         - docker build --file=frontend/Dockerfile --rm=true -t registry.heroku.com/$HEROKU_APP_FRONTEND/web ./frontend
-#         - docker push registry.heroku.com/$HEROKU_APP_FRONTEND/web
-#         - docker run -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli:latest container:release web -a $HEROKU_APP_FRONTEND
-#         - echo "Frontend deployment Complete!"
-#     only:
-#         - master
+
+deploy:
+    stage: Deploy
+    image: docker:latest
+    services:
+        - docker:dind
+    script:
+        - echo "Deploying images..."
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+        - echo "BACKEND_IMAGE_TAG=$BACKEND_RELEASE_IMAGE_TAG" >> .env
+        - echo "FRONTEND_IMAGE_TAG=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
+        - echo $BACKEND_ENV_VARS >>.env
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down --remove-orphans
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" pull
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" up -d
+        - echo "Deployment Complete!"
