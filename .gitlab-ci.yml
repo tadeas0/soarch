@@ -74,8 +74,8 @@ deploy:
         - docker:dind
     script:
         - echo "Deploying images..."
-        # - eval $(ssh-agent -s)
-        # - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+        - eval $(ssh-agent -s)
+        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
         # - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
         # - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
         # - echo $BACKEND_ENV_VARS >> .env
