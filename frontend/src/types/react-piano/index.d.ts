@@ -6,11 +6,11 @@ declare module "react-piano" {
         width?: number;
         activeNotes?: number[];
         keyWidthToHeight?: number;
-        renderNoteLabel?: ({
-            keyboardShortcut: KeyboardShortcut,
-            midiNumber: number,
-            isActive: boolean,
-            isAccidental: boolean,
+        renderNoteLabel?: (label: {
+            keyboardShortcut: KeyboardShortcut;
+            midiNumber: number;
+            isActive: boolean;
+            isAccidental: boolean;
         }) => any;
         className?: string;
         disabled?: boolean;
