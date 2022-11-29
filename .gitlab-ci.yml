@@ -1,3 +1,7 @@
+image: docker:latest
+services:
+    - docker:dind
+
 stages:
     - Build
     - Static Analysis
@@ -18,9 +22,6 @@ before_script:
 
 # build:
 #     stage: Build
-#     image: docker:latest
-#     services:
-#         - docker:dind
 #     script:
 #         - echo "BACKEND_IMAGE=$BACKEND_IMAGE_TAG" >> .env
 #         - echo "FRONTEND_IMAGE=$FRONTEND_IMAGE_TAG" >> .env
@@ -30,36 +31,24 @@ before_script:
 
 # flake8:
 #     stage: Static Analysis
-#     image: docker:latest
-#     services:
-#         - docker:dind
 #     script:
 #         - docker pull $BACKEND_IMAGE_TAG
 #         - docker run $BACKEND_IMAGE_TAG flake8 src/ --config setup.cfg
 
 # mypy:
 #     stage: Static Analysis
-#     image: docker:latest
-#     services:
-#         - docker:dind
 #     script:
 #         - docker pull $BACKEND_IMAGE_TAG
 #         - docker run $BACKEND_IMAGE_TAG mypy src/ --config-file setup.cfg
 
 # unittest:
 #     stage: Test
-#     image: docker:latest
-#     services:
-#         - docker:dind
 #     script:
 #         - docker pull $BACKEND_IMAGE_TAG
 #         - docker run $BACKEND_IMAGE_TAG python3 -m pytest .
 
 # release-images:
 #     stage: Release
-#     image: docker:latest
-#     services:
-#         - docker:dind
 #     script:
 #         - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
 #         - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
@@ -69,12 +58,10 @@ before_script:
 
 deploy:
     stage: Deploy
-    image: docker:latest
-    services:
-        - docker:dind
     script:
         - echo "Deploying images..."
         - eval $(ssh-agent -s)
+        - mkdir -p ~/.ssh
         - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
         - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
         - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
