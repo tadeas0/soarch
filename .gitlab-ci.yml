@@ -78,8 +78,8 @@ deploy:
         - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
         - echo "BACKEND_IMAGE_TAG=$BACKEND_RELEASE_IMAGE_TAG" >> .env
         - echo "FRONTEND_IMAGE_TAG=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
-        - echo $BACKEND_ENV_VARS >>.env
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down --remove-orphans
+        - echo $BACKEND_ENV_VARS >> .env
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" pull
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" up -d
         - echo "Deployment Complete!"
