@@ -1,18 +1,14 @@
-version: "3"
-
 services:
     redis:
-        restart: always
+        restart: unless-stopped
     backend:
-        image: ${BACKEND_IMAGE}
-        restart: always
+        restart: unless-stopped
         volumes:
             - /backend
             - /midi_files
         environment:
             - ENV=prod
     frontend:
-        image: ${FRONTEND_IMAGE}
-        restart: always
+        restart: unless-stopped
         ports:
             - "80:80"

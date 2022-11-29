@@ -14,8 +14,6 @@ variables:
     BACKEND_CONTAINER_PORT: "8080"
     BACKEND_IMAGE_TAG: "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"
     FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA
-    BACKEND_RELEASE_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:latest
-    FRONTEND_RELEASE_IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
 
 before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -68,7 +66,6 @@ deploy:
         - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
         - echo $BACKEND_ENV_VARS >> .env
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
-        - echo "Pulling images $FRONTEND_RELEASE_IMAGE_TAG, $BACKEND_RELEASE_IMAGE_TAG"
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml pull
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml build
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml up -d
         - echo "Deployment Complete!"
