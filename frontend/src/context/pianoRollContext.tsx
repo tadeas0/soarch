@@ -4,7 +4,7 @@ import React, {
     useReducer,
     useContext,
 } from "react";
-import { SongParams } from "../components/pianoRoll/songTabs";
+import { SongParams } from "../interfaces/SongParams";
 import {
     DEFAULT_BPM,
     DEFAULT_PIANO_ROLL_HEIGHT,
@@ -149,13 +149,13 @@ const rollReducer = (
                         bpm: action.payload,
                     })),
                 };
-            else return state;
-        case PianoRollActionType.ADD_TAB:
+            return state;
+        case PianoRollActionType.ADD_TAB: {
             let newSong = action.payload;
             if (newSong === undefined) {
                 newSong = {
                     ...DEFAULT_SONG_PARAMS,
-                    name: "Song " + (state.songs.length + 1),
+                    name: `Song ${state.songs.length + 1}`,
                 };
             }
             return {
@@ -165,7 +165,8 @@ const rollReducer = (
                 isRollPlaying: false,
                 isResultPlaying: false,
             };
-        case PianoRollActionType.REMOVE_TAB:
+        }
+        case PianoRollActionType.REMOVE_TAB: {
             if (state.songs.length <= 1) return state;
             const newSongs = [...state.songs];
             newSongs.splice(action.payload, 1);
@@ -180,6 +181,7 @@ const rollReducer = (
                 isRollPlaying: false,
                 isResultPlaying: false,
             };
+        }
         case PianoRollActionType.SELECT_TAB:
             if (action.payload >= state.songs.length) return state;
             return {
@@ -201,18 +203,17 @@ const rollReducer = (
                 isRollPlaying: false,
             };
 
-        case PianoRollActionType.REMOVE_MEASURE:
+        case PianoRollActionType.REMOVE_MEASURE: {
             const selSong = state.songs[state.selectedIndex];
             const canRemove = selSong.gridParams.width > 2 * MEASURE_LENGTH;
             if (!canRemove) return state;
             const newGridLength = selSong.gridParams.width - MEASURE_LENGTH;
-            const newNotes = selSong.notes.filter((n) => {
-                return (
+            const newNotes = selSong.notes.filter(
+                (n) =>
                     Sequencer.toneTimeToRollTime(n.time) +
                         Sequencer.toneTimeToRollTime(n.length) <
                     newGridLength
-                );
-            });
+            );
             return {
                 ...state,
                 songs: updateSelectedSong((current) => ({
@@ -222,6 +223,7 @@ const rollReducer = (
                 })),
                 isRollPlaying: false,
             };
+        }
         case PianoRollActionType.CLEAR_HAS_CHANGED_FLAG:
             return { ...state, hasChanged: false };
         default:

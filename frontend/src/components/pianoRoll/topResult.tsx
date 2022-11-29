@@ -1,10 +1,11 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
-import { SearchResult } from "../../routes/pianoRollRoute";
+import { SearchResult } from "../../interfaces/SearchResult";
 import { Sequencer } from "../../sound/sequencer";
 import ClipLoader from "react-spinners/ClipLoader";
 import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
+import * as React from "react";
 import { WHITE } from "../../constants";
 
 interface TopResultProps {
@@ -64,6 +65,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                     <div className="flex h-full w-1/6 flex-col justify-evenly">
                         <button
                             className="text-xl"
+                            type="button"
                             onClick={() => setIsResultPlaying(!isResultPlaying)}
                         >
                             {isResultPlaying ? (
@@ -73,6 +75,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                             )}
                         </button>
                         <button
+                            type="button"
                             onClick={() =>
                                 addTab({
                                     ...sr,
@@ -83,13 +86,14 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                                         ),
                                 })
                             }
-                            className={"text-xl" + canAddTab ? "" : " inactive"}
+                            className={`text-xl${canAddTab}` ? "" : " inactive"}
                         >
                             <MdModeEdit />
                         </button>
                     </div>
                 </div>
                 <button
+                    type="button"
                     onClick={props.onShowMore}
                     className="w-full pr-2 text-right underline"
                 >
@@ -115,6 +119,10 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
             )}
         </div>
     );
+};
+
+TopResult.defaultProps = {
+    searchResult: undefined,
 };
 
 export default TopResult;

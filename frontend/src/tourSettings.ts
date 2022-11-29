@@ -22,7 +22,7 @@ const buttons = [
         type: "back",
     },
     {
-        classes: buttonStyles + " float-right",
+        classes: `${buttonStyles} float-right`,
         text: "Next",
         type: "next",
     },
@@ -33,12 +33,12 @@ export const steps: ShepherdOptionsWithType[] = [
         id: "intro",
         buttons: [
             {
-                classes: buttonStyles + " bg-warn",
+                classes: `${buttonStyles} bg-warn`,
                 text: "Exit",
                 type: "cancel",
             },
             {
-                classes: buttonStyles + " float-right",
+                classes: `${buttonStyles} float-right`,
                 text: "Next",
                 type: "next",
             },
@@ -52,7 +52,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "grid",
         attachTo: { element: "#roll-canvas", on: "auto" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Grid",
         text: [
@@ -62,7 +62,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "search-result",
         attachTo: { element: "#top-result", on: "auto" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Search results",
         text: ["After you input some notes, search results will appear here."],
@@ -70,7 +70,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "play-button",
         attachTo: { element: "#play-button", on: "bottom" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Play",
         text: ["You can use this button to start and stop your tune."],
@@ -78,7 +78,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "piano-button",
         attachTo: { element: "#piano-button", on: "bottom" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Piano",
         text: ["Use this button to open and close on-screen piano keyboard."],
@@ -86,7 +86,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "instrument-selector-button",
         attachTo: { element: "#instrument-button", on: "bottom" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Instrument selector",
         text: ["You can use this button to change the sound of your tune."],
@@ -94,7 +94,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "metronome-button",
         attachTo: { element: "#metronome-button", on: "bottom" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Metronome",
         text: ["It will help you keep a consistent tempo when recording."],
@@ -102,7 +102,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "playback-button",
         attachTo: { element: "#playback-button", on: "bottom" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Playback",
         text: [
@@ -112,7 +112,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "bpm-input",
         attachTo: { element: "#bpm-input", on: "bottom" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "BPM",
         text: ["Use this to control the speed of your track."],
@@ -120,7 +120,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "clear-button",
         attachTo: { element: "#clear-button", on: "bottom" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Clear",
         text: ["This button will clear all notes from currently selected tab."],
@@ -128,7 +128,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "export-button",
         attachTo: { element: "#export-button", on: "bottom" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Export",
         text: ["You can export your tracks."],
@@ -136,7 +136,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "grid-length",
         attachTo: { element: "#add-measure-button", on: "auto" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Grid length",
         text: [
@@ -146,7 +146,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "song-tabs",
         attachTo: { element: "#song-tabs", on: "auto" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Song tabs",
         text: [`You can have up to ${MAX_TABS} different tabs open.`],
@@ -154,7 +154,7 @@ export const steps: ShepherdOptionsWithType[] = [
     {
         id: "tour-button",
         attachTo: { element: "#tour-button", on: "auto" },
-        buttons: buttons,
+        buttons,
         scrollTo: true,
         title: "Restart tutorial",
         text: ["You can always restart the tutorial using this button."],
@@ -168,7 +168,7 @@ export const steps: ShepherdOptionsWithType[] = [
                 type: "back",
             },
             {
-                classes: buttonStyles + " float-right bg-warn",
+                classes: `${buttonStyles} float-right bg-warn`,
                 text: "Close",
                 type: "next",
             },

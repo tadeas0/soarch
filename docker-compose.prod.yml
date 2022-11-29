@@ -1,0 +1,16 @@
+services:
+    redis:
+        restart: unless-stopped
+    backend:
+        restart: unless-stopped
+        volumes:
+            - /backend
+            - /midi_files
+        environment:
+            - ENV=prod
+    frontend:
+        restart: unless-stopped
+        environment:
+            - PORT=80
+        ports:
+            - "80:80"

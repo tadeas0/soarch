@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SlArrowLeft } from "react-icons/sl";
-import { SearchResult } from "../routes/pianoRollRoute";
+import { SearchResult } from "../interfaces/SearchResult";
 import { HiOutlineMagnifyingGlassMinus } from "react-icons/hi2";
 import SearchResultCard from "./searchResultCard";
 import Drawer from "react-modern-drawer";
@@ -9,11 +9,8 @@ import PuffLoader from "react-spinners/PuffLoader";
 import usePlayback from "../hooks/usePlayback";
 import { Sequencer } from "../sound/sequencer";
 import Button from "./basic/button";
+import * as React from "react";
 import { BLACK } from "../constants";
-
-const defaultProps = {
-    onToggle: () => {},
-};
 
 type SearchResultsDrawerProps = {
     searchResults: SearchResult[];
@@ -22,7 +19,7 @@ type SearchResultsDrawerProps = {
     onOpen: () => void;
     onClose: () => void;
     isOpen: boolean;
-} & typeof defaultProps;
+};
 
 const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
     const [playingResult, setPlayingResult] = useState<SearchResult | null>(
@@ -54,7 +51,8 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
                     <PuffLoader size={100} color={BLACK} />
                 </div>
             );
-        } else if (!props.isBusy && props.searchResults.length === 0) {
+        }
+        if (!props.isBusy && props.searchResults.length === 0) {
             return (
                 <div>
                     <div>
@@ -63,25 +61,24 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
                     <div>No results...</div>
                 </div>
             );
-        } else {
-            return (
-                <div className="h-full bg-background p-3 text-black">
-                    <h1 className="mb-4 text-3xl">Search results</h1>
-                    <ul className="mx-2">
-                        {props.searchResults.map((s) => (
-                            <li className="w-full border-b-2 border-black last:border-b-0">
-                                <SearchResultCard
-                                    searchResult={s}
-                                    isPlaying={s === playingResult}
-                                    onEdit={handleEdit}
-                                    onPlay={handlePlay}
-                                />
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            );
         }
+        return (
+            <div className="h-full bg-background p-3 text-black">
+                <h1 className="mb-4 text-3xl">Search results</h1>
+                <ul className="mx-2">
+                    {props.searchResults.map((s) => (
+                        <li className="w-full border-b-2 border-black last:border-b-0">
+                            <SearchResultCard
+                                searchResult={s}
+                                isPlaying={s === playingResult}
+                                onEdit={handleEdit}
+                                onPlay={handlePlay}
+                            />
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        );
     };
 
     return (
@@ -101,10 +98,6 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
             </Drawer>
         </>
     );
-};
-
-SearchResultsDrawer.defaultProps = {
-    onToggle: () => {},
 };
 
 export default SearchResultsDrawer;

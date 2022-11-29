@@ -7,7 +7,7 @@ interface AvailabilityState {
 
 const contextDefaultValues: AvailabilityState = {
     isServerAvailable: false,
-    setServerAvailable: (a: boolean) => {},
+    setServerAvailable: () => {},
 };
 
 export const AvailabilityContext = React.createContext(contextDefaultValues);

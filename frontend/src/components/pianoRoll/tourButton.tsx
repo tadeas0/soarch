@@ -1,6 +1,7 @@
 import { FunctionComponent, useContext } from "react";
 import { IoMdHelp } from "react-icons/io";
 import { ShepherdTourContext } from "react-shepherd";
+import * as React from "react";
 
 const TourButton: FunctionComponent = () => {
     const tour = useContext(ShepherdTourContext);
@@ -9,6 +10,7 @@ const TourButton: FunctionComponent = () => {
         <button
             onClick={() => tour?.start()}
             id="tour-button"
+            type="button"
             className="absolute bottom-0 right-0 rounded-tl bg-light-primary p-2 text-xl text-white hover:bg-medium-primary hover:text-black"
         >
             <IoMdHelp />

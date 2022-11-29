@@ -6,11 +6,11 @@ declare module "react-piano" {
         width?: number;
         activeNotes?: number[];
         keyWidthToHeight?: number;
-        renderNoteLabel?: ({
-            keyboardShortcut: KeyboardShortcut,
-            midiNumber: number,
-            isActive: boolean,
-            isAccidental: boolean,
+        renderNoteLabel?: (label: {
+            keyboardShortcut: KeyboardShortcut;
+            midiNumber: number;
+            isActive: boolean;
+            isAccidental: boolean;
         }) => any;
         className?: string;
         disabled?: boolean;
@@ -43,6 +43,7 @@ declare module "react-piano" {
 
     type NoteFn = (midiNote: number) => void;
 
+    // eslint-disable-next-line react/prefer-stateless-function
     export class Piano extends React.Component<PianoProps, any> {}
 
     export const KeyboardShortcuts: {

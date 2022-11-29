@@ -6,10 +6,11 @@ import {
 } from "../../constants";
 import { Note, Sequencer } from "../../sound/sequencer";
 import SongTabs from "./songTabs";
+import * as React from "react";
 import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
 import TopResult from "./topResult";
-import { SearchResult } from "../../routes/pianoRollRoute";
+import { SearchResult } from "../../interfaces/SearchResult";
 import usePlayback from "../../hooks/usePlayback";
 import {
     usePianoRollStore,
@@ -21,7 +22,6 @@ import Button from "../basic/button";
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
     onShowMore: () => void;
-    isDownloading: boolean;
     setIsDownloading: (v: boolean) => void;
     topSearchResult?: SearchResult;
     isFetchingResults: boolean;
@@ -31,7 +31,6 @@ interface PianoRollProps {
 const PianoRoll: FunctionComponent<PianoRollProps> = ({
     onSubmit,
     onShowMore,
-    isDownloading,
     setIsDownloading,
     disabled = false,
     isFetchingResults,
@@ -91,9 +90,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isResultPlaying, isRollPlaying, selectedSong]);
 
-    const canRemoveMeasure = () => {
-        return selectedSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;
-    };
+    const canRemoveMeasure = () =>
+        selectedSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;
 
     const handleKeyUp = (note: Note) => {
         if (isRollPlaying) {
@@ -106,7 +104,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         <div className="flex flex-col items-center justify-start">
             <div className="grid w-full grid-cols-12 justify-center gap-4">
                 <TopButtons
-                    isDownloading={isDownloading}
                     setIsDownloading={setIsDownloading}
                     disabled={disabled}
                 />
@@ -118,21 +115,17 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             </div>
             <div className="mt-10 flex w-full flex-row items-start justify-between gap-3">
                 <Button
-                    className={
-                        "mt-44 p-3 text-xl" +
-                        (canRemoveMeasure()
+                    className={`mt-44 p-3 text-xl${
+                        canRemoveMeasure()
                             ? ""
-                            : " bg-transparent text-transparent")
-                    }
+                            : " bg-transparent text-transparent"
+                    }`}
                     onClick={removeMeasure}
                     disabled={disabled || !canRemoveMeasure()}
                 >
                     <TiMinus />
                 </Button>
-                <SongTabs
-                    disabledHeader={disabled || isResultPlaying}
-                    disabled={disabled}
-                />
+                <SongTabs disabled={disabled} />
                 <Button
                     id="add-measure-button"
                     className="mt-44 p-3 text-xl"
@@ -149,6 +142,11 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             />
         </div>
     );
+};
+
+PianoRoll.defaultProps = {
+    disabled: false,
+    topSearchResult: undefined,
 };
 
 export default PianoRoll;

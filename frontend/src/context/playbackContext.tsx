@@ -7,7 +7,7 @@ interface PlaybackContextState {
 
 const contextDefaultValues: PlaybackContextState = {
     isPlaying: false,
-    setPlaying: (a: boolean) => {},
+    setPlaying: () => {},
 };
 
 export const PlaybackContext = React.createContext(contextDefaultValues);

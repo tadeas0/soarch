@@ -1,4 +1,5 @@
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
+import * as React from "react";
 import { MdDelete } from "react-icons/md";
 import { CgPiano } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM } from "../../constants";
@@ -15,7 +16,6 @@ const defaultProps = {
 };
 
 type TopButtonsProps = {
-    isDownloading: boolean;
     setIsDownloading: (v: boolean) => void;
     disabled?: boolean;
 } & typeof defaultProps;
@@ -45,8 +45,8 @@ const TopButtons = (props: TopButtonsProps) => {
 
     const getPlayIcon = () => {
         if (props.disabled) return <BsFillPlayFill />;
-        else if (isRollPlaying) return <BsPauseFill />;
-        else return <BsFillPlayFill />;
+        if (isRollPlaying) return <BsPauseFill />;
+        return <BsFillPlayFill />;
     };
 
     const handleSave = async () => {
