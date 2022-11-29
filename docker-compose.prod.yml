@@ -2,7 +2,7 @@ services:
     redis:
         restart: always
     backend:
-        image: ${BACKEND_IMAGE_TAG}
+        image: ${BACKEND_IMAGE}
         restart: always
         volumes:
             - /backend
@@ -10,7 +10,7 @@ services:
         environment:
             - ENV=prod
     frontend:
-        image: ${FRONTEND_IMAGE_TAG}
+        image: ${FRONTEND_IMAGE}
         restart: always
         ports:
             - "80:80"
