@@ -67,7 +67,7 @@ deploy:
         - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
         - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
         - echo $BACKEND_ENV_VARS >> .env
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down --remove-orphans
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" pull
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" up -d
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml pull
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml up -d
         - echo "Deployment Complete!"
