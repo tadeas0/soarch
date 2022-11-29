@@ -1,61 +1,84 @@
 stages:
+    - Build
     - Static Analysis
     - Test
     - Deploy
 
+variables:
+    - BACKEND_CONTAINER_NAME: "midi-search-backend"
+    - BACKEND_CONTAINER_PORT: "8080"
+    - BACKEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
+    - FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_REF_SLUG
+    - BACKEND_RELEASE_IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:latest
+    - FRONTEND_RELEASE_IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:latest
+
+before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+
+build:
+    - stage: Build
+    image: docker:latest
+    services:
+        - docker:dind
+    script:
+        - echo "BACKEND_IMAGE_TAG=$BACKEND_IMAGE_TAG" >> .env
+        - echo "FRONTEND_IMAGE_TAG=$FRONTEND_IMAGE_TAG" >> .env
+        - docker-compose -f docker-compose.yml -f docker-compose.prod build --pull
+        - echo "Pushing images to $BACKEND_IMAGE_TAG $FRONTEND_IMAGE_TAG"
+        - docker-compose -f docker-compose.yml -f docker-compose.prod push
+
 flake8:
     stage: Static Analysis
-    image: python:3.9
-    before_script:
-        - python -V # Print out python version for debugging
-        - pip install -r backend/requirements.txt # you can also use tox
-    script:
-        - flake8 backend/src/ --config backend/setup.cfg
-
-mypy:
-    stage: Static Analysis
-    image: python:3.9
-    before_script:
-        - python -V # Print out python version for debugging
-        - pip install -r backend/requirements.txt # you can also use tox
-    script:
-        - mypy backend/src/ --config-file backend/setup.cfg
-
-unittest:
-    stage: Test
-    image: python:3.9
-    before_script:
-        - python -V # Print out python version for debugging
-        - pip install -r backend/requirements.txt # you can also use tox
-    script:
-        - python3 -m pytest backend/
-
-deploy-backend:
-    stage: Deploy
     image: docker:latest
     services:
         - docker:dind
     script:
-        - echo "Deploying Backend..."
-        - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
-        - docker build --file=backend/Dockerfile --rm=true -t registry.heroku.com/$HEROKU_APP_BACKEND/web ./backend
-        - docker push registry.heroku.com/$HEROKU_APP_BACKEND/web
-        - docker run -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli:latest container:release web -a $HEROKU_APP_BACKEND
-        - echo "Backend deployment Complete!"
-    only:
-        - master
+        - docker pull $BACKEND_IMAGE_TAG
+        - docker run -it $BACKEND_IMAGE_TAG flake8 src/ --config setup.cfg
 
-deploy-frontend:
-    stage: Deploy
-    image: docker:latest
-    services:
-        - docker:dind
-    script:
-        - echo "Deploying Frontend..."
-        - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
-        - docker build --file=frontend/Dockerfile --rm=true -t registry.heroku.com/$HEROKU_APP_FRONTEND/web ./frontend
-        - docker push registry.heroku.com/$HEROKU_APP_FRONTEND/web
-        - docker run -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli:latest container:release web -a $HEROKU_APP_FRONTEND
-        - echo "Frontend deployment Complete!"
-    only:
-        - master
+# mypy:
+#     stage: Static Analysis
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+#         - docker run -it $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA mypy src/ --config-file setup.cfg
+
+# unittest:
+#     stage: Test
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+#         - docker run -it $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA python3 -m pytest .
+
+# deploy:
+#     stage: Deploy
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - echo "Deploying Backend..."
+#         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down --remove-orphans
+#         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "mkdir -p $APP_DIR"
+#         - ssh -i $ID_RSA -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd $APP_DIR && docker-compose up -f docker-compose.yml -f docker-compose.prod.yml"
+#         - echo "Backend deployment Complete!"
+#     only:
+#         - master
+
+# deploy-frontend:
+#     stage: Deploy
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - echo "Deploying Frontend..."
+#         - docker login -u _ -p $HEROKU_API_KEY registry.heroku.com
+#         - docker build --file=frontend/Dockerfile --rm=true -t registry.heroku.com/$HEROKU_APP_FRONTEND/web ./frontend
+#         - docker push registry.heroku.com/$HEROKU_APP_FRONTEND/web
+#         - docker run -e HEROKU_API_KEY=$HEROKU_API_KEY wingrunr21/alpine-heroku-cli:latest container:release web -a $HEROKU_APP_FRONTEND
+#         - echo "Frontend deployment Complete!"
+#     only:
+#         - master
