@@ -37,9 +37,11 @@ mypy:
         - docker run $BACKEND_IMAGE_TAG mypy src/ --config-file setup.cfg
 
 eslint:
+    image: node:16-alpine
     stage: Static Analysis
     script:
         - cd frontend
+        - npm install
         - npm run lint
 
 unittest:
