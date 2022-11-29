@@ -10,5 +10,7 @@ services:
             - ENV=prod
     frontend:
         restart: unless-stopped
+        environment:
+            - PORT=80
         ports:
             - "80:80"

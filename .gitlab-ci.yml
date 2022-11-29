@@ -6,53 +6,42 @@ stages:
     - Build
     - Static Analysis
     - Test
-    - Release
     - Deploy
 
 variables:
     BACKEND_CONTAINER_NAME: "midi-search-backend"
-    BACKEND_CONTAINER_PORT: "8080"
     BACKEND_IMAGE_TAG: "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"
     FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA
 
 before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-# build:
-#     stage: Build
-#     script:
-#         - echo "BACKEND_IMAGE=$BACKEND_IMAGE_TAG" >> .env
-#         - echo "FRONTEND_IMAGE=$FRONTEND_IMAGE_TAG" >> .env
-#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --pull
-#         - echo "Pushing images to $BACKEND_IMAGE_TAG $FRONTEND_IMAGE_TAG"
-#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
+build:
+    stage: Build
+    script:
+        - echo "BACKEND_IMAGE=$BACKEND_IMAGE_TAG" >> .env
+        - echo "FRONTEND_IMAGE=$FRONTEND_IMAGE_TAG" >> .env
+        - docker-compose -f docker-compose.yml -f docker-compose.ci.yml build --pull
+        - echo "Pushing images to $BACKEND_IMAGE_TAG $FRONTEND_IMAGE_TAG"
+        - docker-compose -f docker-compose.yml -f docker-compose.ci.yml push
 
-# flake8:
-#     stage: Static Analysis
-#     script:
-#         - docker pull $BACKEND_IMAGE_TAG
-#         - docker run $BACKEND_IMAGE_TAG flake8 src/ --config setup.cfg
+flake8:
+    stage: Static Analysis
+    script:
+        - docker pull $BACKEND_IMAGE_TAG
+        - docker run $BACKEND_IMAGE_TAG flake8 src/ --config setup.cfg
 
-# mypy:
-#     stage: Static Analysis
-#     script:
-#         - docker pull $BACKEND_IMAGE_TAG
-#         - docker run $BACKEND_IMAGE_TAG mypy src/ --config-file setup.cfg
+mypy:
+    stage: Static Analysis
+    script:
+        - docker pull $BACKEND_IMAGE_TAG
+        - docker run $BACKEND_IMAGE_TAG mypy src/ --config-file setup.cfg
 
-# unittest:
-#     stage: Test
-#     script:
-#         - docker pull $BACKEND_IMAGE_TAG
-#         - docker run $BACKEND_IMAGE_TAG python3 -m pytest .
-
-# release-images:
-#     stage: Release
-#     script:
-#         - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
-#         - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
-#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
-#         - echo "Pushing images to $BACKEND_RELEASE_IMAGE_TAG $FRONTEND_RELEASE_IMAGE_TAG"
-#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
+unittest:
+    stage: Test
+    script:
+        - docker pull $BACKEND_IMAGE_TAG
+        - docker run $BACKEND_IMAGE_TAG python3 -m pytest .
 
 deploy:
     stage: Deploy
@@ -62,10 +51,9 @@ deploy:
         - mkdir -p ~/.ssh
         - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
         - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
-        - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
-        - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
         - echo $BACKEND_ENV_VARS >> .env
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
+        # Image needs to be rebuilt, because host CPU is ARM-based
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml build
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml up -d
         - echo "Deployment Complete!"

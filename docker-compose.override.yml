@@ -1,0 +1,12 @@
+services:
+    backend:
+        environment:
+            - ENV=dev
+        volumes:
+            - ./backend:/backend
+            - ./midi_files:/midi_files
+    frontend:
+        environment:
+            - PORT=80
+        ports:
+            - "3000:80"
