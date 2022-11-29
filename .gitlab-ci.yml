@@ -16,56 +16,56 @@ variables:
 before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
 
-build:
-    stage: Build
-    image: docker:latest
-    services:
-        - docker:dind
-    script:
-        - echo "BACKEND_IMAGE=$BACKEND_IMAGE_TAG" >> .env
-        - echo "FRONTEND_IMAGE=$FRONTEND_IMAGE_TAG" >> .env
-        - docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --pull
-        - echo "Pushing images to $BACKEND_IMAGE_TAG $FRONTEND_IMAGE_TAG"
-        - docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
+# build:
+#     stage: Build
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - echo "BACKEND_IMAGE=$BACKEND_IMAGE_TAG" >> .env
+#         - echo "FRONTEND_IMAGE=$FRONTEND_IMAGE_TAG" >> .env
+#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml build --pull
+#         - echo "Pushing images to $BACKEND_IMAGE_TAG $FRONTEND_IMAGE_TAG"
+#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
 
-flake8:
-    stage: Static Analysis
-    image: docker:latest
-    services:
-        - docker:dind
-    script:
-        - docker pull $BACKEND_IMAGE_TAG
-        - docker run $BACKEND_IMAGE_TAG flake8 src/ --config setup.cfg
+# flake8:
+#     stage: Static Analysis
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - docker pull $BACKEND_IMAGE_TAG
+#         - docker run $BACKEND_IMAGE_TAG flake8 src/ --config setup.cfg
 
-mypy:
-    stage: Static Analysis
-    image: docker:latest
-    services:
-        - docker:dind
-    script:
-        - docker pull $BACKEND_IMAGE_TAG
-        - docker run $BACKEND_IMAGE_TAG mypy src/ --config-file setup.cfg
+# mypy:
+#     stage: Static Analysis
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - docker pull $BACKEND_IMAGE_TAG
+#         - docker run $BACKEND_IMAGE_TAG mypy src/ --config-file setup.cfg
 
-unittest:
-    stage: Test
-    image: docker:latest
-    services:
-        - docker:dind
-    script:
-        - docker pull $BACKEND_IMAGE_TAG
-        - docker run $BACKEND_IMAGE_TAG python3 -m pytest .
+# unittest:
+#     stage: Test
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - docker pull $BACKEND_IMAGE_TAG
+#         - docker run $BACKEND_IMAGE_TAG python3 -m pytest .
 
-release-images:
-    stage: Release
-    image: docker:latest
-    services:
-        - docker:dind
-    script:
-        - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
-        - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
-        - docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
-        - echo "Pushing images to $BACKEND_RELEASE_IMAGE_TAG $FRONTEND_RELEASE_IMAGE_TAG"
-        - docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
+# release-images:
+#     stage: Release
+#     image: docker:latest
+#     services:
+#         - docker:dind
+#     script:
+#         - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
+#         - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
+#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml build
+#         - echo "Pushing images to $BACKEND_RELEASE_IMAGE_TAG $FRONTEND_RELEASE_IMAGE_TAG"
+#         - docker-compose -f docker-compose.yml -f docker-compose.prod.yml push
 
 deploy:
     stage: Deploy
@@ -74,12 +74,13 @@ deploy:
         - docker:dind
     script:
         - echo "Deploying images..."
-        - eval $(ssh-agent -s)
-        - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-        - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
-        - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
-        - echo $BACKEND_ENV_VARS >> .env
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" pull
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" up -d
-        - echo "Deployment Complete!"
+        # - eval $(ssh-agent -s)
+        # - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+        # - echo "BACKEND_IMAGE=$BACKEND_RELEASE_IMAGE_TAG" >> .env
+        # - echo "FRONTEND_IMAGE=$FRONTEND_RELEASE_IMAGE_TAG" >> .env
+        # - echo $BACKEND_ENV_VARS >> .env
+        - ssh $PROD_SERVER_USER@$PROD_SERVER_IP "echo Hello"
+        # - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" down
+        # - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" pull
+        # - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" up -d
+        # - echo "Deployment Complete!"
