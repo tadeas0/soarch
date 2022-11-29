@@ -3,7 +3,7 @@ import { FunctionComponent, useEffect, useRef, useState } from "react";
 import { Note, Sequencer } from "../../sound/sequencer";
 import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
-import { useMouseHandler } from "./mouseHandler";
+import { useMouseHandler } from "./mouseHandler/mouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { PIANO_ROLL_NOTE_HEIGHT } from "../../constants";
 
@@ -11,7 +11,6 @@ interface PianoRollGridProps {
     notes: Note[];
     gridParams: GridParams;
     disabled?: boolean;
-    disabledHeader?: boolean;
 }
 
 // TODO: cleanup event handling
@@ -19,7 +18,6 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     notes,
     gridParams,
     disabled = false,
-    disabledHeader = false,
 }: PianoRollGridProps) => {
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
     const playbackEnabled = usePianoRollStore((state) => state.playbackEnabled);
@@ -116,10 +114,13 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 disabled={disabled}
-                disabledHeader={disabledHeader}
             />
         </div>
     );
+};
+
+PianoRollGrid.defaultProps = {
+    disabled: false,
 };
 
 export default PianoRollGrid;

@@ -3,6 +3,7 @@ import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { SynthPreset } from "../../sound/synthPresets";
 import { Sequencer } from "../../sound/sequencer";
 import Button from "../basic/button";
+import * as React from "react";
 
 const defaultProps = {
     disabled: false,
@@ -19,7 +20,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
         useState<SynthPreset>(initOption);
 
     if (initOption === undefined) {
-        return <div className="instrument-selector"></div>; // return empty div
+        return <div className="instrument-selector" />; // return empty div
     }
 
     const onOptionSelected = (option: SynthPreset) => {
@@ -35,21 +36,20 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
 
     return (
         <div
-            className={
-                "relative col-span-1 inline-block rounded bg-transparent p-0 text-4xl" +
-                (isOpen ? " bg-medium-primary" : "")
-            }
+            className={`relative col-span-1 inline-block rounded bg-transparent p-0 text-4xl${
+                isOpen ? " bg-medium-primary" : ""
+            }`}
         >
             <Button
                 id="instrument-button"
                 className="flex h-full w-full items-center justify-center p-4"
-                onClick={(e) => {
+                onClick={() => {
                     setIsOpen(!isOpen);
                 }}
                 pressed={isOpen}
                 disabled={props.disabled}
             >
-                {<selectedOption.icon />}
+                <selectedOption.icon />
                 <div className="text-md absolute right-1 bottom-0">
                     {isOpen ? <IoMdArrowDropup /> : <IoMdArrowDropdown />}
                 </div>
@@ -59,13 +59,14 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
                     {Sequencer.getSynthPresets().map((o, i) => (
                         <Button
                             className="flex w-full justify-center rounded py-2 px-4 text-white hover:bg-medium-primary hover:text-black"
+                            // eslint-disable-next-line react/no-array-index-key
                             key={i}
                             title={o.name}
-                            onClick={(_) =>
+                            onClick={() =>
                                 onOptionSelected(Sequencer.getSynthPresets()[i])
                             }
                         >
-                            {<o.icon />}
+                            <o.icon />
                         </Button>
                     ))}
                 </div>

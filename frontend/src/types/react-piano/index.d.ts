@@ -43,6 +43,7 @@ declare module "react-piano" {
 
     type NoteFn = (midiNote: number) => void;
 
+    // eslint-disable-next-line react/prefer-stateless-function
     export class Piano extends React.Component<PianoProps, any> {}
 
     export const KeyboardShortcuts: {

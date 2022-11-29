@@ -1,7 +1,8 @@
 import { FunctionComponent, useEffect, useState } from "react";
+import * as React from "react";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
-import { SearchResult } from "../routes/pianoRollRoute";
+import { SearchResult } from "../interfaces/SearchResult";
 import { Sequencer } from "../sound/sequencer";
 import { useTabControls } from "../stores/pianoRollStore";
 
@@ -54,6 +55,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                 <div className="flex h-full flex-col">
                     <button
                         className="h-1/2 text-xl"
+                        type="button"
                         onClick={() => onPlay(searchResult)}
                     >
                         {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
@@ -61,6 +63,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     {canAddTab && (
                         <button
                             className="h-1/2 text-xl"
+                            type="button"
                             onClick={() => onEdit(searchResult)}
                         >
                             <MdModeEdit />

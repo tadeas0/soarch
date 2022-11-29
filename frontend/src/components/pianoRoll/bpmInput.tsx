@@ -1,6 +1,7 @@
 import { FunctionComponent } from "react";
 import { HiPlus, HiMinus } from "react-icons/hi";
-import Button from '../basic/button'
+import Button from "../basic/button";
+import * as React from "react";
 
 interface BPMInputProps {
     value: number;
@@ -16,7 +17,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
     const increment = props.increment === undefined ? 5 : props.increment;
 
     const changeValue = (delta: number) => {
-        if (props.disabled){
+        if (props.disabled) {
             return;
         }
         const newValue = Math.floor(props.value + delta);
@@ -32,7 +33,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
         props.onChange(value);
     };
 
-    const onFocusLose = (e: React.FocusEvent<HTMLInputElement>) => {
+    const onFocusLose = () => {
         const clamped = Math.min(Math.max(props.value, props.min), props.max);
         if (clamped !== props.value) {
             props.onChange(clamped);
@@ -45,9 +46,9 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
             className="col-span-3 flex flex-row items-center justify-center self-center justify-self-center rounded bg-light-primary p-4"
         >
             <Button
-                className="flex-grow-0 p-0 text-white text-xl"
+                className="flex-grow-0 p-0 text-xl text-white"
                 disabled={props.disabled || props.value <= props.min}
-                onClick={(e) => changeValue(-increment)}
+                onClick={() => changeValue(-increment)}
             >
                 <HiMinus />
             </Button>
@@ -61,16 +62,20 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
                 min={props.min}
                 disabled={props.disabled}
                 onBlur={onFocusLose}
-            ></input>
+            />
             <Button
-                className="flex-grow-0 p-0 text-white text-xl"
+                className="flex-grow-0 p-0 text-xl text-white"
                 disabled={props.disabled || props.value >= props.max}
-                onClick={(e) => changeValue(increment)}
+                onClick={() => changeValue(increment)}
             >
                 <HiPlus />
             </Button>
         </div>
     );
+};
+
+BPMInput.defaultProps = {
+    id: "bpm-input",
 };
 
 export default BPMInput;

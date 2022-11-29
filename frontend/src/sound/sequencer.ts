@@ -105,7 +105,7 @@ export abstract class Sequencer {
         const metronomeNotes = [];
         for (let i = 0; i < gridLength / 2; i++) {
             const pitch = i % 4 === 0 ? "G4" : "C4";
-            metronomeNotes.push({ time: `0:${i}:0`, pitch: pitch });
+            metronomeNotes.push({ time: `0:${i}:0`, pitch });
         }
 
         this.metronomePart = new Tone.Part((time, note) => {
@@ -128,10 +128,10 @@ export abstract class Sequencer {
     public static getGridParamsFromNotes(notes: Note[]): GridParams {
         let minGridLength = 0;
         let minGridStart = this.toneTimeToRollTime(notes[0].time);
-        let lowestNote: Tone.Unit.MidiNote = Tone.Frequency(
+        const lowestNote: Tone.Unit.MidiNote = Tone.Frequency(
             PIANO_ROLL_LOWEST_NOTE
         ).toMidi();
-        let highestNote =
+        const highestNote =
             Tone.Frequency(PIANO_ROLL_LOWEST_NOTE).toMidi() +
             DEFAULT_PIANO_ROLL_HEIGHT -
             1;
@@ -213,9 +213,9 @@ export abstract class Sequencer {
     public static toneTimeToRollTime(time: Tone.Unit.Time) {
         const split = Tone.Time(time).toBarsBeatsSixteenths().split(":");
         return (
-            parseInt(split[0]) * 16 +
-            parseInt(split[1]) * 4 +
-            parseInt(split[2]) * 1
+            parseInt(split[0], 10) * 16 +
+            parseInt(split[1], 10) * 4 +
+            parseInt(split[2], 10) * 1
         );
     }
 
@@ -320,7 +320,7 @@ export abstract class Sequencer {
         const recorder = new Tone.Recorder();
         this.synth.disconnect();
         this.synth.connect(recorder);
-        const p = new Promise<Blob>((resolve, reject) => {
+        const p = new Promise<Blob>((resolve) => {
             Tone.Transport.scheduleOnce(() => {
                 resolve(recorder.stop());
             }, this.rollTimeToToneTime(gridLength));

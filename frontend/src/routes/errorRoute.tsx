@@ -1,4 +1,5 @@
 import { FunctionComponent } from "react";
+import * as React from "react";
 import { useRouteError } from "react-router-dom";
 import { BiError } from "react-icons/bi";
 

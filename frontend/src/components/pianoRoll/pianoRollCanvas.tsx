@@ -20,6 +20,7 @@ import {
 import { AiFillCaretDown } from "react-icons/ai";
 import { Note, Sequencer } from "../../sound/sequencer";
 import GridParams from "../../interfaces/GridParams";
+import * as React from "react";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -29,7 +30,6 @@ interface PianoRollCanvasProps {
     notes: Note[];
     selectedNote: Note | null;
     disabled?: boolean;
-    disabledHeader?: boolean;
 }
 
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
@@ -49,12 +49,11 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     };
 
     const isBlackKey = useCallback(
-        (row: number) => {
-            return Tone.Frequency(props.gridParams.lowestNote)
+        (row: number) =>
+            Tone.Frequency(props.gridParams.lowestNote)
                 .transpose(props.gridParams.height - row - 1)
                 .toNote()
-                .includes("#");
-        },
+                .includes("#"),
         [props.gridParams]
     );
 
@@ -172,8 +171,8 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         if (canvas) {
             canvas.height = props.gridParams.height * PIANO_ROLL_NOTE_HEIGHT;
             canvas.width = props.gridParams.width * PIANO_ROLL_NOTE_WIDTH;
-            canvas.style.width = canvas.width + "px";
-            canvas.style.height = canvas.height + "px";
+            canvas.style.width = `${canvas.width}px`;
+            canvas.style.height = `${canvas.height}px`;
             const context = canvas.getContext("2d");
             if (context) {
                 drawGrid(context);
@@ -237,7 +236,6 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
 
 PianoRollCanvas.defaultProps = {
     disabled: false,
-    disabledHeader: false,
 };
 
 export default PianoRollCanvas;

@@ -9,7 +9,6 @@ stages:
     - Deploy
 
 variables:
-    BACKEND_CONTAINER_NAME: "midi-search-backend"
     BACKEND_IMAGE_TAG: "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"
     FRONTEND_IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA
 
@@ -37,6 +36,12 @@ mypy:
         - docker pull $BACKEND_IMAGE_TAG
         - docker run $BACKEND_IMAGE_TAG mypy src/ --config-file setup.cfg
 
+eslint:
+    stage: Static Analysis
+    script:
+        - cd frontend
+        - npm run lint
+
 unittest:
     stage: Test
     script:
@@ -52,8 +57,10 @@ deploy:
         - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
         - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config'
         - echo $BACKEND_ENV_VARS >> .env
-        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml down --remove-orphans
+        - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml down
         # Image needs to be rebuilt, because host CPU is ARM-based
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml build
         - docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml up -d
         - echo "Deployment Complete!"
+    only:
+        - master

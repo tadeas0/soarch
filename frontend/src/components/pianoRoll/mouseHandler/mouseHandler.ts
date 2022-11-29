@@ -4,25 +4,31 @@ import {
     PIANO_ROLL_HANDLE_PART,
     PIANO_ROLL_NOTE_HEIGHT,
     PIANO_ROLL_NOTE_WIDTH,
-} from "../../constants";
-import GridParams from "../../interfaces/GridParams";
-import RollCoordinates from "../../interfaces/RollCoordinates";
-import { Note, Sequencer } from "../../sound/sequencer";
-import { ReadyState, State } from "./handlerState";
-
-export interface MouseCoords {
-    offsetX: number;
-    offsetY: number;
-}
+} from "../../../constants";
+import GridParams from "../../../interfaces/GridParams";
+import RollCoordinates from "../../../interfaces/RollCoordinates";
+import { Note, Sequencer } from "../../../sound/sequencer";
+// eslint-disable-next-line import/no-cycle
+import State from "./handlerState";
+// eslint-disable-next-line import/no-cycle
+import ReadyState from "./readyState";
+import { MouseCoords } from "../../../interfaces/MouseCoords";
 
 export class MouseHandler {
     private state: State;
+
     private _gridParams: GridParams;
+
     private _selectedNote: Note | null;
+
     private onAddNote: (note: Note) => void;
+
     private onDeleteNote: (note: Note) => void;
+
     private changeSelectedNote: (note: Note) => void;
+
     private getNotes: () => Note[];
+
     private _playbackEnabled: boolean;
 
     constructor(
@@ -49,10 +55,6 @@ export class MouseHandler {
             row: Math.floor(offsetY / PIANO_ROLL_NOTE_HEIGHT),
             column: Math.floor(offsetX / PIANO_ROLL_NOTE_WIDTH),
         };
-    }
-
-    public set gridParams(value: GridParams) {
-        this._gridParams = value;
     }
 
     public get playbackEnabled(): boolean {
@@ -113,6 +115,10 @@ export class MouseHandler {
 
     public get gridParams(): GridParams {
         return this._gridParams;
+    }
+
+    public set gridParams(value: GridParams) {
+        this._gridParams = value;
     }
 
     public addNote(note: Note) {

@@ -1,5 +1,5 @@
 import create from "zustand";
-import { SongParams } from "../components/pianoRoll/songTabs";
+import { SongParams } from "../interfaces/SongParams";
 import {
     DEFAULT_BPM,
     DEFAULT_PIANO_ROLL_HEIGHT,
@@ -46,9 +46,8 @@ const getTabName = (existingNames: string[], newName: string) => {
     }
 };
 
-const canAddTab = (existingTabs: SongParams[]) => {
-    return existingTabs.length <= MAX_TABS;
-};
+const canAddTab = (existingTabs: SongParams[]) =>
+    existingTabs.length <= MAX_TABS;
 
 export const DEFAULT_SONG_PARAMS: SongParams = {
     bpm: DEFAULT_BPM,
@@ -61,7 +60,7 @@ export const DEFAULT_SONG_PARAMS: SongParams = {
     notes: [],
 };
 
-export const usePianoRollStore = create<PianoRollState>((set, get) => ({
+export const usePianoRollStore = create<PianoRollState>((set) => ({
     songs: [{ ...DEFAULT_SONG_PARAMS }],
     selectedIndex: 0,
     isResultPlaying: false,
@@ -70,10 +69,10 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
     hasChanged: false,
     isPianoHidden: true,
     setIsRollPlaying: (value: boolean) =>
-        set((state) => ({ isRollPlaying: value, isResultPlaying: false })),
+        set(() => ({ isRollPlaying: value, isResultPlaying: false })),
 
     setIsResultPlaying: (value: boolean) =>
-        set((state) => ({ isResultPlaying: value, isRollPlaying: false })),
+        set(() => ({ isResultPlaying: value, isRollPlaying: false })),
 
     addNote: (note: Note) =>
         set((state) => {
@@ -107,7 +106,7 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
         }),
 
     setPlaybackEnabled: (value: boolean) =>
-        set((state) => ({ playbackEnabled: value })),
+        set(() => ({ playbackEnabled: value })),
 
     changeBPM: (value: number) =>
         set((state) => {
@@ -119,7 +118,7 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
     addTab: (value: SongParams = { ...DEFAULT_SONG_PARAMS }) =>
         set((state) => {
             if (!canAddTab(state.songs)) return {};
-            let newSong = value;
+            const newSong = value;
             const newName = getTabName(
                 state.songs.map((s) => s.name),
                 newSong.name
@@ -151,7 +150,8 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
                     isRollPlaying: false,
                     isResultPlaying: false,
                 };
-            } else if (value === 0 && state.songs.length === 1) {
+            }
+            if (value === 0 && state.songs.length === 1) {
                 return {
                     songs: [{ ...DEFAULT_SONG_PARAMS }],
                     selectedIndex: 0,
@@ -206,17 +206,15 @@ export const usePianoRollStore = create<PianoRollState>((set, get) => ({
         }),
 
     clearChangeFlag: () =>
-        set((state) => ({
+        set(() => ({
             hasChanged: false,
         })),
 
-    setIsPianoHidden: (value: boolean) =>
-        set((state) => ({ isPianoHidden: value })),
+    setIsPianoHidden: (value: boolean) => set(() => ({ isPianoHidden: value })),
 }));
 
-export const useSelectedSong = () => {
-    return usePianoRollStore((state) => state.songs[state.selectedIndex]);
-};
+export const useSelectedSong = () =>
+    usePianoRollStore((state) => state.songs[state.selectedIndex]);
 
 export const useTabControls = () =>
     usePianoRollStore((state) => ({
