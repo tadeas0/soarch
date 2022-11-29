@@ -1,0 +1,74 @@
+/* eslint-disable import/no-cycle */
+import * as Tone from "tone";
+import { DEFAULT_NOTE_LENGTH } from "../../../constants";
+import { Sequencer } from "../../../sound/sequencer";
+import { MouseCoords } from "../../../interfaces/MouseCoords";
+import State from "./handlerState";
+import ChangingLengthState from "./changingLengthState";
+import DeletingState from "./deletingState";
+import MovingState from "./movingState";
+
+export default class ReadyState extends State {
+    public handleLeftClick(coords: MouseCoords) {
+        const n = this.mouseHandler.getNotesAt(coords);
+        const noteHandle = this.mouseHandler.noteHandle(coords);
+        if (noteHandle !== null) {
+            this.mouseHandler.selectNote(noteHandle);
+            this.mouseHandler.changeState(
+                new ChangingLengthState(this.mouseHandler)
+            );
+        } else if (n.length > 0) {
+            const selected = n[n.length - 1];
+            this.mouseHandler.selectNote(selected);
+            this.mouseHandler.pressNote(selected.pitch);
+            this.mouseHandler.changeState(
+                new MovingState(this.mouseHandler, coords)
+            );
+        } else {
+            const rollCoords =
+                this.mouseHandler.getRollCoordsFromMouseCoords(coords);
+            const len = Math.min(
+                DEFAULT_NOTE_LENGTH,
+                this.mouseHandler.gridParams.width - rollCoords.column
+            );
+            const newNote = {
+                time: Sequencer.rollTimeToToneTime(rollCoords.column),
+                pitch: Tone.Frequency(this.mouseHandler.gridParams.lowestNote)
+                    .transpose(
+                        this.mouseHandler.gridParams.height - rollCoords.row - 1
+                    )
+                    .toNote(),
+                length: Sequencer.rollTimeToToneTime(len),
+            };
+            this.mouseHandler.addNote(newNote);
+            this.mouseHandler.selectNote(newNote);
+            this.mouseHandler.pressNote(newNote.pitch);
+            this.setMoveCursor();
+            this.mouseHandler.changeState(
+                new MovingState(this.mouseHandler, coords)
+            );
+        }
+    }
+
+    public handleRightClick(coords: MouseCoords) {
+        const n = this.mouseHandler.getNotesAt(coords);
+        if (n.length > 0) this.mouseHandler.deleteNote(n[n.length - 1]);
+        this.mouseHandler.changeState(new DeletingState(this.mouseHandler));
+    }
+
+    public handleLeftRelease() {}
+
+    public handleRightRelease() {}
+
+    public handleMouseMove(coords: MouseCoords) {
+        const noteHandle = this.mouseHandler.noteHandle(coords);
+        const n = this.mouseHandler.getNotesAt(coords);
+        if (noteHandle !== null) {
+            this.setResizeCursor();
+        } else if (n.length > 0) {
+            this.setMoveCursor();
+        } else {
+            this.setDefaultCursor();
+        }
+    }
+}

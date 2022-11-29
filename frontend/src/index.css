@@ -1,13 +1,69 @@
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-        "Helvetica Neue", sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --bg-color: #f2e8cfff;
+        --light-primary-color: #477998ff;
+        --medium-primary-color: #9c7a97ff;
+        --dark-primary-color: #1e152aff;
+        --warn-color: #b24c63ff;
+        --white-color: #e5e5db;
+        --black-color: #2e3436;
+    }
+
+    html {
+        padding: 2rem;
+        background-color: var(--bg-color);
+        font-family: "Courier", monospace;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
 }
 
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-        monospace;
+/* yeeted from https://shepherdjs.dev/dist/css/shepherd.css */
+.shepherd-element {
+    z-index: 9999
+}
+
+.shepherd-modal-overlay-container{
+    height:0;
+    left:0;
+    opacity:0;
+    overflow:hidden;
+    pointer-events:none;
+    position:fixed;
+    top:0;
+    transition:all .3s ease-out,height 0ms .3s,opacity .3s 0ms;
+    width:100vw;
+    z-index:9997
+}
+
+.shepherd-modal-overlay-container.shepherd-modal-is-visible{
+    height:100vh;
+    opacity:.75;
+    transform:translateZ(0);
+    transition:all .3s ease-out,height 0s 0s,opacity .3s 0s
+}
+
+.shepherd-modal-overlay-container.shepherd-modal-is-visible path{
+    pointer-events:all
+}
+
+.shepherd-cancel-icon {
+    color: var(--black-color);
+    font-size: 24px;
+    position: absolute;
+    top: 4px;
+    right: 16px;
 }

@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { PlaybackContext } from "../context/playbackContext";
-import { Sequencer, Note } from "../sequencer";
+import { Sequencer, Note } from "../sound/sequencer";
 
 const usePlayback = (): [
     boolean,
@@ -20,6 +20,7 @@ const usePlayback = (): [
         Sequencer.stop();
         Sequencer.clearBuffer();
         Sequencer.fillBuffer(notes, gridLength);
+        Sequencer.fillMetronome(gridLength);
         Sequencer.setBpm(bpm);
         Sequencer.start();
         setPlaying(true);
