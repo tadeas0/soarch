@@ -13,6 +13,8 @@ services:
         container_name: midi-search-backend
         image: midi-search-backend
         environment:
+            - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
+            - BUCKET_NAME=${BUCKET_NAME}
             - HYPERCORN_CMD_ARGS=--reload
             - REDIS_URL=redis://redis-cache
             - PORT=8080
