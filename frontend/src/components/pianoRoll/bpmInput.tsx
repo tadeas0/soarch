@@ -1,9 +1,8 @@
 import { FunctionComponent } from "react";
 import { HiPlus, HiMinus } from "react-icons/hi";
-import { GrPowerReset } from "react-icons/gr";
 import Button from "../basic/button";
 import * as React from "react";
-import { DEFAULT_BPM, WHITE } from "../../constants";
+import { DEFAULT_BPM } from "../../constants";
 import { BiReset } from "react-icons/bi";
 
 interface BPMInputProps {
