@@ -8,6 +8,8 @@ services:
             - "6379"
     backend:
         build: backend
+        depends_on:
+            - redis
         container_name: midi-search-backend
         image: midi-search-backend
         environment:
@@ -18,6 +20,9 @@ services:
             - "8080:8080"
     frontend:
         build: frontend
+        depends_on:
+            - redis
+            - backend
         container_name: midi-search-frontend
         image: midi-search-frontend
         environment:
