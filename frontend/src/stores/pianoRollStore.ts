@@ -65,7 +65,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
     selectedIndex: 0,
     isResultPlaying: false,
     isRollPlaying: false,
-    playbackEnabled: false,
+    playbackEnabled: true,
     hasChanged: false,
     isPianoHidden: true,
     setIsRollPlaying: (value: boolean) =>
