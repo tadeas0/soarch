@@ -84,6 +84,7 @@ export default class ReadyState extends State {
             ) {
                 this.lastNotePlaying = newNote;
                 Sequencer.previewNote(newNote.pitch);
+                this.mouseHandler.showPreviewNote(newNote);
             }
             this.setResizeCursor();
         } else if (n.length > 0) {
@@ -94,6 +95,7 @@ export default class ReadyState extends State {
             ) {
                 this.lastNotePlaying = newNote;
                 Sequencer.previewNote(newNote.pitch);
+                this.mouseHandler.showPreviewNote(newNote);
             }
             this.setMoveCursor();
         } else {

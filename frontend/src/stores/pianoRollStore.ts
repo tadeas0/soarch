@@ -74,7 +74,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
     setIsResultPlaying: (value: boolean) =>
         set(() => ({ isResultPlaying: value, isRollPlaying: false })),
 
-    addNote: (note: Note) =>
+    addNote: async (note: Note) =>
         set((state) => {
             Sequencer.addNoteToBuffer(note);
             const newSongs = [...state.songs];
@@ -83,7 +83,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             return { songs: newSongs, hasChanged: true };
         }),
 
-    deleteNote: (note: Note) =>
+    deleteNote: async (note: Note) =>
         set((state) => {
             Sequencer.deleteNoteFromBuffer(note);
             const newSongs = [...state.songs];
@@ -205,7 +205,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             return { songs: newSongs, isRollPlaying: false };
         }),
 
-    clearChangeFlag: () =>
+    clearChangeFlag: async () =>
         set(() => ({
             hasChanged: false,
         })),

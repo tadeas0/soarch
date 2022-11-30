@@ -288,7 +288,7 @@ export abstract class Sequencer {
         this.onMeasureCallbacks = [];
     }
 
-    public static previewNote(note: Tone.Unit.Frequency) {
+    public static async previewNote(note: Tone.Unit.Frequency) {
         this.synth.triggerAttackRelease(
             note,
             this.rollTimeToToneTime(PREVIEW_NOTE_LENGTH)
