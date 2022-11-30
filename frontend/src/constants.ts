@@ -13,6 +13,8 @@ export const NOTES = ["C", "D", "E", "F", "G", "A", "B"];
 export const PIANO_ROLL_NOTE_HEIGHT = 20;
 export const PIANO_ROLL_NOTE_WIDTH = 20;
 export const DEFAULT_NOTE_LENGTH = 2;
+export const PREVIEW_NOTE_LENGTH = 1;
+export const PREVIEW_NOTE_HIGHLIGHT_DURATION = 750;
 export const PIANO_ROLL_HANDLE_PART = 1 / 2; // part of the note, that is considered handle
 
 export const KEYBOARD_NOTE_MAP: { [keyCode: string]: number } = {
@@ -61,6 +63,7 @@ export const SECONDARY_COLOR = "#45a29e";
 export const PRIMARY_COLOR = "#477998ff";
 
 export const NOTE_HIGHLIGHT_COLOR = WHITE;
+export const PREVIEW_NOTE_HIGHLIGHT_COLOR = MEDIUM_PRIMARY;
 export const PIANO_ROLL_GRID_COLORS = [BLACK, BLACK, BLACK];
 export const PIANO_ROLL_BLACK_KEY_COLOR = MEDIUM_PRIMARY_LOW_OPACITY;
 export const PIANO_ROLL_BG_COLOR = WHITE;

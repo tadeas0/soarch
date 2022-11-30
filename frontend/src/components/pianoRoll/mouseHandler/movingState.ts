@@ -26,14 +26,16 @@ export default class MovingState extends State {
 
     public handleRightClick() {}
 
-    public handleLeftRelease() {
+    public handleLeftRelease(mouseCoords: MouseCoords) {
         const selectedNote = this.mouseHandler.selectedNote;
         if (selectedNote === null) {
             throw new Error("Note is not selected");
         }
         this.mouseHandler.releaseNote(selectedNote.pitch);
 
-        this.mouseHandler.changeState(new ReadyState(this.mouseHandler));
+        this.mouseHandler.changeState(
+            new ReadyState(this.mouseHandler, mouseCoords)
+        );
     }
 
     public handleRightRelease() {}

@@ -1,4 +1,4 @@
-import { useEffect, FunctionComponent } from "react";
+import { useEffect, FunctionComponent, useCallback } from "react";
 import {
     MEASURE_LENGTH,
     MIN_MEASURES,
@@ -93,12 +93,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     const canRemoveMeasure = () =>
         selectedSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;
 
-    const handleKeyUp = (note: Note) => {
-        if (isRollPlaying) {
-            Sequencer.fillBuffer([note], selectedSong.gridParams.width);
-            addNote(note);
-        }
-    };
+    const handleKeyUp = useCallback(
+        (note: Note) => {
+            if (isRollPlaying) {
+                Sequencer.fillBuffer([note], selectedSong.gridParams.width);
+                addNote(note);
+            }
+        },
+        [addNote, isRollPlaying, selectedSong.gridParams.width]
+    );
 
     return (
         <div className="flex flex-col items-center justify-start">

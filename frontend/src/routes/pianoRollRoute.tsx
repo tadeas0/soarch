@@ -84,7 +84,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
             .finally(() => setInitializing(false));
     }, [setServerAvailable, handleRequestErrors]);
 
-    const handleSubmit = (notes: Note[], gridLength: number) => {
+    const handleSubmit = async (notes: Note[], gridLength: number) => {
         setBusy(true);
         const reqBody: NoteForm = {
             gridLength,
@@ -96,22 +96,24 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
         };
         if (selectedStrategy)
             reqBody.similarityStrategy = selectedStrategy.value;
-        API.postNotes(reqBody)
-            .then((res) => {
-                const result = res.data.tracks.map<SearchResult>((track) => ({
-                    artist: track.artist,
-                    name: track.name,
-                    notes: track.notes.map<Note>((n) => ({
-                        time: Tone.Time(n.time).toBarsBeatsSixteenths(),
-                        pitch: Tone.Frequency(n.pitch, "midi").toNote(),
-                        length: Tone.Time(n.length).toBarsBeatsSixteenths(),
-                    })),
-                    bpm: track.bpm,
-                }));
-                setSearchResults(result);
-            })
-            .catch(handleRequestErrors)
-            .finally(() => setBusy(false));
+        try {
+            const res = await API.postNotes(reqBody);
+            const result = res.data.tracks.map<SearchResult>((track) => ({
+                artist: track.artist,
+                name: track.name,
+                notes: track.notes.map<Note>((n) => ({
+                    time: Tone.Time(n.time).toBarsBeatsSixteenths(),
+                    pitch: Tone.Frequency(n.pitch, "midi").toNote(),
+                    length: Tone.Time(n.length).toBarsBeatsSixteenths(),
+                })),
+                bpm: track.bpm,
+            }));
+            setSearchResults(result);
+        } catch (err) {
+            handleRequestErrors(err);
+        } finally {
+            setBusy(false);
+        }
     };
 
     const handleEdit = (searchResult: SearchResult) => {

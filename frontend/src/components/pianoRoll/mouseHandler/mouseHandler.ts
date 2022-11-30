@@ -29,12 +29,15 @@ export class MouseHandler {
 
     private getNotes: () => Note[];
 
+    private _showPreviewNote: (note: Note) => void;
+
     private _playbackEnabled: boolean;
 
     constructor(
         onAddNote: (note: Note) => void,
         onDeleteNote: (note: Note) => void,
         changeSelectedNote: (note: Note) => void,
+        showPreviewNote: (note: Note) => void,
         getNotes: () => Note[],
         gridParams: GridParams,
         playbackEnabled: boolean
@@ -45,6 +48,7 @@ export class MouseHandler {
         this._gridParams = gridParams;
         this.changeSelectedNote = changeSelectedNote;
         this.getNotes = getNotes;
+        this._showPreviewNote = showPreviewNote;
         this._playbackEnabled = playbackEnabled;
         this._selectedNote = null;
     }
@@ -121,11 +125,19 @@ export class MouseHandler {
         this._gridParams = value;
     }
 
-    public addNote(note: Note) {
+    public get showPreviewNote(): (note: Note) => void {
+        return this._showPreviewNote;
+    }
+
+    public set showPreviewNote(value: (note: Note) => void) {
+        this._showPreviewNote = value;
+    }
+
+    public async addNote(note: Note) {
         this.onAddNote(note);
     }
 
-    public deleteNote(note: Note) {
+    public async deleteNote(note: Note) {
         this.onDeleteNote(note);
     }
 
@@ -171,6 +183,7 @@ export function useMouseHandler(
     onAddNote: (note: Note) => void,
     onDeleteNote: (note: Note) => void,
     setSelectedNote: (note: Note) => void,
+    showPreviewNote: (note: Note) => void,
     getNotes: () => Note[],
     gridParams: GridParams,
     playbackEnabled: boolean
@@ -181,6 +194,7 @@ export function useMouseHandler(
             onAddNote,
             onDeleteNote,
             setSelectedNote,
+            showPreviewNote,
             getNotes,
             gridParams,
             playbackEnabled

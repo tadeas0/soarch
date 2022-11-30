@@ -1,14 +1,27 @@
 /* eslint-disable import/no-cycle */
 import * as Tone from "tone";
 import { DEFAULT_NOTE_LENGTH } from "../../../constants";
-import { Sequencer } from "../../../sound/sequencer";
+import { Note, Sequencer } from "../../../sound/sequencer";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import State from "./handlerState";
 import ChangingLengthState from "./changingLengthState";
 import DeletingState from "./deletingState";
 import MovingState from "./movingState";
+import { MouseHandler } from "./mouseHandler";
 
 export default class ReadyState extends State {
+    private lastNotePlaying: Note | null;
+
+    constructor(mouseHandler: MouseHandler, coords?: MouseCoords) {
+        super(mouseHandler);
+        if (coords) {
+            const n = this.mouseHandler.getNotesAt(coords);
+            this.lastNotePlaying = n[n.length - 1];
+        } else {
+            this.lastNotePlaying = null;
+        }
+    }
+
     public handleLeftClick(coords: MouseCoords) {
         const n = this.mouseHandler.getNotesAt(coords);
         const noteHandle = this.mouseHandler.noteHandle(coords);
@@ -64,10 +77,29 @@ export default class ReadyState extends State {
         const noteHandle = this.mouseHandler.noteHandle(coords);
         const n = this.mouseHandler.getNotesAt(coords);
         if (noteHandle !== null) {
+            const newNote = noteHandle;
+            if (
+                newNote !== this.lastNotePlaying &&
+                this.mouseHandler.playbackEnabled
+            ) {
+                this.lastNotePlaying = newNote;
+                Sequencer.previewNote(newNote.pitch);
+                this.mouseHandler.showPreviewNote(newNote);
+            }
             this.setResizeCursor();
         } else if (n.length > 0) {
+            const newNote = n[n.length - 1];
+            if (
+                newNote !== this.lastNotePlaying &&
+                this.mouseHandler.playbackEnabled
+            ) {
+                this.lastNotePlaying = newNote;
+                Sequencer.previewNote(newNote.pitch);
+                this.mouseHandler.showPreviewNote(newNote);
+            }
             this.setMoveCursor();
         } else {
+            this.lastNotePlaying = null;
             this.setDefaultCursor();
         }
     }

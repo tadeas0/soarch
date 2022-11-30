@@ -36,7 +36,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
 
     return (
         <div
-            className={`relative col-span-1 inline-block rounded bg-transparent p-0 text-4xl${
+            className={`relative col-span-1 inline-block rounded bg-transparent p-0 text-6xl${
                 isOpen ? " bg-medium-primary" : ""
             }`}
         >
@@ -50,7 +50,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
                 disabled={props.disabled}
             >
                 <selectedOption.icon />
-                <div className="text-md absolute right-1 bottom-0">
+                <div className="absolute right-1 bottom-0 text-3xl">
                     {isOpen ? <IoMdArrowDropup /> : <IoMdArrowDropdown />}
                 </div>
             </Button>

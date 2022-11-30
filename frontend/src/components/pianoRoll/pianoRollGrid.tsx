@@ -5,7 +5,10 @@ import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
 import { useMouseHandler } from "./mouseHandler/mouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
-import { PIANO_ROLL_NOTE_HEIGHT } from "../../constants";
+import {
+    PIANO_ROLL_NOTE_HEIGHT,
+    PREVIEW_NOTE_HIGHLIGHT_DURATION,
+} from "../../constants";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -20,14 +23,35 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     disabled = false,
 }: PianoRollGridProps) => {
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+    const [previewNotes, setPreviewNotes] = useState<Map<Note, number>>(
+        new Map()
+    );
     const playbackEnabled = usePianoRollStore((state) => state.playbackEnabled);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
+
+    const handleShowPreviewNote = async (note: Note) => {
+        setPreviewNotes((current) => {
+            const currentTimeout = current.get(note);
+            if (currentTimeout) {
+                clearTimeout(currentTimeout);
+            }
+            const i = setTimeout(() => {
+                setPreviewNotes((next) => {
+                    const s = new Map(next);
+                    s.delete(note);
+                    return s;
+                });
+            }, PREVIEW_NOTE_HIGHLIGHT_DURATION);
+            return new Map(current.set(note, i));
+        });
+    };
 
     const mouseHandler = useMouseHandler(
         usePianoRollStore.getState().addNote,
         usePianoRollStore.getState().deleteNote,
         setSelectedNote,
+        handleShowPreviewNote,
         () =>
             usePianoRollStore.getState().songs[
                 usePianoRollStore.getState().selectedIndex
@@ -36,23 +60,23 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         playbackEnabled
     );
 
-    const handleLeftClick = (coords: MouseEvent) => {
+    const handleLeftClick = async (coords: MouseEvent) => {
         if (!disabled) mouseHandler.onLeftClick(coords);
     };
 
-    const handleRightClick = (coords: MouseEvent) => {
+    const handleRightClick = async (coords: MouseEvent) => {
         if (!disabled) mouseHandler.onRightClick(coords);
     };
 
-    const handleLeftRelease = (coords: MouseEvent) => {
+    const handleLeftRelease = async (coords: MouseEvent) => {
         if (!disabled) mouseHandler.onLeftRelease(coords);
     };
 
-    const handleRightRelease = (coords: MouseEvent) => {
+    const handleRightRelease = async (coords: MouseEvent) => {
         if (!disabled) mouseHandler.onRightRelease(coords);
     };
 
-    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseDown = async (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!disabled) {
             e.preventDefault();
             if (e.button === 0) {
@@ -63,7 +87,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         }
     };
 
-    const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseUp = async (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!disabled) {
             if (e.button === 0) {
                 handleLeftRelease(e.nativeEvent);
@@ -73,7 +97,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         }
     };
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseMove = async (e: React.MouseEvent<HTMLCanvasElement>) => {
         if (!disabled) {
             mouseHandler.onMouseMove(e.nativeEvent);
         }
@@ -110,6 +134,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 gridParams={gridParams}
                 notes={notes}
                 selectedNote={selectedNote}
+                previewNotes={new Set(previewNotes.keys())}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}

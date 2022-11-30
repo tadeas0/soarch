@@ -11,8 +11,10 @@ export default class ChangingLengthState extends State {
 
     public handleRightRelease() {}
 
-    public handleLeftRelease() {
-        this.mouseHandler.changeState(new ReadyState(this.mouseHandler));
+    public handleLeftRelease(coords: MouseCoords) {
+        this.mouseHandler.changeState(
+            new ReadyState(this.mouseHandler, coords)
+        );
     }
 
     public handleMouseMove(coords: MouseCoords) {

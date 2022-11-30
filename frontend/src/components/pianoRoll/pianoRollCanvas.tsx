@@ -16,6 +16,7 @@ import {
     NOTE_HIGHLIGHT_COLOR,
     PIANO_ROLL_NOTE_COLOR,
     PIANO_ROLL_NOTE_OUTLINE_COLOR,
+    PREVIEW_NOTE_HIGHLIGHT_COLOR,
 } from "../../constants";
 import { AiFillCaretDown } from "react-icons/ai";
 import { Note, Sequencer } from "../../sound/sequencer";
@@ -26,6 +27,7 @@ interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseUp: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseMove: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+    previewNotes: Set<Note>;
     gridParams: GridParams;
     notes: Note[];
     selectedNote: Note | null;
@@ -36,7 +38,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [headerTranslation, setHeaderTranslation] = useState(0);
 
-    const drawCircle = (
+    const drawCircle = async (
         ctx: CanvasRenderingContext2D,
         x: number,
         y: number,
@@ -58,7 +60,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     );
 
     const drawVLines = useCallback(
-        (
+        async (
             ctx: CanvasRenderingContext2D,
             color: string,
             width: number,
@@ -78,7 +80,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     );
 
     const drawHLines = useCallback(
-        (
+        async (
             ctx: CanvasRenderingContext2D,
             color: string,
             width: number,
@@ -99,7 +101,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     );
 
     const drawGrid = useCallback(
-        (ctx: CanvasRenderingContext2D) => {
+        async (ctx: CanvasRenderingContext2D) => {
             ctx.fillStyle = PIANO_ROLL_BG_COLOR;
             ctx.rect(0, 0, ctx.canvas.width, ctx.canvas.height);
             ctx.fill();
@@ -123,7 +125,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     );
 
     const drawNote = useCallback(
-        (ctx: CanvasRenderingContext2D, note: Note) => {
+        async (ctx: CanvasRenderingContext2D, note: Note) => {
             ctx.strokeStyle = PIANO_ROLL_NOTE_OUTLINE_COLOR;
             const x =
                 Sequencer.toneTimeToRollTime(note.time) * PIANO_ROLL_NOTE_WIDTH;
@@ -142,6 +144,8 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             ctx.fillRect(x, y, w, h);
             if (note === props.selectedNote)
                 ctx.strokeStyle = NOTE_HIGHLIGHT_COLOR;
+            else if (props.previewNotes.has(note))
+                ctx.strokeStyle = PREVIEW_NOTE_HIGHLIGHT_COLOR;
             ctx.strokeRect(x, y, w, h);
             ctx.fillStyle = PIANO_ROLL_NOTE_COLOR;
             const handleX = x + w - PIANO_ROLL_NOTE_WIDTH / 3;
@@ -153,12 +157,13 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         [
             props.gridParams.height,
             props.gridParams.lowestNote,
+            props.previewNotes,
             props.selectedNote,
         ]
     );
 
     const drawNotes = useCallback(
-        (ctx: CanvasRenderingContext2D) => {
+        async (ctx: CanvasRenderingContext2D) => {
             props.notes.forEach((n) => {
                 drawNote(ctx, n);
             });

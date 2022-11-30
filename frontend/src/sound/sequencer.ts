@@ -5,6 +5,7 @@ import {
     MEASURE_LENGTH,
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
+    PREVIEW_NOTE_LENGTH,
 } from "../constants";
 import GridParams from "../interfaces/GridParams";
 import RollCoordinates from "../interfaces/RollCoordinates";
@@ -285,6 +286,13 @@ export abstract class Sequencer {
 
     public static async clearOnMeasureCallbacks() {
         this.onMeasureCallbacks = [];
+    }
+
+    public static async previewNote(note: Tone.Unit.Frequency) {
+        this.synth.triggerAttackRelease(
+            note,
+            this.rollTimeToToneTime(PREVIEW_NOTE_LENGTH)
+        );
     }
 
     public static pressNote(note: Tone.Unit.Frequency) {
