@@ -10,8 +10,10 @@ export default class DeletingState extends State {
 
     public handleLeftRelease() {}
 
-    public handleRightRelease() {
-        this.mouseHandler.changeState(new ReadyState(this.mouseHandler));
+    public handleRightRelease(coords: MouseCoords) {
+        this.mouseHandler.changeState(
+            new ReadyState(this.mouseHandler, coords)
+        );
     }
 
     public handleMouseMove(coords: MouseCoords) {
