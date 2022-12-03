@@ -17,6 +17,8 @@ import {
     PIANO_ROLL_NOTE_COLOR,
     PIANO_ROLL_NOTE_OUTLINE_COLOR,
     PREVIEW_NOTE_HIGHLIGHT_COLOR,
+    PIANO_ROLL_FONT,
+    PIANO_ROLL_TEXT_COLOR,
 } from "../../constants";
 import { AiFillCaretDown } from "react-icons/ai";
 import { Note, Sequencer } from "../../sound/sequencer";
@@ -126,6 +128,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
 
     const drawNote = useCallback(
         async (ctx: CanvasRenderingContext2D, note: Note) => {
+            ctx.font = PIANO_ROLL_FONT;
             ctx.strokeStyle = PIANO_ROLL_NOTE_OUTLINE_COLOR;
             const x =
                 Sequencer.toneTimeToRollTime(note.time) * PIANO_ROLL_NOTE_WIDTH;
@@ -151,6 +154,14 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             const handleX = x + w - PIANO_ROLL_NOTE_WIDTH / 3;
             const radius = 1;
             const yOffset = PIANO_ROLL_NOTE_WIDTH / 3.5;
+            if (note === props.selectedNote)
+                ctx.fillStyle = NOTE_HIGHLIGHT_COLOR;
+            else if (props.previewNotes.has(note))
+                ctx.fillStyle = PREVIEW_NOTE_HIGHLIGHT_COLOR;
+            else ctx.fillStyle = PIANO_ROLL_TEXT_COLOR;
+            const text = note.pitch.slice(0, -1);
+            ctx.fillText(text, x + 2, y + PIANO_ROLL_NOTE_HEIGHT - 6);
+            ctx.fillStyle = PIANO_ROLL_NOTE_COLOR;
             drawCircle(ctx, handleX, y + yOffset, radius);
             drawCircle(ctx, handleX, y + h - yOffset, radius);
         },
