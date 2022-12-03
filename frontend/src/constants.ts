@@ -54,6 +54,7 @@ export const DARK_PRIMARY = "#1e152aff";
 export const DARK_PRIMARY_LOW_OPACITY = "#1e152a4f";
 export const WARN = "#b24c63ff";
 export const WHITE = "#e5e5db";
+export const WHITE_LOW_OPACITY = "#e5e5dbda";
 export const BLACK = "#2e3436";
 
 export const BG_COLOR = "#f2e8cfff";
@@ -64,6 +65,8 @@ export const PRIMARY_COLOR = "#477998ff";
 
 export const NOTE_HIGHLIGHT_COLOR = WHITE;
 export const PREVIEW_NOTE_HIGHLIGHT_COLOR = MEDIUM_PRIMARY;
+export const PIANO_ROLL_TEXT_COLOR = WHITE_LOW_OPACITY;
+export const PIANO_ROLL_FONT = '400 10px "Courier", monospace';
 export const PIANO_ROLL_GRID_COLORS = [BLACK, BLACK, BLACK];
 export const PIANO_ROLL_BLACK_KEY_COLOR = MEDIUM_PRIMARY_LOW_OPACITY;
 export const PIANO_ROLL_BG_COLOR = WHITE;
