@@ -77,7 +77,10 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                     value: r.shortcut,
                 }));
                 setAvailableStrategies(options);
-                setSelectedStrategy(options[0]);
+                setSelectedStrategy({
+                    name: "Local alignment (Biopython lib)",
+                    value: "lcabp",
+                });
                 setServerAvailable(true);
             })
             .catch(handleRequestErrors)
