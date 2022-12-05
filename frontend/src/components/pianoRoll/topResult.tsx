@@ -64,7 +64,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                     </div>
                     <div className="flex h-full w-1/6 flex-col justify-evenly">
                         <button
-                            className="text-xl"
+                            className="text-xl outline-none"
                             type="button"
                             onClick={() => setIsResultPlaying(!isResultPlaying)}
                         >
@@ -86,7 +86,9 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                                         ),
                                 })
                             }
-                            className={`text-xl${canAddTab}` ? "" : " inactive"}
+                            className={`outline-none text-xl${
+                                canAddTab ? "" : " inactive"
+                            }`}
                         >
                             <MdModeEdit />
                         </button>
@@ -95,7 +97,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                 <button
                     type="button"
                     onClick={props.onShowMore}
-                    className="w-full pr-2 text-right underline"
+                    className="w-full pr-2 text-right underline outline-none"
                 >
                     Show more results
                 </button>

@@ -20,10 +20,10 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
 
     return (
         <Tabs selectedIndex={selectedIndex} onSelect={() => {}}>
-            <TabList id="song-tabs" className="ml-4 flex">
+            <TabList id="song-tabs" className="ml-4 flex outline-none">
                 {songs.map((s, i) => (
                     <div
-                        className={`flex flex-row justify-center rounded-t border-2 border-b-0 border-dark-primary hover:bg-medium-primary hover:text-black${
+                        className={`flex flex-row justify-center rounded-t border-2 border-b-0 border-dark-primary hover:bg-medium-primary hover:text-black outline-none${
                             i === selectedIndex
                                 ? " bg-medium-primary text-black"
                                 : ` bg-light-primary text-white ${maxW}`
@@ -31,7 +31,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                         key={s.name}
                     >
                         <Tab
-                            className={`p-2${
+                            className={`p-2 outline-none${
                                 i === selectedIndex ? "" : " truncate"
                             }`}
                             onClick={() => selectTab(i)}
@@ -50,7 +50,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                 {canAddTab && (
                     <button
                         type="button"
-                        className="mt-2 rounded-tr border-2 border-b-0 border-l-0 border-dark-primary  bg-light-primary p-2 text-white hover:bg-medium-primary hover:text-black"
+                        className="mt-2 rounded-tr border-2 border-b-0 border-l-0 border-dark-primary  bg-light-primary p-2 text-white outline-none hover:bg-medium-primary hover:text-black"
                         onClick={() => addTab()}
                     >
                         <TiPlus />

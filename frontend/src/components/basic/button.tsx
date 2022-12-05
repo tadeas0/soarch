@@ -15,7 +15,7 @@ const Button: FunctionComponent<ButtonProps> = (props) => {
     return (
         <button
             type="button"
-            className={`rounded border-medium-primary p-2 ${colorClass} ${props.className}`}
+            className={`rounded border-medium-primary p-2 outline-none ${colorClass} ${props.className}`}
             {...other}
         >
             {props.children}

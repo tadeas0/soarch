@@ -54,7 +54,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                 </div>
                 <div className="flex h-full flex-col">
                     <button
-                        className="h-1/2 text-xl"
+                        className="h-1/2 text-xl outline-none"
                         type="button"
                         onClick={() => onPlay(searchResult)}
                     >
@@ -62,7 +62,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     </button>
                     {canAddTab && (
                         <button
-                            className="h-1/2 text-xl"
+                            className="h-1/2 text-xl outline-none"
                             type="button"
                             onClick={() => onEdit(searchResult)}
                         >
