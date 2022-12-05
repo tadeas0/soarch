@@ -58,8 +58,8 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
             <>
                 <h1 className="h-1/5 font-semibold">Best result:</h1>
                 <div className="flex h-3/5 w-full flex-row">
-                    <div className="w-5/6">
-                        <h4 className="text-xl">{sr.name}</h4>
+                    <div className="max-h-full w-5/6 ">
+                        <h4 className="mt-0.5 text-lg leading-4">{sr.name}</h4>
                         <p className="text-sm">{sr.artist}</p>
                     </div>
                     <div className="flex h-full w-1/6 flex-col justify-evenly">
