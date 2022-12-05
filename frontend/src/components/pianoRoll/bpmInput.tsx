@@ -56,6 +56,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
                 <Button
                     className="absolute top-0 right-0 p-1 text-sm text-white"
                     onClick={() => changeValueAbs(DEFAULT_BPM)}
+                    disabled={props.disabled}
                 >
                     <BiReset />
                 </Button>
@@ -69,7 +70,9 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
                 <input
                     maxLength={3}
                     type="number"
-                    className="max-w-3xs flex-grow-0 appearance-none border-none bg-transparent p-0 text-center text-4xl text-white outline-none"
+                    className={`max-w-3xs flex-grow-0 appearance-none border-none bg-transparent p-0 text-center text-4xl text-white outline-none ${
+                        props.disabled ? "text-opacity-60" : ""
+                    }`}
                     value={props.value}
                     onChange={handleChange}
                     max={props.max}

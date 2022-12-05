@@ -9,7 +9,7 @@ type ButtonProps = { pressed?: boolean } & DetailedHTMLProps<
 const Button: FunctionComponent<ButtonProps> = (props) => {
     const { className, pressed, ...other } = props;
     const activeClasses = props.disabled
-        ? "bg-light-primary text-white"
+        ? "bg-light-primary text-white text-opacity-60"
         : "bg-light-primary text-white hover:text-black hover:bg-medium-primary";
     const colorClass = pressed ? "bg-medium-primary" : activeClasses;
     return (

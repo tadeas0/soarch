@@ -209,7 +209,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             if (!props.disabled) {
                 Sequencer.runCallbackOnBeat(() => {
                     setHeaderTranslation(
-                        props.gridParams.width *
+                        (props.gridParams.width - 1) *
                             PIANO_ROLL_NOTE_WIDTH *
                             Sequencer.getProgress()
                     );
