@@ -3,6 +3,7 @@ import {
     DEFAULT_PIANO_ROLL_HEIGHT,
     MAX_POLYPHONY,
     MEASURE_LENGTH,
+    MIN_MEASURES,
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
     PREVIEW_NOTE_LENGTH,
@@ -155,8 +156,10 @@ export abstract class Sequencer {
         const gridStart = minGridStart - (minGridStart % MEASURE_LENGTH);
         const gridEnd =
             minGridLength + MEASURE_LENGTH - (minGridLength % MEASURE_LENGTH);
-        const gridWidth = gridEnd - gridStart;
-
+        const gridWidth = Math.max(
+            MIN_MEASURES * MEASURE_LENGTH,
+            gridEnd - gridStart
+        );
         return {
             width: gridWidth,
             height: DEFAULT_PIANO_ROLL_HEIGHT,
