@@ -18,6 +18,7 @@ import {
 } from "../../stores/pianoRollStore";
 import OnScreenPiano from "./onScreenPiano";
 import Button from "../basic/button";
+import useKeyboardListener from "../../hooks/useKeyboardListener";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -38,9 +39,16 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 }) => {
     const [, handleStart, handleStop] = usePlayback();
     const selectedSong = useSelectedSong();
-    const [isRollPlaying, isResultPlaying] = usePianoRollStore((state) => [
+    const [
+        isRollPlaying,
+        isResultPlaying,
+        setIsRollPlaying,
+        setIsResultPlaying,
+    ] = usePianoRollStore((state) => [
         state.isRollPlaying,
         state.isResultPlaying,
+        state.setIsRollPlaying,
+        state.setIsResultPlaying,
     ]);
     const addNote = usePianoRollStore((state) => state.addNote);
     const [playbackEnabled, isPianoHidden] = usePianoRollStore((state) => [
@@ -55,6 +63,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         state.addMeasure,
         state.removeMeasure,
     ]);
+    const undo = usePianoRollStore((state) => state.undo);
 
     useEffect(() => {
         if (
@@ -102,6 +111,42 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         },
         [addNote, isRollPlaying, selectedSong.gridParams.width]
     );
+
+    const handleKeyboardDown = useCallback(
+        (e: KeyboardEvent) => {
+            if (e.key === " ") {
+                e.preventDefault();
+                if (isResultPlaying || isRollPlaying) {
+                    setIsResultPlaying(false);
+                    setIsRollPlaying(false);
+                    handleStop();
+                } else {
+                    setIsRollPlaying(true);
+                    handleStart(
+                        selectedSong.notes,
+                        selectedSong.bpm,
+                        selectedSong.gridParams.width
+                    );
+                }
+            } else if (e.key === "z" && e.ctrlKey) {
+                undo();
+            }
+        },
+        [
+            handleStart,
+            handleStop,
+            isResultPlaying,
+            isRollPlaying,
+            selectedSong.bpm,
+            selectedSong.gridParams.width,
+            selectedSong.notes,
+            setIsResultPlaying,
+            setIsRollPlaying,
+            undo,
+        ]
+    );
+
+    useKeyboardListener(() => {}, handleKeyboardDown);
 
     return (
         <div className="flex flex-col items-center justify-start">

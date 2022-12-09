@@ -18,6 +18,9 @@ export default class DeletingState extends State {
 
     public handleMouseMove(coords: MouseCoords) {
         const n = this.mouseHandler.getNotesAt(coords);
-        if (n.length > 0) this.mouseHandler.deleteNote(n[n.length - 1]);
+        if (n.length > 0) {
+            this.mouseHandler.saveState();
+            this.mouseHandler.deleteNote(n[n.length - 1]);
+        }
     }
 }

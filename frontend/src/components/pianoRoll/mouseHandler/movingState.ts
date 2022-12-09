@@ -9,6 +9,8 @@ import State from "./handlerState";
 export default class MovingState extends State {
     private columnOffset: number;
 
+    private alreadySaved: boolean;
+
     constructor(mouseHandler: MouseHandler, mouseCoords: MouseCoords) {
         super(mouseHandler);
         if (this.mouseHandler.selectedNote === null)
@@ -19,6 +21,7 @@ export default class MovingState extends State {
         );
         const rollCoords =
             this.mouseHandler.getRollCoordsFromMouseCoords(mouseCoords);
+        this.alreadySaved = false;
         this.columnOffset = rollCoords.column - sel.column;
     }
 
@@ -41,6 +44,10 @@ export default class MovingState extends State {
     public handleRightRelease() {}
 
     public handleMouseMove(coords: MouseCoords) {
+        if (!this.alreadySaved) {
+            this.mouseHandler.saveState();
+            this.alreadySaved = true;
+        }
         const oldNote = this.mouseHandler.selectedNote;
         if (oldNote === null) {
             throw new Error("Note is not selected");

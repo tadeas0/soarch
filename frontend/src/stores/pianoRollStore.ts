@@ -8,6 +8,7 @@ import {
     MEASURE_LENGTH,
     MIN_MEASURES,
     PIANO_ROLL_LOWEST_NOTE,
+    UNDO_STACK_SIZE,
 } from "../constants";
 import { Note, Sequencer } from "../sound/sequencer";
 
@@ -19,10 +20,14 @@ export interface PianoRollState {
     playbackEnabled: boolean;
     hasChanged: boolean;
     isPianoHidden: boolean;
+    undoStack: Note[][];
+    saveState: (notes: Note[]) => void;
+    undo: () => void;
     setIsRollPlaying: (value: boolean) => void;
     setIsResultPlaying: (value: boolean) => void;
     addNote: (note: Note) => void;
     deleteNote: (note: Note) => void;
+    setNotes: (notes: Note[]) => void;
     clear: () => void;
     setPlaybackEnabled: (value: boolean) => void;
     changeBPM: (value: number) => void;
@@ -68,6 +73,30 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
     playbackEnabled: true,
     hasChanged: false,
     isPianoHidden: true,
+    undoStack: [],
+
+    saveState: (notes: Note[]) =>
+        set((state) => {
+            const newStack = [...state.undoStack];
+            if (state.undoStack.length >= UNDO_STACK_SIZE) {
+                newStack.shift();
+            }
+            newStack.push(notes);
+            return { undoStack: newStack };
+        }),
+
+    undo: () =>
+        set((state) => {
+            const undoStack = [...state.undoStack];
+            const lastState = undoStack.pop();
+            if (lastState) {
+                const newSongs = [...state.songs];
+                newSongs[state.selectedIndex].notes = lastState;
+                return { songs: newSongs, undoStack };
+            }
+            return { undoStack };
+        }),
+
     setIsRollPlaying: (value: boolean) =>
         set(() => ({ isRollPlaying: value, isResultPlaying: false })),
 
@@ -94,14 +123,31 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             return { songs: newSongs, hasChanged: true };
         }),
 
+    setNotes: async (notes: Note[]) =>
+        set((state) => {
+            Sequencer.clearBuffer();
+            Sequencer.fillBuffer(
+                notes,
+                state.songs[state.selectedIndex].gridParams.width
+            );
+            const newSongs = [...state.songs];
+            newSongs[state.selectedIndex].notes = notes;
+            return { songs: newSongs, hasChanged: true };
+        }),
+
     clear: () =>
         set((state) => {
             const newSongs = [...state.songs];
+            const newStack = [
+                ...state.undoStack,
+                newSongs[state.selectedIndex].notes,
+            ];
             newSongs[state.selectedIndex].notes = [];
             return {
                 songs: newSongs,
                 isRollPlaying: false,
                 isResultPlaying: false,
+                undoStack: newStack,
             };
         }),
 
@@ -129,6 +175,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 selectedIndex: state.songs.length,
                 isRollPlaying: false,
                 isResultPlaying: false,
+                undoStack: [],
             };
         }),
 
@@ -141,14 +188,19 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             ) {
                 const newSongs = state.songs.filter((_, i) => i !== value);
                 let newSelected = state.selectedIndex;
+                let newStack = [...state.undoStack];
                 if (newSelected >= newSongs.length - 1) {
                     newSelected = newSongs.length - 1;
+                }
+                if (value === state.selectedIndex) {
+                    newStack = [];
                 }
                 return {
                     songs: newSongs,
                     selectedIndex: newSelected,
                     isRollPlaying: false,
                     isResultPlaying: false,
+                    undoStack: newStack,
                 };
             }
             if (value === 0 && state.songs.length === 1) {
@@ -169,6 +221,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     selectedIndex: value,
                     isRollPlaying: false,
                     isResultPlaying: false,
+                    undoStack: [],
                 };
             return {};
         }),

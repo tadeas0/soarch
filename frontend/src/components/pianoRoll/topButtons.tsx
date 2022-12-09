@@ -1,7 +1,7 @@
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import * as React from "react";
 import { MdDelete } from "react-icons/md";
-import { CgPiano } from "react-icons/cg";
+import { CgPiano, CgUndo } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
 import { FaSave } from "react-icons/fa";
@@ -10,7 +10,6 @@ import Metronome from "./metronome";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { Sequencer } from "../../sound/sequencer";
 import Button from "../basic/button";
-import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 
 const defaultProps = {
     disabled: false,
@@ -22,20 +21,17 @@ type TopButtonsProps = {
 } & typeof defaultProps;
 
 const TopButtons = (props: TopButtonsProps) => {
-    const [rollPlayback, setRollPlayback] = usePianoRollStore((state) => [
-        state.playbackEnabled,
-        state.setPlaybackEnabled,
-    ]);
     const [songs, selectedIndex] = usePianoRollStore((state) => [
         state.songs,
         state.selectedIndex,
     ]);
-    const [isRollPlaying, setIsRollPlaying, changeBPM, clear] =
+    const [isRollPlaying, setIsRollPlaying, changeBPM, clear, undo] =
         usePianoRollStore((state) => [
             state.isRollPlaying,
             state.setIsRollPlaying,
             state.changeBPM,
             state.clear,
+            state.undo,
         ]);
     const [isPianoHidden, setIsPianoHidden] = usePianoRollStore((state) => [
         state.isPianoHidden,
@@ -94,12 +90,11 @@ const TopButtons = (props: TopButtonsProps) => {
             <Metronome disabled={props.disabled} />
             <Button
                 className="col-span-1 flex items-center justify-center text-6xl"
-                id="playback-button"
-                pressed={rollPlayback}
-                onClick={() => setRollPlayback(!rollPlayback)}
+                id="undo-button"
+                onClick={undo}
                 disabled={props.disabled}
             >
-                {rollPlayback ? <HiSpeakerWave /> : <HiSpeakerXMark />}
+                <CgUndo />
             </Button>
             <BPMInput
                 id="bpm-input"

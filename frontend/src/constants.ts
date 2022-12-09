@@ -16,6 +16,7 @@ export const DEFAULT_NOTE_LENGTH = 2;
 export const PREVIEW_NOTE_LENGTH = 1;
 export const PREVIEW_NOTE_HIGHLIGHT_DURATION = 750;
 export const PIANO_ROLL_HANDLE_PART = 1 / 2; // part of the note, that is considered handle
+export const UNDO_STACK_SIZE = 10;
 
 export const KEYBOARD_NOTE_MAP: { [keyCode: string]: number } = {
     KeyZ: 0,

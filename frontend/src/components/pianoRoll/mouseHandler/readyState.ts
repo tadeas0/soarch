@@ -38,6 +38,7 @@ export default class ReadyState extends State {
                 new MovingState(this.mouseHandler, coords)
             );
         } else {
+            this.mouseHandler.saveState();
             const rollCoords =
                 this.mouseHandler.getRollCoordsFromMouseCoords(coords);
             const len = Math.min(
@@ -65,7 +66,10 @@ export default class ReadyState extends State {
 
     public handleRightClick(coords: MouseCoords) {
         const n = this.mouseHandler.getNotesAt(coords);
-        if (n.length > 0) this.mouseHandler.deleteNote(n[n.length - 1]);
+        if (n.length > 0) {
+            this.mouseHandler.saveState();
+            this.mouseHandler.deleteNote(n[n.length - 1]);
+        }
         this.mouseHandler.changeState(new DeletingState(this.mouseHandler));
     }
 
