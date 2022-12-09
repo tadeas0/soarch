@@ -118,7 +118,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                     );
                 }
             }
-            drawVLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
+            drawVLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 2);
             drawVLines(ctx, PIANO_ROLL_GRID_COLORS[2], 3, 16);
             drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
             drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 3, 12, 1);
