@@ -63,6 +63,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         state.addMeasure,
         state.removeMeasure,
     ]);
+    const undo = usePianoRollStore((state) => state.undo);
 
     useEffect(() => {
         if (
@@ -127,6 +128,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                         selectedSong.gridParams.width
                     );
                 }
+            } else if (e.key === "z" && e.ctrlKey) {
+                undo();
             }
         },
         [
@@ -139,6 +142,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             selectedSong.notes,
             setIsResultPlaying,
             setIsRollPlaying,
+            undo,
         ]
     );
 

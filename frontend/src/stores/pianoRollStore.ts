@@ -8,6 +8,7 @@ import {
     MEASURE_LENGTH,
     MIN_MEASURES,
     PIANO_ROLL_LOWEST_NOTE,
+    UNDO_STACK_SIZE,
 } from "../constants";
 import { Note, Sequencer } from "../sound/sequencer";
 
@@ -19,6 +20,9 @@ export interface PianoRollState {
     playbackEnabled: boolean;
     hasChanged: boolean;
     isPianoHidden: boolean;
+    undoStack: Note[][];
+    saveState: (notes: Note[]) => void;
+    undo: () => void;
     setIsRollPlaying: (value: boolean) => void;
     setIsResultPlaying: (value: boolean) => void;
     addNote: (note: Note) => void;
@@ -69,6 +73,30 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
     playbackEnabled: true,
     hasChanged: false,
     isPianoHidden: true,
+    undoStack: [],
+
+    saveState: (notes: Note[]) =>
+        set((state) => {
+            const newStack = [...state.undoStack];
+            if (state.undoStack.length >= UNDO_STACK_SIZE) {
+                newStack.shift();
+            }
+            newStack.push(notes);
+            return { undoStack: newStack };
+        }),
+
+    undo: () =>
+        set((state) => {
+            const undoStack = [...state.undoStack];
+            const lastState = undoStack.pop();
+            if (lastState) {
+                const newSongs = [...state.songs];
+                newSongs[state.selectedIndex].notes = lastState;
+                return { songs: newSongs, undoStack };
+            }
+            return { undoStack };
+        }),
+
     setIsRollPlaying: (value: boolean) =>
         set(() => ({ isRollPlaying: value, isResultPlaying: false })),
 
@@ -182,6 +210,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     selectedIndex: value,
                     isRollPlaying: false,
                     isResultPlaying: false,
+                    undoStack: [],
                 };
             return {};
         }),

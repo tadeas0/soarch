@@ -8,9 +8,7 @@ import { usePianoRollStore } from "../../stores/pianoRollStore";
 import {
     PIANO_ROLL_NOTE_HEIGHT,
     PREVIEW_NOTE_HIGHLIGHT_DURATION,
-    UNDO_STACK_SIZE,
 } from "../../constants";
-import useKeyboardListener from "../../hooks/useKeyboardListener";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -28,10 +26,10 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const [previewNotes, setPreviewNotes] = useState<Map<Note, number>>(
         new Map()
     );
-    const [, setNotesStack] = useState<Note[][]>([]);
-    const [playbackEnabled, isRollPlaying, setNotes] = usePianoRollStore(
-        (state) => [state.playbackEnabled, state.isRollPlaying, state.setNotes]
-    );
+    const [playbackEnabled, isRollPlaying] = usePianoRollStore((state) => [
+        state.playbackEnabled,
+        state.isRollPlaying,
+    ]);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
@@ -52,36 +50,6 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         });
     };
 
-    const saveState = (newNotes: Note[]) => {
-        setNotesStack((current) => {
-            const next = [...current];
-            if (next.length >= UNDO_STACK_SIZE) {
-                next.shift();
-            }
-            return [...next, newNotes];
-        });
-    };
-
-    const loadState = () => {
-        setNotesStack((current) => {
-            const next = [...current];
-            const last = next.pop();
-            if (last) {
-                setNotes(last);
-            }
-            return next;
-        });
-    };
-
-    useKeyboardListener(
-        () => {},
-        (e) => {
-            if (e.key === "z" && e.ctrlKey) {
-                loadState();
-            }
-        }
-    );
-
     const mouseHandler = useMouseHandler(
         usePianoRollStore.getState().addNote,
         usePianoRollStore.getState().deleteNote,
@@ -93,7 +61,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
             ].notes,
         gridParams,
         playbackEnabled,
-        saveState
+        usePianoRollStore.getState().saveState
     );
 
     const handleLeftClick = async (coords: MouseEvent) => {
@@ -138,10 +106,6 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
             mouseHandler.onMouseMove(e.nativeEvent);
         }
     };
-
-    // useEffect(() => {
-    //     saveState(notes);
-    // }, [notes]);
 
     useEffect(() => {
         // Scroll to the first note and center it on screen
