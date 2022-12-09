@@ -3,8 +3,16 @@ import { Note, Sequencer } from "../../../sound/sequencer";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import ReadyState from "./readyState";
 import State from "./handlerState";
+import { MouseHandler } from "./mouseHandler";
 
 export default class ChangingLengthState extends State {
+    private alreadySaved: boolean;
+
+    constructor(mouseHandler: MouseHandler) {
+        super(mouseHandler);
+        this.alreadySaved = false;
+    }
+
     public handleLeftClick() {}
 
     public handleRightClick() {}
@@ -18,6 +26,10 @@ export default class ChangingLengthState extends State {
     }
 
     public handleMouseMove(coords: MouseCoords) {
+        if (!this.alreadySaved) {
+            this.mouseHandler.saveState();
+            this.alreadySaved = true;
+        }
         const oldNote = this.mouseHandler.selectedNote;
         if (oldNote === null) {
             throw new Error("Note is not selected");

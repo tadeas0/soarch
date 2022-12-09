@@ -23,6 +23,7 @@ export interface PianoRollState {
     setIsResultPlaying: (value: boolean) => void;
     addNote: (note: Note) => void;
     deleteNote: (note: Note) => void;
+    setNotes: (notes: Note[]) => void;
     clear: () => void;
     setPlaybackEnabled: (value: boolean) => void;
     changeBPM: (value: number) => void;
@@ -91,6 +92,18 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             newSongs[state.selectedIndex].notes = oldNotes.filter(
                 (n) => n !== note
             );
+            return { songs: newSongs, hasChanged: true };
+        }),
+
+    setNotes: async (notes: Note[]) =>
+        set((state) => {
+            Sequencer.clearBuffer();
+            Sequencer.fillBuffer(
+                notes,
+                state.songs[state.selectedIndex].gridParams.width
+            );
+            const newSongs = [...state.songs];
+            newSongs[state.selectedIndex].notes = notes;
             return { songs: newSongs, hasChanged: true };
         }),
 

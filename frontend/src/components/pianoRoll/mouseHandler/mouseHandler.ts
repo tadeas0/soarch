@@ -33,6 +33,8 @@ export class MouseHandler {
 
     private _playbackEnabled: boolean;
 
+    private _saveState: (notes: Note[]) => void;
+
     constructor(
         onAddNote: (note: Note) => void,
         onDeleteNote: (note: Note) => void,
@@ -40,7 +42,8 @@ export class MouseHandler {
         showPreviewNote: (note: Note) => void,
         getNotes: () => Note[],
         gridParams: GridParams,
-        playbackEnabled: boolean
+        playbackEnabled: boolean,
+        saveState: (notes: Note[]) => void
     ) {
         this.state = new ReadyState(this);
         this.onAddNote = onAddNote;
@@ -51,6 +54,11 @@ export class MouseHandler {
         this._showPreviewNote = showPreviewNote;
         this._playbackEnabled = playbackEnabled;
         this._selectedNote = null;
+        this._saveState = saveState;
+    }
+
+    public saveState() {
+        this._saveState(this.getNotes());
     }
 
     public getRollCoordsFromMouseCoords(coords: MouseCoords): RollCoordinates {
@@ -186,7 +194,8 @@ export function useMouseHandler(
     showPreviewNote: (note: Note) => void,
     getNotes: () => Note[],
     gridParams: GridParams,
-    playbackEnabled: boolean
+    playbackEnabled: boolean,
+    saveState: (notes: Note[]) => void = () => {}
 ) {
     const mouseHandler = useRef<MouseHandler | null>(null);
     if (!mouseHandler.current) {
@@ -197,7 +206,8 @@ export function useMouseHandler(
             showPreviewNote,
             getNotes,
             gridParams,
-            playbackEnabled
+            playbackEnabled,
+            saveState
         );
     }
     useEffect(() => {
