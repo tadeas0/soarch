@@ -138,11 +138,16 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
     clear: () =>
         set((state) => {
             const newSongs = [...state.songs];
+            const newStack = [
+                ...state.undoStack,
+                newSongs[state.selectedIndex].notes,
+            ];
             newSongs[state.selectedIndex].notes = [];
             return {
                 songs: newSongs,
                 isRollPlaying: false,
                 isResultPlaying: false,
+                undoStack: newStack,
             };
         }),
 
@@ -170,6 +175,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 selectedIndex: state.songs.length,
                 isRollPlaying: false,
                 isResultPlaying: false,
+                undoStack: [],
             };
         }),
 
@@ -182,14 +188,19 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             ) {
                 const newSongs = state.songs.filter((_, i) => i !== value);
                 let newSelected = state.selectedIndex;
+                let newStack = [...state.undoStack];
                 if (newSelected >= newSongs.length - 1) {
                     newSelected = newSongs.length - 1;
+                }
+                if (value === state.selectedIndex) {
+                    newStack = [];
                 }
                 return {
                     songs: newSongs,
                     selectedIndex: newSelected,
                     isRollPlaying: false,
                     isResultPlaying: false,
+                    undoStack: newStack,
                 };
             }
             if (value === 0 && state.songs.length === 1) {
