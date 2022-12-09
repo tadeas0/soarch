@@ -27,6 +27,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         new Map()
     );
     const playbackEnabled = usePianoRollStore((state) => state.playbackEnabled);
+    const isRollPlaying = usePianoRollStore((state) => state.isRollPlaying);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
@@ -138,7 +139,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
-                disabled={disabled}
+                disabled={disabled || !isRollPlaying}
             />
         </div>
     );
