@@ -6,10 +6,12 @@ import GridParams from "../../interfaces/GridParams";
 import { useMouseHandler } from "./mouseHandler/mouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
+import { SearchResult } from "../../interfaces/SearchResult";
 
 interface PianoRollGridProps {
     notes: Note[];
     gridParams: GridParams;
+    topSearchResult?: SearchResult;
     disabled?: boolean;
 }
 
@@ -17,6 +19,7 @@ interface PianoRollGridProps {
 const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     notes,
     gridParams,
+    topSearchResult,
     disabled = false,
 }: PianoRollGridProps) => {
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -111,6 +114,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         >
             <PianoRollCanvas
                 gridParams={gridParams}
+                topSearchResult={topSearchResult}
                 notes={notes}
                 selectedNote={selectedNote}
                 previewNotes={new Set(previewNotes.keys())}
@@ -124,6 +128,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
 };
 
 PianoRollGrid.defaultProps = {
+    topSearchResult: undefined,
     disabled: false,
 };
 

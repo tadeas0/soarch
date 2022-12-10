@@ -16,6 +16,7 @@ export const PIANO_ROLL_KEYS_WIDTH = 50;
 export const DEFAULT_NOTE_LENGTH = 4;
 export const PREVIEW_NOTE_LENGTH = 1;
 export const PREVIEW_NOTE_HIGHLIGHT_DURATION = 750;
+export const PREVIEW_RESULT_DURATION = 750;
 export const PIANO_ROLL_HANDLE_PART = 1 / 2; // part of the note, that is considered handle
 export const UNDO_STACK_SIZE = 10;
 
@@ -69,6 +70,7 @@ export const NOTE_HIGHLIGHT_COLOR = WHITE;
 export const PREVIEW_NOTE_HIGHLIGHT_COLOR = MEDIUM_PRIMARY;
 export const PIANO_ROLL_TEXT_COLOR = WHITE_LOW_OPACITY;
 export const PIANO_ROLL_FONT = '400 10px "Courier", monospace';
+export const PIANO_ROLL_RECOMMEND_FONT = '800 14px "Courier", monospace';
 export const PIANO_ROLL_KEYS_FONT = '800 14px "Courier", monospace';
 export const PIANO_ROLL_GRID_COLORS = [BLACK, BLACK, BLACK];
 
@@ -79,6 +81,7 @@ export const PIANO_ROLL_BLACK_KEY_COLOR = MEDIUM_PRIMARY_LOW_OPACITY;
 export const PIANO_ROLL_BG_COLOR = WHITE;
 export const PIANO_ROLL_PLAYHEAD_COLOR = LIGHT_PRIMARY;
 export const PIANO_ROLL_NOTE_COLOR = LIGHT_PRIMARY;
+export const PIANO_ROLL_RECOMMEND_COLOR = DARK_PRIMARY;
 export const PIANO_ROLL_NOTE_OUTLINE_COLOR = DARK_PRIMARY_LOW_OPACITY;
 export const HIDE_STRATEGIES = true;
 export const MIN_NOTES_FOR_FETCHING = 3;

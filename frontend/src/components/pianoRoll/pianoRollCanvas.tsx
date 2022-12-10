@@ -19,16 +19,21 @@ import {
     PREVIEW_NOTE_HIGHLIGHT_COLOR,
     PIANO_ROLL_FONT,
     PIANO_ROLL_TEXT_COLOR,
+    PREVIEW_RESULT_DURATION,
+    PIANO_ROLL_RECOMMEND_FONT,
+    PIANO_ROLL_RECOMMEND_COLOR,
 } from "../../constants";
 import { AiFillCaretDown } from "react-icons/ai";
 import { Note, Sequencer } from "../../sound/sequencer";
 import GridParams from "../../interfaces/GridParams";
 import * as React from "react";
+import { SearchResult } from "../../interfaces/SearchResult";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseUp: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseMove: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+    topSearchResult?: SearchResult;
     previewNotes: Set<Note>;
     gridParams: GridParams;
     notes: Note[];
@@ -40,6 +45,13 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [headerTranslation, setHeaderTranslation] = useState(0);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const [results, setResults] = useState<
+        {
+            searchResult: SearchResult;
+            pos: { x: number; y: number };
+        }[]
+    >([]);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
     const drawCircle = async (
@@ -184,6 +196,19 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         [drawNote, props.notes]
     );
 
+    const drawResult = useCallback(
+        async (ctx: CanvasRenderingContext2D) => {
+            for (const r of results) {
+                ctx.fillStyle = PIANO_ROLL_RECOMMEND_COLOR;
+                ctx.font = PIANO_ROLL_RECOMMEND_FONT;
+                const x = r.pos.x;
+                const y = r.pos.y;
+                ctx.fillText(r.searchResult.name, x, y);
+            }
+        },
+        [results]
+    );
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas) {
@@ -195,9 +220,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             if (context) {
                 drawGrid(context);
                 drawNotes(context);
+                drawResult(context);
             }
         }
-    }, [drawGrid, drawNotes, props.gridParams]);
+    }, [drawGrid, drawNotes, drawResult, props.gridParams]);
 
     const isOnGrid = (e: MouseEvent<HTMLCanvasElement>) => {
         const { offsetY } = e.nativeEvent;
@@ -243,6 +269,31 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         props.gridParams.lowestNote,
         props.gridParams.height,
     ]);
+
+    useEffect(() => {
+        setResults((current) => {
+            const r = current.map((res) => res.searchResult.name);
+            if (
+                props.topSearchResult === undefined ||
+                r.includes(props.topSearchResult.name)
+            )
+                return current;
+            const next = [...current];
+            next.push({
+                searchResult: props.topSearchResult!,
+                pos: mousePos,
+            });
+            setTimeout(() => {
+                setResults((currIn) => {
+                    const nextIn = [...currIn];
+                    nextIn.pop();
+                    return nextIn;
+                });
+            }, PREVIEW_RESULT_DURATION);
+            return next;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.topSearchResult]);
 
     const renderPiano = () => {
         const previewPitches = [...props.previewNotes].map((n) => n.pitch);
@@ -291,6 +342,14 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         );
     };
 
+    const handleMouseMove = (e: MouseEvent<HTMLCanvasElement>) => {
+        if (isOnGrid(e)) {
+            const { offsetX, offsetY } = e.nativeEvent;
+            setMousePos({ x: offsetX, y: offsetY });
+            props.onMouseMove(e);
+        }
+    };
+
     return (
         <div
             ref={canvasContainerRef}
@@ -319,7 +378,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                 }}
                 ref={canvasRef}
                 onMouseDown={(e) => isOnGrid(e) && props.onMouseDown(e)}
-                onMouseMove={(e) => isOnGrid(e) && props.onMouseMove(e)}
+                onMouseMove={handleMouseMove}
                 onMouseUp={(e) => isOnGrid(e) && props.onMouseUp(e)}
                 onContextMenu={(e) => e.preventDefault()}
             />
@@ -328,6 +387,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
 };
 
 PianoRollCanvas.defaultProps = {
+    topSearchResult: undefined,
     disabled: false,
 };
 

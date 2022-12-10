@@ -5,9 +5,11 @@ import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
 import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
 import PianoRollGrid from "./pianoRollGrid";
 import * as React from "react";
+import { SearchResult } from "../../interfaces/SearchResult";
 
 interface SongTabsProps {
     disabled?: boolean;
+    topSearchResult?: SearchResult;
 }
 
 const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
@@ -66,6 +68,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                     <PianoRollGrid
                         gridParams={s.gridParams}
                         notes={s.notes}
+                        topSearchResult={props.topSearchResult}
                         disabled={props.disabled}
                     />
                 </TabPanel>
@@ -76,6 +79,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
 
 SongTabs.defaultProps = {
     disabled: false,
+    topSearchResult: undefined,
 };
 
 export default SongTabs;
