@@ -11,7 +11,11 @@ import DownloadingOverlay from "../components/downloadingOverlay";
 import PianoRoll from "../components/pianoRoll/pianoRoll";
 import SearchResultsDrawer from "../components/searchResultsDrawer";
 import StrategySelector, { Option } from "../components/strategySelector";
-import { HIDE_STRATEGIES, LIGHT_PRIMARY } from "../constants";
+import {
+    HIDE_STRATEGIES,
+    LIGHT_PRIMARY,
+    MIN_NOTES_FOR_FETCHING,
+} from "../constants";
 import { PlaybackProvider } from "../context/playbackContext";
 import { AvailabilityContext } from "../context/serverAvailabilityContext";
 import usePlayback from "../hooks/usePlayback";
@@ -89,6 +93,12 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
 
     const handleSubmit = async (notes: Note[], gridLength: number) => {
         setBusy(true);
+        if (notes.length < MIN_NOTES_FOR_FETCHING) {
+            setSearchResults([]);
+            setBusy(false);
+            return;
+        }
+
         const reqBody: NoteForm = {
             gridLength,
             notes: notes.map((n) => ({

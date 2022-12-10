@@ -1,9 +1,5 @@
 import { useEffect, FunctionComponent, useCallback } from "react";
-import {
-    MEASURE_LENGTH,
-    MIN_MEASURES,
-    MIN_NOTES_FOR_FETCHING,
-} from "../../constants";
+import { MEASURE_LENGTH, MIN_MEASURES } from "../../constants";
 import { Note, Sequencer } from "../../sound/sequencer";
 import SongTabs from "./songTabs";
 import * as React from "react";
@@ -66,11 +62,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     const undo = usePianoRollStore((state) => state.undo);
 
     useEffect(() => {
-        if (
-            hasChanged &&
-            !isFetchingResults &&
-            selectedSong.notes.length > MIN_NOTES_FOR_FETCHING
-        ) {
+        if (hasChanged && !isFetchingResults) {
             onSubmit(selectedSong.notes, selectedSong.gridParams.width);
         }
         clearChangeFlag();

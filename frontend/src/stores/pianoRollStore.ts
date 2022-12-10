@@ -175,6 +175,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 selectedIndex: state.songs.length,
                 isRollPlaying: false,
                 isResultPlaying: false,
+                hasChanged: true,
                 undoStack: [],
             };
         }),
@@ -201,6 +202,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     isRollPlaying: false,
                     isResultPlaying: false,
                     undoStack: newStack,
+                    hasChanged: true,
                 };
             }
             if (value === 0 && state.songs.length === 1) {
@@ -209,6 +211,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     selectedIndex: 0,
                     isRollPlaying: false,
                     isResultPlaying: false,
+                    hasChanged: true,
                 };
             }
             return {};
@@ -221,6 +224,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     selectedIndex: value,
                     isRollPlaying: false,
                     isResultPlaying: false,
+                    hasChanged: true,
                     undoStack: [],
                 };
             return {};
