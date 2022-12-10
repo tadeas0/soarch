@@ -1,7 +1,6 @@
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import * as React from "react";
-import { MdDelete } from "react-icons/md";
-import { CgPiano, CgUndo } from "react-icons/cg";
+import { CgPiano } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
 import { FaSave } from "react-icons/fa";
@@ -25,14 +24,13 @@ const TopButtons = (props: TopButtonsProps) => {
         state.songs,
         state.selectedIndex,
     ]);
-    const [isRollPlaying, setIsRollPlaying, changeBPM, clear, undo] =
-        usePianoRollStore((state) => [
+    const [isRollPlaying, setIsRollPlaying, changeBPM] = usePianoRollStore(
+        (state) => [
             state.isRollPlaying,
             state.setIsRollPlaying,
             state.changeBPM,
-            state.clear,
-            state.undo,
-        ]);
+        ]
+    );
     const [isPianoHidden, setIsPianoHidden] = usePianoRollStore((state) => [
         state.isPianoHidden,
         state.setIsPianoHidden,
@@ -77,16 +75,6 @@ const TopButtons = (props: TopButtonsProps) => {
             >
                 {getPlayIcon()}
             </Button>
-            <Button
-                className="col-span-1 flex items-center justify-center text-6xl"
-                id="piano-button"
-                pressed={!isPianoHidden}
-                onClick={() => setIsPianoHidden(!isPianoHidden)}
-                disabled={props.disabled}
-            >
-                <CgPiano />
-            </Button>
-            <InstrumentSelector disabled={props.disabled} />
             <Metronome disabled={props.disabled} />
             <BPMInput
                 id="bpm-input"
@@ -99,20 +87,14 @@ const TopButtons = (props: TopButtonsProps) => {
             />
             <Button
                 className="col-span-1 flex items-center justify-center text-6xl"
-                id="undo-button"
-                onClick={undo}
+                id="piano-button"
+                pressed={!isPianoHidden}
+                onClick={() => setIsPianoHidden(!isPianoHidden)}
                 disabled={props.disabled}
             >
-                <CgUndo />
+                <CgPiano />
             </Button>
-            <Button
-                id="clear-button"
-                className="col-span-1 flex items-center justify-center text-6xl"
-                onClick={clear}
-                disabled={props.disabled}
-            >
-                <MdDelete />
-            </Button>
+            <InstrumentSelector disabled={props.disabled} />
             <Button
                 id="export-button"
                 className="col-span-1 flex items-center justify-center text-6xl"

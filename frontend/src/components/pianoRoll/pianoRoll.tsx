@@ -142,7 +142,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     return (
         <div className="flex flex-col items-center justify-start">
-            <div className="grid w-full grid-cols-12 justify-center gap-4">
+            <div className="grid w-full grid-cols-10 justify-center gap-4">
                 <TopResult
                     searchResult={topSearchResult}
                     isBusy={isFetchingResults}
