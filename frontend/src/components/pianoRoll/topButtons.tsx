@@ -88,14 +88,6 @@ const TopButtons = (props: TopButtonsProps) => {
             </Button>
             <InstrumentSelector disabled={props.disabled} />
             <Metronome disabled={props.disabled} />
-            <Button
-                className="col-span-1 flex items-center justify-center text-6xl"
-                id="undo-button"
-                onClick={undo}
-                disabled={props.disabled}
-            >
-                <CgUndo />
-            </Button>
             <BPMInput
                 id="bpm-input"
                 value={selectedSong.bpm}
@@ -105,6 +97,14 @@ const TopButtons = (props: TopButtonsProps) => {
                 max={250}
                 disabled={isRollPlaying || props.disabled}
             />
+            <Button
+                className="col-span-1 flex items-center justify-center text-6xl"
+                id="undo-button"
+                onClick={undo}
+                disabled={props.disabled}
+            >
+                <CgUndo />
+            </Button>
             <Button
                 id="clear-button"
                 className="col-span-1 flex items-center justify-center text-6xl"

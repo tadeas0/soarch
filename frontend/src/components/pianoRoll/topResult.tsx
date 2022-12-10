@@ -17,6 +17,10 @@ interface TopResultProps {
 const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [progress, setProgress] = useState(0);
     const { canAddTab, addTab } = useTabControls();
+    const [lastResult, setLastResult] = useState<null | SearchResult>(null);
+    const [shouldPing, setShouldPing] = useState(false);
+    const [pingTimeout, setPingTimeout] = useState<number>(0);
+    const [shouldColor, setShouldColor] = useState(false);
     const [isResultPlaying, setIsResultPlaying] = usePianoRollStore((state) => [
         state.isResultPlaying,
         state.setIsResultPlaying,
@@ -33,6 +37,26 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                                )`,
         };
     };
+
+    useEffect(() => {
+        if (props.searchResult === undefined) {
+            setLastResult(null);
+            setShouldColor(false);
+        }
+        if (
+            props.searchResult?.name !== lastResult?.name &&
+            props.searchResult !== undefined
+        ) {
+            setLastResult(props.searchResult);
+            setShouldPing(true);
+            setShouldColor(true);
+            clearTimeout(pingTimeout);
+            const t = setTimeout(() => {
+                setShouldPing(false);
+            }, 1000);
+            setPingTimeout(t);
+        }
+    }, [lastResult, pingTimeout, props.searchResult]);
 
     useEffect(() => {
         (async () => {
@@ -108,9 +132,17 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     return (
         <div
             id="top-result"
-            className="col-span-2 h-28 rounded bg-light-primary p-1 pb-2 text-white"
+            className={`relative col-span-2 h-28 rounded p-1 pb-2 transition-colors ${
+                shouldColor
+                    ? "bg-medium-primary text-black"
+                    : "bg-light-primary text-white"
+            }`}
+            onMouseEnter={() => setShouldColor(false)}
             style={getInlineStyles()}
         >
+            {shouldPing && (
+                <div className="absolute top-0 bottom-0 left-0 right-0 animate-ping rounded border-4 border-medium-primary bg-transparent" />
+            )}
             {props.isBusy ? (
                 <div className="flex h-full flex-row items-center justify-center">
                     <ClipLoader size={24} color={WHITE} />

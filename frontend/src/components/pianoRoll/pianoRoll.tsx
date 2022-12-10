@@ -143,14 +143,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     return (
         <div className="flex flex-col items-center justify-start">
             <div className="grid w-full grid-cols-12 justify-center gap-4">
-                <TopButtons
-                    setIsDownloading={setIsDownloading}
-                    disabled={disabled}
-                />
                 <TopResult
                     searchResult={topSearchResult}
                     isBusy={isFetchingResults}
                     onShowMore={onShowMore}
+                />
+                <TopButtons
+                    setIsDownloading={setIsDownloading}
+                    disabled={disabled}
                 />
             </div>
             <div className="mt-10 flex w-full flex-row items-start justify-between gap-3">

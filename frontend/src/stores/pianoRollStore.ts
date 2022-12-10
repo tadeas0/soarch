@@ -92,9 +92,9 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             if (lastState) {
                 const newSongs = [...state.songs];
                 newSongs[state.selectedIndex].notes = lastState;
-                return { songs: newSongs, undoStack };
+                return { songs: newSongs, hasChanged: true, undoStack };
             }
-            return { undoStack };
+            return { hasChanged: true, undoStack };
         }),
 
     setIsRollPlaying: (value: boolean) =>
@@ -147,6 +147,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 songs: newSongs,
                 isRollPlaying: false,
                 isResultPlaying: false,
+                hasChanged: true,
                 undoStack: newStack,
             };
         }),
