@@ -42,6 +42,7 @@ export const SYNTH_PRESETS: SynthPreset[] = [
         name: "Electric guitar",
         icon: GiGuitar,
         preset: new Tone.Sampler({
+            volume: -10,
             urls: {
                 C3: "/samples/electric_guitar_C3.mp3",
             },
@@ -52,6 +53,7 @@ export const SYNTH_PRESETS: SynthPreset[] = [
         name: "Acoustic guitar",
         icon: FaGuitar,
         preset: new Tone.Sampler({
+            volume: -6,
             urls: {
                 C4: "/samples/acoustic_guitar_C4.mp3",
             },
@@ -62,6 +64,7 @@ export const SYNTH_PRESETS: SynthPreset[] = [
         name: "Basic sawtooth",
         icon: TbWaveSawTool,
         preset: new Tone.PolySynth(Tone.Synth, {
+            volume: 4,
             envelope: {
                 attack: 0.005,
                 attackCurve: "linear",
