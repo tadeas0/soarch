@@ -293,9 +293,6 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
 
     return (
         <div
-            style={{
-                width: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
-            }}
             ref={canvasContainerRef}
             className="relative h-screen max-h-full max-w-full overflow-scroll transition-[width]"
         >
@@ -303,7 +300,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             <div
                 className="sticky top-0 left-0 h-5 border-b-2 border-dark-primary bg-white transition-[width]"
                 style={{
-                    width: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
+                    minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
                 }}
             >
                 <div
@@ -317,6 +314,9 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             </div>
             <canvas
                 className="ml-14 snap-none transition-[width]"
+                style={{
+                    minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
+                }}
                 ref={canvasRef}
                 onMouseDown={(e) => isOnGrid(e) && props.onMouseDown(e)}
                 onMouseMove={(e) => isOnGrid(e) && props.onMouseMove(e)}
