@@ -9,11 +9,11 @@ const useSynth = () => {
     ]);
 
     const triggerAttack = (pitch: Tone.FrequencyClass) => {
-        synth.triggerAttack(pitch.toNote());
+        synth.triggerAttack(pitch.toNote(), Tone.context.currentTime);
     };
 
     const triggerRelease = (pitch: Tone.FrequencyClass) => {
-        synth.triggerRelease(pitch.toNote());
+        synth.triggerRelease(pitch.toNote(), Tone.context.currentTime);
     };
 
     const triggerAttackRelease = (
