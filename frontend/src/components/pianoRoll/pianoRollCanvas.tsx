@@ -24,6 +24,8 @@ import { AiFillCaretDown } from "react-icons/ai";
 import { Note, Sequencer } from "../../sound/sequencer";
 import GridParams from "../../interfaces/GridParams";
 import * as React from "react";
+import useOnBeatCallback from "../../hooks/sequencer/useOnBeatCallback";
+import useSynth from "../../hooks/sequencer/useSynth";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -41,6 +43,19 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const [headerTranslation, setHeaderTranslation] = useState(0);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
+    const { triggerAttackRelease } = useSynth();
+    useOnBeatCallback(async (time) => {
+        if (!props.disabled) {
+            const headerWidth =
+                (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
+
+            const len = Tone.Time(
+                Sequencer.rollTimeToToneTime(props.gridParams.width)
+            ).toSeconds();
+            const progress = time / len;
+            setHeaderTranslation(headerWidth * progress);
+        }
+    });
 
     const drawCircle = async (
         ctx: CanvasRenderingContext2D,
@@ -205,20 +220,6 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     };
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-            Sequencer.clearOnBeatCallbacks();
-            if (!props.disabled) {
-                const headerWidth =
-                    (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
-                Sequencer.runCallbackOnBeat(() => {
-                    setHeaderTranslation(headerWidth * Sequencer.getProgress());
-                });
-            }
-        }
-    }, [props.disabled, props.gridParams.width]);
-
-    useEffect(() => {
         // Scroll to the first note and center it on screen
         if (canvasContainerRef.current && !alreadyScrolled) {
             setAlreadyScrolled(true);
@@ -268,10 +269,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                     }}
                     className={`p-0 text-right text-sm outline-none ${classes}`}
                     onClick={() => {
-                        Sequencer.previewNote(pitch);
+                        triggerAttackRelease(pitch);
                     }}
                     onKeyDown={() => {
-                        Sequencer.previewNote(pitch);
+                        triggerAttackRelease(pitch);
                     }}
                 >
                     {pitch.slice(0, -1) === "C" && pitch}

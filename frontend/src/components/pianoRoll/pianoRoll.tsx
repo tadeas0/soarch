@@ -7,7 +7,6 @@ import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
 import TopResult from "./topResult";
 import { SearchResult } from "../../interfaces/SearchResult";
-import usePlayback from "../../hooks/usePlayback";
 import {
     usePianoRollStore,
     useSelectedSong,
@@ -15,6 +14,7 @@ import {
 import OnScreenPiano from "./onScreenPiano";
 import Button from "../basic/button";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
+import useSequencer from "../../hooks/sequencer/useSequencer";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -33,8 +33,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     isFetchingResults,
     topSearchResult,
 }) => {
-    const [, handleStart, handleStop] = usePlayback();
     const selectedSong = useSelectedSong();
+    const { play, stop, isPlaying } = useSequencer();
     const [
         isRollPlaying,
         isResultPlaying,
@@ -60,6 +60,12 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         state.removeMeasure,
     ]);
     const undo = usePianoRollStore((state) => state.undo);
+    useEffect(() => {
+        if (!isPlaying) {
+            setIsResultPlaying(false);
+            setIsRollPlaying(false);
+        }
+    }, [isPlaying, setIsResultPlaying, setIsRollPlaying]);
 
     useEffect(() => {
         if (hasChanged && !isFetchingResults) {
@@ -75,33 +81,16 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         selectedSong.notes,
     ]);
 
-    useEffect(() => {
-        if (isResultPlaying && topSearchResult) {
-            handleStart(
-                topSearchResult.notes,
-                topSearchResult.bpm,
-                Sequencer.getGridParamsFromNotes(topSearchResult.notes).width
-            );
-        } else if (isRollPlaying) {
-            const s = selectedSong;
-            handleStart(s.notes, s.bpm, s.gridParams.width);
-        } else {
-            handleStop();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isResultPlaying, isRollPlaying, selectedSong]);
-
     const canRemoveMeasure = () =>
         selectedSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;
 
     const handleKeyUp = useCallback(
         (note: Note) => {
             if (isRollPlaying) {
-                Sequencer.fillBuffer([note], selectedSong.gridParams.width);
                 addNote(note);
             }
         },
-        [addNote, isRollPlaying, selectedSong.gridParams.width]
+        [addNote, isRollPlaying]
     );
 
     const handleKeyboardDown = useCallback(
@@ -111,13 +100,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 if (isResultPlaying || isRollPlaying) {
                     setIsResultPlaying(false);
                     setIsRollPlaying(false);
-                    handleStop();
+                    stop();
                 } else {
                     setIsRollPlaying(true);
-                    handleStart(
+                    play(
                         selectedSong.notes,
                         selectedSong.bpm,
-                        selectedSong.gridParams.width
+                        Sequencer.rollTimeToToneTime(
+                            selectedSong.gridParams.width
+                        )
                     );
                 }
             } else if (e.key === "z" && e.ctrlKey) {
@@ -125,18 +116,49 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             }
         },
         [
-            handleStart,
-            handleStop,
             isResultPlaying,
             isRollPlaying,
+            play,
             selectedSong.bpm,
             selectedSong.gridParams.width,
             selectedSong.notes,
             setIsResultPlaying,
             setIsRollPlaying,
+            stop,
             undo,
         ]
     );
+
+    const handleRollPlay = () => {
+        stop();
+        if (isRollPlaying) {
+            setIsRollPlaying(false);
+        } else {
+            setIsRollPlaying(true);
+            play(
+                selectedSong.notes,
+                selectedSong.bpm,
+                Sequencer.rollTimeToToneTime(selectedSong.gridParams.width)
+            );
+        }
+    };
+
+    const handleResultPlay = () => {
+        stop();
+        if (isResultPlaying) {
+            setIsResultPlaying(false);
+        } else if (topSearchResult) {
+            setIsResultPlaying(true);
+            play(
+                topSearchResult.notes,
+                topSearchResult.bpm,
+                Sequencer.rollTimeToToneTime(
+                    Sequencer.getGridParamsFromNotes(topSearchResult.notes)
+                        .width
+                )
+            );
+        }
+    };
 
     useKeyboardListener(() => {}, handleKeyboardDown);
 
@@ -146,9 +168,13 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 <TopResult
                     searchResult={topSearchResult}
                     isBusy={isFetchingResults}
+                    isPlaying={isResultPlaying}
+                    onPlayClick={handleResultPlay}
                     onShowMore={onShowMore}
                 />
                 <TopButtons
+                    isPlaying={isRollPlaying}
+                    onPlayClick={handleRollPlay}
                     setIsDownloading={setIsDownloading}
                     disabled={disabled}
                 />

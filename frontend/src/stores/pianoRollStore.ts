@@ -105,7 +105,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
 
     addNote: async (note: Note) =>
         set((state) => {
-            Sequencer.addNoteToBuffer(note);
+            // Sequencer.addNoteToBuffer(note);
             const newSongs = [...state.songs];
             const oldNotes = newSongs[state.selectedIndex].notes;
             newSongs[state.selectedIndex].notes = [...oldNotes, note];
@@ -114,7 +114,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
 
     deleteNote: async (note: Note) =>
         set((state) => {
-            Sequencer.deleteNoteFromBuffer(note);
+            // Sequencer.deleteNoteFromBuffer(note);
             const newSongs = [...state.songs];
             const oldNotes = newSongs[state.selectedIndex].notes;
             newSongs[state.selectedIndex].notes = oldNotes.filter(
@@ -125,11 +125,11 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
 
     setNotes: async (notes: Note[]) =>
         set((state) => {
-            Sequencer.clearBuffer();
-            Sequencer.fillBuffer(
-                notes,
-                state.songs[state.selectedIndex].gridParams.width
-            );
+            // Sequencer.clearBuffer();
+            // Sequencer.fillBuffer(
+            //     notes,
+            //     state.songs[state.selectedIndex].gridParams.width
+            // );
             const newSongs = [...state.songs];
             newSongs[state.selectedIndex].notes = notes;
             return { songs: newSongs, hasChanged: true };

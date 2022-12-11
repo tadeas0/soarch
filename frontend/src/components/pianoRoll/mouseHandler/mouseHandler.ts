@@ -29,17 +29,23 @@ export class MouseHandler {
 
     private getNotes: () => Note[];
 
-    private _showPreviewNote: (note: Note) => void;
+    private _previewNote: (note: Note) => void;
 
     private _playbackEnabled: boolean;
 
     private _saveState: (notes: Note[]) => void;
 
+    private _pressNote: (note: Tone.Unit.Note) => void;
+
+    private _releaseNote: (note: Tone.Unit.Note) => void;
+
     constructor(
         onAddNote: (note: Note) => void,
         onDeleteNote: (note: Note) => void,
         changeSelectedNote: (note: Note) => void,
-        showPreviewNote: (note: Note) => void,
+        previewNote: (note: Note) => void,
+        pressNote: (note: Tone.Unit.Note) => void,
+        releaseNote: (note: Tone.Unit.Note) => void,
         getNotes: () => Note[],
         gridParams: GridParams,
         playbackEnabled: boolean,
@@ -51,9 +57,11 @@ export class MouseHandler {
         this._gridParams = gridParams;
         this.changeSelectedNote = changeSelectedNote;
         this.getNotes = getNotes;
-        this._showPreviewNote = showPreviewNote;
+        this._previewNote = previewNote;
         this._playbackEnabled = playbackEnabled;
         this._selectedNote = null;
+        this._pressNote = pressNote;
+        this._releaseNote = releaseNote;
         this._saveState = saveState;
     }
 
@@ -133,12 +141,8 @@ export class MouseHandler {
         this._gridParams = value;
     }
 
-    public get showPreviewNote(): (note: Note) => void {
-        return this._showPreviewNote;
-    }
-
-    public set showPreviewNote(value: (note: Note) => void) {
-        this._showPreviewNote = value;
+    public previewNote(note: Note) {
+        this._previewNote(note);
     }
 
     public async addNote(note: Note) {
@@ -179,11 +183,11 @@ export class MouseHandler {
     }
 
     public pressNote(note: Tone.Unit.Note) {
-        if (this.playbackEnabled) Sequencer.pressNote(note);
+        if (this.playbackEnabled) this._pressNote(note);
     }
 
     public releaseNote(note: Tone.Unit.Note) {
-        Sequencer.releaseNote(note);
+        this._releaseNote(note);
     }
 }
 
@@ -191,7 +195,9 @@ export function useMouseHandler(
     onAddNote: (note: Note) => void,
     onDeleteNote: (note: Note) => void,
     setSelectedNote: (note: Note) => void,
-    showPreviewNote: (note: Note) => void,
+    previewNote: (note: Note) => void,
+    pressNote: (note: Tone.Unit.Note) => void,
+    releaseNote: (note: Tone.Unit.Note) => void,
     getNotes: () => Note[],
     gridParams: GridParams,
     playbackEnabled: boolean,
@@ -203,7 +209,9 @@ export function useMouseHandler(
             onAddNote,
             onDeleteNote,
             setSelectedNote,
-            showPreviewNote,
+            previewNote,
+            pressNote,
+            releaseNote,
             getNotes,
             gridParams,
             playbackEnabled,

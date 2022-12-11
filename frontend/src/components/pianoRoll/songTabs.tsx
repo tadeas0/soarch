@@ -7,6 +7,7 @@ import PianoRollGrid from "./pianoRollGrid";
 import * as React from "react";
 import { CgUndo } from "react-icons/cg";
 import { MdDelete } from "react-icons/md";
+import useSequencer from "../../hooks/sequencer/useSequencer";
 
 interface SongTabsProps {
     disabled?: boolean;
@@ -20,6 +21,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
         state.clear,
     ]);
     const { canAddTab, selectTab, addTab, removeTab } = useTabControls();
+    const { stop } = useSequencer();
     const maxW = songs.length < 7 ? "max-w-2xs" : "max-w-3xs";
 
     return (
@@ -39,7 +41,10 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                                 className={`p-2 outline-none${
                                     i === selectedIndex ? "" : " truncate"
                                 }`}
-                                onClick={() => selectTab(i)}
+                                onClick={() => {
+                                    stop();
+                                    selectTab(i);
+                                }}
                             >
                                 {s.name}
                             </Tab>

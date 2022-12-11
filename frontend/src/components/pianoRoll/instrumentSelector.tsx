@@ -4,6 +4,7 @@ import { SynthPreset } from "../../sound/synthPresets";
 import { Sequencer } from "../../sound/sequencer";
 import Button from "../basic/button";
 import * as React from "react";
+import useSynth from "../../hooks/sequencer/useSynth";
 
 const defaultProps = {
     disabled: false,
@@ -15,6 +16,7 @@ type InstrumentSelectorProps = {
 
 const InstrumentSelector = (props: InstrumentSelectorProps) => {
     const initOption = Sequencer.getSynthPresets()[0];
+    const { setSynthFromPreset } = useSynth();
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] =
         useState<SynthPreset>(initOption);
@@ -30,7 +32,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
                 setIsOpen(false);
             }
             setSelectedOption(option);
-            Sequencer.setSynthPreset(option);
+            setSynthFromPreset(option);
         }
     };
 

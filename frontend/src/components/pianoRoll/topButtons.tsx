@@ -9,6 +9,7 @@ import Metronome from "./metronome";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { Sequencer } from "../../sound/sequencer";
 import Button from "../basic/button";
+import useSynth from "../../hooks/sequencer/useSynth";
 
 const defaultProps = {
     disabled: false,
@@ -16,6 +17,8 @@ const defaultProps = {
 
 type TopButtonsProps = {
     setIsDownloading: (v: boolean) => void;
+    isPlaying: boolean;
+    onPlayClick: () => void;
     disabled?: boolean;
 } & typeof defaultProps;
 
@@ -24,23 +27,18 @@ const TopButtons = (props: TopButtonsProps) => {
         state.songs,
         state.selectedIndex,
     ]);
-    const [isRollPlaying, setIsRollPlaying, changeBPM] = usePianoRollStore(
-        (state) => [
-            state.isRollPlaying,
-            state.setIsRollPlaying,
-            state.changeBPM,
-        ]
-    );
+    const changeBPM = usePianoRollStore((state) => state.changeBPM);
     const [isPianoHidden, setIsPianoHidden] = usePianoRollStore((state) => [
         state.isPianoHidden,
         state.setIsPianoHidden,
     ]);
+    const { synth } = useSynth();
 
     const selectedSong = songs[selectedIndex];
 
     const getPlayIcon = () => {
         if (props.disabled) return <BsFillPlayFill />;
-        if (isRollPlaying) return <BsPauseFill />;
+        if (props.isPlaying) return <BsPauseFill />;
         return <BsFillPlayFill />;
     };
 
@@ -51,7 +49,8 @@ const TopButtons = (props: TopButtonsProps) => {
                 selectedSong.notes,
                 selectedSong.bpm,
                 selectedSong.gridParams.width,
-                selectedSong.name
+                selectedSong.name,
+                synth
             );
         } catch (err) {
             console.error(err);
@@ -60,12 +59,16 @@ const TopButtons = (props: TopButtonsProps) => {
         }
     };
 
+    const handlePlayClick = async () => {
+        props.onPlayClick();
+    };
+
     return (
         <>
             <Button
                 className="col-span-1 flex items-center justify-center text-6xl"
                 id="play-button"
-                onClick={() => setIsRollPlaying(!isRollPlaying)}
+                onClick={handlePlayClick}
                 disabled={
                     !(
                         selectedSong.bpm >= MIN_BPM &&
@@ -83,7 +86,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 increment={5}
                 min={30}
                 max={250}
-                disabled={isRollPlaying || props.disabled}
+                disabled={props.isPlaying || props.disabled}
             />
             <Button
                 className="col-span-1 flex items-center justify-center text-6xl"

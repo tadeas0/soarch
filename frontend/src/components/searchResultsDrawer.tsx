@@ -6,11 +6,11 @@ import SearchResultCard from "./searchResultCard";
 import Drawer from "react-modern-drawer";
 import "react-modern-drawer/dist/index.css";
 import PuffLoader from "react-spinners/PuffLoader";
-import usePlayback from "../hooks/usePlayback";
 import { Sequencer } from "../sound/sequencer";
 import Button from "./basic/button";
 import * as React from "react";
 import { BLACK } from "../constants";
+import useSequencer from "../hooks/sequencer/useSequencer";
 
 type SearchResultsDrawerProps = {
     searchResults: SearchResult[];
@@ -25,19 +25,23 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
     const [playingResult, setPlayingResult] = useState<SearchResult | null>(
         null
     );
-    const [, handleStart, handleStop] = usePlayback();
+    const { play, stop } = useSequencer();
 
     const handleEdit = (searchResult: SearchResult) => {
         props.onEdit(searchResult);
     };
 
     const handlePlay = (searchResult: SearchResult) => {
-        handleStop();
+        stop();
         if (searchResult !== playingResult) {
             const gridParams = Sequencer.getGridParamsFromNotes(
                 searchResult.notes
             );
-            handleStart(searchResult.notes, searchResult.bpm, gridParams.width);
+            play(
+                searchResult.notes,
+                searchResult.bpm,
+                Sequencer.rollTimeToToneTime(gridParams.width)
+            );
             setPlayingResult(searchResult);
         } else {
             setPlayingResult(null);

@@ -1,16 +1,14 @@
 import * as Tone from "tone";
 import {
     DEFAULT_PIANO_ROLL_HEIGHT,
-    MAX_POLYPHONY,
     MEASURE_LENGTH,
     MIN_MEASURES,
     PIANO_ROLL_LOWEST_NOTE,
     PIANO_ROLL_NOTE_SUBDIVISION,
-    PREVIEW_NOTE_LENGTH,
 } from "../constants";
 import GridParams from "../interfaces/GridParams";
 import RollCoordinates from "../interfaces/RollCoordinates";
-import { SynthPreset, SYNTH_PRESETS } from "./synthPresets";
+import { SYNTH_PRESETS } from "./synthPresets";
 import { saveAs } from "file-saver";
 
 export interface Note {
@@ -22,26 +20,6 @@ export interface Note {
 type SequencerSynth = Tone.PolySynth | Tone.Synth | Tone.Sampler;
 
 export abstract class Sequencer {
-    private static synth: SequencerSynth =
-        SYNTH_PRESETS[0].preset.toDestination();
-
-    private static metronomeSampler: Tone.Sampler = new Tone.Sampler({
-        urls: {
-            G4: "/samples/metronome_down.mp3",
-            C4: "/samples/metronome_up.mp3",
-        },
-        release: 1,
-        volume: -100,
-    }).toDestination();
-
-    private static part: Tone.Part = new Tone.Part();
-
-    private static metronomePart: Tone.Part = new Tone.Part();
-
-    private static onBeatCallbacks: (() => void)[] = [];
-
-    private static onMeasureCallbacks: (() => void)[] = [];
-
     public static async init() {
         await Tone.start();
     }
@@ -64,18 +42,6 @@ export abstract class Sequencer {
         };
     }
 
-    public static getMetronomeEnabled() {
-        return this.metronomeSampler.volume.value === 0;
-    }
-
-    public static enableMetronome() {
-        this.metronomeSampler.volume.value = 0;
-    }
-
-    public static disableMetronome() {
-        this.metronomeSampler.volume.value = -100;
-    }
-
     public static getEndCoords(
         note: Note,
         gridParams: GridParams
@@ -91,40 +57,6 @@ export abstract class Sequencer {
                 this.toneTimeToRollTime(note.length) -
                 1,
         };
-    }
-
-    public static fillBuffer(notes: Note[], gridLength: number) {
-        this.part = new Tone.Part((time, note) => {
-            this.synth.triggerAttackRelease(note.pitch, note.length, time);
-        }, notes).start(0);
-
-        Tone.Transport.setLoopPoints(0, this.rollTimeToToneTime(gridLength));
-
-        Tone.Transport.loop = true;
-    }
-
-    public static fillMetronome(gridLength: number) {
-        const metronomeNotes = [];
-        for (let i = 0; i < gridLength / 2; i++) {
-            const pitch = i % 4 === 0 ? "G4" : "C4";
-            metronomeNotes.push({ time: `0:${i}:0`, pitch });
-        }
-
-        this.metronomePart = new Tone.Part((time, note) => {
-            this.metronomeSampler.triggerAttackRelease(
-                note.pitch,
-                "0:0:1",
-                time
-            );
-        }, metronomeNotes).start(0);
-    }
-
-    public static addNoteToBuffer(note: Note) {
-        this.part.add(note.time, note);
-    }
-
-    public static deleteNoteFromBuffer(note: Note) {
-        this.part.remove(note.time, note);
     }
 
     public static getGridParamsFromNotes(notes: Note[]): GridParams {
@@ -165,33 +97,6 @@ export abstract class Sequencer {
             height: DEFAULT_PIANO_ROLL_HEIGHT,
             lowestNote: PIANO_ROLL_LOWEST_NOTE,
         };
-    }
-
-    public static clearBuffer() {
-        Tone.Transport.cancel();
-    }
-
-    public static setBpm(bpm: number) {
-        Tone.Transport.bpm.value = bpm;
-    }
-
-    public static setSynthPreset(synth: SynthPreset) {
-        let newSynth = synth.preset;
-        if (newSynth instanceof Tone.PolySynth) {
-            newSynth.maxPolyphony = MAX_POLYPHONY;
-        }
-        if (synth.filter !== undefined) {
-            const newFilter = synth.filter;
-            newSynth = newSynth.connect(newFilter);
-            newFilter.toDestination();
-        } else {
-            newSynth.toDestination();
-        }
-        this.synth = newSynth;
-    }
-
-    public static getSynth() {
-        return this.synth;
     }
 
     public static createNoteObject(
@@ -242,95 +147,32 @@ export abstract class Sequencer {
             .toNote();
     }
 
-    public static isPlaying() {
-        return Tone.Transport.state === "started";
-    }
-
-    public static start() {
-        Tone.Transport.start();
-        Tone.Transport.scheduleRepeat((time) => {
-            this.onBeatCallbacks.forEach((c) => {
-                Tone.Draw.schedule(() => {
-                    c();
-                }, time);
-            });
-        }, "16n");
-
-        Tone.Transport.scheduleRepeat((time) => {
-            this.onMeasureCallbacks.forEach((c) => {
-                Tone.Draw.schedule(() => {
-                    c();
-                }, time);
-            });
-        }, "2n");
-    }
-
-    public static stop() {
-        if (this.synth instanceof Tone.Synth) this.synth.triggerRelease();
-        else if (this.synth instanceof Tone.PolySynth) this.synth.releaseAll();
-        Tone.Transport.stop();
-    }
-
     public static isInitialized() {
         return Tone.context.state === "running";
-    }
-
-    public static async runCallbackOnBeat(callback: () => void) {
-        this.onBeatCallbacks.push(callback);
-    }
-
-    public static async runCallbackOnMeasure(callback: () => void) {
-        this.onMeasureCallbacks.push(callback);
-    }
-
-    public static async clearOnBeatCallbacks() {
-        this.onBeatCallbacks = [];
-    }
-
-    public static async clearOnMeasureCallbacks() {
-        this.onMeasureCallbacks = [];
-    }
-
-    public static async previewNote(note: Tone.Unit.Frequency) {
-        this.synth.triggerAttackRelease(
-            note,
-            this.rollTimeToToneTime(PREVIEW_NOTE_LENGTH)
-        );
-    }
-
-    public static pressNote(note: Tone.Unit.Frequency) {
-        this.synth.triggerAttack(note, Tone.context.currentTime);
-    }
-
-    public static releaseNote(note: Tone.Unit.Frequency) {
-        this.synth.triggerRelease(note, Tone.context.currentTime);
-    }
-
-    public static getProgress() {
-        return Tone.Transport.progress;
     }
 
     public static async saveToFile(
         notes: Note[],
         bpm: number,
         gridLength: number,
-        filename: string
+        filename: string,
+        synth: SequencerSynth
     ) {
         if (!this.isInitialized()) {
             await this.init();
         }
-        Sequencer.stop();
-        Sequencer.clearBuffer();
+        Tone.Transport.cancel();
+        Tone.Transport.stop();
 
         new Tone.Part((time, note) => {
-            this.synth.triggerAttackRelease(note.pitch, note.length, time);
+            synth.triggerAttackRelease(note.pitch, note.length, time);
         }, notes).start(0);
         Tone.Transport.setLoopPoints(0, this.rollTimeToToneTime(gridLength));
         Tone.Transport.loop = false;
-        Sequencer.setBpm(bpm);
+        Tone.Transport.bpm.value = bpm;
         const recorder = new Tone.Recorder();
-        this.synth.disconnect();
-        this.synth.connect(recorder);
+        synth.disconnect();
+        synth.connect(recorder);
         const p = new Promise<Blob>((resolve) => {
             Tone.Transport.scheduleOnce(() => {
                 resolve(recorder.stop());
@@ -339,6 +181,6 @@ export abstract class Sequencer {
         await recorder.start();
         Tone.Transport.start();
         saveAs(await p, filename);
-        this.synth.toDestination();
+        synth.toDestination();
     }
 }

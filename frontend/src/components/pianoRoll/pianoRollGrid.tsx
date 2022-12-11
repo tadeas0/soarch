@@ -6,6 +6,8 @@ import GridParams from "../../interfaces/GridParams";
 import { useMouseHandler } from "./mouseHandler/mouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
+import useSequencer from "../../hooks/sequencer/useSequencer";
+import useSynth from "../../hooks/sequencer/useSynth";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -27,9 +29,16 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         state.playbackEnabled,
         state.isRollPlaying,
     ]);
+    const [addNoteStore, deleteNoteStore] = usePianoRollStore((state) => [
+        state.addNote,
+        state.deleteNote,
+    ]);
+    const seq = useSequencer();
+    const { triggerAttackRelease, triggerAttack, triggerRelease } = useSynth();
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
     const handleShowPreviewNote = async (note: Note) => {
+        triggerAttackRelease(note.pitch);
         setPreviewNotes((current) => {
             const currentTimeout = current.get(note);
             if (currentTimeout) {
@@ -46,11 +55,23 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         });
     };
 
+    const addNote = (note: Note) => {
+        addNoteStore(note);
+        seq.addNote(note);
+    };
+
+    const deleteNote = (note: Note) => {
+        deleteNoteStore(note);
+        seq.deleteNote(note);
+    };
+
     const mouseHandler = useMouseHandler(
-        usePianoRollStore.getState().addNote,
-        usePianoRollStore.getState().deleteNote,
+        addNote,
+        deleteNote,
         setSelectedNote,
         handleShowPreviewNote,
+        triggerAttack,
+        triggerRelease,
         () =>
             usePianoRollStore.getState().songs[
                 usePianoRollStore.getState().selectedIndex
