@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import * as Tone from "tone";
 import { SequencerContext } from "../../context/sequencerContext";
-import { Note } from "../../sound/sequencer";
+import { Note } from "../../interfaces/Note";
 import useSequencerStore from "../../stores/sequencerStore";
 
 const useSequencer = () => {
@@ -20,7 +20,7 @@ const useSequencer = () => {
     const play = (
         notes: Note[],
         bpm: number,
-        partLength: Tone.Unit.Time,
+        partLength: Tone.TimeClass,
         loop: boolean = false
     ) => {
         if (Tone.context.state !== "running") {
@@ -29,27 +29,31 @@ const useSequencer = () => {
         Tone.Transport.bpm.value = bpm;
         setIsPlaying(true);
         partRef.current?.dispose();
-        partRef.current = new Tone.Part((time, note) => {
-            synth.triggerAttackRelease(note.pitch, note.length, time);
+        partRef.current = new Tone.Part((time, note: Note) => {
+            synth.triggerAttackRelease(
+                note.pitch.toNote(),
+                note.length.toSeconds(),
+                time
+            );
         }, notes).start(0);
         if (loop) {
             Tone.Transport.loop = true;
-            Tone.Transport.loopEnd = partLength;
+            Tone.Transport.loopEnd = partLength.toSeconds();
         } else {
             Tone.Transport.loop = false;
             Tone.Transport.scheduleOnce(() => {
                 stop();
-            }, partLength);
+            }, partLength.toSeconds());
         }
         Tone.Transport.start();
     };
 
     const addNote = (note: Note) => {
-        partRef.current?.add(note.time, note);
+        partRef.current?.add(note.time.toSeconds(), note);
     };
 
     const deleteNote = (note: Note) => {
-        partRef.current?.remove(note.time, note);
+        partRef.current?.remove(note.time.toSeconds(), note);
     };
 
     return { play, stop, addNote, deleteNote, isPlaying };

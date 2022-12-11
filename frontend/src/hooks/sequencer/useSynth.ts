@@ -8,19 +8,19 @@ const useSynth = () => {
         state.setSynthFromPreset,
     ]);
 
-    const triggerAttack = (pitch: Tone.Unit.Note) => {
-        synth.triggerAttack(pitch);
+    const triggerAttack = (pitch: Tone.FrequencyClass) => {
+        synth.triggerAttack(pitch.toNote());
     };
 
-    const triggerRelease = (pitch: Tone.Unit.Note) => {
-        synth.triggerRelease(pitch);
+    const triggerRelease = (pitch: Tone.FrequencyClass) => {
+        synth.triggerRelease(pitch.toNote());
     };
 
     const triggerAttackRelease = (
-        pitch: Tone.Unit.Note,
-        length: Tone.Unit.Time = "16n"
+        pitch: Tone.FrequencyClass,
+        length: Tone.TimeClass = Tone.Time("16n")
     ) => {
-        synth.triggerAttackRelease(pitch, length);
+        synth.triggerAttackRelease(pitch.toNote(), length.toSeconds());
     };
 
     return {

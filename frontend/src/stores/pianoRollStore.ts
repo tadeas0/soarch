@@ -10,7 +10,8 @@ import {
     PIANO_ROLL_LOWEST_NOTE,
     UNDO_STACK_SIZE,
 } from "../constants";
-import { Note, Sequencer } from "../sound/sequencer";
+import { Note } from "../interfaces/Note";
+import { toneTimeToRollTime } from "../common/coordConversion";
 
 export interface PianoRollState {
     songs: SongParams[];
@@ -254,8 +255,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             const newGridLength = selSong.gridParams.width - MEASURE_LENGTH;
             const newNotes = selSong.notes.filter(
                 (n) =>
-                    Sequencer.toneTimeToRollTime(n.time) +
-                        Sequencer.toneTimeToRollTime(n.length) <
+                    toneTimeToRollTime(n.time) + toneTimeToRollTime(n.length) <
                     newGridLength
             );
             newSongs[state.selectedIndex].gridParams.width = newGridLength;

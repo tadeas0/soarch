@@ -7,9 +7,9 @@ import { FaSave } from "react-icons/fa";
 import BPMInput from "./bpmInput";
 import Metronome from "./metronome";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
-import { Sequencer } from "../../sound/sequencer";
 import Button from "../basic/button";
 import useSynth from "../../hooks/sequencer/useSynth";
+import saveToFile from "../../common/saveTrack";
 
 const defaultProps = {
     disabled: false,
@@ -45,7 +45,7 @@ const TopButtons = (props: TopButtonsProps) => {
     const handleSave = async () => {
         try {
             props.setIsDownloading(true);
-            await Sequencer.saveToFile(
+            await saveToFile(
                 selectedSong.notes,
                 selectedSong.bpm,
                 selectedSong.gridParams.width,

@@ -1,6 +1,6 @@
 import { useEffect, FunctionComponent, useCallback } from "react";
 import { MEASURE_LENGTH, MIN_MEASURES } from "../../constants";
-import { Note, Sequencer } from "../../sound/sequencer";
+import { Note } from "../../interfaces/Note";
 import SongTabs from "./songTabs";
 import * as React from "react";
 import TopButtons from "./topButtons";
@@ -15,6 +15,10 @@ import OnScreenPiano from "./onScreenPiano";
 import Button from "../basic/button";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import useSequencer from "../../hooks/sequencer/useSequencer";
+import {
+    getGridParamsFromNotes,
+    rollTimeToToneTime,
+} from "../../common/coordConversion";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -106,9 +110,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                     play(
                         selectedSong.notes,
                         selectedSong.bpm,
-                        Sequencer.rollTimeToToneTime(
-                            selectedSong.gridParams.width
-                        )
+                        rollTimeToToneTime(selectedSong.gridParams.width)
                     );
                 }
             } else if (e.key === "z" && e.ctrlKey) {
@@ -138,7 +140,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             play(
                 selectedSong.notes,
                 selectedSong.bpm,
-                Sequencer.rollTimeToToneTime(selectedSong.gridParams.width)
+                rollTimeToToneTime(selectedSong.gridParams.width)
             );
         }
     };
@@ -152,9 +154,8 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
             play(
                 topSearchResult.notes,
                 topSearchResult.bpm,
-                Sequencer.rollTimeToToneTime(
-                    Sequencer.getGridParamsFromNotes(topSearchResult.notes)
-                        .width
+                rollTimeToToneTime(
+                    getGridParamsFromNotes(topSearchResult.notes).width
                 )
             );
         }

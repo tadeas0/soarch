@@ -1,7 +1,7 @@
 import { FunctionComponent, useEffect, useState } from "react";
 import { Piano, KeyboardShortcuts } from "react-piano";
 import * as Tone from "tone";
-import { Note, Sequencer } from "../../sound/sequencer";
+import { Note } from "../../interfaces/Note";
 import "./onScreenPiano.css";
 import {
     MAX_OCTAVE_OFFSET,
@@ -11,6 +11,7 @@ import {
 import { HiMinus, HiPlus } from "react-icons/hi";
 import useMidiListener from "../../hooks/useMidiListener";
 import * as React from "react";
+import useSynth from "../../hooks/sequencer/useSynth";
 
 interface OnScreenPianoProps {
     onKeyUp: (note: Note) => void;
@@ -21,6 +22,7 @@ interface OnScreenPianoProps {
 const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
     const [octaveOffset, setOctaveOffset] = useState(0);
     const octaveSize = 12;
+    const { triggerAttack, triggerRelease } = useSynth();
     const range = {
         first:
             Tone.Frequency(ON_SCREEN_PIANO_LOW).toMidi() +
@@ -68,7 +70,7 @@ const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
                 [midiNote]: qTime,
             });
             setPressedNotes(newPressedNotes);
-            Sequencer.pressNote(Tone.Midi(midiNote).toFrequency());
+            triggerAttack(Tone.Midi(midiNote));
         }
     };
 
@@ -97,12 +99,12 @@ const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
                 [midiNote]: false,
             };
             setPressedNotes(newPressedNotes);
-            Sequencer.releaseNote(Tone.Midi(midiNote).toFrequency());
+            triggerRelease(Tone.Midi(midiNote));
 
             props.onKeyUp({
-                pitch: Tone.Midi(midiNote).toNote(),
-                time: start,
-                length: len.toBarsBeatsSixteenths(),
+                pitch: Tone.Midi(midiNote),
+                time: Tone.Time(start),
+                length: len,
             });
         }
     };

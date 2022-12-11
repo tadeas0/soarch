@@ -1,6 +1,6 @@
 import * as React from "react";
 import { FunctionComponent, useRef, useState } from "react";
-import { Note } from "../../sound/sequencer";
+import { Note } from "../../interfaces/Note";
 import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
 import { useMouseHandler } from "./mouseHandler/mouseHandler";

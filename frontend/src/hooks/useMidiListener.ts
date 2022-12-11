@@ -6,8 +6,9 @@ import {
     useEffect,
     useState,
 } from "react";
-import { Sequencer, Note } from "../sound/sequencer";
+import { Note } from "../interfaces/Note";
 import { NoteMessageEvent, WebMidi } from "webmidi";
+import useSynth from "./sequencer/useSynth";
 
 const useMidiListener = (
     onKeyUp: (note: Note) => void
@@ -16,6 +17,7 @@ const useMidiListener = (
         Map<Tone.Unit.Frequency, Tone.Unit.Time>
     >(new Map());
     const [playbackEnabled, setPlaybackEnabled] = useState(false);
+    const { triggerAttack, triggerRelease } = useSynth();
 
     const getCurrentQTime = () => {
         const t = Tone.Time(Tone.Transport.position).toBarsBeatsSixteenths();
@@ -31,13 +33,13 @@ const useMidiListener = (
                 const note = event.note.number;
                 const qTime = getCurrentQTime();
                 if (playbackEnabled && !current.get(note)) {
-                    Sequencer.pressNote(Tone.Midi(note).toNote());
+                    triggerAttack(Tone.Midi(note));
                     return new Map(current.set(note, qTime));
                 }
                 return current;
             });
         },
-        [playbackEnabled]
+        [playbackEnabled, triggerAttack]
     );
 
     const keyUpListener = useCallback(
@@ -46,7 +48,7 @@ const useMidiListener = (
                 const note = event.note.number;
                 const start = current.get(note);
                 if (!start) return current;
-                Sequencer.releaseNote(Tone.Midi(note).toNote());
+                triggerRelease(Tone.Midi(note));
                 const end = getCurrentQTime();
                 const splEnd = end.split(":");
                 const splStart = start.toString().split(":");
@@ -64,16 +66,16 @@ const useMidiListener = (
                 if (len.toBarsBeatsSixteenths() === "0:0:0")
                     len = Tone.Time("0:0:1");
                 onKeyUp({
-                    pitch: Tone.Midi(note).toNote(),
-                    time: start,
-                    length: len.toBarsBeatsSixteenths(),
+                    pitch: Tone.Midi(note),
+                    time: Tone.Time(start),
+                    length: len,
                 });
                 const m = new Map(current);
                 m.delete(note);
                 return m;
             });
         },
-        [onKeyUp]
+        [onKeyUp, triggerRelease]
     );
 
     const onEnabled = useCallback(() => {

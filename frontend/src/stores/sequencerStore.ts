@@ -2,7 +2,7 @@ import create, { StateCreator } from "zustand";
 import * as Tone from "tone";
 import { SynthPreset, SYNTH_PRESETS } from "../sound/synthPresets";
 import { MAX_POLYPHONY } from "../constants";
-import { Note } from "../sound/sequencer";
+import { SequencerSynth } from "../types/sequencerSynth";
 
 const getSynthFromPreset = (preset: SynthPreset) => {
     let newSynth = preset.preset;
@@ -19,11 +19,8 @@ const getSynthFromPreset = (preset: SynthPreset) => {
     return newSynth;
 };
 
-type SequencerSynth = Tone.PolySynth | Tone.Synth | Tone.Sampler;
-
 interface SequenceSlice {
     isPlaying: boolean;
-    notes: Note[];
     setIsPlaying: (value: boolean) => void;
 }
 

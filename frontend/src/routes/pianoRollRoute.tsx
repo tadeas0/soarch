@@ -19,7 +19,7 @@ import {
 import { PlaybackProvider } from "../context/playbackContext";
 import { AvailabilityContext } from "../context/serverAvailabilityContext";
 import { API, NoteForm } from "../services/api";
-import { Note, Sequencer } from "../sound/sequencer";
+import { Note } from "../interfaces/Note";
 import { usePianoRollStore } from "../stores/pianoRollStore";
 import { ShepherdTourContext } from "react-shepherd";
 import BottomLogo from "../components/basic/bottomLogo";
@@ -28,6 +28,7 @@ import { SearchResult } from "../interfaces/SearchResult";
 import * as React from "react";
 import useSequencer from "../hooks/sequencer/useSequencer";
 import { SequencerContextProvider } from "../context/sequencerContext";
+import { getGridParamsFromNotes } from "../common/coordConversion";
 
 interface PianoRollRouteProps {}
 
@@ -103,9 +104,9 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
         const reqBody: NoteForm = {
             gridLength,
             notes: notes.map((n) => ({
-                pitch: Tone.Frequency(n.pitch).toMidi(),
-                length: n.length,
-                time: n.time,
+                pitch: n.pitch.toMidi(),
+                length: n.length.toBarsBeatsSixteenths(),
+                time: n.time.toBarsBeatsSixteenths(),
             })),
         };
         if (selectedStrategy)
@@ -116,9 +117,9 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                 artist: track.artist,
                 name: track.name,
                 notes: track.notes.map<Note>((n) => ({
-                    time: Tone.Time(n.time).toBarsBeatsSixteenths(),
-                    pitch: Tone.Frequency(n.pitch, "midi").toNote(),
-                    length: Tone.Time(n.length).toBarsBeatsSixteenths(),
+                    time: Tone.Time(n.time),
+                    pitch: Tone.Frequency(n.pitch, "midi"),
+                    length: Tone.Time(n.length),
                 })),
                 bpm: track.bpm,
             }));
@@ -137,7 +138,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
             bpm: Math.round(searchResult.bpm),
             name: searchResult.name,
             notes: searchResult.notes,
-            gridParams: Sequencer.getGridParamsFromNotes(searchResult.notes),
+            gridParams: getGridParamsFromNotes(searchResult.notes),
         });
     };
 

@@ -7,12 +7,16 @@ import {
 } from "../../../constants";
 import GridParams from "../../../interfaces/GridParams";
 import RollCoordinates from "../../../interfaces/RollCoordinates";
-import { Note, Sequencer } from "../../../sound/sequencer";
+import { Note } from "../../../interfaces/Note";
 // eslint-disable-next-line import/no-cycle
 import State from "./handlerState";
 // eslint-disable-next-line import/no-cycle
 import ReadyState from "./readyState";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
+import {
+    getEndRollCoords,
+    getStartRollCoords,
+} from "../../../common/coordConversion";
 
 export class MouseHandler {
     private state: State;
@@ -35,17 +39,17 @@ export class MouseHandler {
 
     private _saveState: (notes: Note[]) => void;
 
-    private _pressNote: (note: Tone.Unit.Note) => void;
+    private _pressNote: (note: Tone.FrequencyClass) => void;
 
-    private _releaseNote: (note: Tone.Unit.Note) => void;
+    private _releaseNote: (note: Tone.FrequencyClass) => void;
 
     constructor(
         onAddNote: (note: Note) => void,
         onDeleteNote: (note: Note) => void,
         changeSelectedNote: (note: Note) => void,
         previewNote: (note: Note) => void,
-        pressNote: (note: Tone.Unit.Note) => void,
-        releaseNote: (note: Tone.Unit.Note) => void,
+        pressNote: (note: Tone.FrequencyClass) => void,
+        releaseNote: (note: Tone.FrequencyClass) => void,
         getNotes: () => Note[],
         gridParams: GridParams,
         playbackEnabled: boolean,
@@ -88,8 +92,8 @@ export class MouseHandler {
     public getNotesAt(coords: MouseCoords): Note[] {
         const c = this.getRollCoordsFromMouseCoords(coords);
         return this.getNotes().filter((n) => {
-            const s = Sequencer.getStartCoords(n, this._gridParams);
-            const e = Sequencer.getEndCoords(n, this._gridParams);
+            const s = getStartRollCoords(n, this._gridParams);
+            const e = getEndRollCoords(n, this._gridParams);
             return (
                 s.row === c.row && s.column <= c.column && e.column >= c.column
             );
@@ -114,7 +118,7 @@ export class MouseHandler {
             return null;
         }
         const topNote = clickedNotes[clickedNotes.length - 1];
-        const endCoords = Sequencer.getEndCoords(topNote, this._gridParams);
+        const endCoords = getEndRollCoords(topNote, this._gridParams);
         const rollCoords = this.getRollCoordsFromMouseCoords(coords);
         if (this.cmpRollCoords(rollCoords, endCoords)) {
             return topNote;
@@ -182,11 +186,11 @@ export class MouseHandler {
         this.state.handleRightRelease(coords);
     }
 
-    public pressNote(note: Tone.Unit.Note) {
+    public pressNote(note: Tone.FrequencyClass) {
         if (this.playbackEnabled) this._pressNote(note);
     }
 
-    public releaseNote(note: Tone.Unit.Note) {
+    public releaseNote(note: Tone.FrequencyClass) {
         this._releaseNote(note);
     }
 }
@@ -196,8 +200,8 @@ export function useMouseHandler(
     onDeleteNote: (note: Note) => void,
     setSelectedNote: (note: Note) => void,
     previewNote: (note: Note) => void,
-    pressNote: (note: Tone.Unit.Note) => void,
-    releaseNote: (note: Tone.Unit.Note) => void,
+    pressNote: (note: Tone.FrequencyClass) => void,
+    releaseNote: (note: Tone.FrequencyClass) => void,
     getNotes: () => Note[],
     gridParams: GridParams,
     playbackEnabled: boolean,

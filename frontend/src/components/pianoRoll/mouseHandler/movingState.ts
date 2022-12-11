@@ -1,10 +1,15 @@
 /* eslint-disable import/no-cycle */
-import * as Tone from "tone";
-import { Sequencer } from "../../../sound/sequencer";
+import { Note } from "../../../interfaces/Note";
 import { MouseHandler } from "./mouseHandler";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import ReadyState from "./readyState";
 import State from "./handlerState";
+import {
+    getStartRollCoords,
+    rollCoordsToTone,
+} from "../../../common/coordConversion";
+import RollCoordinates from "../../../interfaces/RollCoordinates";
+import { clamp } from "../../../common/common";
 
 export default class MovingState extends State {
     private columnOffset: number;
@@ -15,7 +20,7 @@ export default class MovingState extends State {
         super(mouseHandler);
         if (this.mouseHandler.selectedNote === null)
             throw new Error("Note is not selected");
-        const sel = Sequencer.getStartCoords(
+        const sel = getStartRollCoords(
             this.mouseHandler.selectedNote,
             this.mouseHandler.gridParams
         );
@@ -52,23 +57,18 @@ export default class MovingState extends State {
         if (oldNote === null) {
             throw new Error("Note is not selected");
         }
-        const rollCoords =
+        const { row, column } =
             this.mouseHandler.getRollCoordsFromMouseCoords(coords);
-        const newColumn = Math.min(
-            this.mouseHandler.gridParams.width -
-                Sequencer.toneTimeToRollTime(oldNote.length),
-            Math.max(0, rollCoords.column - this.columnOffset)
+        const { height, width } = this.mouseHandler.gridParams;
+        const newColumn = clamp(column - this.columnOffset, 0, width);
+        const newRow = clamp(row, 0, height);
+        const newCoords: RollCoordinates = { row: newRow, column: newColumn };
+        const noteCoords = rollCoordsToTone(
+            newCoords,
+            this.mouseHandler.gridParams
         );
-        const newNote = {
-            time: Sequencer.rollTimeToToneTime(newColumn),
-            pitch: Tone.Frequency(this.mouseHandler.gridParams.lowestNote)
-                .transpose(
-                    this.mouseHandler.gridParams.height - rollCoords.row - 1
-                )
-                .toNote(),
-            length: oldNote.length,
-        };
-        if (oldNote.pitch !== newNote.pitch) {
+        const newNote: Note = { ...noteCoords, length: oldNote.length };
+        if (oldNote.pitch.toNote() !== newNote.pitch.toNote()) {
             this.mouseHandler.releaseNote(oldNote.pitch);
             this.mouseHandler.pressNote(newNote.pitch);
         }

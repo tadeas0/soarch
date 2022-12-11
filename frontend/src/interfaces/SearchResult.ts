@@ -1,4 +1,4 @@
-import { Note } from "../sound/sequencer";
+import { Note } from "./Note";
 
 export interface SearchResult {
     artist: string;

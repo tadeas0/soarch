@@ -1,5 +1,5 @@
 import GridParams from "./GridParams";
-import { Note } from "../sound/sequencer";
+import { Note } from "./Note";
 
 export interface SongParams {
     name: string;

@@ -2,7 +2,6 @@ import { FunctionComponent, useEffect, useMemo, useState } from "react";
 import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../../interfaces/SearchResult";
-import { Sequencer } from "../../sound/sequencer";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useTabControls } from "../../stores/pianoRollStore";
 import * as React from "react";
@@ -10,6 +9,10 @@ import * as Tone from "tone";
 import { WHITE } from "../../constants";
 import useOnBeatCallback from "../../hooks/sequencer/useOnBeatCallback";
 import useSequencer from "../../hooks/sequencer/useSequencer";
+import {
+    getGridParamsFromNotes,
+    rollTimeToToneTime,
+} from "../../common/coordConversion";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -30,8 +33,8 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
         if (!props.searchResult) return null;
 
         return Tone.Time(
-            Sequencer.rollTimeToToneTime(
-                Sequencer.getGridParamsFromNotes(props.searchResult.notes).width
+            rollTimeToToneTime(
+                getGridParamsFromNotes(props.searchResult.notes).width
             )
         ).toSeconds();
     }, [props.searchResult]);
@@ -114,10 +117,9 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                                 addTab({
                                     ...sr,
                                     bpm: Math.round(sr.bpm),
-                                    gridParams:
-                                        Sequencer.getGridParamsFromNotes(
-                                            sr.notes
-                                        ),
+                                    gridParams: getGridParamsFromNotes(
+                                        sr.notes
+                                    ),
                                 });
                             }}
                             className={`outline-none text-xl${

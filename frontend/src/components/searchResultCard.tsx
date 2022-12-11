@@ -3,10 +3,13 @@ import * as React from "react";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../interfaces/SearchResult";
-import { Sequencer } from "../sound/sequencer";
 import { useTabControls } from "../stores/pianoRollStore";
 import * as Tone from "tone";
 import useOnBeatCallback from "../hooks/sequencer/useOnBeatCallback";
+import {
+    getGridParamsFromNotes,
+    rollTimeToToneTime,
+} from "../common/coordConversion";
 
 interface SearchResultProps {
     searchResult: SearchResult;
@@ -26,10 +29,8 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     const resultLength = useMemo(() => {
         if (!searchResult) return null;
 
-        return Tone.Time(
-            Sequencer.rollTimeToToneTime(
-                Sequencer.getGridParamsFromNotes(searchResult.notes).width
-            )
+        return rollTimeToToneTime(
+            getGridParamsFromNotes(searchResult.notes).width
         ).toSeconds();
     }, [searchResult]);
 
