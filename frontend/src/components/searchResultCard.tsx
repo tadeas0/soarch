@@ -4,7 +4,6 @@ import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../interfaces/SearchResult";
 import { useTabControls } from "../stores/pianoRollStore";
-import * as Tone from "tone";
 import useOnBeatCallback from "../hooks/sequencer/useOnBeatCallback";
 import {
     getGridParamsFromNotes,

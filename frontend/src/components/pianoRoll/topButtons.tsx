@@ -98,12 +98,12 @@ const TopButtons = (props: TopButtonsProps) => {
                     Tone.Transport.clear(changeEvent.current);
                 countInPart.current.dispose();
             }
-            setIsRollPlaying(true);
             play(
                 selectedSong.notes,
                 selectedSong.bpm,
                 rollTimeToToneTime(selectedSong.gridParams.width)
             );
+            setIsRollPlaying(true);
         }
     }, [
         countDown,
@@ -118,7 +118,6 @@ const TopButtons = (props: TopButtonsProps) => {
 
     const handleRecord = async () => {
         if (isRollPlaying) {
-            setIsRecording(true);
             return;
         }
         if (Tone.context.state !== "running") await Tone.start();
@@ -147,12 +146,12 @@ const TopButtons = (props: TopButtonsProps) => {
             if (repeatEvent.current) Tone.Transport.clear(repeatEvent.current);
             setCountDown(0);
             stop();
-            setIsRollPlaying(true);
             play(
                 selectedSong.notes,
                 selectedSong.bpm,
                 rollTimeToToneTime(selectedSong.gridParams.width)
             );
+            setIsRollPlaying(true);
         }, "1m");
     };
 

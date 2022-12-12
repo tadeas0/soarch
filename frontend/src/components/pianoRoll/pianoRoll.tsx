@@ -15,7 +15,6 @@ import OnScreenPiano from "./onScreenPiano";
 import Button from "../basic/button";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import useSequencer from "../../hooks/sequencer/useSequencer";
-import { rollTimeToToneTime } from "../../common/coordConversion";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -35,17 +34,17 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     topSearchResult,
 }) => {
     const selectedSong = useSelectedSong();
-    const { play, stop, isPlaying } = useSequencer();
+    const { isPlaying } = useSequencer();
     const [
         isRollPlaying,
-        isResultPlaying,
         isRecording,
+        isResultPlaying,
         setIsRollPlaying,
         setIsResultPlaying,
     ] = usePianoRollStore((state) => [
         state.isRollPlaying,
-        state.isResultPlaying,
         state.isRecording,
+        state.isResultPlaying,
         state.setIsRollPlaying,
         state.setIsResultPlaying,
     ]);
@@ -64,11 +63,19 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     ]);
     const undo = usePianoRollStore((state) => state.undo);
     useEffect(() => {
-        if (!isPlaying) {
+        if (!isPlaying && isResultPlaying) {
             setIsResultPlaying(false);
+        }
+        if (!isPlaying && isRollPlaying) {
             setIsRollPlaying(false);
         }
-    }, [isPlaying, setIsResultPlaying, setIsRollPlaying]);
+    }, [
+        isPlaying,
+        isResultPlaying,
+        isRollPlaying,
+        setIsResultPlaying,
+        setIsRollPlaying,
+    ]);
 
     useEffect(() => {
         if (hasChanged && !isFetchingResults) {
