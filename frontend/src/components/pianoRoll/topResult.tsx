@@ -3,7 +3,7 @@ import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../../interfaces/SearchResult";
 import ClipLoader from "react-spinners/ClipLoader";
-import { useTabControls } from "../../stores/pianoRollStore";
+import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
 import * as React from "react";
 import * as Tone from "tone";
 import { WHITE } from "../../constants";
@@ -17,8 +17,6 @@ import {
 interface TopResultProps {
     searchResult?: SearchResult;
     isBusy: boolean;
-    isPlaying: boolean;
-    onPlayClick: () => void;
     onShowMore: () => void;
 }
 
@@ -29,6 +27,10 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [shouldPing, setShouldPing] = useState(false);
     const [pingTimeout, setPingTimeout] = useState<number>(0);
     const [shouldColor, setShouldColor] = useState(false);
+    const [isResultPlaying, setIsResultPlaying] = usePianoRollStore((state) => [
+        state.isResultPlaying,
+        state.setIsResultPlaying,
+    ]);
     const resultLength = useMemo(() => {
         if (!props.searchResult) return null;
 
@@ -39,14 +41,14 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
         ).toSeconds();
     }, [props.searchResult]);
     useOnBeatCallback(async (time) => {
-        if (props.isPlaying && resultLength) {
+        if (isResultPlaying && resultLength) {
             setProgress(((time / resultLength) * 100) % 100);
         }
     });
-    const { stop } = useSequencer();
+    const { stop, play } = useSequencer();
 
     const getInlineStyles = () => {
-        if (!props.isPlaying) return {};
+        if (!isResultPlaying) return {};
         return {
             backgroundImage: `linear-gradient(
                                     90deg,
@@ -78,7 +80,19 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     }, [lastResult, pingTimeout, props.searchResult]);
 
     const handlePlayClick = async () => {
-        props.onPlayClick();
+        stop();
+        if (isResultPlaying) {
+            setIsResultPlaying(false);
+        } else if (props.searchResult) {
+            setIsResultPlaying(true);
+            play(
+                props.searchResult.notes,
+                props.searchResult.bpm,
+                rollTimeToToneTime(
+                    getGridParamsFromNotes(props.searchResult.notes).width
+                )
+            );
+        }
     };
 
     const renderResult = () => {
@@ -104,7 +118,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                             type="button"
                             onClick={handlePlayClick}
                         >
-                            {props.isPlaying ? (
+                            {isResultPlaying ? (
                                 <BsPauseFill />
                             ) : (
                                 <BsFillPlayFill />

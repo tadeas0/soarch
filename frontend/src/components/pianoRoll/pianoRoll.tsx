@@ -15,10 +15,7 @@ import OnScreenPiano from "./onScreenPiano";
 import Button from "../basic/button";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import useSequencer from "../../hooks/sequencer/useSequencer";
-import {
-    getGridParamsFromNotes,
-    rollTimeToToneTime,
-} from "../../common/coordConversion";
+import { rollTimeToToneTime } from "../../common/coordConversion";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -131,36 +128,6 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         ]
     );
 
-    const handleRollPlay = () => {
-        stop();
-        if (isRollPlaying) {
-            setIsRollPlaying(false);
-        } else {
-            setIsRollPlaying(true);
-            play(
-                selectedSong.notes,
-                selectedSong.bpm,
-                rollTimeToToneTime(selectedSong.gridParams.width)
-            );
-        }
-    };
-
-    const handleResultPlay = () => {
-        stop();
-        if (isResultPlaying) {
-            setIsResultPlaying(false);
-        } else if (topSearchResult) {
-            setIsResultPlaying(true);
-            play(
-                topSearchResult.notes,
-                topSearchResult.bpm,
-                rollTimeToToneTime(
-                    getGridParamsFromNotes(topSearchResult.notes).width
-                )
-            );
-        }
-    };
-
     useKeyboardListener(() => {}, handleKeyboardDown);
 
     return (
@@ -169,13 +136,9 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 <TopResult
                     searchResult={topSearchResult}
                     isBusy={isFetchingResults}
-                    isPlaying={isResultPlaying}
-                    onPlayClick={handleResultPlay}
                     onShowMore={onShowMore}
                 />
                 <TopButtons
-                    isPlaying={isRollPlaying}
-                    onPlayClick={handleRollPlay}
                     setIsDownloading={setIsDownloading}
                     disabled={disabled}
                 />

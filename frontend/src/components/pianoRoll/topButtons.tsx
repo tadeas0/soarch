@@ -10,6 +10,8 @@ import { usePianoRollStore } from "../../stores/pianoRollStore";
 import Button from "../basic/button";
 import useSynth from "../../hooks/sequencer/useSynth";
 import saveToFile from "../../common/saveTrack";
+import useSequencer from "../../hooks/sequencer/useSequencer";
+import { rollTimeToToneTime } from "../../common/coordConversion";
 
 const defaultProps = {
     disabled: false,
@@ -17,16 +19,18 @@ const defaultProps = {
 
 type TopButtonsProps = {
     setIsDownloading: (v: boolean) => void;
-    isPlaying: boolean;
-    onPlayClick: () => void;
     disabled?: boolean;
 } & typeof defaultProps;
 
 const TopButtons = (props: TopButtonsProps) => {
-    const [songs, selectedIndex] = usePianoRollStore((state) => [
-        state.songs,
-        state.selectedIndex,
-    ]);
+    const [songs, selectedIndex, isRollPlaying, setIsRollPlaying] =
+        usePianoRollStore((state) => [
+            state.songs,
+            state.selectedIndex,
+            state.isRollPlaying,
+            state.setIsRollPlaying,
+        ]);
+    const { stop, play } = useSequencer();
     const changeBPM = usePianoRollStore((state) => state.changeBPM);
     const [isPianoHidden, setIsPianoHidden] = usePianoRollStore((state) => [
         state.isPianoHidden,
@@ -38,7 +42,7 @@ const TopButtons = (props: TopButtonsProps) => {
 
     const getPlayIcon = () => {
         if (props.disabled) return <BsFillPlayFill />;
-        if (props.isPlaying) return <BsPauseFill />;
+        if (isRollPlaying) return <BsPauseFill />;
         return <BsFillPlayFill />;
     };
 
@@ -60,7 +64,17 @@ const TopButtons = (props: TopButtonsProps) => {
     };
 
     const handlePlayClick = async () => {
-        props.onPlayClick();
+        stop();
+        if (isRollPlaying) {
+            setIsRollPlaying(false);
+        } else {
+            setIsRollPlaying(true);
+            play(
+                selectedSong.notes,
+                selectedSong.bpm,
+                rollTimeToToneTime(selectedSong.gridParams.width)
+            );
+        }
     };
 
     return (
@@ -86,7 +100,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 increment={5}
                 min={30}
                 max={250}
-                disabled={props.isPlaying || props.disabled}
+                disabled={isRollPlaying || props.disabled}
             />
             <Button
                 className="col-span-1 flex items-center justify-center text-6xl"
