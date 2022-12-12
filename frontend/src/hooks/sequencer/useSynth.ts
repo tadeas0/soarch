@@ -1,30 +1,47 @@
+import { useContext } from "react";
 import * as Tone from "tone";
-import useSequencerStore from "../../stores/sequencerStore";
+import { getSynthFromPreset } from "../../common/common";
+import { SequencerContext } from "../../context/sequencerContext";
+import { SynthPreset } from "../../sound/synthPresets";
+import { SequencerSynth } from "../../types/sequencerSynth";
 
 const useSynth = () => {
-    const [synth, setSynth, setSynthFromPreset] = useSequencerStore((state) => [
-        state.synth,
-        state.setSynth,
-        state.setSynthFromPreset,
-    ]);
+    const { synthRef } = useContext(SequencerContext);
+
+    const setSynth = (newSynth: SequencerSynth) => {
+        synthRef.current = newSynth;
+    };
+
+    const setSynthFromPreset = (preset: SynthPreset) => {
+        setSynth(getSynthFromPreset(preset));
+    };
 
     const triggerAttack = (pitch: Tone.FrequencyClass) => {
-        synth.triggerAttack(pitch.toNote(), Tone.context.currentTime);
+        synthRef.current.triggerAttack(
+            pitch.toNote(),
+            Tone.context.currentTime
+        );
     };
 
     const triggerRelease = (pitch: Tone.FrequencyClass) => {
-        synth.triggerRelease(pitch.toNote(), Tone.context.currentTime);
+        synthRef.current.triggerRelease(
+            pitch.toNote(),
+            Tone.context.currentTime
+        );
     };
 
     const triggerAttackRelease = (
         pitch: Tone.FrequencyClass,
         length: Tone.TimeClass = Tone.Time("16n")
     ) => {
-        synth.triggerAttackRelease(pitch.toNote(), length.toSeconds());
+        synthRef.current.triggerAttackRelease(
+            pitch.toNote(),
+            length.toSeconds()
+        );
     };
 
     return {
-        synth,
+        synth: synthRef.current,
         triggerAttack,
         triggerRelease,
         triggerAttackRelease,

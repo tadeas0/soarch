@@ -5,16 +5,15 @@ import { Note } from "../../interfaces/Note";
 import useSequencerStore from "../../stores/sequencerStore";
 
 const useSequencer = () => {
-    const [isPlaying, synth, setIsPlaying] = useSequencerStore((state) => [
+    const [isPlaying, setIsPlaying] = useSequencerStore((state) => [
         state.isPlaying,
-        state.synth,
         state.setIsPlaying,
     ]);
-    const partRef = useContext(SequencerContext);
+    const { partRef, synthRef } = useContext(SequencerContext);
 
     const stop = () => {
         Tone.Transport.stop();
-        partRef.current?.dispose();
+        partRef.current.dispose();
         setIsPlaying(false);
     };
 
@@ -29,9 +28,9 @@ const useSequencer = () => {
         }
         Tone.Transport.bpm.value = bpm;
         setIsPlaying(true);
-        partRef.current?.dispose();
+        partRef.current.dispose();
         partRef.current = new Tone.Part((time, note: Note) => {
-            synth.triggerAttackRelease(
+            synthRef.current.triggerAttackRelease(
                 note.pitch.toNote(),
                 note.length.toSeconds(),
                 time
@@ -50,11 +49,11 @@ const useSequencer = () => {
     };
 
     const addNote = (note: Note) => {
-        partRef.current?.add(note.time.toSeconds(), note);
+        partRef.current.add(note.time.toSeconds(), note);
     };
 
     const deleteNote = (note: Note) => {
-        partRef.current?.remove(note.time.toSeconds(), note);
+        partRef.current.remove(note.time.toSeconds(), note);
     };
 
     return { play, stop, addNote, deleteNote, isPlaying };
