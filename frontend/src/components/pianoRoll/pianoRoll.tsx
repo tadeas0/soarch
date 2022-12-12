@@ -98,36 +98,11 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     const handleKeyboardDown = useCallback(
         (e: KeyboardEvent) => {
-            if (e.key === " ") {
-                e.preventDefault();
-                if (isResultPlaying || isRollPlaying) {
-                    setIsResultPlaying(false);
-                    setIsRollPlaying(false);
-                    stop();
-                } else {
-                    setIsRollPlaying(true);
-                    play(
-                        selectedSong.notes,
-                        selectedSong.bpm,
-                        rollTimeToToneTime(selectedSong.gridParams.width)
-                    );
-                }
-            } else if (e.key === "z" && e.ctrlKey) {
+            if (e.key === "z" && e.ctrlKey) {
                 undo();
             }
         },
-        [
-            isResultPlaying,
-            isRollPlaying,
-            play,
-            selectedSong.bpm,
-            selectedSong.gridParams.width,
-            selectedSong.notes,
-            setIsResultPlaying,
-            setIsRollPlaying,
-            stop,
-            undo,
-        ]
+        [undo]
     );
 
     useKeyboardListener(() => {}, handleKeyboardDown);

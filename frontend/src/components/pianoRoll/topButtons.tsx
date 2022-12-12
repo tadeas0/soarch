@@ -18,7 +18,8 @@ import saveToFile from "../../common/saveTrack";
 import useSequencer from "../../hooks/sequencer/useSequencer";
 import { rollTimeToToneTime } from "../../common/coordConversion";
 import * as Tone from "tone";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import useKeyboardListener from "../../hooks/useKeyboardListener";
 
 const defaultProps = {
     disabled: false,
@@ -84,7 +85,7 @@ const TopButtons = (props: TopButtonsProps) => {
         }
     };
 
-    const handlePlayClick = async () => {
+    const handlePlayClick = useCallback(async () => {
         stop();
         if (isRollPlaying) {
             setIsRollPlaying(false);
@@ -104,7 +105,16 @@ const TopButtons = (props: TopButtonsProps) => {
                 rollTimeToToneTime(selectedSong.gridParams.width)
             );
         }
-    };
+    }, [
+        countDown,
+        isRollPlaying,
+        play,
+        selectedSong.bpm,
+        selectedSong.gridParams.width,
+        selectedSong.notes,
+        setIsRollPlaying,
+        stop,
+    ]);
 
     const handleRecord = async () => {
         if (isRollPlaying) {
@@ -164,6 +174,18 @@ const TopButtons = (props: TopButtonsProps) => {
         }
         return <BsRecordFill />;
     };
+
+    const handleKeyboardDown = useCallback(
+        (e: KeyboardEvent) => {
+            if (e.key === " ") {
+                e.preventDefault();
+                handlePlayClick();
+            }
+        },
+        [handlePlayClick]
+    );
+
+    useKeyboardListener(() => {}, handleKeyboardDown);
 
     return (
         <>
