@@ -216,7 +216,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         // Scroll to the first note and center it on screen
         if (canvasContainerRef.current && !alreadyScrolled) {
             setAlreadyScrolled(true);
-            let scrollPos = canvasContainerRef.current.clientHeight / 2;
+            let scrollPos = canvasContainerRef.current.clientHeight / 2 + 200;
             if (props.notes.length > 0) {
                 const rollHeight = tonePitchToRollPitch(
                     props.notes[0].pitch,
@@ -244,7 +244,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         );
         const children = [];
         for (let i = 0; i < props.gridParams.height; i++) {
-            const pitch = rollPitchToTonePitch(i + 1, props.gridParams);
+            const pitch = rollPitchToTonePitch(i, props.gridParams);
             let classes = "bg-white";
             if (previewPitches.includes(pitch.toNote()))
                 classes = "bg-medium-primary";

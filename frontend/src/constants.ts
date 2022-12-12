@@ -1,5 +1,5 @@
 export const MIDI_NOTES = 128;
-export const DEFAULT_PIANO_ROLL_HEIGHT = 73;
+export const DEFAULT_PIANO_ROLL_HEIGHT = 85;
 export const DEFAULT_PIANO_ROLL_WIDTH = 64;
 export const MIN_MEASURES = 4;
 export const MIN_BPM = 30;

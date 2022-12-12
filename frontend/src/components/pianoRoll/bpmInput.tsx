@@ -47,7 +47,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
     };
 
     return (
-        <div className="col-span-3 flex flex-col items-center justify-center">
+        <div className="col-span-3 flex flex-col items-center justify-end">
             <h3 className="text-xl font-semibold text-black">Tempo</h3>
             <div
                 id={props.id}

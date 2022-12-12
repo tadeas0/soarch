@@ -27,7 +27,6 @@ import TourButton from "../components/pianoRoll/tourButton";
 import { SearchResult } from "../interfaces/SearchResult";
 import * as React from "react";
 import useSequencer from "../hooks/sequencer/useSequencer";
-import { SequencerContextProvider } from "../context/sequencerContext";
 import { getGridParamsFromNotes } from "../common/coordConversion";
 
 interface PianoRollRouteProps {}
@@ -143,6 +142,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     };
 
     const handleDrawerToggle = () => {
+        console.log("MORE");
         stop();
         setIsDrawerOpen((current) => !current);
     };
@@ -158,37 +158,35 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                 </div>
             ) : (
                 <PlaybackProvider>
-                    <SequencerContextProvider>
-                        <TourButton />
-                        <BottomLogo />
-                        {isDownloading && <DownloadingOverlay />}
-                        <PianoRoll
-                            setIsDownloading={setIsDownloading}
-                            isFetchingResults={isBusy}
-                            topSearchResult={searchResults.at(0)}
-                            onShowMore={handleDrawerToggle}
-                            onSubmit={handleSubmit}
-                            disabled={isDrawerOpen}
-                        />
-                        <div>
-                            {selectedStrategy && !HIDE_STRATEGIES && (
-                                <StrategySelector
-                                    options={availableStrategies}
-                                    onChange={setSelectedStrategy}
-                                />
-                            )}
-                        </div>
-                        {(searchResults.length > 0 || isBusy) && (
-                            <SearchResultsDrawer
-                                onOpen={handleDrawerToggle}
-                                onClose={handleDrawerToggle}
-                                isOpen={isDrawerOpen}
-                                searchResults={searchResults}
-                                isBusy={isBusy}
-                                onEdit={handleEdit}
+                    <TourButton />
+                    <BottomLogo />
+                    {isDownloading && <DownloadingOverlay />}
+                    <PianoRoll
+                        setIsDownloading={setIsDownloading}
+                        isFetchingResults={isBusy}
+                        topSearchResult={searchResults.at(0)}
+                        onShowMore={handleDrawerToggle}
+                        onSubmit={handleSubmit}
+                        disabled={isDrawerOpen}
+                    />
+                    <div>
+                        {selectedStrategy && !HIDE_STRATEGIES && (
+                            <StrategySelector
+                                options={availableStrategies}
+                                onChange={setSelectedStrategy}
                             />
                         )}
-                    </SequencerContextProvider>
+                    </div>
+                    {(searchResults.length > 0 || isBusy) && (
+                        <SearchResultsDrawer
+                            onOpen={handleDrawerToggle}
+                            onClose={handleDrawerToggle}
+                            isOpen={isDrawerOpen}
+                            searchResults={searchResults}
+                            isBusy={isBusy}
+                            onEdit={handleEdit}
+                        />
+                    )}
                 </PlaybackProvider>
             )}
         </div>
