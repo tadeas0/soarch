@@ -1,4 +1,9 @@
-import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
+import {
+    BsPauseFill,
+    BsFillPlayFill,
+    BsRecord,
+    BsRecordFill,
+} from "react-icons/bs";
 import * as React from "react";
 import { CgPiano } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM } from "../../constants";
@@ -12,6 +17,8 @@ import useSynth from "../../hooks/sequencer/useSynth";
 import saveToFile from "../../common/saveTrack";
 import useSequencer from "../../hooks/sequencer/useSequencer";
 import { rollTimeToToneTime } from "../../common/coordConversion";
+import * as Tone from "tone";
+import { useRef, useState } from "react";
 
 const defaultProps = {
     disabled: false,
@@ -32,10 +39,22 @@ const TopButtons = (props: TopButtonsProps) => {
         ]);
     const { stop, play } = useSequencer();
     const changeBPM = usePianoRollStore((state) => state.changeBPM);
-    const [isPianoHidden, setIsPianoHidden] = usePianoRollStore((state) => [
-        state.isPianoHidden,
-        state.setIsPianoHidden,
-    ]);
+    const [isPianoHidden, isRecording, setIsPianoHidden, setIsRecording] =
+        usePianoRollStore((state) => [
+            state.isPianoHidden,
+            state.isRecording,
+            state.setIsPianoHidden,
+            state.setIsRecording,
+        ]);
+    const [countDown, setCountDown] = useState(0);
+    const countInPart = useRef(new Tone.Part());
+    const metronomeSampler = new Tone.Sampler({
+        urls: {
+            G4: "/samples/metronome_down.mp3",
+            C4: "/samples/metronome_up.mp3",
+        },
+        release: 1,
+    }).toDestination();
     const { synth } = useSynth();
 
     const selectedSong = songs[selectedIndex];
@@ -77,6 +96,65 @@ const TopButtons = (props: TopButtonsProps) => {
         }
     };
 
+    const handleRecord = async () => {
+        if (isRollPlaying) {
+            setIsRecording(true);
+            return;
+        }
+        if (Tone.context.state !== "running") await Tone.start();
+        stop();
+        const metronomeNotes = [];
+        for (let i = 0; i < 4; i++) {
+            const pitch = i % 4 === 0 ? "G4" : "C4";
+            metronomeNotes.push({ time: `0:${i}:0`, pitch });
+        }
+        countInPart.current = new Tone.Part((time, note) => {
+            metronomeSampler.triggerAttackRelease(note.pitch, "0:0:1", time);
+        }, metronomeNotes).start(0);
+        const r = Tone.Transport.scheduleRepeat(
+            (time) => {
+                Tone.Draw.schedule(() => {
+                    setCountDown((current) => current - 1);
+                }, time);
+            },
+            "4n",
+            "0:1:0"
+        );
+        setCountDown(4);
+        Tone.Transport.start();
+        Tone.Transport.scheduleOnce(() => {
+            countInPart.current.dispose();
+            Tone.Transport.clear(r);
+            setCountDown(0);
+            stop();
+            setIsRollPlaying(true);
+            play(
+                selectedSong.notes,
+                selectedSong.bpm,
+                rollTimeToToneTime(selectedSong.gridParams.width)
+            );
+        }, "1m");
+    };
+
+    const handleRecordClick = () => {
+        if (!isRecording) {
+            setIsRecording(true);
+            handleRecord();
+        } else {
+            setIsRecording(false);
+        }
+    };
+
+    const getRecordIcon = () => {
+        if (countDown > 0) {
+            return countDown;
+        }
+        if (isRecording) {
+            return <BsRecord />;
+        }
+        return <BsRecordFill />;
+    };
+
     return (
         <>
             <Button
@@ -91,6 +169,14 @@ const TopButtons = (props: TopButtonsProps) => {
                 }
             >
                 {getPlayIcon()}
+            </Button>
+            <Button
+                className={`col-span-1 flex items-center justify-center text-6xl ${
+                    isRecording ? "bg-warn" : ""
+                }`}
+                onClick={handleRecordClick}
+            >
+                {getRecordIcon()}
             </Button>
             <Metronome disabled={props.disabled} />
             <BPMInput

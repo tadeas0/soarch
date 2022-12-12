@@ -14,6 +14,7 @@ const useSequencer = () => {
 
     const stop = () => {
         Tone.Transport.stop();
+        partRef.current?.dispose();
         setIsPlaying(false);
     };
 

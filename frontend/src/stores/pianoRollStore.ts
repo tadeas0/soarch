@@ -22,6 +22,8 @@ export interface PianoRollState {
     hasChanged: boolean;
     isPianoHidden: boolean;
     undoStack: Note[][];
+    isRecording: boolean;
+    setIsRecording: (value: boolean) => void;
     saveState: (notes: Note[]) => void;
     undo: () => void;
     setIsRollPlaying: (value: boolean) => void;
@@ -75,6 +77,12 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
     hasChanged: false,
     isPianoHidden: true,
     undoStack: [],
+    isRecording: false,
+
+    setIsRecording: (value: boolean) =>
+        set(() => ({
+            isRecording: value,
+        })),
 
     saveState: (notes: Note[]) =>
         set((state) => {
@@ -99,14 +107,17 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
         }),
 
     setIsRollPlaying: (value: boolean) =>
-        set(() => ({ isRollPlaying: value, isResultPlaying: false })),
+        set((state) => ({
+            isRollPlaying: value,
+            isResultPlaying: false,
+            isRecording: value ? state.isRecording : false,
+        })),
 
     setIsResultPlaying: (value: boolean) =>
         set(() => ({ isResultPlaying: value, isRollPlaying: false })),
 
     addNote: async (note: Note) =>
         set((state) => {
-            // Sequencer.addNoteToBuffer(note);
             const newSongs = [...state.songs];
             const oldNotes = newSongs[state.selectedIndex].notes;
             newSongs[state.selectedIndex].notes = [...oldNotes, note];
@@ -115,7 +126,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
 
     deleteNote: async (note: Note) =>
         set((state) => {
-            // Sequencer.deleteNoteFromBuffer(note);
             const newSongs = [...state.songs];
             const oldNotes = newSongs[state.selectedIndex].notes;
             newSongs[state.selectedIndex].notes = oldNotes.filter(
@@ -126,11 +136,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
 
     setNotes: async (notes: Note[]) =>
         set((state) => {
-            // Sequencer.clearBuffer();
-            // Sequencer.fillBuffer(
-            //     notes,
-            //     state.songs[state.selectedIndex].gridParams.width
-            // );
             const newSongs = [...state.songs];
             newSongs[state.selectedIndex].notes = notes;
             return { songs: newSongs, hasChanged: true };

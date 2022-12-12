@@ -39,11 +39,13 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     const [
         isRollPlaying,
         isResultPlaying,
+        isRecording,
         setIsRollPlaying,
         setIsResultPlaying,
     ] = usePianoRollStore((state) => [
         state.isRollPlaying,
         state.isResultPlaying,
+        state.isRecording,
         state.setIsRollPlaying,
         state.setIsResultPlaying,
     ]);
@@ -87,11 +89,11 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     const handleKeyUp = useCallback(
         (note: Note) => {
-            if (isRollPlaying) {
+            if (isRollPlaying && isRecording) {
                 addNote(note);
             }
         },
-        [addNote, isRollPlaying]
+        [addNote, isRecording, isRollPlaying]
     );
 
     const handleKeyboardDown = useCallback(
@@ -132,7 +134,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     return (
         <div className="flex flex-col items-center justify-start">
-            <div className="grid w-full grid-cols-10 justify-center gap-4">
+            <div className="grid w-full grid-cols-11 justify-center gap-4">
                 <TopResult
                     searchResult={topSearchResult}
                     isBusy={isFetchingResults}
