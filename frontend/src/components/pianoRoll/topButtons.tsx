@@ -181,6 +181,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 {getPlayIcon()}
             </Button>
             <Button
+                id="record-button"
                 className={`col-span-1 flex items-center justify-center text-6xl ${
                     isRecording ? "bg-warn" : ""
                 }`}
