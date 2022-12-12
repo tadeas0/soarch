@@ -244,7 +244,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         );
         const children = [];
         for (let i = 0; i < props.gridParams.height; i++) {
-            const pitch = rollPitchToTonePitch(i + 1, props.gridParams);
+            const pitch = rollPitchToTonePitch(i, props.gridParams);
             let classes = "bg-white";
             if (previewPitches.includes(pitch.toNote()))
                 classes = "bg-medium-primary";
