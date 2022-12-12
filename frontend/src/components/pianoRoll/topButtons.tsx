@@ -48,6 +48,8 @@ const TopButtons = (props: TopButtonsProps) => {
         ]);
     const [countDown, setCountDown] = useState(0);
     const countInPart = useRef(new Tone.Part());
+    const repeatEvent = useRef<number | null>(null);
+    const changeEvent = useRef<number | null>(null);
     const metronomeSampler = new Tone.Sampler({
         urls: {
             G4: "/samples/metronome_down.mp3",
@@ -87,6 +89,14 @@ const TopButtons = (props: TopButtonsProps) => {
         if (isRollPlaying) {
             setIsRollPlaying(false);
         } else {
+            if (countDown > 0) {
+                setCountDown(0);
+                if (repeatEvent.current)
+                    Tone.Transport.clear(repeatEvent.current);
+                if (changeEvent.current)
+                    Tone.Transport.clear(changeEvent.current);
+                countInPart.current.dispose();
+            }
             setIsRollPlaying(true);
             play(
                 selectedSong.notes,
@@ -111,7 +121,7 @@ const TopButtons = (props: TopButtonsProps) => {
         countInPart.current = new Tone.Part((time, note) => {
             metronomeSampler.triggerAttackRelease(note.pitch, "0:0:1", time);
         }, metronomeNotes).start(0);
-        const r = Tone.Transport.scheduleRepeat(
+        repeatEvent.current = Tone.Transport.scheduleRepeat(
             (time) => {
                 Tone.Draw.schedule(() => {
                     setCountDown((current) => current - 1);
@@ -122,9 +132,9 @@ const TopButtons = (props: TopButtonsProps) => {
         );
         setCountDown(4);
         Tone.Transport.start();
-        Tone.Transport.scheduleOnce(() => {
+        changeEvent.current = Tone.Transport.scheduleOnce(() => {
             countInPart.current.dispose();
-            Tone.Transport.clear(r);
+            if (repeatEvent.current) Tone.Transport.clear(repeatEvent.current);
             setCountDown(0);
             stop();
             setIsRollPlaying(true);
