@@ -10,6 +10,7 @@ import ErrorRoute from "./routes/errorRoute";
 import FaqPage from "./routes/faqPage";
 import { steps, tourOptions } from "./tourSettings";
 import { ShepherdTour } from "react-shepherd";
+import { SequencerContextProvider } from "./context/sequencerContext";
 
 const router = createBrowserRouter([
     {
@@ -31,7 +32,9 @@ ReactDOM.render(
     <React.StrictMode>
         <AvailabilityProvider>
             <ShepherdTour steps={steps} tourOptions={tourOptions}>
-                <RouterProvider router={router} />
+                <SequencerContextProvider>
+                    <RouterProvider router={router} />
+                </SequencerContextProvider>
             </ShepherdTour>
         </AvailabilityProvider>
     </React.StrictMode>,
