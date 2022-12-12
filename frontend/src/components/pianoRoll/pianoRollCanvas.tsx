@@ -239,16 +239,19 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     ]);
 
     const renderPiano = () => {
-        const previewPitches = [...props.previewNotes].map((n) => n.pitch);
+        const previewPitches = [...props.previewNotes].map((n) =>
+            n.pitch.toNote()
+        );
         const children = [];
         for (let i = 0; i < props.gridParams.height; i++) {
             const pitch = rollPitchToTonePitch(i + 1, props.gridParams);
             let classes = "bg-white";
-            if (previewPitches.includes(pitch)) classes = "bg-medium-primary";
+            if (previewPitches.includes(pitch.toNote()))
+                classes = "bg-medium-primary";
             else if (isBlackKey(i)) classes = "bg-black";
             if (isBlackKey(i)) classes += " w-4/6";
             else classes += " w-full";
-            if (props.selectedNote?.pitch === pitch)
+            if (props.selectedNote?.pitch.toNote() === pitch.toNote())
                 classes += " border-2 border-light-primary";
             children.push(
                 // eslint-disable-next-line jsx-a11y/no-static-element-interactions
