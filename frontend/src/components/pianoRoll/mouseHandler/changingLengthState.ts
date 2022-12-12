@@ -1,9 +1,13 @@
 /* eslint-disable import/no-cycle */
-import { Note, Sequencer } from "../../../sound/sequencer";
+import { Note } from "../../../interfaces/Note";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import ReadyState from "./readyState";
 import State from "./handlerState";
 import { MouseHandler } from "./mouseHandler";
+import {
+    rollTimeToToneTime,
+    toneTimeToRollTime,
+} from "../../../common/coordConversion";
 
 export default class ChangingLengthState extends State {
     private alreadySaved: boolean;
@@ -35,12 +39,12 @@ export default class ChangingLengthState extends State {
             throw new Error("Note is not selected");
         }
 
-        const start = Sequencer.toneTimeToRollTime(oldNote.time);
+        const start = toneTimeToRollTime(oldNote.time);
         const rollCoords =
             this.mouseHandler.getRollCoordsFromMouseCoords(coords);
         const newLen = Math.max(1, rollCoords.column - start + 1);
         const newNote: Note = {
-            length: Sequencer.rollTimeToToneTime(newLen),
+            length: rollTimeToToneTime(newLen),
             pitch: oldNote.pitch,
             time: oldNote.time,
         };

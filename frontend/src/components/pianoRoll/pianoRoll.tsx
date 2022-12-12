@@ -1,17 +1,12 @@
 import { useEffect, FunctionComponent, useCallback } from "react";
-import {
-    MEASURE_LENGTH,
-    MIN_MEASURES,
-    MIN_NOTES_FOR_FETCHING,
-} from "../../constants";
-import { Note, Sequencer } from "../../sound/sequencer";
+import { MEASURE_LENGTH, MIN_MEASURES } from "../../constants";
+import { Note } from "../../interfaces/Note";
 import SongTabs from "./songTabs";
 import * as React from "react";
 import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
 import TopResult from "./topResult";
 import { SearchResult } from "../../interfaces/SearchResult";
-import usePlayback from "../../hooks/usePlayback";
 import {
     usePianoRollStore,
     useSelectedSong,
@@ -19,6 +14,7 @@ import {
 import OnScreenPiano from "./onScreenPiano";
 import Button from "../basic/button";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
+import useSequencer from "../../hooks/sequencer/useSequencer";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -37,15 +33,17 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     isFetchingResults,
     topSearchResult,
 }) => {
-    const [, handleStart, handleStop] = usePlayback();
     const selectedSong = useSelectedSong();
+    const { isPlaying } = useSequencer();
     const [
         isRollPlaying,
+        isRecording,
         isResultPlaying,
         setIsRollPlaying,
         setIsResultPlaying,
     ] = usePianoRollStore((state) => [
         state.isRollPlaying,
+        state.isRecording,
         state.isResultPlaying,
         state.setIsRollPlaying,
         state.setIsResultPlaying,
@@ -64,13 +62,23 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         state.removeMeasure,
     ]);
     const undo = usePianoRollStore((state) => state.undo);
+    useEffect(() => {
+        if (!isPlaying && isResultPlaying) {
+            setIsResultPlaying(false);
+        }
+        if (!isPlaying && isRollPlaying) {
+            setIsRollPlaying(false);
+        }
+    }, [
+        isPlaying,
+        isResultPlaying,
+        isRollPlaying,
+        setIsResultPlaying,
+        setIsRollPlaying,
+    ]);
 
     useEffect(() => {
-        if (
-            hasChanged &&
-            !isFetchingResults &&
-            selectedSong.notes.length > MIN_NOTES_FOR_FETCHING
-        ) {
+        if (hasChanged && !isFetchingResults) {
             onSubmit(selectedSong.notes, selectedSong.gridParams.width);
         }
         clearChangeFlag();
@@ -83,82 +91,40 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         selectedSong.notes,
     ]);
 
-    useEffect(() => {
-        if (isResultPlaying && topSearchResult) {
-            handleStart(
-                topSearchResult.notes,
-                topSearchResult.bpm,
-                Sequencer.getGridParamsFromNotes(topSearchResult.notes).width
-            );
-        } else if (isRollPlaying) {
-            const s = selectedSong;
-            handleStart(s.notes, s.bpm, s.gridParams.width);
-        } else {
-            handleStop();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isResultPlaying, isRollPlaying, selectedSong]);
-
     const canRemoveMeasure = () =>
         selectedSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;
 
     const handleKeyUp = useCallback(
         (note: Note) => {
-            if (isRollPlaying) {
-                Sequencer.fillBuffer([note], selectedSong.gridParams.width);
+            if (isRollPlaying && isRecording) {
                 addNote(note);
             }
         },
-        [addNote, isRollPlaying, selectedSong.gridParams.width]
+        [addNote, isRecording, isRollPlaying]
     );
 
     const handleKeyboardDown = useCallback(
         (e: KeyboardEvent) => {
-            if (e.key === " ") {
-                e.preventDefault();
-                if (isResultPlaying || isRollPlaying) {
-                    setIsResultPlaying(false);
-                    setIsRollPlaying(false);
-                    handleStop();
-                } else {
-                    setIsRollPlaying(true);
-                    handleStart(
-                        selectedSong.notes,
-                        selectedSong.bpm,
-                        selectedSong.gridParams.width
-                    );
-                }
-            } else if (e.key === "z" && e.ctrlKey) {
+            if (e.key === "z" && e.ctrlKey) {
                 undo();
             }
         },
-        [
-            handleStart,
-            handleStop,
-            isResultPlaying,
-            isRollPlaying,
-            selectedSong.bpm,
-            selectedSong.gridParams.width,
-            selectedSong.notes,
-            setIsResultPlaying,
-            setIsRollPlaying,
-            undo,
-        ]
+        [undo]
     );
 
     useKeyboardListener(() => {}, handleKeyboardDown);
 
     return (
         <div className="flex flex-col items-center justify-start">
-            <div className="grid w-full grid-cols-12 justify-center gap-4">
-                <TopButtons
-                    setIsDownloading={setIsDownloading}
-                    disabled={disabled}
-                />
+            <div className="grid w-full grid-cols-11 justify-center gap-4">
                 <TopResult
                     searchResult={topSearchResult}
                     isBusy={isFetchingResults}
                     onShowMore={onShowMore}
+                />
+                <TopButtons
+                    setIsDownloading={setIsDownloading}
+                    disabled={disabled}
                 />
             </div>
             <div className="mt-10 flex w-full flex-row items-start justify-between gap-3">

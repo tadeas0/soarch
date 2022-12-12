@@ -1,13 +1,14 @@
 /* eslint-disable import/no-cycle */
 import * as Tone from "tone";
 import { DEFAULT_NOTE_LENGTH } from "../../../constants";
-import { Note, Sequencer } from "../../../sound/sequencer";
+import { Note } from "../../../interfaces/Note";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import State from "./handlerState";
 import ChangingLengthState from "./changingLengthState";
 import DeletingState from "./deletingState";
 import MovingState from "./movingState";
 import { MouseHandler } from "./mouseHandler";
+import { rollTimeToToneTime } from "../../../common/coordConversion";
 
 export default class ReadyState extends State {
     private lastNotePlaying: Note | null;
@@ -45,14 +46,14 @@ export default class ReadyState extends State {
                 DEFAULT_NOTE_LENGTH,
                 this.mouseHandler.gridParams.width - rollCoords.column
             );
-            const newNote = {
-                time: Sequencer.rollTimeToToneTime(rollCoords.column),
-                pitch: Tone.Frequency(this.mouseHandler.gridParams.lowestNote)
-                    .transpose(
-                        this.mouseHandler.gridParams.height - rollCoords.row - 1
-                    )
-                    .toNote(),
-                length: Sequencer.rollTimeToToneTime(len),
+            const newNote: Note = {
+                time: rollTimeToToneTime(rollCoords.column),
+                pitch: Tone.Frequency(
+                    this.mouseHandler.gridParams.lowestNote
+                ).transpose(
+                    this.mouseHandler.gridParams.height - rollCoords.row - 1
+                ),
+                length: rollTimeToToneTime(len),
             };
             this.mouseHandler.addNote(newNote);
             this.mouseHandler.selectNote(newNote);
@@ -87,8 +88,7 @@ export default class ReadyState extends State {
                 this.mouseHandler.playbackEnabled
             ) {
                 this.lastNotePlaying = newNote;
-                Sequencer.previewNote(newNote.pitch);
-                this.mouseHandler.showPreviewNote(newNote);
+                this.mouseHandler.previewNote(newNote);
             }
             this.setResizeCursor();
         } else if (n.length > 0) {
@@ -98,8 +98,7 @@ export default class ReadyState extends State {
                 this.mouseHandler.playbackEnabled
             ) {
                 this.lastNotePlaying = newNote;
-                Sequencer.previewNote(newNote.pitch);
-                this.mouseHandler.showPreviewNote(newNote);
+                this.mouseHandler.previewNote(newNote);
             }
             this.setMoveCursor();
         } else {

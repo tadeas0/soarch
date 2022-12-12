@@ -1,14 +1,13 @@
 import * as React from "react";
-import { FunctionComponent, useEffect, useRef, useState } from "react";
-import { Note, Sequencer } from "../../sound/sequencer";
+import { FunctionComponent, useRef, useState } from "react";
+import { Note } from "../../interfaces/Note";
 import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
 import { useMouseHandler } from "./mouseHandler/mouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
-import {
-    PIANO_ROLL_NOTE_HEIGHT,
-    PREVIEW_NOTE_HIGHLIGHT_DURATION,
-} from "../../constants";
+import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
+import useSequencer from "../../hooks/sequencer/useSequencer";
+import useSynth from "../../hooks/sequencer/useSynth";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -30,10 +29,16 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         state.playbackEnabled,
         state.isRollPlaying,
     ]);
-    const [alreadyScrolled, setAlreadyScrolled] = useState(false);
+    const [addNoteStore, deleteNoteStore] = usePianoRollStore((state) => [
+        state.addNote,
+        state.deleteNote,
+    ]);
+    const seq = useSequencer();
+    const { triggerAttackRelease, triggerAttack, triggerRelease } = useSynth();
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
     const handleShowPreviewNote = async (note: Note) => {
+        triggerAttackRelease(note.pitch);
         setPreviewNotes((current) => {
             const currentTimeout = current.get(note);
             if (currentTimeout) {
@@ -50,11 +55,23 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         });
     };
 
+    const addNote = (note: Note) => {
+        addNoteStore(note);
+        seq.addNote(note);
+    };
+
+    const deleteNote = (note: Note) => {
+        deleteNoteStore(note);
+        seq.deleteNote(note);
+    };
+
     const mouseHandler = useMouseHandler(
-        usePianoRollStore.getState().addNote,
-        usePianoRollStore.getState().deleteNote,
+        addNote,
+        deleteNote,
         setSelectedNote,
         handleShowPreviewNote,
+        triggerAttack,
+        triggerRelease,
         () =>
             usePianoRollStore.getState().songs[
                 usePianoRollStore.getState().selectedIndex
@@ -107,32 +124,11 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         }
     };
 
-    useEffect(() => {
-        // Scroll to the first note and center it on screen
-        if (canvasContainerRef.current && !alreadyScrolled) {
-            setAlreadyScrolled(true);
-            let scrollPos = canvasContainerRef.current.clientHeight / 2;
-            if (notes.length > 0) {
-                const rollHeight = Sequencer.tonePitchToRollPitch(
-                    notes[0].pitch,
-                    gridParams.lowestNote,
-                    gridParams.height
-                );
-                scrollPos =
-                    (rollHeight + 1) * PIANO_ROLL_NOTE_HEIGHT -
-                    canvasContainerRef.current.clientHeight / 2;
-            }
-            canvasContainerRef.current.scroll({
-                top: scrollPos,
-            });
-        }
-    }, [alreadyScrolled, notes, gridParams.lowestNote, gridParams.height]);
-
     return (
         <div
             id="roll-canvas"
             ref={canvasContainerRef}
-            className="z-0 flex h-[70vh] max-w-[90vw] justify-start overflow-scroll rounded border-2 border-dark-primary"
+            className="relative z-0 flex h-[70vh] max-w-[90vw] justify-start rounded border-2 border-dark-primary"
         >
             <PianoRollCanvas
                 gridParams={gridParams}

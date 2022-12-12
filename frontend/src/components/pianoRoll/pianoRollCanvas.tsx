@@ -21,9 +21,17 @@ import {
     PIANO_ROLL_TEXT_COLOR,
 } from "../../constants";
 import { AiFillCaretDown } from "react-icons/ai";
-import { Note, Sequencer } from "../../sound/sequencer";
+import { Note } from "../../interfaces/Note";
 import GridParams from "../../interfaces/GridParams";
 import * as React from "react";
+import useOnBeatCallback from "../../hooks/sequencer/useOnBeatCallback";
+import useSynth from "../../hooks/sequencer/useSynth";
+import {
+    rollPitchToTonePitch,
+    rollTimeToToneTime,
+    tonePitchToRollPitch,
+    toneTimeToRollTime,
+} from "../../common/coordConversion";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -39,6 +47,19 @@ interface PianoRollCanvasProps {
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [headerTranslation, setHeaderTranslation] = useState(0);
+    const [alreadyScrolled, setAlreadyScrolled] = useState(false);
+    const canvasContainerRef = useRef<HTMLDivElement>(null);
+    const { triggerAttackRelease } = useSynth();
+    useOnBeatCallback(async (time) => {
+        if (!props.disabled) {
+            const headerWidth =
+                (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
+
+            const len = rollTimeToToneTime(props.gridParams.width);
+            const progress = time / len.toSeconds();
+            setHeaderTranslation(headerWidth * progress);
+        }
+    });
 
     const drawCircle = async (
         ctx: CanvasRenderingContext2D,
@@ -118,7 +139,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                     );
                 }
             }
-            drawVLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
+            drawVLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 2);
             drawVLines(ctx, PIANO_ROLL_GRID_COLORS[2], 3, 16);
             drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 1, 1);
             drawHLines(ctx, PIANO_ROLL_GRID_COLORS[0], 3, 12, 1);
@@ -130,17 +151,11 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
         async (ctx: CanvasRenderingContext2D, note: Note) => {
             ctx.font = PIANO_ROLL_FONT;
             ctx.strokeStyle = PIANO_ROLL_NOTE_OUTLINE_COLOR;
-            const x =
-                Sequencer.toneTimeToRollTime(note.time) * PIANO_ROLL_NOTE_WIDTH;
+            const x = toneTimeToRollTime(note.time) * PIANO_ROLL_NOTE_WIDTH;
             const y =
-                Sequencer.tonePitchToRollPitch(
-                    note.pitch,
-                    props.gridParams.lowestNote,
-                    props.gridParams.height
-                ) * PIANO_ROLL_NOTE_HEIGHT;
-            const w =
-                Sequencer.toneTimeToRollTime(note.length) *
-                PIANO_ROLL_NOTE_WIDTH;
+                tonePitchToRollPitch(note.pitch, props.gridParams) *
+                PIANO_ROLL_NOTE_HEIGHT;
+            const w = toneTimeToRollTime(note.length) * PIANO_ROLL_NOTE_WIDTH;
             const h = PIANO_ROLL_NOTE_HEIGHT;
 
             ctx.fillStyle = PIANO_ROLL_NOTE_COLOR;
@@ -159,18 +174,13 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             else if (props.previewNotes.has(note))
                 ctx.fillStyle = PREVIEW_NOTE_HIGHLIGHT_COLOR;
             else ctx.fillStyle = PIANO_ROLL_TEXT_COLOR;
-            const text = note.pitch.slice(0, -1);
+            const text = note.pitch.toNote().slice(0, -1);
             ctx.fillText(text, x + 2, y + PIANO_ROLL_NOTE_HEIGHT - 6);
             ctx.fillStyle = PIANO_ROLL_NOTE_COLOR;
             drawCircle(ctx, handleX, y + yOffset, radius);
             drawCircle(ctx, handleX, y + h - yOffset, radius);
         },
-        [
-            props.gridParams.height,
-            props.gridParams.lowestNote,
-            props.previewNotes,
-            props.selectedNote,
-        ]
+        [props.gridParams, props.previewNotes, props.selectedNote]
     );
 
     const drawNotes = useCallback(
@@ -203,34 +213,92 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     };
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        if (canvas) {
-            Sequencer.clearOnBeatCallbacks();
-            if (!props.disabled) {
-                Sequencer.runCallbackOnBeat(() => {
-                    setHeaderTranslation(
-                        (props.gridParams.width - 1) *
-                            PIANO_ROLL_NOTE_WIDTH *
-                            Sequencer.getProgress()
-                    );
-                });
+        // Scroll to the first note and center it on screen
+        if (canvasContainerRef.current && !alreadyScrolled) {
+            setAlreadyScrolled(true);
+            let scrollPos = canvasContainerRef.current.clientHeight / 2;
+            if (props.notes.length > 0) {
+                const rollHeight = tonePitchToRollPitch(
+                    props.notes[0].pitch,
+                    props.gridParams
+                );
+                scrollPos =
+                    (rollHeight + 1) * PIANO_ROLL_NOTE_HEIGHT -
+                    canvasContainerRef.current.clientHeight / 2;
             }
+            canvasContainerRef.current.scroll({
+                top: scrollPos,
+            });
         }
-    }, [props.disabled, props.gridParams.width]);
+    }, [
+        alreadyScrolled,
+        props.notes,
+        props.gridParams.lowestNote,
+        props.gridParams.height,
+        props.gridParams,
+    ]);
+
+    const renderPiano = () => {
+        const previewPitches = [...props.previewNotes].map((n) =>
+            n.pitch.toNote()
+        );
+        const children = [];
+        for (let i = 0; i < props.gridParams.height; i++) {
+            const pitch = rollPitchToTonePitch(i + 1, props.gridParams);
+            let classes = "bg-white";
+            if (previewPitches.includes(pitch.toNote()))
+                classes = "bg-medium-primary";
+            else if (isBlackKey(i)) classes = "bg-black";
+            if (isBlackKey(i)) classes += " w-4/6";
+            else classes += " w-full";
+            if (props.selectedNote?.pitch.toNote() === pitch.toNote())
+                classes += " border-2 border-light-primary";
+            children.push(
+                // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+                <div
+                    aria-label={pitch.toNote()}
+                    style={{
+                        height: PIANO_ROLL_NOTE_HEIGHT,
+                    }}
+                    className={`p-0 text-right text-sm outline-none ${classes}`}
+                    onClick={() => {
+                        triggerAttackRelease(pitch);
+                    }}
+                    onKeyDown={() => {
+                        triggerAttackRelease(pitch);
+                    }}
+                >
+                    {pitch.toNote().slice(0, -1) === "C" && pitch.toNote()}
+                </div>
+            );
+        }
+        return (
+            <div
+                className="sticky top-5 left-0 w-14 border-r-2 border-black bg-white"
+                style={{
+                    marginTop:
+                        -PIANO_ROLL_NOTE_HEIGHT * props.gridParams.height,
+                }}
+            >
+                {children}
+            </div>
+        );
+    };
 
     return (
         <div
-            style={{ width: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH }}
-            className="h-screen transition-[width]"
+            ref={canvasContainerRef}
+            className="relative h-screen max-h-full max-w-full overflow-scroll transition-[width]"
         >
+            {renderPiano()}
             <div
-                className="sticky top-0 left-0 border-b-2 border-dark-primary bg-white transition-[width]"
+                className="sticky top-0 left-0 h-5 border-b-2 border-dark-primary bg-white transition-[width]"
                 style={{
-                    width: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
+                    minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
                 }}
             >
                 <div
-                    className="w-1 text-black"
+                    className="ml-14 w-1 text-black"
                     style={{
                         transform: `translateX(${headerTranslation}px)`,
                     }}
@@ -239,7 +307,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                 </div>
             </div>
             <canvas
-                className="snap-none transition-[width]"
+                className="ml-14 snap-none transition-[width]"
+                style={{
+                    minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
+                }}
                 ref={canvasRef}
                 onMouseDown={(e) => isOnGrid(e) && props.onMouseDown(e)}
                 onMouseMove={(e) => isOnGrid(e) && props.onMouseMove(e)}

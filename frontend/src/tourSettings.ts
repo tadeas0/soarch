@@ -55,7 +55,17 @@ export const steps: ShepherdOptionsWithType[] = [
         scrollTo: true,
         title: "Grid",
         text: [
-            "Use left mouse button to place, move and resize notes. Use right mouse button to delete them. You can also use your keyboard to play and Soarch will record it.",
+            "Use left mouse button to place, move and resize notes. Use right mouse button to delete them.",
+        ],
+    },
+    {
+        id: "record",
+        attachTo: { element: "#record-button", on: "auto" },
+        buttons,
+        scrollTo: true,
+        title: "Recording",
+        text: [
+            "Use this button to record a melody using your computer keyboard or a midi controller.",
         ],
     },
     {
@@ -72,7 +82,9 @@ export const steps: ShepherdOptionsWithType[] = [
         buttons,
         scrollTo: true,
         title: "Restart tutorial",
-        text: ["You can always restart the tutorial using this button."],
+        text: [
+            "You can always restart the tutorial using this button with question mark in the bottom right corner.",
+        ],
     },
     {
         id: "end",

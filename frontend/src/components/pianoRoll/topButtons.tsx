@@ -1,15 +1,25 @@
-import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
+import {
+    BsPauseFill,
+    BsFillPlayFill,
+    BsRecord,
+    BsRecordFill,
+} from "react-icons/bs";
 import * as React from "react";
-import { MdDelete } from "react-icons/md";
-import { CgPiano, CgUndo } from "react-icons/cg";
+import { CgPiano } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
 import { FaSave } from "react-icons/fa";
 import BPMInput from "./bpmInput";
 import Metronome from "./metronome";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
-import { Sequencer } from "../../sound/sequencer";
 import Button from "../basic/button";
+import useSynth from "../../hooks/sequencer/useSynth";
+import saveToFile from "../../common/saveTrack";
+import useSequencer from "../../hooks/sequencer/useSequencer";
+import { rollTimeToToneTime } from "../../common/coordConversion";
+import * as Tone from "tone";
+import { useCallback, useRef, useState } from "react";
+import useKeyboardListener from "../../hooks/useKeyboardListener";
 
 const defaultProps = {
     disabled: false,
@@ -21,22 +31,34 @@ type TopButtonsProps = {
 } & typeof defaultProps;
 
 const TopButtons = (props: TopButtonsProps) => {
-    const [songs, selectedIndex] = usePianoRollStore((state) => [
-        state.songs,
-        state.selectedIndex,
-    ]);
-    const [isRollPlaying, setIsRollPlaying, changeBPM, clear, undo] =
+    const [songs, selectedIndex, isRollPlaying, setIsRollPlaying] =
         usePianoRollStore((state) => [
+            state.songs,
+            state.selectedIndex,
             state.isRollPlaying,
             state.setIsRollPlaying,
-            state.changeBPM,
-            state.clear,
-            state.undo,
         ]);
-    const [isPianoHidden, setIsPianoHidden] = usePianoRollStore((state) => [
-        state.isPianoHidden,
-        state.setIsPianoHidden,
-    ]);
+    const { stop, play } = useSequencer();
+    const changeBPM = usePianoRollStore((state) => state.changeBPM);
+    const [isPianoHidden, isRecording, setIsPianoHidden, setIsRecording] =
+        usePianoRollStore((state) => [
+            state.isPianoHidden,
+            state.isRecording,
+            state.setIsPianoHidden,
+            state.setIsRecording,
+        ]);
+    const [countDown, setCountDown] = useState(0);
+    const countInPart = useRef(new Tone.Part());
+    const repeatEvent = useRef<number | null>(null);
+    const changeEvent = useRef<number | null>(null);
+    const metronomeSampler = new Tone.Sampler({
+        urls: {
+            G4: "/samples/metronome_down.mp3",
+            C4: "/samples/metronome_up.mp3",
+        },
+        release: 1,
+    }).toDestination();
+    const { synth } = useSynth();
 
     const selectedSong = songs[selectedIndex];
 
@@ -49,11 +71,12 @@ const TopButtons = (props: TopButtonsProps) => {
     const handleSave = async () => {
         try {
             props.setIsDownloading(true);
-            await Sequencer.saveToFile(
+            await saveToFile(
                 selectedSong.notes,
                 selectedSong.bpm,
                 selectedSong.gridParams.width,
-                selectedSong.name
+                selectedSong.name,
+                synth
             );
         } catch (err) {
             console.error(err);
@@ -62,12 +85,113 @@ const TopButtons = (props: TopButtonsProps) => {
         }
     };
 
+    const handlePlayClick = useCallback(async () => {
+        stop();
+        if (isRollPlaying) {
+            setIsRollPlaying(false);
+        } else {
+            if (countDown > 0) {
+                setCountDown(0);
+                if (repeatEvent.current)
+                    Tone.Transport.clear(repeatEvent.current);
+                if (changeEvent.current)
+                    Tone.Transport.clear(changeEvent.current);
+                countInPart.current.dispose();
+            }
+            play(
+                selectedSong.notes,
+                selectedSong.bpm,
+                rollTimeToToneTime(selectedSong.gridParams.width)
+            );
+            setIsRollPlaying(true);
+        }
+    }, [
+        countDown,
+        isRollPlaying,
+        play,
+        selectedSong.bpm,
+        selectedSong.gridParams.width,
+        selectedSong.notes,
+        setIsRollPlaying,
+        stop,
+    ]);
+
+    const handleRecord = async () => {
+        if (isRollPlaying) {
+            return;
+        }
+        if (Tone.context.state !== "running") await Tone.start();
+        stop();
+        const metronomeNotes = [];
+        for (let i = 0; i < 4; i++) {
+            const pitch = i % 4 === 0 ? "G4" : "C4";
+            metronomeNotes.push({ time: `0:${i}:0`, pitch });
+        }
+        countInPart.current = new Tone.Part((time, note) => {
+            metronomeSampler.triggerAttackRelease(note.pitch, "0:0:1", time);
+        }, metronomeNotes).start(0);
+        repeatEvent.current = Tone.Transport.scheduleRepeat(
+            (time) => {
+                Tone.Draw.schedule(() => {
+                    setCountDown((current) => current - 1);
+                }, time);
+            },
+            "4n",
+            "0:1:0"
+        );
+        setCountDown(4);
+        Tone.Transport.start();
+        changeEvent.current = Tone.Transport.scheduleOnce(() => {
+            countInPart.current.dispose();
+            if (repeatEvent.current) Tone.Transport.clear(repeatEvent.current);
+            setCountDown(0);
+            stop();
+            play(
+                selectedSong.notes,
+                selectedSong.bpm,
+                rollTimeToToneTime(selectedSong.gridParams.width)
+            );
+            setIsRollPlaying(true);
+        }, "1m");
+    };
+
+    const handleRecordClick = () => {
+        if (!isRecording) {
+            setIsRecording(true);
+            handleRecord();
+        } else {
+            setIsRecording(false);
+        }
+    };
+
+    const getRecordIcon = () => {
+        if (countDown > 0) {
+            return countDown;
+        }
+        if (isRecording) {
+            return <BsRecord />;
+        }
+        return <BsRecordFill />;
+    };
+
+    const handleKeyboardDown = useCallback(
+        (e: KeyboardEvent) => {
+            if (e.key === " ") {
+                e.preventDefault();
+                handlePlayClick();
+            }
+        },
+        [handlePlayClick]
+    );
+
+    useKeyboardListener(() => {}, handleKeyboardDown);
+
     return (
         <>
             <Button
                 className="col-span-1 flex items-center justify-center text-6xl"
                 id="play-button"
-                onClick={() => setIsRollPlaying(!isRollPlaying)}
+                onClick={handlePlayClick}
                 disabled={
                     !(
                         selectedSong.bpm >= MIN_BPM &&
@@ -78,24 +202,15 @@ const TopButtons = (props: TopButtonsProps) => {
                 {getPlayIcon()}
             </Button>
             <Button
-                className="col-span-1 flex items-center justify-center text-6xl"
-                id="piano-button"
-                pressed={!isPianoHidden}
-                onClick={() => setIsPianoHidden(!isPianoHidden)}
-                disabled={props.disabled}
+                id="record-button"
+                className={`col-span-1 flex items-center justify-center text-6xl ${
+                    isRecording ? "bg-warn" : ""
+                }`}
+                onClick={handleRecordClick}
             >
-                <CgPiano />
+                {getRecordIcon()}
             </Button>
-            <InstrumentSelector disabled={props.disabled} />
             <Metronome disabled={props.disabled} />
-            <Button
-                className="col-span-1 flex items-center justify-center text-6xl"
-                id="undo-button"
-                onClick={undo}
-                disabled={props.disabled}
-            >
-                <CgUndo />
-            </Button>
             <BPMInput
                 id="bpm-input"
                 value={selectedSong.bpm}
@@ -106,13 +221,15 @@ const TopButtons = (props: TopButtonsProps) => {
                 disabled={isRollPlaying || props.disabled}
             />
             <Button
-                id="clear-button"
                 className="col-span-1 flex items-center justify-center text-6xl"
-                onClick={clear}
+                id="piano-button"
+                pressed={!isPianoHidden}
+                onClick={() => setIsPianoHidden(!isPianoHidden)}
                 disabled={props.disabled}
             >
-                <MdDelete />
+                <CgPiano />
             </Button>
+            <InstrumentSelector disabled={props.disabled} />
             <Button
                 id="export-button"
                 className="col-span-1 flex items-center justify-center text-6xl"

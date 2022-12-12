@@ -10,7 +10,8 @@ import {
     PIANO_ROLL_LOWEST_NOTE,
     UNDO_STACK_SIZE,
 } from "../constants";
-import { Note, Sequencer } from "../sound/sequencer";
+import { Note } from "../interfaces/Note";
+import { toneTimeToRollTime } from "../common/coordConversion";
 
 export interface PianoRollState {
     songs: SongParams[];
@@ -21,6 +22,8 @@ export interface PianoRollState {
     hasChanged: boolean;
     isPianoHidden: boolean;
     undoStack: Note[][];
+    isRecording: boolean;
+    setIsRecording: (value: boolean) => void;
     saveState: (notes: Note[]) => void;
     undo: () => void;
     setIsRollPlaying: (value: boolean) => void;
@@ -74,6 +77,12 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
     hasChanged: false,
     isPianoHidden: true,
     undoStack: [],
+    isRecording: false,
+
+    setIsRecording: (value: boolean) =>
+        set(() => ({
+            isRecording: value,
+        })),
 
     saveState: (notes: Note[]) =>
         set((state) => {
@@ -92,20 +101,23 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             if (lastState) {
                 const newSongs = [...state.songs];
                 newSongs[state.selectedIndex].notes = lastState;
-                return { songs: newSongs, undoStack };
+                return { songs: newSongs, hasChanged: true, undoStack };
             }
-            return { undoStack };
+            return { hasChanged: true, undoStack };
         }),
 
     setIsRollPlaying: (value: boolean) =>
-        set(() => ({ isRollPlaying: value, isResultPlaying: false })),
+        set((state) => ({
+            isRollPlaying: value,
+            isResultPlaying: false,
+            isRecording: value ? state.isRecording : false,
+        })),
 
     setIsResultPlaying: (value: boolean) =>
         set(() => ({ isResultPlaying: value, isRollPlaying: false })),
 
     addNote: async (note: Note) =>
         set((state) => {
-            Sequencer.addNoteToBuffer(note);
             const newSongs = [...state.songs];
             const oldNotes = newSongs[state.selectedIndex].notes;
             newSongs[state.selectedIndex].notes = [...oldNotes, note];
@@ -114,7 +126,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
 
     deleteNote: async (note: Note) =>
         set((state) => {
-            Sequencer.deleteNoteFromBuffer(note);
             const newSongs = [...state.songs];
             const oldNotes = newSongs[state.selectedIndex].notes;
             newSongs[state.selectedIndex].notes = oldNotes.filter(
@@ -125,11 +136,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
 
     setNotes: async (notes: Note[]) =>
         set((state) => {
-            Sequencer.clearBuffer();
-            Sequencer.fillBuffer(
-                notes,
-                state.songs[state.selectedIndex].gridParams.width
-            );
             const newSongs = [...state.songs];
             newSongs[state.selectedIndex].notes = notes;
             return { songs: newSongs, hasChanged: true };
@@ -147,6 +153,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 songs: newSongs,
                 isRollPlaying: false,
                 isResultPlaying: false,
+                hasChanged: true,
                 undoStack: newStack,
             };
         }),
@@ -175,6 +182,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 selectedIndex: state.songs.length,
                 isRollPlaying: false,
                 isResultPlaying: false,
+                hasChanged: true,
                 undoStack: [],
             };
         }),
@@ -201,6 +209,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     isRollPlaying: false,
                     isResultPlaying: false,
                     undoStack: newStack,
+                    hasChanged: true,
                 };
             }
             if (value === 0 && state.songs.length === 1) {
@@ -209,6 +218,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     selectedIndex: 0,
                     isRollPlaying: false,
                     isResultPlaying: false,
+                    hasChanged: true,
                 };
             }
             return {};
@@ -221,6 +231,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     selectedIndex: value,
                     isRollPlaying: false,
                     isResultPlaying: false,
+                    hasChanged: true,
                     undoStack: [],
                 };
             return {};
@@ -249,8 +260,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             const newGridLength = selSong.gridParams.width - MEASURE_LENGTH;
             const newNotes = selSong.notes.filter(
                 (n) =>
-                    Sequencer.toneTimeToRollTime(n.time) +
-                        Sequencer.toneTimeToRollTime(n.length) <
+                    toneTimeToRollTime(n.time) + toneTimeToRollTime(n.length) <
                     newGridLength
             );
             newSongs[state.selectedIndex].gridParams.width = newGridLength;
