@@ -19,4 +19,5 @@ services:
         ports:
             - "443:443"
         volumes:
-            - "${CERT_PATH}:/cert"
+            - "${CERT_PATH}:/cert/cert.pem"
+            - "${PRIVKEY_PATH}:/cert/privkey.pem"
