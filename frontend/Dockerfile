@@ -7,5 +7,6 @@ RUN yarn install
 RUN yarn build
 
 FROM nginx:stable-alpine
+ARG NGINX_CONFIG
 COPY --from=build-step /frontend/build /usr/share/nginx/html
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY ${NGINX_CONFIG} /etc/nginx/templates/default.conf.template
