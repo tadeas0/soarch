@@ -1,0 +1,25 @@
+server {
+    listen       ${PORT} ${PROTOCOL};
+    server_name  soarch.tk;
+    ssl_certificate     /cert/fullchain.pem;
+    ssl_certificate_key /cert/privkey.pem;
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2;
+
+    root   /usr/share/nginx/html;
+    index index.html;
+    error_page   500 502 503 504  /50x.html;
+
+    location / {
+        try_files $uri /index.html;
+        add_header Cache-Control "no-cache";
+    }
+
+    location /static {
+        expires 1y;
+        add_header Cache-Control "public";
+    }
+
+    location /api {
+        proxy_pass ${API_HOST};
+    }
+}

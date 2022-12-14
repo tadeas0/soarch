@@ -8,5 +8,8 @@ services:
     frontend:
         environment:
             - PORT=80
+        build:
+            args:
+                NGINX_CONFIG: "./nginx.conf.dev.template"
         ports:
             - "3000:80"
