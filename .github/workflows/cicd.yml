@@ -60,7 +60,8 @@ jobs:
     eslint:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v3
+            - name: Checkout repository
+              uses: actions/checkout@v3
             - name: Use Node.js 16
               uses: actions/setup-node@v3
               with:
@@ -91,6 +92,8 @@ jobs:
         runs-on: ubuntu-latest
         needs: [unittest, flake8, mypy, eslint]
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
             - name: Setup ssh access
               run: |
                   eval $(ssh-agent -s)
