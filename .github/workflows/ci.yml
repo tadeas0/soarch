@@ -65,6 +65,9 @@ jobs:
               uses: actions/setup-node@v3
               with:
                   node-version: 16
-            - run: cd frontend
-            - run: npm install --legacy-peer-deps
-            - run: npm run lint
+            - name: Install dependencies
+              working-directory: ./frontend
+              run: npm install --legacy-peer-deps
+            - name: Run ESLint
+              working-directory: ./frontend
+              run: npm run lint
