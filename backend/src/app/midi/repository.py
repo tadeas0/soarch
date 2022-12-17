@@ -1,5 +1,8 @@
+from asyncio import Future
+import asyncio
 import io
 import re
+from typing import Iterable
 from app.util.filestorage import FileStorage
 from app.util.parser import MidiParser
 from miditoolkit.midi import MidiFile
@@ -73,3 +76,7 @@ class SongRepository:
             name = m.group(2)
         song.metadata = SongMetadata(artist, name)
         return song
+
+    def get_all_songs(self) -> Iterable[Future[Song]]:
+        keys = self.list_keys()
+        return asyncio.as_completed([self.load_song_async(i) for i in keys])

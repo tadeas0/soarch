@@ -78,10 +78,7 @@ class SearchEngine:
         return unique_results
 
     async def __fetch_files_to_queue(self, q: asyncio.Queue) -> None:
-        keys = self.repository.list_keys()
-        coros = [self.repository.load_song_async(i) for i in keys]
-
-        for future in asyncio.as_completed(coros):
+        for future in self.repository.get_all_songs():
             try:
                 res = await future
                 await q.put(res)
