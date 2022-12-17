@@ -18,8 +18,53 @@ jobs:
                   registry: ghcr.io
                   username: ${{ github.actor }}
                   password: ${{ secrets.GITHUB_TOKEN }}
-            - run: echo "BACKEND_IMAGE=$BACKEND_IMAGE_TAG" >> .env
-            - run: echo "FRONTEND_IMAGE=$FRONTEND_IMAGE_TAG" >> .env
-            - run: docker-compose -f docker-compose.yml -f docker-compose.ci.yml build --pull
-            - run: echo "Pushing images to $BACKEND_IMAGE_TAG $FRONTEND_IMAGE_TAG"
-            - run: docker-compose -f docker-compose.yml -f docker-compose.ci.yml push
+            - name: Build images
+              run: |
+                  echo "BACKEND_IMAGE=$BACKEND_IMAGE_TAG" >> .env
+                  echo "FRONTEND_IMAGE=$FRONTEND_IMAGE_TAG" >> .env
+                  docker-compose -f docker-compose.yml -f docker-compose.ci.yml build --pull
+            - name: Push images
+              run: |
+                  echo "Pushing images to $BACKEND_IMAGE_TAG $FRONTEND_IMAGE_TAG"
+                  docker-compose -f docker-compose.yml -f docker-compose.ci.yml push
+    flake8:
+        runs-on: ubuntu-latest
+        needs: [build]
+        steps:
+            - name: Login to GitHub Container Registry
+              uses: docker/login-action@v2
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Pull images
+              run: docker pull $BACKEND_IMAGE_TAG
+            - name: Run flake8
+              run: docker run $BACKEND_IMAGE_TAG flake8 src/ --config setup.cfg
+
+    mypy:
+        runs-on: ubuntu-latest
+        needs: [build]
+        steps:
+            - name: Login to GitHub Container Registry
+              uses: docker/login-action@v2
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - name: Pull images
+              run: docker pull $BACKEND_IMAGE_TAG
+            - name: Run mypy
+              run: docker run $BACKEND_IMAGE_TAG mypy src/ --config-file setup.cfg
+
+    eslint:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Use Node.js 16
+              uses: actions/setup-node@v3
+              with:
+                  node-version: 16
+            - run: cd frontend
+            - run: npm install --legacy-peer-deps
+            - run: npm run lint
