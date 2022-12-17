@@ -100,7 +100,7 @@ jobs:
                   eval $(ssh-agent -s)
                   mkdir -p ~/.ssh
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
-                  echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config
+                  ssh-keyscan -H ${{ secrets.PROD_SERVER_IP }} > ~/.ssh/known_hosts
             - name: Setup .env file
               run: echo "${{ secrets.BACKEND_ENV_VARS }}" >>.env
             - name: Stop running containers
