@@ -1,4 +1,4 @@
-name: CI
+name: CICD
 
 on: push
 
@@ -101,8 +101,8 @@ jobs:
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
                   echo "${{ secrets.BACKEND_ENV_VARS }}" >> .env
             - name: Stop running containers
-              run: docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml down
+              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml down
             - name: Build containers
-              run: docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml build
+              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml build
             - name: Start containers
-              run: docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml up -d
+              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml up -d
