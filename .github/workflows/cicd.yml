@@ -103,7 +103,7 @@ jobs:
             #       eval $(ssh-agent -s)
             #       mkdir -p ~/.ssh
             #       echo "StrictHostKeyChecking no" >> ~/.ssh/config
-            #       echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
+            - run: echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
             - name: Setup .env file
               run: echo "${{ secrets.BACKEND_ENV_VARS }}" >>.env
             - name: Stop running containers
