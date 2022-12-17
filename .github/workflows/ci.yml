@@ -1,0 +1,25 @@
+name: CI
+
+on: push
+
+env:
+    BACKEND_IMAGE_TAG: "ghcr.io/tadeas0/backend:$CI_COMMIT_SHA"
+    FRONTEND_IMAGE_TAG: ghcr.io/tadeas0/frontend:$CI_COMMIT_SHA
+
+jobs:
+    build:
+        container: docker:latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+            - name: Login to GitHub Container Registry
+              uses: docker/login-action@v2
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+            - run: echo "BACKEND_IMAGE=$BACKEND_IMAGE_TAG" >> .env
+            - run: echo "FRONTEND_IMAGE=$FRONTEND_IMAGE_TAG" >> .env
+            - run: docker-compose -f docker-compose.yml -f docker-compose.ci.yml build --pull
+            - run: echo "Pushing images to $BACKEND_IMAGE_TAG $FRONTEND_IMAGE_TAG"
+            - run: docker-compose -f docker-compose.yml -f docker-compose.ci.yml push
