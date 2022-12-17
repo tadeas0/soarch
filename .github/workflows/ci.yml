@@ -3,8 +3,8 @@ name: CI
 on: push
 
 env:
-    BACKEND_IMAGE_TAG: "ghcr.io/tadeas0/backend:$GITHUB_SHA"
-    FRONTEND_IMAGE_TAG: ghcr.io/tadeas0/frontend:$GITHUB_SHA
+    BACKEND_IMAGE_TAG: "ghcr.io/tadeas0/backend:${{ github.sha }}"
+    FRONTEND_IMAGE_TAG: ghcr.io/tadeas0/frontend:${{ github.sha }}
 
 jobs:
     build:
