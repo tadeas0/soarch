@@ -103,7 +103,7 @@ jobs:
             - name: Setup .env file
               run: echo "${{ secrets.BACKEND_ENV_VARS }}" >>.env
             - name: Stop running containers
-              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml down
+              run: docker-compose -H ${{ env.SSH_AUTH_SOCK }} -f docker-compose.yml -f docker-compose.prod.yml down
             - name: Build containers
               run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml build
             - name: Start containers
