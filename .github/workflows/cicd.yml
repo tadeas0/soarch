@@ -101,6 +101,7 @@ jobs:
                   mkdir -p ~/.ssh
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
                   ssh-keyscan -H ${{ secrets.PROD_SERVER_IP }} > ~/.ssh/known_hosts
+                  chmod 600 ~/.ssh/known_hosts
             - name: Setup .env file
               run: echo "${{ secrets.BACKEND_ENV_VARS }}" >>.env
             - name: Stop running containers
