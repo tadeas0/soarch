@@ -94,15 +94,12 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v3
-            - name: Setup ssh access
+            - name: Deploy
               run: |
                   eval $(ssh-agent -s)
                   mkdir -p ~/.ssh
                   echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
                   echo "${{ secrets.BACKEND_ENV_VARS }}" >> .env
-            - name: Stop running containers
-              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml down
-            - name: Build containers
-              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml build
-            - name: Start containers
-              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml up -d
+                  docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml down
+                  docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml build
+                  docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml up -d
