@@ -96,7 +96,6 @@ jobs:
                   eval $(ssh-agent -s)
                   mkdir -p ~/.ssh
                   echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-                  [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config
                   echo "$BACKEND_ENV_VARS" >> .env
             - name: Stop running containers
               run: docker-compose -H "ssh://$PROD_SERVER_USER@$PROD_SERVER_IP" -f docker-compose.yml -f docker-compose.prod.yml down
