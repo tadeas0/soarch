@@ -17,7 +17,7 @@ class GoogleCloudFileStorage(FileStorage):
         self,
         credentials_json: dict,
         bucket_name: str,
-        redis_url: str = None,
+        redis_url: Optional[str] = None,
     ) -> None:
         self.__creds = credentials_json
         self.__redis_url = redis_url
