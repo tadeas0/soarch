@@ -13,3 +13,9 @@ services:
                 NGINX_CONFIG: "./nginx.conf.dev.template"
         ports:
             - "3000:80"
+    worker:
+        environment:
+            - ENV=dev
+        volumes:
+            - ./backend:/backend
+            - ./midi_files:/midi_files

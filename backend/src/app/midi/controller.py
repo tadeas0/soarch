@@ -1,9 +1,6 @@
 from http import HTTPStatus
 from quart import Blueprint, request, jsonify
-from app.util.parser import JsonParser
-from app.midi.serializer import TrackSerializer
-from app import repository
-from app.search_engine.search_engine_factory import SearchEngineFactory
+from app.worker.tasks import search
 import logging
 import config
 
@@ -24,22 +21,8 @@ async def midi_post():
     if not data:
         raise TypeError()
 
-    similarity_strategy = data.get("similarityStrategy", config.DEFAULT_STRATEGY)
-
-    song = JsonParser.parse(data)
-    try:
-        engine = SearchEngineFactory.create_search_engine(
-            repository, similarity_strategy
-        )
-    except ValueError as e:
-        logger.debug(f"Unknown strategy {similarity_strategy}")
-        return str(e), HTTPStatus.BAD_REQUEST
-
-    logger.debug(f"Searching using {similarity_strategy} similarity_strategy")
-    similar_songs = await engine.find_similar_async(10, song.tracks[0])
-    serialized_songs = [
-        TrackSerializer.serialize_with_metadata(i[1], i[2]) for i in similar_songs
-    ]
+    res = search.send(data)
+    serialized_songs = res.get_result(block=True, timeout=100000)
     logger.debug(f"Found {len(serialized_songs)} songs")
     res = {"tracks": serialized_songs}
     return jsonify(res)

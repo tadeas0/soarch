@@ -4,7 +4,7 @@ from typing import Any
 
 class FileStorage(ABC):
     @abstractmethod
-    async def initialize(self) -> None:
+    def initialize(self) -> None:
         pass
 
     @abstractmethod

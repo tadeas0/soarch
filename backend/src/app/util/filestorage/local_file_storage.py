@@ -12,7 +12,7 @@ class LocalFileStorage(FileStorage):
     def __init__(self, root_path) -> None:
         self.root_path = root_path
 
-    async def initialize(self) -> None:
+    def initialize(self) -> None:
         os.makedirs(self.root_path, exist_ok=True)
         logger.debug(
             "Local file storage initialized root_path: "

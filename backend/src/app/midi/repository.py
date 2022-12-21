@@ -49,7 +49,6 @@ class SongRepository:
 
     async def load_song_async(self, file_path: str) -> Song:
         extension = file_path.split(".")[-1]
-        logger.debug(f"Loading file {file_path}")
         if extension == "mid":
             return await self.__load_from_midi_async(file_path)
         elif extension == "pkl":

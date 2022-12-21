@@ -6,6 +6,11 @@ services:
         container_name: redis-cache
         expose:
             - "6379"
+    redis-queue:
+        image: redis:alpine
+        container_name: redis-queue
+        expose:
+            - "6379"
     backend:
         build: backend
         depends_on:
@@ -16,7 +21,8 @@ services:
             - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
             - BUCKET_NAME=${BUCKET_NAME}
             - HYPERCORN_CMD_ARGS=--reload
-            - REDIS_URL=redis://redis-cache
+            - REDIS_CACHE_URL=redis://redis-cache
+            - REDIS_QUEUE_URL=redis://redis-queue
             - PORT=8080
         ports:
             - "8080:8080"
@@ -29,3 +35,17 @@ services:
         image: midi-search-frontend
         environment:
             - API_HOST=http://midi-search-backend:8080
+    worker:
+        build: backend
+        environment:
+            - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
+            - BUCKET_NAME=${BUCKET_NAME}
+            - PROCESS_COUNT=6
+            - REDIS_CACHE_URL=redis://redis-cache
+            - REDIS_QUEUE_URL=redis://redis-queue
+        depends_on:
+            - redis
+        container_name: midi-search-worker
+        image: midi-search-worker
+        entrypoint: dramatiq
+        command: app.worker.run_worker app.worker.tasks --path src/ --processes 1 --threads 1 --watch .
