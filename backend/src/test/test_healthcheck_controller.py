@@ -1,10 +1,15 @@
 import pytest
-from app import create_app
+from quart import Quart
 
 
 @pytest.fixture
 def app():
-    return create_app()
+    from app.health_check.controller import health_check_bp
+
+    app = Quart(__name__)
+    app.url_map.strict_slashes = False
+    app.register_blueprint(health_check_bp)
+    return app
 
 
 @pytest.mark.asyncio

@@ -1,14 +1,49 @@
-from app.search_engine.search_engine import SearchEngine
+from quart import Quart
 import config
 import pytest
-from app import create_app
-import unittest.mock
 from app.util.song import Song, SongMetadata, Track, Note
 
 
+class MockAct:
+    def __init__(self, *args, **kw) -> None:
+        pass
+
+    def send(self, *args, **kw):
+        return MockRes()
+
+
+class MockRes:
+    def __init__(self) -> None:
+        pass
+
+    def get_result(self, *args, **kw):
+        return [
+            {
+                "name": "song",
+                "artist": "artist",
+                "notes": [
+                    {"pitch": 20, "length": "0:1:0", "time": "0:0:0"},
+                    {"pitch": 20, "length": "0:1:0", "time": "0:1:0"},
+                ],
+                "bpm": 120,
+            }
+            for i in range(10)
+        ]
+
+
+@pytest.fixture()
+def mock_search(monkeypatch):
+    monkeypatch.setattr("dramatiq.actor", lambda **kw: MockAct)
+
+
 @pytest.fixture
-def app():
-    return create_app()
+def app(mock_search):
+    from app.midi.controller import midi_bp
+
+    app = Quart(__name__)
+    app.url_map.strict_slashes = False
+    app.register_blueprint(midi_bp)
+    return app
 
 
 async def find_similar_async_mock(cls, *args):
@@ -25,7 +60,6 @@ async def find_similar_async_mock(cls, *args):
     ]
 
 
-@unittest.mock.patch.object(SearchEngine, "find_similar_async", find_similar_async_mock)
 @pytest.mark.asyncio
 async def test_midi_controller_success(app):
     client = app.test_client()
@@ -61,7 +95,6 @@ async def test_midi_controller_success(app):
     assert response.status_code == 200
 
 
-@unittest.mock.patch.object(SearchEngine, "find_similar_async", find_similar_async_mock)
 @pytest.mark.asyncio
 async def test_midi_controller_bad_request(app):
     client = app.test_client()
@@ -69,24 +102,3 @@ async def test_midi_controller_bad_request(app):
     data1 = await response1.get_data()
     assert response1.status_code == 400
     assert data1 == b"Invalid data format"
-
-    response2 = await client.post("/api/midi", json={"123": "123"})
-    data2 = await response2.get_data()
-    assert response2.status_code == 400
-    assert data2 == b"Invalid data format"
-
-    response3 = await client.post(
-        "/api/midi",
-        json={
-            "notes": [
-                {
-                    "pitch": 100,
-                    "length": "0:0:1",
-                    "time": "0:0:0",
-                }
-            ],
-        },
-    )
-    data3 = await response3.get_data()
-    assert response3.status_code == 400
-    assert data3 == b"Invalid data format"
