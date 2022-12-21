@@ -110,3 +110,52 @@ async def test_write(my_tmpdir):
             "test_dir/new_file_4.txt",
         ],
     )
+
+
+@pytest.mark.asyncio
+async def test_read_all_prefix(my_tmpdir):
+    lfs = LocalFileStorage(str(my_tmpdir.realpath()))
+    case = unittest.TestCase()
+
+    await lfs.write("pref1_a.txt", b"pref1_a")
+    await lfs.write("pref1_b.txt", b"pref1_b")
+    await lfs.write("pref1_c.txt", b"pref1_c")
+    await lfs.write("dir/pref2_a.txt", b"pref2_a")
+    await lfs.write("dir/pref2_b.txt", b"pref2_b")
+    case.assertCountEqual(
+        [await i for i in lfs.read_all_prefix("pref1")],
+        [b"pref1_a", b"pref1_b", b"pref1_c"],
+    )
+    case.assertCountEqual(
+        [await i for i in lfs.read_all_prefix("dir")], [b"pref2_a", b"pref2_b"]
+    )
+    case.assertCountEqual(
+        [await i for i in lfs.read_all_prefix("dir/pref2_a")], [b"pref2_a"]
+    )
+    case.assertCountEqual([await i for i in lfs.read_all_prefix("empty")], [])
+
+
+@pytest.mark.asyncio
+async def test_read_all_keys(my_tmpdir):
+    lfs = LocalFileStorage(str(my_tmpdir.realpath()))
+    case = unittest.TestCase()
+
+    await lfs.write("pref1_a.txt", b"pref1_a")
+    await lfs.write("pref1_b.txt", b"pref1_b")
+    await lfs.write("pref1_c.txt", b"pref1_c")
+    await lfs.write("dir/pref2_a.txt", b"pref2_a")
+    await lfs.write("dir/pref2_b.txt", b"pref2_b")
+
+    r1 = await lfs.read_all_keys(["pref1_a.txt", "pref1_b.txt", "pref1_c.txt"])
+    r2 = await lfs.read_all_keys(["dir/pref2_a.txt", "dir/pref2_b.txt"])
+    r3 = await lfs.read_all_keys(["dir/pref2_a.txt"])
+
+    case.assertCountEqual(
+        r1,
+        [b"pref1_a", b"pref1_b", b"pref1_c"],
+    )
+    case.assertCountEqual(r2, [b"pref2_a", b"pref2_b"])
+    case.assertCountEqual(r3, [b"pref2_a"])
+
+    with pytest.raises(FileNotFoundError):
+        await lfs.read_all_keys(["empty"])

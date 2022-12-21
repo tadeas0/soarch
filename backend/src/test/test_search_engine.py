@@ -35,6 +35,12 @@ class MockFileStorage(FileStorage):
     async def write(self, key, content):
         raise NotImplementedError()
 
+    async def read_all_prefix(self, prefix):
+        raise NotImplementedError()
+
+    async def read_all_keys(self, keys):
+        raise NotImplementedError()
+
 
 def assert_result(result, expected_len):
     assert len(result) == expected_len

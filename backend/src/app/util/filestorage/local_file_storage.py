@@ -1,7 +1,9 @@
 import logging
+from typing import Iterator
 import config
 import aiofiles
 import os
+import asyncio
 from app.util.filestorage import FileStorage
 
 
@@ -53,3 +55,9 @@ class LocalFileStorage(FileStorage):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         async with aiofiles.open(path, "wb") as f:
             await f.write(content)
+
+    def read_all_prefix(self, prefix: str) -> Iterator[asyncio.Future[bytes]]:
+        return asyncio.as_completed([self.read(i) for i in self.list_prefix(prefix)])
+
+    def read_all_keys(self, keys: list[str]) -> asyncio.Future[list[bytes]]:
+        return asyncio.gather(*[self.read(i) for i in keys])
