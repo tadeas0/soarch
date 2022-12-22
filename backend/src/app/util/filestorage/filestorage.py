@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from asyncio import Future
-from typing import Any, Iterator
+from typing import Any, Iterable
 
 
 class FileStorage(ABC):
@@ -25,9 +24,9 @@ class FileStorage(ABC):
         pass
 
     @abstractmethod
-    def read_all_prefix(self, prefix: str) -> Iterator[Future[bytes]]:
+    async def read_all_prefix(self, prefix: str) -> Iterable[tuple[str, bytes]]:
         pass
 
     @abstractmethod
-    def read_all_keys(self, keys: list[str]) -> Future[list[bytes]]:
+    async def read_all_keys(self, keys: list[str]) -> Iterable[tuple[str, bytes]]:
         pass

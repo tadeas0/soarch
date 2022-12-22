@@ -89,7 +89,7 @@ class SearchEngine:
         return unique_results
 
     async def __fetch_files_to_queue(self, q: mp.Queue) -> None:
-        for future in self.repository.get_all_songs():
+        for future in await self.repository.get_all_songs():
             try:
                 res = await future
                 q.put(res)

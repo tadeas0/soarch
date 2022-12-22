@@ -1,5 +1,5 @@
 import logging
-from typing import Iterator
+from typing import Iterable
 import config
 import aiofiles
 import os
@@ -56,8 +56,14 @@ class LocalFileStorage(FileStorage):
         async with aiofiles.open(path, "wb") as f:
             await f.write(content)
 
-    def read_all_prefix(self, prefix: str) -> Iterator[asyncio.Future[bytes]]:
-        return asyncio.as_completed([self.read(i) for i in self.list_prefix(prefix)])
+    async def __read_tuple(self, key: str) -> tuple[str, bytes]:
+        path = os.path.join(self.root_path, key)
+        async with aiofiles.open(path, "rb") as f:
+            return (key, await f.read())
 
-    def read_all_keys(self, keys: list[str]) -> asyncio.Future[list[bytes]]:
-        return asyncio.gather(*[self.read(i) for i in keys])
+    async def read_all_prefix(self, prefix: str) -> Iterable[tuple[str, bytes]]:
+        keys = self.list_prefix(prefix)
+        return await asyncio.gather(*[self.__read_tuple(i) for i in keys])
+
+    async def read_all_keys(self, keys: list[str]) -> Iterable[tuple[str, bytes]]:
+        return await asyncio.gather(*[self.__read_tuple(i) for i in keys])

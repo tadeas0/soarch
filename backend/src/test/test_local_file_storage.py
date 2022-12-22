@@ -123,16 +123,22 @@ async def test_read_all_prefix(my_tmpdir):
     await lfs.write("dir/pref2_a.txt", b"pref2_a")
     await lfs.write("dir/pref2_b.txt", b"pref2_b")
     case.assertCountEqual(
-        [await i for i in lfs.read_all_prefix("pref1")],
-        [b"pref1_a", b"pref1_b", b"pref1_c"],
+        await lfs.read_all_prefix("pref1"),
+        [
+            ("pref1_a.txt", b"pref1_a"),
+            ("pref1_b.txt", b"pref1_b"),
+            ("pref1_c.txt", b"pref1_c"),
+        ],
     )
     case.assertCountEqual(
-        [await i for i in lfs.read_all_prefix("dir")], [b"pref2_a", b"pref2_b"]
+        await lfs.read_all_prefix("dir"),
+        [("dir/pref2_a.txt", b"pref2_a"), ("dir/pref2_b.txt", b"pref2_b")],
     )
     case.assertCountEqual(
-        [await i for i in lfs.read_all_prefix("dir/pref2_a")], [b"pref2_a"]
+        await lfs.read_all_prefix("dir/pref2_a"),
+        [("dir/pref2_a.txt", b"pref2_a")],
     )
-    case.assertCountEqual([await i for i in lfs.read_all_prefix("empty")], [])
+    case.assertCountEqual(await lfs.read_all_prefix("empty"), [])
 
 
 @pytest.mark.asyncio
@@ -152,10 +158,17 @@ async def test_read_all_keys(my_tmpdir):
 
     case.assertCountEqual(
         r1,
-        [b"pref1_a", b"pref1_b", b"pref1_c"],
+        [
+            ("pref1_a.txt", b"pref1_a"),
+            ("pref1_b.txt", b"pref1_b"),
+            ("pref1_c.txt", b"pref1_c"),
+        ],
     )
-    case.assertCountEqual(r2, [b"pref2_a", b"pref2_b"])
-    case.assertCountEqual(r3, [b"pref2_a"])
+    case.assertCountEqual(
+        r2,
+        [("dir/pref2_a.txt", b"pref2_a"), ("dir/pref2_b.txt", b"pref2_b")],
+    )
+    case.assertCountEqual(r3, [("dir/pref2_a.txt", b"pref2_a")])
 
     with pytest.raises(FileNotFoundError):
         await lfs.read_all_keys(["empty"])

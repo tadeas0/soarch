@@ -76,6 +76,36 @@ class SongRepository:
         song.metadata = SongMetadata(artist, name)
         return song
 
-    def get_all_songs(self) -> Iterable[Future[Song]]:
+    async def __load_song_bytes(self, file_path: str, content: bytes) -> Song:
+        extension = file_path.split(".")[-1]
+        if extension == "mid":
+            return await self.__parse_midi(content, file_path)
+        elif extension == "pkl":
+            return pickle.loads(content)
+        else:
+            raise ValueError()
+
+    async def __parse_midi(self, midi: bytes, file_path: str):
+        song = MidiParser.parse(MidiFile(file=io.BytesIO(midi)))
+        logger.debug(f"Parsed file {file_path}")
+        last = file_path.split("/")[-1]
+
+        m = re.match(r"(.*) - (.*)\.mid$", last)
+        artist = "Unknown artist"
+        name = "Unknown song"
+        if m and m.group(1):
+            artist = m.group(1)
+        if m and m.group(2):
+            name = m.group(2)
+        song.metadata = SongMetadata(artist, name)
+        return song
+
+    async def get_all_songs(self) -> Iterable[Future[Song]]:
         keys = self.list_keys()
-        return asyncio.as_completed([self.load_song_async(i) for i in keys])
+
+        return asyncio.as_completed(
+            [
+                self.__load_song_bytes(*i)
+                for i in await self.file_storage.read_all_keys(keys)
+            ]
+        )
