@@ -28,5 +28,5 @@ services:
             - /midi_files
         environment:
             - ENV=prod
-            - PROCESS_COUNT=12
+            - PROCESS_COUNT=4
         command: app.worker.run_worker app.worker.tasks --path src/ --processes 2 --threads 1
