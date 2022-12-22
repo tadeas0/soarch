@@ -1,7 +1,9 @@
 import logging
+from typing import Iterable
 import config
 import aiofiles
 import os
+import asyncio
 from app.util.filestorage import FileStorage
 
 
@@ -12,7 +14,7 @@ class LocalFileStorage(FileStorage):
     def __init__(self, root_path) -> None:
         self.root_path = root_path
 
-    async def initialize(self) -> None:
+    def initialize(self) -> None:
         os.makedirs(self.root_path, exist_ok=True)
         logger.debug(
             "Local file storage initialized root_path: "
@@ -53,3 +55,15 @@ class LocalFileStorage(FileStorage):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         async with aiofiles.open(path, "wb") as f:
             await f.write(content)
+
+    async def __read_tuple(self, key: str) -> tuple[str, bytes]:
+        path = os.path.join(self.root_path, key)
+        async with aiofiles.open(path, "rb") as f:
+            return (key, await f.read())
+
+    async def read_all_prefix(self, prefix: str) -> Iterable[tuple[str, bytes]]:
+        keys = self.list_prefix(prefix)
+        return await asyncio.gather(*[self.__read_tuple(i) for i in keys])
+
+    async def read_all_keys(self, keys: list[str]) -> Iterable[tuple[str, bytes]]:
+        return await asyncio.gather(*[self.__read_tuple(i) for i in keys])

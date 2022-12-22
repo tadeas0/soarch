@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Iterable
 
 
 class FileStorage(ABC):
     @abstractmethod
-    async def initialize(self) -> None:
+    def initialize(self) -> None:
         pass
 
     @abstractmethod
@@ -21,4 +21,12 @@ class FileStorage(ABC):
 
     @abstractmethod
     async def write(self, key: str, content: Any) -> None:
+        pass
+
+    @abstractmethod
+    async def read_all_prefix(self, prefix: str) -> Iterable[tuple[str, bytes]]:
+        pass
+
+    @abstractmethod
+    async def read_all_keys(self, keys: list[str]) -> Iterable[tuple[str, bytes]]:
         pass

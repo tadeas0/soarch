@@ -6,3 +6,8 @@ services:
             - /midi_files
     frontend:
         image: ${FRONTEND_IMAGE}
+    worker:
+        image: ${WORKER_IMAGE}
+        volumes:
+            - /backend
+            - /midi_files
