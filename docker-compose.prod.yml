@@ -19,4 +19,14 @@ services:
         ports:
             - "443:443"
         volumes:
-            - "${CERT_PATH}:/cert"
+            - "${CERT_PATH}:/cert/fullchain.pem"
+            - "${PRIVKEY_PATH}:/cert/privkey.pem"
+    worker:
+        restart: unless-stopped
+        volumes:
+            - /backend
+            - /midi_files
+        environment:
+            - ENV=prod
+            - PROCESS_COUNT=12
+        command: app.worker.run_worker app.worker.tasks --path src/ --processes 2 --threads 1

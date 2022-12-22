@@ -17,3 +17,6 @@ ENV = os.getenv("ENV", "prod")
 DEFAULT_LOGGER = "midi-search"
 SCRAPER_LOGGER = "scraper"
 DEFAULT_STRATEGY = "lcs"
+REDIS_CACHE_URL = os.getenv("REDIS_CACHE_URL", "")
+REDIS_QUEUE_URL = os.getenv("REDIS_QUEUE_URL", "")
+PROCESS_COUNT = int(os.getenv("PROCESS_COUNT", 4))

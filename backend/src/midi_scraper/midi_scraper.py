@@ -1,3 +1,6 @@
+import asyncio
+import itertools
+from aiohttp import ClientSession
 import logging
 import io
 import pickle
@@ -17,26 +20,53 @@ ROBS_MIDI_LIB_URL = "http://www.storth.com/midi"
 logger = logging.getLogger(config.SCRAPER_LOGGER)
 
 
-async def scrape_robs_midi_library(file_storage: FileStorage):
-    logger.info(f"Scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
-    html = requests.get(f"{ROBS_MIDI_LIB_URL}/music-b.htm").content
+async def __download(
+    file_storage: FileStorage, url: str, file_name: str, session: ClientSession
+):
+    logger.info(f"Downloading: {url} to {file_name}")
+    res = await session.get(url, allow_redirects=True)
+    await file_storage.write(file_name, await res.read())
+
+
+async def __fetch_robs_links(letter: str, session: ClientSession):
+    res = []
+    resp = await session.get(f"{ROBS_MIDI_LIB_URL}/music-{letter}.htm")
+    html = await resp.text()
     soup = BeautifulSoup(html, features="html.parser")
     if not soup.body:
         raise RuntimeError()
     for i in soup.body.find_all("table")[1].find_all("a"):
         if i.string and i.string != " ":
             full_name = i.string.replace("\n", " ").replace("\r", "").strip()
-            full_name_split = full_name.split(" - ")
-            artist = full_name_split[0]
-            song = full_name_split[1]
+            full_name = " ".join(full_name.split())
             midi_file_link = f"{ROBS_MIDI_LIB_URL}/{i.get('href')}"
-            logger.info(f"Downloading: {artist} - {song}")
-            res = requests.get(midi_file_link, allow_redirects=True)
-            await file_storage.write(
-                os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song}.mid"),
-                res.content,
-            )
-    logger.info("Finished scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
+            res.append((full_name, midi_file_link))
+    return res
+
+
+async def scrape_robs_midi_library(file_storage: FileStorage):
+    logger.info(f"Scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
+    links: list[tuple[str, str]]
+    async with ClientSession() as session:
+        links_nest = await asyncio.gather(
+            *[
+                __fetch_robs_links(chr(i), session)
+                for i in range(ord("a"), ord("z") + 1)
+            ]
+        )
+        links = list(itertools.chain.from_iterable(links_nest))
+        await asyncio.gather(
+            *[
+                __download(
+                    file_storage,
+                    link,
+                    os.path.join(config.RAW_MIDI_PREFIX, f"{name}.mid"),
+                    session,
+                )
+                for name, link in links
+            ]
+        )
+    logger.info(f"Finished scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
 
 
 async def scrape_free_midi(file_storage: FileStorage):
@@ -86,7 +116,5 @@ async def parse_to_db(file_storage: FileStorage):
                 os.path.join(config.PROCESSED_MIDI_PREFIX, f"{iclean}.pkl"),
                 pickle.dumps(song),
             )
-        except IOError as e:
-            logger.info(f"Could not parse {i}. {e}")
-        except EOFError as e:
+        except Exception as e:
             logger.info(f"Could not parse {i}. {e}")
