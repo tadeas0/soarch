@@ -40,7 +40,6 @@ services:
         environment:
             - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
             - BUCKET_NAME=${BUCKET_NAME}
-            - PROCESS_COUNT=6
             - REDIS_CACHE_URL=redis://redis-cache
             - REDIS_QUEUE_URL=redis://redis-queue
         depends_on:

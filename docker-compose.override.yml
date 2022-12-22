@@ -16,6 +16,7 @@ services:
     worker:
         environment:
             - ENV=dev
+            - PROCESS_COUNT=6
         volumes:
             - ./backend:/backend
             - ./midi_files:/midi_files
