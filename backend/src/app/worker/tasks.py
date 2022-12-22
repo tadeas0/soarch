@@ -4,7 +4,6 @@ from app.search_engine.search_engine_factory import SearchEngineFactory
 from . import repository
 import config
 from app.midi.serializer import TrackSerializer
-from asgiref.sync import async_to_sync
 import asyncio
 
 

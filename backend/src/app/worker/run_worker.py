@@ -1,6 +1,3 @@
-import asyncio
-import functools
-from http import HTTPStatus
 from app.util.logging import setup_logging
 import config
 from . import repository, file_storage
@@ -35,11 +32,3 @@ broker = RedisBroker(url=config.REDIS_QUEUE_URL)
 broker.add_middleware(Results(backend=worker_backend))
 broker.add_middleware(InitRepoMiddleware())
 dramatiq.set_broker(broker)
-
-
-def sync(f):
-    @functools.wraps(f)
-    def wrapper(*args, **kwargs):
-        return asyncio.run(f(*args, **kwargs))
-
-    return wrapper

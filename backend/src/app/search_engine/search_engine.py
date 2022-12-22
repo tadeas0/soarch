@@ -105,7 +105,7 @@ class SearchEngine:
         n: int,
     ) -> None:
         logger.debug("Starting consumer")
-        results = []
+        results: list[tuple[float, Song, Track]] = []
         while True:
             song = in_q.get(block=True)
             if song == END_TOKEN:

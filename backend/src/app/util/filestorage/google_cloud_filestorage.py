@@ -106,7 +106,10 @@ class GoogleCloudFileStorage(FileStorage):
 
     async def read_all_keys(self, keys: list[str]) -> Iterable[tuple[str, bytes]]:
         if self.__redis_url:
-            async with self.get_async_client() as async_client, self.get_redis_cache() as redis_cache:
+            async with (
+                self.get_async_client() as async_client,
+                self.get_redis_cache() as redis_cache,
+            ):
                 return await asyncio.gather(
                     *[self.__read_tuple(i, redis_cache, async_client) for i in keys]
                 )
@@ -119,7 +122,10 @@ class GoogleCloudFileStorage(FileStorage):
     async def read_all_prefix(self, prefix: str) -> Iterable[tuple[str, bytes]]:
         keys = self.list_prefix(prefix)
         if self.__redis_url:
-            async with self.get_async_client() as async_client, self.get_redis_cache() as redis_cache:
+            async with (
+                self.get_async_client() as async_client,
+                self.get_redis_cache() as redis_cache,
+            ):
                 return await asyncio.gather(
                     *[self.__read_tuple(i, redis_cache, async_client) for i in keys]
                 )

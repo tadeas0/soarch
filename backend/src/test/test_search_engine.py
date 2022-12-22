@@ -31,7 +31,7 @@ async def get_all_songs(cls):
 
 
 class MockFileStorage(FileStorage):
-    async def initialize(self) -> None:
+    def initialize(self) -> None:
         raise NotImplementedError()
 
     def list_all(self):
