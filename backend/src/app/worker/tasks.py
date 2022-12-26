@@ -18,6 +18,7 @@ def search(data):
         engine.find_similar_async(10, song.tracks[0])
     )
     serialized_songs = [
-        TrackSerializer.serialize_with_metadata(i[1], i[2]) for i in similar_songs
+        TrackSerializer.serialize_with_similarity(i[1], i[2], i[0], True)
+        for i in similar_songs
     ]
     return serialized_songs

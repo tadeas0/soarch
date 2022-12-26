@@ -8,7 +8,7 @@ class TrackSerializer:
     @staticmethod
     def serialize_with_metadata(
         song: Song, track: Track, trim=True
-    ) -> dict[str, Union[str, int, list[dict[str, Union[str, int]]]]]:
+    ) -> dict[str, Union[str, int, float, list[dict[str, Union[str, int]]]]]:
         track_notes = track.notes
         if trim:
             track_notes = TrackSerializer.trim_notes(track_notes)
@@ -28,6 +28,14 @@ class TrackSerializer:
                 "notes": serialized_notes,
                 "bpm": song.bpm,
             }
+
+    @staticmethod
+    def serialize_with_similarity(
+        song: Song, track: Track, similarity: float, trim=True
+    ) -> dict[str, Union[str, int, float, list[dict[str, Union[str, int]]]]]:
+        s = TrackSerializer.serialize_with_metadata(song, track, trim)
+        s["similarity"] = similarity
+        return s
 
     @staticmethod
     def serialize_note(note: Note) -> dict[str, Union[str, int]]:

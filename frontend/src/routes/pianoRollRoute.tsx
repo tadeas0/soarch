@@ -121,6 +121,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                     length: Tone.Time(n.length),
                 })),
                 bpm: track.bpm,
+                similarity: track.similarity,
             }));
             setSearchResults(result);
         } catch (err) {
