@@ -25,6 +25,7 @@ export interface Song {
     notes: NoteSerialized[];
     bpm: number;
     gridParams?: GridParamsSerialized;
+    similarity: number;
 }
 
 export interface SearchResultResponse {

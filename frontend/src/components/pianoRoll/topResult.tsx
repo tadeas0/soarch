@@ -6,13 +6,14 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
 import * as React from "react";
 import * as Tone from "tone";
-import { WHITE } from "../../constants";
+import { BLACK, WHITE } from "../../constants";
 import useOnBeatCallback from "../../hooks/sequencer/useOnBeatCallback";
 import useSequencer from "../../hooks/sequencer/useSequencer";
 import {
     getGridParamsFromNotes,
     rollTimeToToneTime,
 } from "../../common/coordConversion";
+import { BarLoader } from "react-spinners";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -95,64 +96,75 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
         }
     };
 
-    const renderResult = () => {
+    const handleEdit = async () => {
+        if (props.searchResult) {
+            stop();
+            addTab({
+                ...props.searchResult,
+                bpm: Math.round(props.searchResult.bpm),
+                gridParams: getGridParamsFromNotes(props.searchResult.notes),
+            });
+        }
+    };
+
+    const renderEmpty = () => (
+        <div>
+            <h4>No results yet. Try inputing some notes.</h4>
+        </div>
+    );
+
+    const renderResult = (sr: SearchResult) => (
+        <>
+            {true && (
+                <BarLoader
+                    cssOverride={{
+                        width: "100%",
+                        opacity: props.isBusy ? 1 : 0,
+                    }}
+                    color={shouldColor ? BLACK : WHITE}
+                />
+            )}
+            <h1 className="h-1/5 font-semibold">Best result:</h1>
+            <div className="flex h-3/5 w-full flex-row">
+                <div className="max-h-full w-5/6 ">
+                    <h4 className="mt-0.5 text-lg leading-4">{sr.name}</h4>
+                    <p className="text-sm">{sr.artist}</p>
+                </div>
+                <div className="flex h-full w-1/6 flex-col justify-evenly">
+                    <button
+                        className="text-xl outline-none"
+                        type="button"
+                        onClick={handlePlayClick}
+                    >
+                        {isResultPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleEdit}
+                        className={`outline-none text-xl${
+                            canAddTab ? "" : " inactive"
+                        }`}
+                    >
+                        <MdModeEdit />
+                    </button>
+                </div>
+            </div>
+            <button
+                type="button"
+                onClick={props.onShowMore}
+                className="w-full pr-2 text-right underline outline-none"
+            >
+                Show more results
+            </button>
+        </>
+    );
+
+    const renderInner = () => {
         const sr = props.searchResult;
         if (sr === undefined) {
-            return (
-                <div>
-                    <h4>No results yet. Try inputing some notes.</h4>
-                </div>
-            );
+            return renderEmpty();
         }
-        return (
-            <>
-                <h1 className="h-1/5 font-semibold">Best result:</h1>
-                <div className="flex h-3/5 w-full flex-row">
-                    <div className="max-h-full w-5/6 ">
-                        <h4 className="mt-0.5 text-lg leading-4">{sr.name}</h4>
-                        <p className="text-sm">{sr.artist}</p>
-                    </div>
-                    <div className="flex h-full w-1/6 flex-col justify-evenly">
-                        <button
-                            className="text-xl outline-none"
-                            type="button"
-                            onClick={handlePlayClick}
-                        >
-                            {isResultPlaying ? (
-                                <BsPauseFill />
-                            ) : (
-                                <BsFillPlayFill />
-                            )}
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => {
-                                stop();
-                                addTab({
-                                    ...sr,
-                                    bpm: Math.round(sr.bpm),
-                                    gridParams: getGridParamsFromNotes(
-                                        sr.notes
-                                    ),
-                                });
-                            }}
-                            className={`outline-none text-xl${
-                                canAddTab ? "" : " inactive"
-                            }`}
-                        >
-                            <MdModeEdit />
-                        </button>
-                    </div>
-                </div>
-                <button
-                    type="button"
-                    onClick={props.onShowMore}
-                    className="w-full pr-2 text-right underline outline-none"
-                >
-                    Show more results
-                </button>
-            </>
-        );
+        return renderResult(sr);
     };
 
     return (
@@ -169,13 +181,13 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
             {shouldPing && (
                 <div className="absolute top-0 bottom-0 left-0 right-0 animate-ping rounded border-4 border-medium-primary bg-transparent" />
             )}
-            {props.isBusy ? (
+            {props.isBusy && !props.searchResult ? (
                 <div className="flex h-full flex-row items-center justify-center">
                     <ClipLoader size={24} color={WHITE} />
                     <h4 className="ml-2">Searching...</h4>
                 </div>
             ) : (
-                renderResult()
+                renderInner()
             )}
         </div>
     );

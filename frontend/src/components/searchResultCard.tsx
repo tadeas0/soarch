@@ -52,8 +52,9 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     };
 
     return (
-        <div className="py-3 px-2" style={getInlineStyles()}>
+        <div className="py-3 px-1" style={getInlineStyles()}>
             <div className="flex h-full w-full flex-row">
+                <h3 className="pr-2 text-xl">{searchResult.similarity}</h3>
                 <div className="flex h-full w-5/6 flex-col">
                     <h4>{searchResult.name}</h4>
                     <p className="text-sm">{searchResult.artist}</p>

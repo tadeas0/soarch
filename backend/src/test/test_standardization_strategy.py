@@ -2,6 +2,7 @@ import numpy as np
 from app.search_engine.strategy.standardization_strategy import (
     DefaultStrategy,
     RelativeIntervalStrategy,
+    BaselineIntervalStrategy,
 )
 
 
@@ -13,3 +14,8 @@ def test_default_strategy():
 def test_relative_interval_strategy():
     ris = RelativeIntervalStrategy()
     np.testing.assert_array_equal(ris.standardize([1, 2, 5, 4, 2]), [0, 1, 3, -1, -2])
+
+
+def test_baseline_interval_strategy():
+    bs = BaselineIntervalStrategy()
+    np.testing.assert_array_equal(bs.standardize([2, 3, 4, 1, 2]), [0, 1, 2, -1, 0])

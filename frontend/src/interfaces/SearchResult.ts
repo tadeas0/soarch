@@ -5,4 +5,5 @@ export interface SearchResult {
     name: string;
     notes: Note[];
     bpm: number;
+    similarity: number;
 }
