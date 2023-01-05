@@ -93,14 +93,20 @@ export const getGridParamsFromNotes = (notes: Note[]): GridParams => {
         const nMax = nMin + length;
         const midiPitch = n.pitch.toMidi();
         if (midiPitch < lowestNote)
-            throw new Error(
+            // throw new Error(
+            //     `Note ${midiPitch} is lower than minimum piano roll pitch ${lowestNote}`
+            // ); // TODO: move the note up by an octave, when it is too high
+            console.error(
                 `Note ${midiPitch} is lower than minimum piano roll pitch ${lowestNote}`
-            ); // TODO: move the note up by an octave, when it is too high
+            );
 
         if (midiPitch > highestNote)
-            throw new Error(
+            // throw new Error(
+            //     `Note ${midiPitch} is higher than maximum piano roll pitch ${highestNote}`
+            // ); // TODO: move the note down by an octave, when it is too high
+            console.error(
                 `Note ${midiPitch} is higher than maximum piano roll pitch ${highestNote}`
-            ); // TODO: move the note down by an octave, when it is too high
+            );
         if (minGridStart > nMin) minGridStart = nMin;
         if (nMax > minGridLength) minGridLength = nMax;
     }

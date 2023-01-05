@@ -13,7 +13,7 @@ import os
 from bs4 import BeautifulSoup
 import config
 
-FREMIDI_URL = "https://freemidi.org/topmidi"
+FREEMIDI_URL = "https://freemidi.org/topmidi"
 FREEMIDI_GETTER_URL = "https://freemidi.org/getter"
 ROBS_MIDI_LIB_URL = "http://www.storth.com/midi"
 
@@ -21,7 +21,10 @@ logger = logging.getLogger(config.SCRAPER_LOGGER)
 
 
 async def __download(
-    file_storage: FileStorage, url: str, file_name: str, session: ClientSession
+    file_storage: FileStorage,
+    url: str,
+    file_name: str,
+    session: ClientSession,
 ):
     logger.info(f"Downloading: {url} to {file_name}")
     res = await session.get(url, allow_redirects=True)
@@ -69,35 +72,50 @@ async def scrape_robs_midi_library(file_storage: FileStorage):
     logger.info(f"Finished scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
 
 
-async def scrape_free_midi(file_storage: FileStorage):
+async def __fetch_freemidi_links(link: str, session: ClientSession):
+    res = []
     logger.info(f"Scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
-    html = requests.get(f"{FREMIDI_URL}").content
+    html = await (await session.get(link)).text()
     soup = BeautifulSoup(html, features="html.parser")
     for i in soup.find_all("div", class_="song-list-container"):
         title_div = i.find("div", class_="top-mid-title")
         artist_div = i.find("div", class_="top-mid-dir")
         song_title = title_div.a["title"]
         artist = artist_div.a.contents[0]
-
-        logger.info(f"Downloading: {artist} - {song_title}")
-
         download_link = f"{FREEMIDI_GETTER_URL}-{title_div.a['href'].split('-')[1]}"
-        headers = {
-            "Host": "freemidi.org",
-            "Connection": "keep-alive",
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36",
-            "Accept-Encoding": "gzip, deflate, br",
-            "Accept-Language": "en-US,en;q=0.9",
-        }
-        session = requests.Session()
-        session.get(download_link, headers=headers)
-        r2 = session.get(download_link, headers=headers)
-        await file_storage.write(
-            os.path.join(config.RAW_MIDI_PREFIX, f"{artist} - {song_title}.mid"),
-            r2.content,
-        )
-    logger.info("Finished scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
+        full_name = f"{artist} - {song_title}"
+        res.append((full_name, download_link))
+    return res
+
+
+async def scrape_free_midi(file_storage: FileStorage):
+    logger.info(f"Scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
+    headers = {
+        "Host": "freemidi.org",
+        "Connection": "keep-alive",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+    async with ClientSession(headers=headers) as session:
+        links = await __fetch_freemidi_links(FREEMIDI_URL, session)
+
+        async def double_download(url: str, fullname: str):
+            await __download(
+                file_storage,
+                url,
+                os.path.join(config.RAW_MIDI_PREFIX, fullname + ".mid"),
+                session,
+            )
+            await __download(
+                file_storage,
+                url,
+                os.path.join(config.RAW_MIDI_PREFIX, fullname + ".mid"),
+                session,
+            )
+
+        await asyncio.gather(*[double_download(i[1], i[0]) for i in links])
+    logger.info(f"Finished scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
 
 
 async def parse_to_db(file_storage: FileStorage):

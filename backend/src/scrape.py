@@ -55,8 +55,7 @@ def cli(ctx):
     else:
         file_storage = LocalFileStorage(config.MIDI_DIR)
         logger.info("Using local file storage")
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(file_storage.initialize())
+    file_storage.initialize()
     ctx.obj["file_storage"] = file_storage
     ctx.obj["logger"] = logger
 
