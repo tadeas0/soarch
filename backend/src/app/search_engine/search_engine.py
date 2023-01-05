@@ -3,7 +3,7 @@ from multiprocessing.managers import ListProxy
 import config
 import numpy.typing as npt
 import numpy as np
-from app.midi.repository import SongRepository
+from app.midi.repository.repository import SongRepository
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from app.util.song import Song, Track
 import multiprocessing as mp

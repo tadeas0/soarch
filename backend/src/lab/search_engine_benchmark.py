@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from app.util.song import SongMetadata, Track
-from app.midi.repository import SongRepository
+from app.midi.repository.file_repository import FileRepository, SongRepository
 from app.search_engine.search_engine import SearchEngine
 import os
 import re
@@ -42,7 +42,7 @@ class Result:
 async def evaluate_search_engine(
     query: Track, expected_metadata: SongMetadata, search_engine: SearchEngine
 ) -> Result:
-    max_results = len(search_engine.repository.list_keys())
+    max_results = len(await search_engine.repository.list_keys())
     start_time = time.time()
     res = await search_engine.find_similar_async(max_results, query)
     duration = time.time() - start_time
@@ -107,7 +107,7 @@ def get_metadata_from_filepath(file_path: str):
 
 async def benchmark_search_engine():
     fs = LocalFileStorage(MIDI_DIR)
-    repo = SongRepository(fs)
+    repo = FileRepository(fs)
     repo.load_directory(PROCESSED_MIDI_PREFIX)
     repo.load_directory(RAW_EXAMPLE_PREFIX)
     # repo.load_directory(RAW_MIDI_PREFIX)

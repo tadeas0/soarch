@@ -9,23 +9,25 @@ from miditoolkit.midi import MidiFile
 import pickle
 import logging
 from app.util.song import Song, SongMetadata
+from app.midi.repository.repository import SongRepository
 import config
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
-class SongRepository:
+class FileRepository(SongRepository):
     def __init__(self, file_storage: FileStorage) -> None:
         self.file_storage = file_storage
         self.directories: list[str] = []
+        super().__init__()
 
     def load_directory(self, directory: str) -> None:
         logger.debug(f"Loading directory {directory}")
         self.directories.append(directory)
         logger.debug(f"Loaded directory {directory}")
 
-    def list_keys(self) -> list[str]:
+    async def list_keys(self) -> list[str]:
         extensions = ("mid", "pkl")
         keys: list[str] = []
         for d in self.directories:
@@ -106,6 +108,6 @@ class SongRepository:
         return asyncio.as_completed(
             [
                 self.__load_song_bytes(*i)
-                for i in await self.file_storage.read_all_keys(keys)
+                for i in await self.file_storage.read_all_keys(await keys)
             ]
         )

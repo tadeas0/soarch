@@ -1,7 +1,8 @@
+from app.midi.repository.file_repository import FileRepository
 import config
 from app.util.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
-from app.midi.repository import SongRepository
 import json
+from app.util.logging import setup_logging
 
 if config.CLOUD_STORAGE_CREDENTIALS:
     file_storage: FileStorage = GoogleCloudFileStorage(
@@ -12,4 +13,4 @@ if config.CLOUD_STORAGE_CREDENTIALS:
 else:
     file_storage = LocalFileStorage(config.MIDI_DIR)
 
-repository = SongRepository(file_storage)
+repository = FileRepository(file_storage)
