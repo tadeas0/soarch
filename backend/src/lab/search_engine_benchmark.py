@@ -10,6 +10,9 @@ from app.util.parser.midi_parser import MidiParser
 import time
 from random import shuffle
 import numpy as np
+import config
+from app.util.helpers import get_metadata_from_filepath
+from app.midi.repository.mongo_repository import MongoRepository
 
 from config import (
     MEASURE_LENGTH,
@@ -108,6 +111,7 @@ def get_metadata_from_filepath(file_path: str):
 async def benchmark_search_engine():
     fs = LocalFileStorage(MIDI_DIR)
     repo = FileRepository(fs)
+    # mongo_repo = MongoRepository(config.MONGODB_URL)
     repo.load_directory(PROCESSED_MIDI_PREFIX)
     repo.load_directory(RAW_EXAMPLE_PREFIX)
     # repo.load_directory(RAW_MIDI_PREFIX)
@@ -129,6 +133,8 @@ async def benchmark_search_engine():
     # await benchmark_similarities()
     # await benchmark_standardization()
     # await benchmark_segmentation(repo)
+    # await benchmark_repository(repo)
+    # await benchmark_repository(mongo_repo)
 
 
 async def benchmark_similarities():
@@ -173,3 +179,13 @@ async def benchmark_segmentation(repo: SongRepository):
             segmentation().segment(i, MEASURE_LENGTH)  # type: ignore
         duration = time.time() - start_time
         print(f"{segmentation.__name__},{duration}")
+
+
+async def benchmark_repository(repo: SongRepository):
+    songs = []
+    start_time = time.time()
+    await repo.list_keys()
+    for i in await repo.get_all_songs():
+        songs.append(await i)
+    end_time = time.time()
+    print(f"time: {end_time - start_time}")

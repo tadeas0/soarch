@@ -11,6 +11,7 @@ import logging
 from app.util.song import Song, SongMetadata
 from app.midi.repository.repository import SongRepository
 import config
+from app.util.helpers import get_metadata_from_filepath
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
@@ -66,16 +67,8 @@ class FileRepository(SongRepository):
             MidiFile(file=io.BytesIO(await self.file_storage.read(file_path)))
         )
         logger.debug(f"Parsed file {file_path}")
-        last = file_path.split("/")[-1]
 
-        m = re.match(r"(.*) - (.*)\.mid$", last)
-        artist = "Unknown artist"
-        name = "Unknown song"
-        if m and m.group(1):
-            artist = m.group(1)
-        if m and m.group(2):
-            name = m.group(2)
-        song.metadata = SongMetadata(artist, name)
+        song.metadata = get_metadata_from_filepath(file_path)
         return song
 
     async def __load_song_bytes(self, file_path: str, content: bytes) -> Song:
@@ -90,16 +83,8 @@ class FileRepository(SongRepository):
     async def __parse_midi(self, midi: bytes, file_path: str):
         song = MidiParser.parse(MidiFile(file=io.BytesIO(midi)))
         logger.debug(f"Parsed file {file_path}")
-        last = file_path.split("/")[-1]
 
-        m = re.match(r"(.*) - (.*)\.mid$", last)
-        artist = "Unknown artist"
-        name = "Unknown song"
-        if m and m.group(1):
-            artist = m.group(1)
-        if m and m.group(2):
-            name = m.group(2)
-        song.metadata = SongMetadata(artist, name)
+        song.metadata = get_metadata_from_filepath(file_path)
         return song
 
     async def get_all_songs(self) -> Iterable[Future[Song]]:
