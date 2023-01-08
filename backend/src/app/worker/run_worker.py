@@ -1,6 +1,6 @@
 from app.util.logging import setup_logging
 import config
-from . import repository, file_storage
+from . import file_storage
 import dramatiq
 from dramatiq.results import Results
 from dramatiq.brokers.redis import RedisBroker
@@ -20,10 +20,6 @@ class InitRepoMiddleware(dramatiq.Middleware):
         file_storage.initialize()
         logger.info("File storage initialized")
 
-        repository.load_directory(config.RAW_MIDI_PREFIX)
-        repository.load_directory(config.PROCESSED_MIDI_PREFIX)
-        repository.load_directory(config.RAW_EXAMPLE_PREFIX)
-        repository.load_directory(config.PROCESSED_EXAMPLE_PREFIX)
         return super().before_declare_actor(broker, actor)
 
 

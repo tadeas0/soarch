@@ -7,6 +7,7 @@ from gcloud.aio.storage import storage as aio_storage
 from redis import asyncio as aioredis
 import io
 import json
+import os
 from app.util.filestorage import FileStorage
 
 
@@ -19,11 +20,18 @@ class GoogleCloudFileStorage(FileStorage):
         credentials_json: dict,
         bucket_name: str,
         redis_url: Optional[str] = None,
+        prefix: Optional[str] = None,
     ) -> None:
         self.__creds = credentials_json
         self.__redis_url = redis_url
         self.__bucket_name = bucket_name
         self.__storage_client = None
+        self.__prefix = prefix
+
+    def __prep_key(self, key: str) -> str:
+        if self.__prefix:
+            return os.path.join(self.__prefix, key.strip("/"))
+        return key
 
     def initialize(self) -> None:
         logger.debug("Google cloud file storage initialized")
@@ -31,8 +39,12 @@ class GoogleCloudFileStorage(FileStorage):
     def list_all(self) -> list[str]:
         logger.debug("Listing files")
         storage_client = self.get_storage_client()
+        pref = len(self.__prefix) if self.__prefix else 0
         return list(
-            map(lambda a: a.name, storage_client.list_blobs(self.__bucket_name))
+            map(
+                lambda a: a.name[pref:],
+                storage_client.list_blobs(self.__bucket_name, prefix=self.__prefix),
+            )
         )
 
     def get_storage_client(self):
@@ -55,10 +67,12 @@ class GoogleCloudFileStorage(FileStorage):
     def list_prefix(self, prefix: str) -> list[str]:
         logger.debug(f"Listing files with prefix {prefix}")
         storage_client = self.get_storage_client()
+        prep_prefix = self.__prep_key(prefix)
+        pref = len(self.__prefix) if self.__prefix else 0
         return list(
             map(
-                lambda a: a.name,
-                storage_client.list_blobs(self.__bucket_name, prefix=prefix),
+                lambda a: a.name[pref:],
+                storage_client.list_blobs(self.__bucket_name, prefix=prep_prefix),
             )
         )
 
@@ -69,20 +83,21 @@ class GoogleCloudFileStorage(FileStorage):
         async_client: Optional[aio_storage.Storage] = None,
     ) -> bytes:
         handled_redis_cache = False
+        prep_key = self.__prep_key(key)
         if self.__redis_url and not redis_cache and not async_client:
             redis_cache = self.get_redis_cache()
             handled_redis_cache = True
-        if redis_cache and (res := await redis_cache.get(key)):
+        if redis_cache and (res := await redis_cache.get(prep_key)):
             if handled_redis_cache:
                 await redis_cache.close()
             return res
         if async_client:
-            down = await async_client.download(self.__bucket_name, key, timeout=90)
+            down = await async_client.download(self.__bucket_name, prep_key, timeout=90)
         else:
             async with self.get_async_client() as ac:
-                down = await ac.download(self.__bucket_name, key, timeout=90)
+                down = await ac.download(self.__bucket_name, prep_key, timeout=90)
         if redis_cache:
-            await redis_cache.set(key, down)
+            await redis_cache.set(prep_key, down)
         if handled_redis_cache and redis_cache:
             await redis_cache.close()
         return down
@@ -97,12 +112,13 @@ class GoogleCloudFileStorage(FileStorage):
 
     async def write(self, key: str, content: Any) -> None:
         logger.debug(f"Writing key: {key}")
+        prep_key = self.__prep_key(key)
         if self.__redis_url:
             async with self.get_redis_cache() as redis_cache:
-                await redis_cache.set(key, content)
-                logger.debug(await redis_cache.get(key))
+                await redis_cache.set(prep_key, content)
+                logger.debug(await redis_cache.get(prep_key))
         async with self.get_async_client() as async_client:
-            await async_client.upload(self.__bucket_name, key, content, timeout=90)
+            await async_client.upload(self.__bucket_name, prep_key, content, timeout=90)
 
     async def read_all_keys(self, keys: list[str]) -> Iterable[tuple[str, bytes]]:
         if self.__redis_url:

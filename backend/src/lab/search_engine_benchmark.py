@@ -4,21 +4,16 @@ from app.util.song import SongMetadata, Track
 from app.midi.repository.file_repository import FileRepository, SongRepository
 from app.search_engine.search_engine import SearchEngine
 import os
-import re
 from miditoolkit import MidiFile
 from app.util.parser.midi_parser import MidiParser
 import time
 from random import shuffle
 import numpy as np
-import config
 from app.util.helpers import get_metadata_from_filepath
-from app.midi.repository.mongo_repository import MongoRepository
 
 from config import (
     MEASURE_LENGTH,
     MIDI_DIR,
-    PROCESSED_MIDI_PREFIX,
-    RAW_EXAMPLE_PREFIX,
 )
 from app.search_engine.strategy.melody_extraction_strategy import (
     MelodyExtractionStrategy,
@@ -28,7 +23,10 @@ from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from app.search_engine.strategy.segmentation_strategy import SegmentationStrategy
 
 
-CSV_HEADER = "duration,extraction,standardization,segmentation,similarity,result_position,query_name"
+CSV_HEADER = (
+    "duration,extraction,standardization,"
+    "segmentation,similarity,result_position,query_name"
+)
 
 
 @dataclass
@@ -95,26 +93,10 @@ def result_to_csv_row(result: Result):
     )
 
 
-def get_metadata_from_filepath(file_path: str):
-    last = file_path.split("/")[-1]
-
-    m = re.match(r"(.*) - (.*)\.mid$", last)
-    artist = "Unknown artist"
-    name = "Unknown song"
-    if m and m.group(1):
-        artist = m.group(1)
-    if m and m.group(2):
-        name = m.group(2)
-    return SongMetadata(artist, name)
-
-
 async def benchmark_search_engine():
     fs = LocalFileStorage(MIDI_DIR)
     repo = FileRepository(fs)
     # mongo_repo = MongoRepository(config.MONGODB_URL)
-    repo.load_directory(PROCESSED_MIDI_PREFIX)
-    repo.load_directory(RAW_EXAMPLE_PREFIX)
-    # repo.load_directory(RAW_MIDI_PREFIX)
     queries: list[tuple[Track, SongMetadata]] = []
     queries_path = "../midi_files/queries"
     for i in os.listdir(queries_path):
@@ -143,8 +125,8 @@ async def benchmark_similarities():
     for i in range(comparisons * 2):
         arrays.append(np.random.randint(0, 127, size=8))
     shuffle(arrays)
-    a1 = arrays[: len(arrays) // 2]
-    a2 = arrays[len(arrays) // 2 :]
+    a1 = arrays[:len(arrays) // 2]
+    a2 = arrays[len(arrays) // 2:]
     for similarity in SimilarityStrategy.__subclasses__():
         start_time = time.time()
         for i1, i2 in zip(a1, a2):
@@ -175,8 +157,8 @@ async def benchmark_segmentation(repo: SongRepository):
 
     for segmentation in SegmentationStrategy.__subclasses__():
         start_time = time.time()
-        for i in tracks:
-            segmentation().segment(i, MEASURE_LENGTH)  # type: ignore
+        for j in tracks:
+            segmentation().segment(j, MEASURE_LENGTH)  # type: ignore
         duration = time.time() - start_time
         print(f"{segmentation.__name__},{duration}")
 

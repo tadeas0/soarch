@@ -14,10 +14,6 @@ class SongRepository(ABC):
         pass
 
     @abstractmethod
-    def load_directory(self, directory: str) -> None:
-        pass
-
-    @abstractmethod
     async def list_keys(self) -> list[str]:
         pass
 
@@ -27,4 +23,12 @@ class SongRepository(ABC):
 
     @abstractmethod
     async def get_all_songs(self) -> Iterable[Future[Song]]:
+        pass
+
+    @abstractmethod
+    async def insert(self, song: Song) -> None:
+        pass
+
+    @abstractmethod
+    async def insert_many(self, songs: Iterable[Song]) -> None:
         pass

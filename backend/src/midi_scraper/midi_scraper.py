@@ -1,17 +1,17 @@
 import asyncio
 import itertools
+from typing import AsyncIterable
 from aiohttp import ClientSession
 import logging
 import io
-import pickle
 from miditoolkit.midi import MidiFile
-import requests
 from app.util.filestorage import FileStorage
-from app.util.song import SongMetadata
+from app.util.song import Song
 from app.util.parser import MidiParser
-import os
 from bs4 import BeautifulSoup
+from app.midi.repository.repository import SongRepository
 import config
+from app.util.helpers import get_metadata_from_filepath
 
 FREEMIDI_URL = "https://freemidi.org/topmidi"
 FREEMIDI_GETTER_URL = "https://freemidi.org/getter"
@@ -48,7 +48,7 @@ async def __fetch_robs_links(letter: str, session: ClientSession):
 
 
 async def scrape_robs_midi_library(file_storage: FileStorage):
-    logger.info(f"Scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
+    logger.info("Scraping Rob's midi library")
     links: list[tuple[str, str]]
     async with ClientSession() as session:
         links_nest = await asyncio.gather(
@@ -63,18 +63,18 @@ async def scrape_robs_midi_library(file_storage: FileStorage):
                 __download(
                     file_storage,
                     link,
-                    os.path.join(config.RAW_MIDI_PREFIX, f"{name}.mid"),
+                    f"{name}.mid",
                     session,
                 )
                 for name, link in links
             ]
         )
-    logger.info(f"Finished scraping Rob's midi library to {config.RAW_MIDI_PREFIX}")
+    logger.info("Finished scraping Rob's midi library")
 
 
 async def __fetch_freemidi_links(link: str, session: ClientSession):
     res = []
-    logger.info(f"Scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
+    logger.info("Scraping FreeMidi library")
     html = await (await session.get(link)).text()
     soup = BeautifulSoup(html, features="html.parser")
     for i in soup.find_all("div", class_="song-list-container"):
@@ -89,11 +89,14 @@ async def __fetch_freemidi_links(link: str, session: ClientSession):
 
 
 async def scrape_free_midi(file_storage: FileStorage):
-    logger.info(f"Scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
+    logger.info("Scraping FreeMidi library")
     headers = {
         "Host": "freemidi.org",
         "Connection": "keep-alive",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36",
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36"
+        ),
         "Accept-Encoding": "gzip, deflate, br",
         "Accept-Language": "en-US,en;q=0.9",
     }
@@ -104,35 +107,31 @@ async def scrape_free_midi(file_storage: FileStorage):
             await __download(
                 file_storage,
                 url,
-                os.path.join(config.RAW_MIDI_PREFIX, fullname + ".mid"),
+                fullname + ".mid",
                 session,
             )
             await __download(
                 file_storage,
                 url,
-                os.path.join(config.RAW_MIDI_PREFIX, fullname + ".mid"),
+                fullname + ".mid",
                 session,
             )
 
         await asyncio.gather(*[double_download(i[1], i[0]) for i in links])
-    logger.info(f"Finished scraping FreeMidi library to {config.RAW_MIDI_PREFIX}")
+    logger.info("Finished scraping FreeMidi library")
 
 
-async def parse_to_db(file_storage: FileStorage):
-    logger.info(
-        f"Parsing files from {config.RAW_MIDI_PREFIX} to {config.PROCESSED_MIDI_PREFIX}"
-    )
-    for i in file_storage.list_prefix(config.RAW_MIDI_PREFIX):
-        logger.info(f"Parsing: {i}")
+async def list_raw_songs(file_storage: FileStorage) -> AsyncIterable[Song]:
+    for i in file_storage.list_all():
         try:
             mid = MidiFile(file=io.BytesIO(await file_storage.read(i)))
             song = MidiParser.parse(mid)
-            iclean = i.split("/")[-1].replace(".mid", "")
-            isplit = iclean.split(" - ")
-            song.metadata = SongMetadata(isplit[0], isplit[1])
-            await file_storage.write(
-                os.path.join(config.PROCESSED_MIDI_PREFIX, f"{iclean}.pkl"),
-                pickle.dumps(song),
-            )
+            song.metadata = get_metadata_from_filepath(i)
+            yield song
         except Exception as e:
             logger.info(f"Could not parse {i}. {e}")
+
+
+async def parse_to_db(file_storage: FileStorage, repository: SongRepository):
+    logger.info("Parsing files")
+    await repository.insert_many([i async for i in list_raw_songs(file_storage)])

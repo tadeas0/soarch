@@ -13,3 +13,7 @@ def get_metadata_from_filepath(file_path: str):
     if m and m.group(2):
         name = m.group(2)
     return SongMetadata(artist, name)
+
+
+def get_filename_from_metadata(metadata: SongMetadata, extension="pkl"):
+    return f"{metadata.artist} - {metadata.name}.{extension}"

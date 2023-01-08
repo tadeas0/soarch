@@ -21,8 +21,13 @@ class MongoRepository(SongRepository):
             config.SONGS_COLLECTION
         ]
 
-    def load_directory(self, directory: str) -> None:
-        pass
+    async def insert(self, song: Song) -> None:
+        await self.__get_client().insert_one(MongoSerializer.serialize(song))
+
+    async def insert_many(self, songs: Iterable[Song]) -> None:
+        await self.__get_client().insert_many(
+            [MongoSerializer.serialize(i) for i in songs]
+        )
 
     async def list_keys(self) -> list[str]:
         client = self.__get_client()
@@ -37,7 +42,7 @@ class MongoRepository(SongRepository):
         client = self.__get_client()
         f = []
         async for i in client.find({}):
-            fut = Future()
+            fut: Future[Song] = Future()
             fut.set_result(MongoSerializer.deserialize(i))
             f.append(fut)
 
