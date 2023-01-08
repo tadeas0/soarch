@@ -2,6 +2,7 @@ services:
     backend:
         environment:
             - ENV=dev
+            - MONGODB_URL=mongodb://mongodb:27017/soarch-db
         volumes:
             - ./backend:/backend
             - ./midi_files:/midi_files
@@ -17,6 +18,10 @@ services:
         environment:
             - ENV=dev
             - PROCESS_COUNT=6
+            - MONGODB_URL=mongodb://mongodb:27017/soarch-db
         volumes:
             - ./backend:/backend
             - ./midi_files:/midi_files
+    mongo:
+        image: mongo:latest
+        container_name: mongodb
