@@ -1,6 +1,6 @@
 from asyncio import Future
 import logging
-from typing import Iterable
+from typing import AsyncIterable, Iterable
 from app.midi.repository.repository import SongRepository
 from app.util.song import Song
 from app.util.mongo_serializer import MongoSerializer
@@ -38,12 +38,7 @@ class MongoRepository(SongRepository):
         client = self.__get_client()
         return MongoSerializer.deserialize(await client.find_one({"_id": file_path}))
 
-    async def get_all_songs(self) -> Iterable[Future[Song]]:
+    async def get_all_songs(self) -> AsyncIterable[Song]:
         client = self.__get_client()
-        f = []
         async for i in client.find({}):
-            fut: Future[Song] = Future()
-            fut.set_result(MongoSerializer.deserialize(i))
-            f.append(fut)
-
-        return f
+            yield MongoSerializer.deserialize(i)

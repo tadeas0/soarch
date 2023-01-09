@@ -1,7 +1,7 @@
 from asyncio import Future
 import asyncio
 import io
-from typing import Iterable
+from typing import AsyncIterable, Iterable
 from app.util.filestorage import FileStorage
 from app.util.parser import MidiParser
 from miditoolkit.midi import MidiFile
@@ -97,12 +97,13 @@ class FileRepository(SongRepository):
         song.metadata = get_metadata_from_filepath(file_path)
         return song
 
-    async def get_all_songs(self) -> Iterable[Future[Song]]:
+    async def get_all_songs(self) -> AsyncIterable[Song]:
         keys = self.list_keys()
 
-        return asyncio.as_completed(
+        for i in asyncio.as_completed(
             [
                 self.__load_song_bytes(*i)
                 for i in await self.file_storage.read_all_keys(await keys)
             ]
-        )
+        ):
+            yield await i

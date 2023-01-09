@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from asyncio import Future
-from typing import Iterable
+from typing import AsyncIterable, Iterable
 import logging
 from app.util.song import Song
 import config
@@ -22,7 +22,7 @@ class SongRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_all_songs(self) -> Iterable[Future[Song]]:
+    def get_all_songs(self) -> AsyncIterable[Song]:
         pass
 
     @abstractmethod
