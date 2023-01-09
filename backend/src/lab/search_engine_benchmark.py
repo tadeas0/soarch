@@ -10,6 +10,7 @@ import time
 from random import shuffle
 import numpy as np
 from app.util.helpers import get_metadata_from_filepath
+from app.search_engine.preprocessor import Preprocessor
 
 from config import (
     MEASURE_LENGTH,
@@ -50,9 +51,9 @@ async def evaluate_search_engine(
     result_pos = [i[1].metadata for i in res].index(expected_metadata)
     return Result(
         duration,
-        search_engine.extraction_strategy.__class__.__name__,
-        search_engine.standardization_strategy.__class__.__name__,
-        search_engine.segmentation_strategy.__class__.__name__,
+        search_engine.preprocessor.melody_extraction_strategy.__class__.__name__,
+        search_engine.preprocessor.standardization_strategy.__class__.__name__,
+        search_engine.preprocessor.segmentation_strategy.__class__.__name__,
         search_engine.similarity_strategy.__class__.__name__,
         result_pos,
         f"{expected_metadata.artist} - {expected_metadata.name}",
@@ -67,12 +68,15 @@ async def test_all_combinations(
         for standardization in StandardizationStrategy.__subclasses__():
             for segmentation in SegmentationStrategy.__subclasses__():
                 for extraction in MelodyExtractionStrategy.__subclasses__():
-                    se = SearchEngine(
-                        repo,
+                    prep = Preprocessor(
                         extraction(),  # type: ignore
                         standardization(),  # type: ignore
-                        similarity(),  # type: ignore
                         segmentation(),  # type: ignore
+                    )
+                    se = SearchEngine(
+                        repo,
+                        prep,
+                        similarity(),  # type: ignore
                     )
                     r = await evaluate_search_engine(query, expected_metadata, se)
                     results.append(r)

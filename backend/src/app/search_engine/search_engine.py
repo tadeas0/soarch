@@ -7,11 +7,8 @@ from app.midi.repository.repository import SongRepository
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from app.util.song import Song, Track
 import multiprocessing as mp
-from app.search_engine.strategy.melody_extraction_strategy import (
-    MelodyExtractionStrategy,
-)
-from app.search_engine.strategy.standardization_strategy import StandardizationStrategy
-from app.search_engine.strategy.segmentation_strategy import SegmentationStrategy
+from app.search_engine.preprocessor import Preprocessor
+
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
@@ -22,23 +19,19 @@ class SearchEngine:
     def __init__(
         self,
         repository: SongRepository,
-        extraction_strategy: MelodyExtractionStrategy,
-        standardization_strategy: StandardizationStrategy,
+        preprocessor: Preprocessor,
         similarity_strategy: SimilarityStrategy,
-        segmentation_strategy: SegmentationStrategy,
     ) -> None:
         self.repository = repository
-        self.extraction_strategy = extraction_strategy
-        self.standardization_strategy = standardization_strategy
         self.similarity_strategy = similarity_strategy
-        self.segmentation_strategy = segmentation_strategy
+        self.preprocessor = preprocessor
 
     async def find_similar_async(
         self, n: int, query_track: Track
     ) -> list[tuple[float, Song, Track]]:
         logger.info("Searching song")
         songs: list[tuple[float, Song, Track]] = []
-        query_prep = self.__preprocess_track(query_track)
+        query_prep = self.preprocessor.prep_track(query_track)
         in_q: mp.Queue = mp.Queue()
         manager = mp.Manager()
         results_buff = manager.list()
@@ -119,28 +112,14 @@ class SearchEngine:
                 for i in res:
                     results.append((i[0], song, i[1]))
 
-    def __segment_song(self, song: Song, segment_len: int) -> list[Track]:
-        res = []
-        for track in song.tracks:
-            segments = self.segmentation_strategy.segment(track, segment_len)
-            res.extend(segments)
-        return res
-
     def __compare_songs(
         self, song: Song, query_track: Track, preprocessed_query: npt.NDArray[np.int64]
     ) -> list[tuple[float, Track]]:
         results: list[tuple[float, Track]] = []
-        segments = self.__segment_song(song, query_track.grid_length)
+        segments = self.preprocessor.preprocess(song, query_track.grid_length)
         for segment in segments:
-            sim = self.__compare_query(segment, preprocessed_query)
-            results.append((sim, segment))
+            sim = self.similarity_strategy.compare(
+                segment.processed_notes, preprocessed_query
+            )
+            results.append((sim, segment.track))
         return results
-
-    def __compare_query(self, track: Track, prep_query: npt.NDArray[np.int64]) -> float:
-        prep_seg = self.__preprocess_track(track)
-        sim = self.similarity_strategy.compare(prep_query, prep_seg)
-        return sim
-
-    def __preprocess_track(self, track: Track) -> npt.NDArray[np.int64]:
-        m = self.extraction_strategy.extract(track)
-        return self.standardization_strategy.standardize(m)
