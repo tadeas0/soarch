@@ -14,6 +14,7 @@ services:
             - HYPERCORN_CMD_ARGS=--reload
             - REDIS_QUEUE_URL=redis://redis-queue
             - PORT=8080
+            - MONGODB_URL=mongodb://mongodb:27017/soarch-db
         ports:
             - "8080:8080"
     frontend:
@@ -28,7 +29,11 @@ services:
         build: backend
         environment:
             - REDIS_QUEUE_URL=redis://redis-queue
+            - MONGODB_URL=mongodb://mongodb:27017/soarch-db
         container_name: midi-search-worker
         image: midi-search-worker
         entrypoint: dramatiq
         command: app.worker.run_worker app.worker.tasks --path src/ --processes 1 --threads 1 --watch .
+    mongo:
+        image: mongo:latest
+        container_name: mongodb
