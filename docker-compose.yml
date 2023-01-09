@@ -1,11 +1,6 @@
 version: "3"
 
 services:
-    redis:
-        image: redis:alpine
-        container_name: redis-cache
-        expose:
-            - "6379"
     redis-queue:
         image: redis:alpine
         container_name: redis-queue
@@ -13,15 +8,10 @@ services:
             - "6379"
     backend:
         build: backend
-        depends_on:
-            - redis
         container_name: midi-search-backend
         image: midi-search-backend
         environment:
-            - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
-            - BUCKET_NAME=${BUCKET_NAME}
             - HYPERCORN_CMD_ARGS=--reload
-            - REDIS_CACHE_URL=redis://redis-cache
             - REDIS_QUEUE_URL=redis://redis-queue
             - PORT=8080
         ports:
@@ -29,7 +19,6 @@ services:
     frontend:
         build: frontend
         depends_on:
-            - redis
             - backend
         container_name: midi-search-frontend
         image: midi-search-frontend
@@ -38,12 +27,7 @@ services:
     worker:
         build: backend
         environment:
-            - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
-            - BUCKET_NAME=${BUCKET_NAME}
-            - REDIS_CACHE_URL=redis://redis-cache
             - REDIS_QUEUE_URL=redis://redis-queue
-        depends_on:
-            - redis
         container_name: midi-search-worker
         image: midi-search-worker
         entrypoint: dramatiq

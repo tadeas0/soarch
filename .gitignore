@@ -10,3 +10,4 @@ midi_files_robs
 analysis
 heroku_deploy
 .env*
+mongo_data/
