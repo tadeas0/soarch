@@ -1,4 +1,3 @@
-from asyncio import Future
 import unittest.mock
 from app.util.song import Note, Song, SongMetadata, Track
 from app.midi.repository.file_repository import FileRepository
@@ -21,13 +20,9 @@ async def load_song_async_mock(cls, file_path: str):
 
 
 async def get_all_songs(cls):
-    res = []
     for i in range(5):
         track = Track([Note(0, 10, 0)], 100)
-        f = Future()
-        f.set_result(Song([track], 120, SongMetadata(f"artist{i}", f"song{i}")))
-        res.append(f)
-    return res
+        yield Song([track], 120, SongMetadata(f"artist{i}", f"song{i}"))
 
 
 class MockFileStorage(FileStorage):

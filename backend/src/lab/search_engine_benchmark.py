@@ -152,8 +152,8 @@ async def benchmark_standardization():
 async def benchmark_segmentation(repo: SongRepository):
     tracks = []
 
-    for i in await repo.get_all_songs():
-        tracks.extend((await i).tracks)
+    async for i in repo.get_all_songs():
+        tracks.extend((i).tracks)
 
     for segmentation in SegmentationStrategy.__subclasses__():
         start_time = time.time()
@@ -167,7 +167,7 @@ async def benchmark_repository(repo: SongRepository):
     songs = []
     start_time = time.time()
     await repo.list_keys()
-    for i in await repo.get_all_songs():
-        songs.append(await i)
+    async for i in repo.get_all_songs():
+        songs.append(i)
     end_time = time.time()
     print(f"time: {end_time - start_time}")

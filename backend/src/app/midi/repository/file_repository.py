@@ -1,4 +1,3 @@
-from asyncio import Future
 import asyncio
 import io
 from typing import AsyncIterable, Iterable

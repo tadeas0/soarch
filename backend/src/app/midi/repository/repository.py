@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from asyncio import Future
 from typing import AsyncIterable, Iterable
 import logging
 from app.util.song import Song
