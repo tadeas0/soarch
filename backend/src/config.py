@@ -20,3 +20,6 @@ DEFAULT_STRATEGY = "lcs"
 REDIS_CACHE_URL = os.getenv("REDIS_CACHE_URL", "")
 REDIS_QUEUE_URL = os.getenv("REDIS_QUEUE_URL", "")
 PROCESS_COUNT = int(os.getenv("PROCESS_COUNT", 4))
+MONGODB_URL = os.getenv("MONGODB_URL", "")
+SONGS_DB = "songs_db"
+SONGS_COLLECTION = "songs_collection"

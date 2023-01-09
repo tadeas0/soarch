@@ -3,7 +3,7 @@ from multiprocessing.managers import ListProxy
 import config
 import numpy.typing as npt
 import numpy as np
-from app.midi.repository import SongRepository
+from app.midi.repository.repository import SongRepository
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from app.util.song import Song, Track
 import multiprocessing as mp
@@ -89,10 +89,9 @@ class SearchEngine:
         return unique_results
 
     async def __fetch_files_to_queue(self, q: mp.Queue) -> None:
-        for future in await self.repository.get_all_songs():
+        async for song in self.repository.get_all_songs():
             try:
-                res = await future
-                q.put(res)
+                q.put(song)
             except IOError as e:
                 logger.warning(f"Failed to parse song {e}")
 

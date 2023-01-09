@@ -5,5 +5,9 @@ __pycache__
 venv
 midi_files/processed
 midi_files/raw
+midi_files/queries
+midi_files_robs
+analysis
 heroku_deploy
 .env*
+mongo_data/

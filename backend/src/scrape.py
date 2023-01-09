@@ -1,3 +1,5 @@
+from app.midi.repository.mongo_repository import MongoRepository
+from app.midi.repository.file_repository import FileRepository
 import config
 import asyncio
 import os
@@ -47,17 +49,35 @@ def cli(ctx):
     ctx.ensure_object(dict)
     logger = __setup_logging()
     if config.CLOUD_STORAGE_CREDENTIALS:
-        file_storage: FileStorage = GoogleCloudFileStorage(
+        download_file_storage: FileStorage = GoogleCloudFileStorage(
             json.loads(config.CLOUD_STORAGE_CREDENTIALS),
             config.BUCKET_NAME,
+            prefix=config.RAW_MIDI_PREFIX,
+        )
+        upload_file_storage: FileStorage = GoogleCloudFileStorage(
+            json.loads(config.CLOUD_STORAGE_CREDENTIALS),
+            config.BUCKET_NAME,
+            prefix=config.PROCESSED_MIDI_PREFIX,
         )
         logger.info("Using google cloud file storage")
     else:
-        file_storage = LocalFileStorage(config.MIDI_DIR)
+        download_file_storage = LocalFileStorage(
+            os.path.join(config.MIDI_DIR, config.RAW_MIDI_PREFIX)
+        )
+        upload_file_storage: FileStorage = LocalFileStorage(
+            os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX)
+        )
         logger.info("Using local file storage")
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(file_storage.initialize())
-    ctx.obj["file_storage"] = file_storage
+    if config.MONGODB_URL:
+        repository = MongoRepository(config.MONGODB_URL)
+        logger.info("Using mongo repository")
+    else:
+        repository = FileRepository(upload_file_storage)
+        logger.info("Using file repository")
+
+    download_file_storage.initialize()
+    ctx.obj["download_file_storage"] = download_file_storage
+    ctx.obj["repository"] = repository
     ctx.obj["logger"] = logger
 
 
@@ -78,14 +98,15 @@ def cli(ctx):
 )
 @click.pass_context
 def download(ctx, robs, freemidi, parse):
-    file_storage = ctx.obj["file_storage"]
+    download_file_storage = ctx.obj["download_file_storage"]
+    repository = ctx.obj["repository"]
     loop = asyncio.get_event_loop()
     if freemidi:
-        loop.run_until_complete(scrape_free_midi(file_storage))
+        loop.run_until_complete(scrape_free_midi(download_file_storage))
     if robs:
-        loop.run_until_complete(scrape_robs_midi_library(file_storage))
+        loop.run_until_complete(scrape_robs_midi_library(download_file_storage))
     if parse:
-        loop.run_until_complete(parse_to_db(file_storage))
+        loop.run_until_complete(parse_to_db(download_file_storage, repository))
     if not parse and not robs and not freemidi:
         click.echo(ctx.get_help())
 
@@ -94,7 +115,7 @@ def download(ctx, robs, freemidi, parse):
 @click.pass_context
 def clean(ctx):
     logger = ctx.obj["logger"]
-    if type(ctx.obj["file_storage"]) != LocalFileStorage:
+    if type(ctx.obj["download_file_storage"]) != LocalFileStorage:
         click.echo("Cannot clean remote file storage")
         exit(1)
     path = os.path.realpath(config.MIDI_DIR)

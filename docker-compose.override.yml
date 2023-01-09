@@ -20,3 +20,14 @@ services:
         volumes:
             - ./backend:/backend
             - ./midi_files:/midi_files
+    mongo:
+        volumes:
+            - ./mongo_data:/data/db
+    mongo-express:
+        image: mongo-express
+        ports:
+            - 8081:8081
+        environment:
+            - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+            - ME_CONFIG_MONGODB_ADMINPASSWORD=example
+            - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017/

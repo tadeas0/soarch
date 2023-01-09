@@ -1,7 +1,6 @@
-from asyncio import Future
 import unittest.mock
 from app.util.song import Note, Song, SongMetadata, Track
-from app.midi.repository import SongRepository
+from app.midi.repository.file_repository import FileRepository
 from app.util.filestorage import FileStorage
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
@@ -21,13 +20,9 @@ async def load_song_async_mock(cls, file_path: str):
 
 
 async def get_all_songs(cls):
-    res = []
     for i in range(5):
         track = Track([Note(0, 10, 0)], 100)
-        f = Future()
-        f.set_result(Song([track], 120, SongMetadata(f"artist{i}", f"song{i}")))
-        res.append(f)
-    return res
+        yield Song([track], 120, SongMetadata(f"artist{i}", f"song{i}"))
 
 
 class MockFileStorage(FileStorage):
@@ -62,12 +57,12 @@ def assert_result(result, expected_len):
         assert isinstance(i[2], Track)
 
 
-@unittest.mock.patch.object(SongRepository, "list_keys", list_keys_mock)
-@unittest.mock.patch.object(SongRepository, "load_song_async", load_song_async_mock)
-@unittest.mock.patch.object(SongRepository, "get_all_songs", get_all_songs)
+@unittest.mock.patch.object(FileRepository, "list_keys", list_keys_mock)
+@unittest.mock.patch.object(FileRepository, "load_song_async", load_song_async_mock)
+@unittest.mock.patch.object(FileRepository, "get_all_songs", get_all_songs)
 @pytest.mark.asyncio
 async def test_find_similar_async():
-    repository = SongRepository(MockFileStorage())
+    repository = FileRepository(MockFileStorage())
     search_engine = SearchEngine(
         repository,
         TopNoteStrategy(),

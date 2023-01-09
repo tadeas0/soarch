@@ -1,39 +1,51 @@
-from asyncio import Future
 import asyncio
 import io
-import re
-from typing import Iterable
+from typing import AsyncIterable, Iterable
 from app.util.filestorage import FileStorage
 from app.util.parser import MidiParser
 from miditoolkit.midi import MidiFile
 import pickle
 import logging
-from app.util.song import Song, SongMetadata
+from app.util.song import Song
+from app.midi.repository.repository import SongRepository
 import config
+from app.util.helpers import get_metadata_from_filepath, get_filename_from_metadata
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
-class SongRepository:
+class FileRepository(SongRepository):
     def __init__(self, file_storage: FileStorage) -> None:
         self.file_storage = file_storage
         self.directories: list[str] = []
+        super().__init__()
 
-    def load_directory(self, directory: str) -> None:
-        logger.debug(f"Loading directory {directory}")
-        self.directories.append(directory)
-        logger.debug(f"Loaded directory {directory}")
+    async def insert(self, song: Song) -> None:
+        if not song.metadata:
+            raise ValueError("Missing song metadata")
 
-    def list_keys(self) -> list[str]:
+        filename = get_filename_from_metadata(song.metadata, "pkl")
+        obj = pickle.dumps(song)
+        await self.file_storage.write(filename, obj)
+
+    async def insert_many(self, songs: Iterable[Song]) -> None:
+        keys = []
+        for i in songs:
+            if not i.metadata:
+                raise ValueError("Missing song metadata")
+            filename = get_filename_from_metadata(i.metadata, "pkl")
+            keys.append(filename)
+        await asyncio.gather(
+            *[self.file_storage.write(k, pickle.dumps(v)) for k, v in zip(keys, songs)]
+        )
+
+    async def list_keys(self) -> list[str]:
         extensions = ("mid", "pkl")
         keys: list[str] = []
-        for d in self.directories:
-            dir_content = self.file_storage.list_prefix(d)
-            matched_files = filter(
-                lambda a: a.split(".")[-1] in extensions, dir_content
-            )
-            keys.extend(matched_files)
+        keys = [
+            i for i in self.file_storage.list_all() if i.split(".")[-1] in extensions
+        ]
 
         # Return only .mid keys, that do not have .pkl equivalent
         file_names = [i.split("/")[-1] for i in keys]
@@ -64,16 +76,8 @@ class SongRepository:
             MidiFile(file=io.BytesIO(await self.file_storage.read(file_path)))
         )
         logger.debug(f"Parsed file {file_path}")
-        last = file_path.split("/")[-1]
 
-        m = re.match(r"(.*) - (.*)\.mid$", last)
-        artist = "Unknown artist"
-        name = "Unknown song"
-        if m and m.group(1):
-            artist = m.group(1)
-        if m and m.group(2):
-            name = m.group(2)
-        song.metadata = SongMetadata(artist, name)
+        song.metadata = get_metadata_from_filepath(file_path)
         return song
 
     async def __load_song_bytes(self, file_path: str, content: bytes) -> Song:
@@ -88,24 +92,17 @@ class SongRepository:
     async def __parse_midi(self, midi: bytes, file_path: str):
         song = MidiParser.parse(MidiFile(file=io.BytesIO(midi)))
         logger.debug(f"Parsed file {file_path}")
-        last = file_path.split("/")[-1]
 
-        m = re.match(r"(.*) - (.*)\.mid$", last)
-        artist = "Unknown artist"
-        name = "Unknown song"
-        if m and m.group(1):
-            artist = m.group(1)
-        if m and m.group(2):
-            name = m.group(2)
-        song.metadata = SongMetadata(artist, name)
+        song.metadata = get_metadata_from_filepath(file_path)
         return song
 
-    async def get_all_songs(self) -> Iterable[Future[Song]]:
+    async def get_all_songs(self) -> AsyncIterable[Song]:
         keys = self.list_keys()
 
-        return asyncio.as_completed(
+        for i in asyncio.as_completed(
             [
                 self.__load_song_bytes(*i)
-                for i in await self.file_storage.read_all_keys(keys)
+                for i in await self.file_storage.read_all_keys(await keys)
             ]
-        )
+        ):
+            yield await i
