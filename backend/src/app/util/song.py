@@ -1,4 +1,6 @@
 from dataclasses import dataclass
+import numpy.typing as npt
+import numpy as np
 from typing import Optional
 
 
@@ -22,7 +24,14 @@ class SongMetadata:
 
 
 @dataclass
+class Segment:
+    track: Track
+    processed_notes: npt.NDArray[np.int64]
+
+
+@dataclass
 class Song:
     tracks: list[Track]
     bpm: int
     metadata: Optional[SongMetadata]
+    segments: Optional[list[Segment]] = None

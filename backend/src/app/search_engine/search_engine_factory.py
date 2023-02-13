@@ -4,6 +4,7 @@ from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrateg
 from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
+from app.search_engine.preprocessor import Preprocessor
 
 
 class SearchEngineFactory:
@@ -16,12 +17,13 @@ class SearchEngineFactory:
             # because the abstract class is never accessed
             # (__subclasses__() does not return the parent class)
             if i().shortcut == strategy_repr:  # type: ignore
+                prep = Preprocessor(
+                    TopNoteStrategy(), RelativeIntervalStrategy(), FixedLengthStrategy()
+                )
                 return SearchEngine(
                     repository,
-                    TopNoteStrategy(),
-                    RelativeIntervalStrategy(),
+                    prep,
                     i(),  # type: ignore
-                    FixedLengthStrategy(),
                 )
 
         raise ValueError("Unknown similarity strategy")

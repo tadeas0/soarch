@@ -8,6 +8,7 @@ from app.search_engine.strategy.standardization_strategy import RelativeInterval
 from app.search_engine.strategy.similarity_strategy import LCSStrategy
 from app.search_engine.strategy.segmentation_strategy import OneSegmentStrategy
 import pytest
+from app.search_engine.preprocessor import Preprocessor
 
 
 def list_keys_mock(cls):
@@ -63,12 +64,13 @@ def assert_result(result, expected_len):
 @pytest.mark.asyncio
 async def test_find_similar_async():
     repository = FileRepository(MockFileStorage())
+    prep = Preprocessor(
+        TopNoteStrategy(), RelativeIntervalStrategy(), OneSegmentStrategy()
+    )
     search_engine = SearchEngine(
         repository,
-        TopNoteStrategy(),
-        RelativeIntervalStrategy(),
+        prep,
         LCSStrategy(),
-        OneSegmentStrategy(),
     )
     query = Track([Note(0, 10, 32), Note(30, 10, 32)], 150)
     result1 = await search_engine.find_similar_async(2, query)
