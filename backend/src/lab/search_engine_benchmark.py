@@ -1,16 +1,19 @@
 from dataclasses import dataclass
 from app.util.filestorage.local_file_storage import LocalFileStorage
-from app.util.song import SongMetadata, Track
 from app.midi.repository.file_repository import FileRepository, SongRepository
+from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
+from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
+from app.search_engine.strategy.similarity_strategy import LocalAlignmentStrategyLib
+from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
 from app.search_engine.search_engine import SearchEngine
 import os
-from miditoolkit import MidiFile
-from app.util.parser.midi_parser import MidiParser
 import time
 from random import shuffle
 import numpy as np
-from app.util.helpers import get_metadata_from_filepath
 from app.search_engine.preprocessor import Preprocessor
+from lab.example_query import ExampleQuery
+import config
+import pickle
 
 from config import (
     MEASURE_LENGTH,
@@ -42,13 +45,13 @@ class Result:
 
 
 async def evaluate_search_engine(
-    query: Track, expected_metadata: SongMetadata, search_engine: SearchEngine
+    query: ExampleQuery, search_engine: SearchEngine
 ) -> Result:
     max_results = len(await search_engine.repository.list_keys())
     start_time = time.time()
-    res = await search_engine.find_similar_async(max_results, query)
+    res = await search_engine.find_similar_async(max_results, query.track)
     duration = time.time() - start_time
-    result_pos = [i[1].metadata for i in res].index(expected_metadata)
+    result_pos = [i[1].metadata for i in res].index(query.metadata)
     return Result(
         duration,
         search_engine.preprocessor.melody_extraction_strategy.__class__.__name__,
@@ -56,12 +59,12 @@ async def evaluate_search_engine(
         search_engine.preprocessor.segmentation_strategy.__class__.__name__,
         search_engine.similarity_strategy.__class__.__name__,
         result_pos,
-        f"{expected_metadata.artist} - {expected_metadata.name}",
+        f"{query.metadata.artist} - {query.metadata.name}",
     )
 
 
 async def test_all_combinations(
-    query: Track, expected_metadata: SongMetadata, repo: SongRepository
+    query: ExampleQuery, repo: SongRepository
 ) -> list[Result]:
     results = []
     for similarity in SimilarityStrategy.__subclasses__():
@@ -78,7 +81,7 @@ async def test_all_combinations(
                         prep,
                         similarity(),  # type: ignore
                     )
-                    r = await evaluate_search_engine(query, expected_metadata, se)
+                    r = await evaluate_search_engine(query, se)
                     results.append(r)
     return results
 
@@ -98,23 +101,26 @@ def result_to_csv_row(result: Result):
 
 
 async def benchmark_search_engine():
-    fs = LocalFileStorage(MIDI_DIR)
+    fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX))
     repo = FileRepository(fs)
     # mongo_repo = MongoRepository(config.MONGODB_URL)
-    queries: list[tuple[Track, SongMetadata]] = []
-    queries_path = "../midi_files/queries"
-    for i in os.listdir(queries_path):
-        filepath = os.path.join(queries_path, i)
-        mf = MidiFile(filepath)
-        song = MidiParser.parse(mf)
-        metadata = get_metadata_from_filepath(filepath)
-        query_tuple = (song.tracks[0], metadata)
-        queries.append(query_tuple)
+    query_dir = os.path.join(config.MIDI_DIR, config.QUERY_PREFIX)
+    queries: list[ExampleQuery] = []
+    for i in os.listdir(query_dir):
+        with open(os.path.join(query_dir, i), "rb") as f:
+            q = pickle.load(f)
+            queries.append(q)
+
     print(CSV_HEADER)
+    prep = Preprocessor(
+        TopNoteStrategy(), RelativeIntervalStrategy(), FixedLengthStrategy()
+    )
+    se = SearchEngine(repo, prep, LocalAlignmentStrategyLib())
     for i in queries:
-        res = await test_all_combinations(*i, repo)
-        for r in res:
-            print(result_to_csv_row(r))
+        res = await evaluate_search_engine(i, se)
+        print(result_to_csv_row(res))
+        # for r in res:
+        # print(result_to_csv_row(r))
 
     # await benchmark_similarities()
     # await benchmark_standardization()
@@ -129,8 +135,8 @@ async def benchmark_similarities():
     for i in range(comparisons * 2):
         arrays.append(np.random.randint(0, 127, size=8))
     shuffle(arrays)
-    a1 = arrays[:len(arrays) // 2]
-    a2 = arrays[len(arrays) // 2:]
+    a1 = arrays[: len(arrays) // 2]
+    a2 = arrays[len(arrays) // 2 :]
     for similarity in SimilarityStrategy.__subclasses__():
         start_time = time.time()
         for i1, i2 in zip(a1, a2):
