@@ -1,5 +1,4 @@
 import logging
-from multiprocessing.managers import ListProxy
 import config
 import numpy.typing as npt
 import numpy as np
@@ -8,6 +7,8 @@ from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from app.util.song import Song, Track
 import multiprocessing as mp
 from app.search_engine.preprocessor import Preprocessor
+import itertools
+from app.util.helpers import split_list
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
@@ -29,30 +30,21 @@ class SearchEngine:
     async def find_similar_async(
         self, n: int, query_track: Track
     ) -> list[tuple[float, Song, Track]]:
-        logger.info("Searching song")
-        songs: list[tuple[float, Song, Track]] = []
         query_prep = self.preprocessor.prep_track(query_track)
-        in_q: mp.Queue = mp.Queue()
-        manager = mp.Manager()
-        results_buff = manager.list()
-        consumers = [
-            mp.Process(
-                target=self.__consume_queue,
-                args=(query_track, query_prep, in_q, results_buff, n),
-            )
-            for i in range(config.PROCESS_COUNT)
-        ]
-        for c in consumers:
-            c.start()
-        await self.__fetch_files_to_queue(in_q)
-        logger.info("Fetching finished")
-        for i in range(config.PROCESS_COUNT):
-            in_q.put(END_TOKEN)
-        for c in consumers:
-            c.join()
-        songs = list(results_buff)
+        results = []
 
-        return self.__postprocess_result_list(songs, n)
+        with mp.get_context("forkserver").Pool(config.PROCESS_COUNT) as pool:
+            keys = await self.repository.list_keys()
+            chunks = split_list(keys, config.PROCESS_COUNT)
+            tasks = [
+                pool.apply_async(self.process_songs, (i, query_track, query_prep, n))
+                for i in chunks
+            ]
+            results = [i.get() for i in tasks]
+
+        return self.__postprocess_result_list(
+            list(itertools.chain.from_iterable(results)), n
+        )
 
     def __postprocess_result_list(
         self, results: list[tuple[float, Song, Track]], n: int
@@ -81,45 +73,32 @@ class SearchEngine:
 
         return unique_results
 
-    async def __fetch_files_to_queue(self, q: mp.Queue) -> None:
-        async for song in self.repository.get_all_songs():
-            try:
-                q.put(song)
-            except IOError as e:
-                logger.warning(f"Failed to parse song {e}")
-
-    def __consume_queue(
-        self,
-        query_track: Track,
-        query_prep,
-        in_q: mp.Queue,
-        out_q: ListProxy,
-        n: int,
-    ) -> None:
-        logger.debug("Starting consumer")
+    def process_songs(
+        self, keys: list[str], query_track: Track, query_prep: npt.NDArray[np.int64], n
+    ) -> list[tuple[float, Song, Track]]:
         results: list[tuple[float, Song, Track]] = []
-        while True:
-            song = in_q.get(block=True)
-            if song == END_TOKEN:
-                logger.debug("Stopping consumer")
-                out_q.extend(self.__postprocess_result_list(results, n))
-                return
+        for key in keys:
+            results.extend(self.process_song(key, query_track, query_prep))
+        post_res = self.__postprocess_result_list(results, n)
+        return [
+            (i[0], Song([i[2]], i[1].bpm, i[1].metadata), i[2])
+            for i in post_res
+            if i[1].metadata
+        ]
 
-            # NOTE: Cannot return song without metadata,
-            # as there would be nothing to display
-            if song.metadata:
-                res = self.__compare_songs(song, query_track, query_prep)
-                for i in res:
-                    results.append((i[0], song, i[1]))
+    def process_song(
+        self, key: str, query_track: Track, query_prep: npt.NDArray[np.int64]
+    ) -> list[tuple[float, Song, Track]]:
+        results: list[tuple[float, Song, Track]] = []
+        song = self.repository.load_song(key)
 
-    def __compare_songs(
-        self, song: Song, query_track: Track, preprocessed_query: npt.NDArray[np.int64]
-    ) -> list[tuple[float, Track]]:
-        results: list[tuple[float, Track]] = []
-        segments = self.preprocessor.preprocess(song, query_track.grid_length)
-        for segment in segments:
-            sim = self.similarity_strategy.compare(
-                segment.processed_notes, preprocessed_query
+        for track in song.tracks:
+            segments = self.preprocessor.segmentation_strategy.segment(
+                track, query_track.grid_length
             )
-            results.append((sim, segment.track))
+            for segment in segments:
+                val = self.similarity_strategy.compare(
+                    query_prep, self.preprocessor.prep_track(segment)
+                )
+                results.append((val, song, segment))
         return results

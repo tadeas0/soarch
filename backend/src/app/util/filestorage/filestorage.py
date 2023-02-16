@@ -30,3 +30,7 @@ class FileStorage(ABC):
     @abstractmethod
     async def read_all_keys(self, keys: list[str]) -> Iterable[tuple[str, bytes]]:
         pass
+
+    @abstractmethod
+    def read_sync(self, key: str) -> bytes:
+        pass

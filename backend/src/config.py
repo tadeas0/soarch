@@ -2,7 +2,7 @@ import os
 
 MIDI_CHANNELS = 16
 MIDI_NOTES = 128
-MIDI_DIR = "../dataset"
+MIDI_DIR = "../dataset/full"
 RAW_MIDI_PREFIX = "raw"
 PROCESSED_MIDI_PREFIX = "processed"
 PROCESSED_EXAMPLE_PREFIX = "example/processed"
@@ -22,7 +22,7 @@ SCRAPER_LOGGER = "scraper"
 DEFAULT_STRATEGY = "lcs"
 REDIS_CACHE_URL = os.getenv("REDIS_CACHE_URL", "")
 REDIS_QUEUE_URL = os.getenv("REDIS_QUEUE_URL", "")
-PROCESS_COUNT = int(os.getenv("PROCESS_COUNT", 4))
+PROCESS_COUNT = int(os.getenv("PROCESS_COUNT", 8))
 MONGODB_URL = os.getenv("MONGODB_URL", "")
 SONGS_DB = "songs_db"
 SONGS_COLLECTION = "songs_collection"

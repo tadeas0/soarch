@@ -5,6 +5,7 @@ import config
 from google.cloud import storage
 from gcloud.aio.storage import storage as aio_storage
 from redis import asyncio as aioredis
+import redis
 import io
 import json
 import os
@@ -25,7 +26,6 @@ class GoogleCloudFileStorage(FileStorage):
         self.__creds = credentials_json
         self.__redis_url = redis_url
         self.__bucket_name = bucket_name
-        self.__storage_client = None
         self.__prefix = prefix
 
     def __prep_key(self, key: str) -> str:
@@ -48,11 +48,7 @@ class GoogleCloudFileStorage(FileStorage):
         )
 
     def get_storage_client(self):
-        if not self.__storage_client:
-            self.__storage_client = storage.Client.from_service_account_info(
-                self.__creds
-            )
-        return self.__storage_client
+        return storage.Client.from_service_account_info(self.__creds)
 
     def get_async_client(self):
         logger.debug("Getting client")
@@ -63,6 +59,12 @@ class GoogleCloudFileStorage(FileStorage):
         if not self.__redis_url:
             raise RuntimeError("Redis cache url is None")
         return aioredis.from_url(self.__redis_url)
+
+    def get_sync_redis_cache(self):
+        logger.debug("Getting sync redis cache")
+        if not self.__redis_url:
+            raise RuntimeError("Redis cache url is None")
+        return redis.from_url(self.__redis_url)
 
     def list_prefix(self, prefix: str) -> list[str]:
         logger.debug(f"Listing files with prefix {prefix}")
@@ -150,3 +152,20 @@ class GoogleCloudFileStorage(FileStorage):
                 return await asyncio.gather(
                     *[self.__read_tuple(i, None, async_client) for i in keys]
                 )
+
+    def read_sync(self, key: str) -> bytes:
+        redis_cache = None
+        prep_key = self.__prep_key(key)
+        if self.__redis_url and not redis_cache:
+            redis_cache = self.get_sync_redis_cache()
+        if redis_cache and (res := redis_cache.get(prep_key)):
+            redis_cache.close()
+            return res
+        else:
+            client = self.get_storage_client()
+            down = client.bucket(self.__bucket_name).blob(prep_key).download_as_bytes()
+            client.close()
+        if redis_cache:
+            redis_cache.set(prep_key, down)
+            redis_cache.close()
+        return down
