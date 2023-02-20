@@ -42,11 +42,11 @@ class SearchEngine:
             ]
             results = [i.get() for i in tasks]
 
-        return self.__postprocess_result_list(
+        return self.postprocess_result_list(
             list(itertools.chain.from_iterable(results)), n
         )
 
-    def __postprocess_result_list(
+    def postprocess_result_list(
         self, results: list[tuple[float, Song, Track]], n: int
     ) -> list[tuple[float, Song, Track]]:
         sorted_results = sorted(
@@ -79,7 +79,7 @@ class SearchEngine:
         results: list[tuple[float, Song, Track]] = []
         for key in keys:
             results.extend(self.process_song(key, query_track, query_prep))
-        post_res = self.__postprocess_result_list(results, n)
+        post_res = self.postprocess_result_list(results, n)
         return [
             (i[0], Song([i[2]], i[1].bpm, i[1].metadata), i[2])
             for i in post_res
