@@ -1,34 +1,38 @@
 from dataclasses import dataclass
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from app.midi.repository.file_repository import FileRepository, SongRepository
-from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
-from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
 from app.search_engine.strategy.similarity_strategy import LocalAlignmentStrategyLib
-from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
 from app.search_engine.search_engine import SearchEngine
 import os
 import time
 from random import shuffle
 import numpy as np
 from app.search_engine.preprocessor import Preprocessor
+from app.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep
 from lab.example_query import ExampleQuery
 import config
 import pickle
 
 from config import (
     MEASURE_LENGTH,
-    MIDI_DIR,
 )
 from app.search_engine.strategy.melody_extraction_strategy import (
     MelodyExtractionStrategy,
 )
 from app.search_engine.strategy.standardization_strategy import StandardizationStrategy
-from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
+from app.search_engine.strategy.similarity_strategy import (
+    SimilarityStrategy,
+    FDTWStrategyLib,
+    DTWStrategy,
+    LCSStrategy,
+    LocalAlignmentStrategyLib,
+    EMDStrategySP,
+)
 from app.search_engine.strategy.segmentation_strategy import SegmentationStrategy
 
 
 CSV_HEADER = (
-    "duration,extraction,standardization,"
+    "duration,search_engine_name,extraction,standardization,"
     "segmentation,similarity,result_position,query_name"
 )
 
@@ -36,6 +40,7 @@ CSV_HEADER = (
 @dataclass
 class Result:
     duration: float
+    search_engine_name: str
     extraction_name: str
     standardization_name: str
     segmentation_name: str
@@ -47,13 +52,17 @@ class Result:
 async def evaluate_search_engine(
     query: ExampleQuery, search_engine: SearchEngine
 ) -> Result:
-    max_results = len(await search_engine.repository.list_keys())
+    max_results = 200
     start_time = time.time()
     res = await search_engine.find_similar_async(max_results, query.track)
     duration = time.time() - start_time
-    result_pos = [i[1].metadata for i in res].index(query.metadata)
+    try:
+        result_pos = [i[1].metadata for i in res].index(query.metadata)
+    except ValueError:
+        result_pos = -1
     return Result(
         duration,
+        search_engine.__class__.__name__,
         search_engine.preprocessor.melody_extraction_strategy.__class__.__name__,
         search_engine.preprocessor.standardization_strategy.__class__.__name__,
         search_engine.preprocessor.segmentation_strategy.__class__.__name__,
@@ -67,22 +76,29 @@ async def test_all_combinations(
     query: ExampleQuery, repo: SongRepository
 ) -> list[Result]:
     results = []
-    for similarity in SimilarityStrategy.__subclasses__():
-        for standardization in StandardizationStrategy.__subclasses__():
-            for segmentation in SegmentationStrategy.__subclasses__():
-                for extraction in MelodyExtractionStrategy.__subclasses__():
-                    prep = Preprocessor(
-                        extraction(),  # type: ignore
-                        standardization(),  # type: ignore
-                        segmentation(),  # type: ignore
-                    )
-                    se = SearchEngine(
-                        repo,
-                        prep,
-                        similarity(),  # type: ignore
-                    )
-                    r = await evaluate_search_engine(query, se)
-                    results.append(r)
+    for search_engine in [SearchEngine, SearchEngineNGramPrep]:
+        for similarity in [
+            LocalAlignmentStrategyLib,
+            EMDStrategySP,
+            FDTWStrategyLib,
+            LCSStrategy,
+            DTWStrategy,
+        ]:
+            for standardization in StandardizationStrategy.__subclasses__():
+                for segmentation in SegmentationStrategy.__subclasses__():
+                    for extraction in MelodyExtractionStrategy.__subclasses__():
+                        prep = Preprocessor(
+                            extraction(),  # type: ignore
+                            standardization(),  # type: ignore
+                            segmentation(),  # type: ignore
+                        )
+                        se = search_engine(
+                            repo,
+                            prep,
+                            similarity(),  # type: ignore
+                        )
+                        r = await evaluate_search_engine(query, se)
+                        results.append(r)
     return results
 
 
@@ -90,6 +106,7 @@ def result_to_csv_row(result: Result):
     return ",".join(
         [
             str(result.duration),
+            result.search_engine_name,
             result.extraction_name,
             result.standardization_name,
             result.segmentation_name,
@@ -101,9 +118,9 @@ def result_to_csv_row(result: Result):
 
 
 async def benchmark_search_engine():
+    # setup_logging()
     fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX))
     repo = FileRepository(fs)
-    # mongo_repo = MongoRepository(config.MONGODB_URL)
     query_dir = os.path.join(config.MIDI_DIR, config.QUERY_PREFIX)
     queries: list[ExampleQuery] = []
     for i in os.listdir(query_dir):
@@ -112,15 +129,10 @@ async def benchmark_search_engine():
             queries.append(q)
 
     print(CSV_HEADER)
-    prep = Preprocessor(
-        TopNoteStrategy(), RelativeIntervalStrategy(), FixedLengthStrategy()
-    )
-    se = SearchEngine(repo, prep, LocalAlignmentStrategyLib())
     for i in queries:
-        res = await evaluate_search_engine(i, se)
-        print(result_to_csv_row(res))
-        # for r in res:
-        # print(result_to_csv_row(r))
+        res = await test_all_combinations(i, repo)
+        for r in res:
+            print(result_to_csv_row(r))
 
     # await benchmark_similarities()
     # await benchmark_standardization()
