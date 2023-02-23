@@ -1,7 +1,5 @@
-import unittest.mock
 from app.util.song import Note, Song, SongMetadata, Track
-from app.midi.repository.file_repository import FileRepository
-from app.util.filestorage import FileStorage
+from app.midi.repository.repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
@@ -11,42 +9,29 @@ import pytest
 from app.search_engine.preprocessor import Preprocessor
 
 
-def list_keys_mock(cls):
-    return ["0", "1", "2", "3", "4"]
+class MockRepository(SongRepository):
+    async def list_keys(self):
+        return ["0", "1", "2", "3", "4"]
 
-
-async def load_song_async_mock(cls, file_path: str):
-    track = Track([Note(0, 10, 0)], 100)
-    return Song([track], 120, SongMetadata(f"artist{file_path}", f"song{file_path}"))
-
-
-async def get_all_songs(cls):
-    for i in range(5):
+    def load_song(self, file_path: str):
         track = Track([Note(0, 10, 0)], 100)
-        yield Song([track], 120, SongMetadata(f"artist{i}", f"song{i}"))
+        return Song(
+            [track], 120, SongMetadata(f"artist{file_path}", f"song{file_path}")
+        )
 
+    def load_song_async(self, file_path: str):
+        return self.load_song(file_path)
 
-class MockFileStorage(FileStorage):
-    def initialize(self) -> None:
-        raise NotImplementedError()
+    def get_all_songs(self):
+        for i in range(5):
+            track = Track([Note(0, 10, 0)], 100)
+            yield Song([track], 120, SongMetadata(f"artist{i}", f"song{i}"))
 
-    def list_all(self):
-        raise NotImplementedError()
+    def insert(self):
+        pass
 
-    def list_prefix(self, prefix):
-        raise NotImplementedError()
-
-    async def read(self, key):
-        raise NotImplementedError()
-
-    async def write(self, key, content):
-        raise NotImplementedError()
-
-    async def read_all_prefix(self, prefix):
-        raise NotImplementedError()
-
-    async def read_all_keys(self, keys):
-        raise NotImplementedError()
+    def insert_many(self):
+        pass
 
 
 def assert_result(result, expected_len):
@@ -58,12 +43,9 @@ def assert_result(result, expected_len):
         assert isinstance(i[2], Track)
 
 
-@unittest.mock.patch.object(FileRepository, "list_keys", list_keys_mock)
-@unittest.mock.patch.object(FileRepository, "load_song_async", load_song_async_mock)
-@unittest.mock.patch.object(FileRepository, "get_all_songs", get_all_songs)
 @pytest.mark.asyncio
 async def test_find_similar_async():
-    repository = FileRepository(MockFileStorage())
+    repository = MockRepository()
     prep = Preprocessor(
         TopNoteStrategy(), RelativeIntervalStrategy(), OneSegmentStrategy()
     )
