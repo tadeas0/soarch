@@ -5,7 +5,7 @@ import { BsArrowRight } from "react-icons/bs";
 import LinkButton from "../components/basic/linkButton";
 
 const LandingPage: FunctionComponent = () => (
-    <div className="flex flex-col items-center text-black">
+    <div className="flex flex-col items-center p-8 text-black">
         <Link to="/" className="mb-4 self-start">
             <img
                 src="/logo_text.svg"
