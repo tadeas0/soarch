@@ -1,31 +1,40 @@
-from dataclasses import dataclass
-from app.util.filestorage.local_file_storage import LocalFileStorage
-from app.util.song import SongMetadata, Track
-from app.midi.repository.file_repository import FileRepository, SongRepository
-from app.search_engine.search_engine import SearchEngine
 import os
-from miditoolkit import MidiFile
-from app.util.parser.midi_parser import MidiParser
+import pickle
 import time
+from dataclasses import dataclass
 from random import shuffle
+
+import config
 import numpy as np
-from app.util.helpers import get_metadata_from_filepath
+from app.midi.repository.file_repository import FileRepository, SongRepository
 from app.search_engine.preprocessor import Preprocessor
-
-from config import (
-    MEASURE_LENGTH,
-    MIDI_DIR,
+from app.search_engine.search_engine import SearchEngine
+from app.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep
+from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
+from app.search_engine.strategy.segmentation_strategy import (
+    FixedLengthStrategy,
+    SegmentationStrategy,
 )
-from app.search_engine.strategy.melody_extraction_strategy import (
-    MelodyExtractionStrategy,
+from app.search_engine.strategy.similarity_strategy import (
+    DTWStrategy,
+    EMDStrategySP,
+    FDTWStrategyLib,
+    LCSStrategy,
+    LocalAlignmentStrategyLib,
+    SimilarityStrategy,
 )
-from app.search_engine.strategy.standardization_strategy import StandardizationStrategy
-from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
-from app.search_engine.strategy.segmentation_strategy import SegmentationStrategy
-
+from app.search_engine.strategy.standardization_strategy import (
+    BaselineIntervalStrategy,
+    DefaultStrategy,
+    RelativeIntervalStrategy,
+    StandardizationStrategy,
+)
+from app.util.filestorage.local_file_storage import LocalFileStorage
+from config import MEASURE_LENGTH
+from lab.example_query import ExampleQuery
 
 CSV_HEADER = (
-    "duration,extraction,standardization,"
+    "duration,search_engine_name,extraction,standardization,"
     "segmentation,similarity,result_position,query_name"
 )
 
@@ -33,6 +42,7 @@ CSV_HEADER = (
 @dataclass
 class Result:
     duration: float
+    search_engine_name: str
     extraction_name: str
     standardization_name: str
     segmentation_name: str
@@ -42,44 +52,59 @@ class Result:
 
 
 async def evaluate_search_engine(
-    query: Track, expected_metadata: SongMetadata, search_engine: SearchEngine
+    query: ExampleQuery, search_engine: SearchEngine
 ) -> Result:
-    max_results = len(await search_engine.repository.list_keys())
+    max_results = 200
     start_time = time.time()
-    res = await search_engine.find_similar_async(max_results, query)
+    res = await search_engine.find_similar_async(max_results, query.track)
     duration = time.time() - start_time
-    result_pos = [i[1].metadata for i in res].index(expected_metadata)
+    try:
+        result_pos = [i[1].metadata for i in res].index(query.metadata)
+    except ValueError:
+        result_pos = -1
     return Result(
         duration,
+        search_engine.__class__.__name__,
         search_engine.preprocessor.melody_extraction_strategy.__class__.__name__,
         search_engine.preprocessor.standardization_strategy.__class__.__name__,
         search_engine.preprocessor.segmentation_strategy.__class__.__name__,
         search_engine.similarity_strategy.__class__.__name__,
         result_pos,
-        f"{expected_metadata.artist} - {expected_metadata.name}",
+        f"{query.metadata.artist} - {query.metadata.name}",
     )
 
 
 async def test_all_combinations(
-    query: Track, expected_metadata: SongMetadata, repo: SongRepository
+    query: ExampleQuery, repo: SongRepository
 ) -> list[Result]:
     results = []
-    for similarity in SimilarityStrategy.__subclasses__():
-        for standardization in StandardizationStrategy.__subclasses__():
-            for segmentation in SegmentationStrategy.__subclasses__():
-                for extraction in MelodyExtractionStrategy.__subclasses__():
-                    prep = Preprocessor(
-                        extraction(),  # type: ignore
-                        standardization(),  # type: ignore
-                        segmentation(),  # type: ignore
-                    )
-                    se = SearchEngine(
-                        repo,
-                        prep,
-                        similarity(),  # type: ignore
-                    )
-                    r = await evaluate_search_engine(query, expected_metadata, se)
-                    results.append(r)
+    for search_engine in [SearchEngine, SearchEngineNGramPrep]:
+        for similarity in [
+            LocalAlignmentStrategyLib,
+            EMDStrategySP,
+            FDTWStrategyLib,
+            LCSStrategy,
+            DTWStrategy,
+        ]:
+            for standardization in [
+                BaselineIntervalStrategy,
+                RelativeIntervalStrategy,
+                DefaultStrategy,
+            ]:
+                for segmentation in [FixedLengthStrategy]:
+                    for extraction in [TopNoteStrategy]:
+                        prep = Preprocessor(
+                            extraction(),  # type: ignore
+                            standardization(),  # type: ignore
+                            segmentation(),  # type: ignore
+                        )
+                        se = search_engine(
+                            repo,
+                            prep,
+                            similarity(),  # type: ignore
+                        )
+                        r = await evaluate_search_engine(query, se)
+                        results.append(r)
     return results
 
 
@@ -87,6 +112,7 @@ def result_to_csv_row(result: Result):
     return ",".join(
         [
             str(result.duration),
+            result.search_engine_name,
             result.extraction_name,
             result.standardization_name,
             result.segmentation_name,
@@ -98,23 +124,39 @@ def result_to_csv_row(result: Result):
 
 
 async def benchmark_search_engine():
-    fs = LocalFileStorage(MIDI_DIR)
+    # setup_logging()
+    fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX))
     repo = FileRepository(fs)
-    # mongo_repo = MongoRepository(config.MONGODB_URL)
-    queries: list[tuple[Track, SongMetadata]] = []
-    queries_path = "../midi_files/queries"
-    for i in os.listdir(queries_path):
-        filepath = os.path.join(queries_path, i)
-        mf = MidiFile(filepath)
-        song = MidiParser.parse(mf)
-        metadata = get_metadata_from_filepath(filepath)
-        query_tuple = (song.tracks[0], metadata)
-        queries.append(query_tuple)
-    print(CSV_HEADER)
-    for i in queries:
-        res = await test_all_combinations(*i, repo)
-        for r in res:
-            print(result_to_csv_row(r))
+    folders = [
+        # "0_notes_changed",
+        "1_notes_changed",
+        # "1_notes_changed_transposed",
+        "2_notes_changed",
+        # "2_notes_changed_transposed",
+        # "3_notes_changed",
+        # "3_notes_changed_transposed",
+        # "4_notes_changed",
+        # "4_notes_changed_transposed",
+        # "5_notes_changed",
+        # "5_notes_changed_transposed",
+    ]
+    for folder in folders:
+        output_path = os.path.join(
+            config.ANALYSIS_OUTPUT_DIR, f"{config.PROCESS_COUNT}_processes_{folder}.csv"
+        )
+        query_dir = os.path.join(config.MIDI_DIR, config.QUERY_PREFIX, folder)
+        queries: list[ExampleQuery] = []
+        for i in os.listdir(query_dir):
+            with open(os.path.join(query_dir, i), "rb") as f:
+                q = pickle.load(f)
+                queries.append(q)
+        with open(output_path, "w") as f:
+            f.write(CSV_HEADER + "\n")
+        for i in queries:
+            res = await test_all_combinations(i, repo)
+            with open(output_path, "a") as f:
+                for r in res:
+                    f.write(result_to_csv_row(r) + "\n")
 
     # await benchmark_similarities()
     # await benchmark_standardization()
@@ -129,8 +171,8 @@ async def benchmark_similarities():
     for i in range(comparisons * 2):
         arrays.append(np.random.randint(0, 127, size=8))
     shuffle(arrays)
-    a1 = arrays[:len(arrays) // 2]
-    a2 = arrays[len(arrays) // 2:]
+    a1 = arrays[: len(arrays) // 2]
+    a2 = arrays[len(arrays) // 2 :]
     for similarity in SimilarityStrategy.__subclasses__():
         start_time = time.time()
         for i1, i2 in zip(a1, a2):

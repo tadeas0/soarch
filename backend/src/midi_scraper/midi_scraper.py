@@ -4,6 +4,7 @@ from typing import AsyncIterable
 from aiohttp import ClientSession
 import logging
 import io
+import os
 from miditoolkit.midi import MidiFile
 from app.util.filestorage import FileStorage
 from app.util.song import Song
@@ -63,7 +64,7 @@ async def scrape_robs_midi_library(file_storage: FileStorage):
                 __download(
                     file_storage,
                     link,
-                    f"{name}.mid",
+                    os.path.join(config.ROBS_PREFIX, f"{name}.mid"),
                     session,
                 )
                 for name, link in links
@@ -107,13 +108,13 @@ async def scrape_free_midi(file_storage: FileStorage):
             await __download(
                 file_storage,
                 url,
-                fullname + ".mid",
+                os.path.join(config.FREEMIDI_PREFIX, fullname + ".mid"),
                 session,
             )
             await __download(
                 file_storage,
                 url,
-                fullname + ".mid",
+                os.path.join(config.FREEMIDI_PREFIX, fullname + ".mid"),
                 session,
             )
 

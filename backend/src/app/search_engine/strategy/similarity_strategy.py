@@ -3,7 +3,7 @@ import numpy as np
 import numpy.typing as npt
 from scipy.stats import wasserstein_distance
 from fastdtw import fastdtw
-from Bio import pairwise2
+from Bio import Align
 
 
 class SimilarityStrategy(ABC):
@@ -186,7 +186,14 @@ class LocalAlignmentStrategyLib(SimilarityStrategy):
     ) -> float:
         tl1 = "".join(chr(int(i) + 128) for i in line1)
         tl2 = "".join(chr(int(i) + 128) for i in line2)
-        return pairwise2.align.localms(tl1, tl2, 1, -1, -2, -2, score_only=True)
+        pa = Align.PairwiseAligner(
+            mode="local",
+            match_score=1,
+            mismatch_score=-1,
+            extend_gap_score=-2,
+            open_gap_score=-2,
+        )
+        return pa.score(tl1, tl2)
 
 
 class EMDStrategySP(SimilarityStrategy):

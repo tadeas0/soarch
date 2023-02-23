@@ -4,7 +4,7 @@ services:
             - ENV=dev
         volumes:
             - ./backend:/backend
-            - ./midi_files:/midi_files
+            - ./dataset:/dataset
     frontend:
         environment:
             - PORT=80
@@ -16,10 +16,9 @@ services:
     worker:
         environment:
             - ENV=dev
-            - PROCESS_COUNT=6
         volumes:
             - ./backend:/backend
-            - ./midi_files:/midi_files
+            - ./dataset:/dataset
     mongo:
         volumes:
             - ./mongo_data:/data/db

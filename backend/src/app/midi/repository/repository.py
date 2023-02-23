@@ -31,3 +31,7 @@ class SongRepository(ABC):
     @abstractmethod
     async def insert_many(self, songs: Iterable[Song]) -> None:
         pass
+
+    @abstractmethod
+    def load_song(self, key: str) -> Song:
+        pass

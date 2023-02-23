@@ -5,6 +5,7 @@ from app.util.song import Song
 from app.util.mongo_serializer import MongoSerializer
 import config
 from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import MongoClient
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
@@ -19,6 +20,9 @@ class MongoRepository(SongRepository):
         return AsyncIOMotorClient(self.mongo_url)[config.SONGS_DB][
             config.SONGS_COLLECTION
         ]
+
+    def __get_sync_client(self):
+        return MongoClient(self.mongo_url)[config.SONGS_DB][config.SONGS_COLLECTION]
 
     async def insert(self, song: Song) -> None:
         await self.__get_client().insert_one(MongoSerializer.serialize(song))
@@ -41,3 +45,10 @@ class MongoRepository(SongRepository):
         client = self.__get_client()
         async for i in client.find({}):
             yield MongoSerializer.deserialize(i)
+
+    def load_song(self, key: str) -> Song:
+        client = self.__get_sync_client()
+        res = client.find_one({"_id": key})
+        if not res:
+            raise ValueError("Unknown key")
+        return MongoSerializer.deserialize(res)

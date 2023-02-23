@@ -67,3 +67,8 @@ class LocalFileStorage(FileStorage):
 
     async def read_all_keys(self, keys: list[str]) -> Iterable[tuple[str, bytes]]:
         return await asyncio.gather(*[self.__read_tuple(i) for i in keys])
+
+    def read_sync(self, key: str) -> bytes:
+        path = os.path.join(self.root_path, key)
+        with open(path, "rb") as f:
+            return f.read()

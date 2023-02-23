@@ -68,6 +68,18 @@ class FileRepository(SongRepository):
         else:
             raise ValueError()
 
+    def __load_from_pickle(self, file_path: str) -> Song:
+        return pickle.loads(self.file_storage.read_sync(file_path))
+
+    def __load_from_midi(self, file_path: str) -> Song:
+        song = MidiParser.parse(
+            MidiFile(file=io.BytesIO(self.file_storage.read_sync(file_path)))
+        )
+        logger.debug(f"Parsed file {file_path}")
+
+        song.metadata = get_metadata_from_filepath(file_path)
+        return song
+
     async def __load_from_pickle_async(self, file_path: str) -> Song:
         return pickle.loads(await self.file_storage.read(file_path))
 
@@ -106,3 +118,12 @@ class FileRepository(SongRepository):
             ]
         ):
             yield await i
+
+    def load_song(self, file_path: str) -> Song:
+        extension = file_path.split(".")[-1]
+        if extension == "mid":
+            return self.__load_from_midi(file_path)
+        elif extension == "pkl":
+            return self.__load_from_pickle(file_path)
+        else:
+            raise ValueError()

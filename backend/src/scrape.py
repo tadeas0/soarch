@@ -61,9 +61,7 @@ def cli(ctx):
         )
         logger.info("Using google cloud file storage")
     else:
-        download_file_storage = LocalFileStorage(
-            os.path.join(config.MIDI_DIR, config.RAW_MIDI_PREFIX)
-        )
+        download_file_storage = LocalFileStorage(config.MIDI_DIR)
         upload_file_storage: FileStorage = LocalFileStorage(
             os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX)
         )
