@@ -26,3 +26,4 @@ PROCESS_COUNT = int(os.getenv("PROCESS_COUNT", 8))
 MONGODB_URL = os.getenv("MONGODB_URL", "")
 SONGS_DB = "songs_db"
 SONGS_COLLECTION = "songs_collection"
+ANALYSIS_OUTPUT_DIR = "analysis_output"

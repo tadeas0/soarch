@@ -70,7 +70,7 @@ class SearchEngineNGramPrep(SearchEngine):
         results: list[tuple[float, Song, Track]] = []
         for key in keys:
             results.extend(
-                self.process_song(key, query_track, query_prep, query_classes)
+                self.__process_song(key, query_track, query_prep, query_classes)
             )
         post_res = self.postprocess_result_list(results, n)
         return [
@@ -79,7 +79,7 @@ class SearchEngineNGramPrep(SearchEngine):
             if i[1].metadata
         ]
 
-    def process_song(
+    def __process_song(
         self,
         key: str,
         query_track: Track,
