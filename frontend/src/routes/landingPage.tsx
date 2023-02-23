@@ -3,17 +3,22 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { BsArrowRight } from "react-icons/bs";
 import LinkButton from "../components/basic/linkButton";
-import TopLogo from "../components/basic/topLogo";
 
 const LandingPage: FunctionComponent = () => (
-    <div className="flex flex-col items-center p-6 text-black">
-        <TopLogo />
-        <header className="mb-10 flex w-1/2 items-end justify-start">
-            <h1 className="text-4xl tracking-wide text-light-primary">
+    <div className="flex flex-col items-center text-black">
+        <Link to="/" className="mb-4 self-start">
+            <img
+                src="/logo_text.svg"
+                className="-mx-6 h-32"
+                alt="soarch logo"
+            />
+        </Link>
+        <header className="mb-10 w-full lg:w-1/2">
+            <h1 className="self-start text-4xl text-light-primary">
                 New way of searching for music
             </h1>
         </header>
-        <main className="w-1/2">
+        <main className="lg:w-1/2">
             <p className="my-3 text-xl">
                 <b>Soarch</b> is a{" "}
                 <i>
@@ -40,9 +45,9 @@ const LandingPage: FunctionComponent = () => (
             <div className="my-20 flex justify-center">
                 <LinkButton
                     to="/pianoroll"
-                    className="flex items-center justify-center py-6 px-8 text-3xl"
+                    className="flex items-center justify-center py-6 px-8 text-xl lg:text-3xl"
                 >
-                    Let's do it <BsArrowRight className="ml-6 mt-1" size={32} />
+                    Let's do it <BsArrowRight className="mt-1 ml-6" size={32} />
                 </LinkButton>
             </div>
             <div className="mt-2 border-l-4 border-light-primary p-2">
