@@ -7,18 +7,24 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from "react-accessible-accordion";
-import TopLogo from "../components/basic/topLogo";
 import "./faqPage.css";
+import { Link } from "react-router-dom";
 
 const FaqPage: FunctionComponent = () => (
-    <div className="flex flex-col items-center p-6 text-black">
-        <TopLogo />
-        <header className="mb-10 flex w-1/2 items-end justify-start">
+    <div className="flex flex-col items-center text-black">
+        <Link to="/" className="mb-4 self-start">
+            <img
+                src="/logo_text.svg"
+                className="-mx-6 h-32"
+                alt="soarch logo"
+            />
+        </Link>
+        <header className="mb-10 flex w-1/2 items-end justify-start self-start">
             <h1 className="ml-1 text-4xl tracking-wide text-light-primary">
                 F.A.Q.
             </h1>
         </header>
-        <main className="w-1/2">
+        <main className="lg:w-1/2">
             <Accordion allowMultipleExpanded allowZeroExpanded className="p-2">
                 <AccordionItem>
                     <AccordionItemHeading>
