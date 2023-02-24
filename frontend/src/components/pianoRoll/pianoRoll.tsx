@@ -3,9 +3,7 @@ import { MEASURE_LENGTH, MIN_MEASURES } from "../../constants";
 import { Note } from "../../interfaces/Note";
 import SongTabs from "./songTabs";
 import * as React from "react";
-import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
-import TopResult from "./topResult";
 import { SearchResult } from "../../interfaces/SearchResult";
 import {
     usePianoRollStore,
@@ -15,6 +13,7 @@ import OnScreenPiano from "./onScreenPiano";
 import Button from "../basic/button";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import useSequencer from "../../hooks/sequencer/useSequencer";
+import TopBar from "./topBar";
 
 interface PianoRollProps {
     onSubmit: (notes: Note[], gridLength: number) => void;
@@ -116,20 +115,15 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     return (
         <div className="flex flex-col items-center justify-start">
-            <div className="grid w-full grid-cols-11 justify-center gap-4">
-                <TopResult
-                    searchResult={topSearchResult}
-                    isBusy={isFetchingResults}
-                    onShowMore={onShowMore}
-                />
-                <TopButtons
-                    setIsDownloading={setIsDownloading}
-                    disabled={disabled}
-                />
-            </div>
-            <div className="mt-10 flex w-full flex-row items-start justify-between gap-3">
+            <TopBar
+                disabled={disabled}
+                isBusy={isFetchingResults}
+                onShowMore={onShowMore}
+                searchResult={topSearchResult}
+            />
+            <div className="mt-6 flex w-full flex-row items-start justify-center gap-3 xl:justify-between">
                 <Button
-                    className={`mt-44 p-3 text-xl${
+                    className={`mt-44 p-3 text-xl xl:block hidden${
                         canRemoveMeasure()
                             ? ""
                             : " bg-transparent text-transparent"
@@ -139,10 +133,13 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 >
                     <TiMinus />
                 </Button>
-                <SongTabs disabled={disabled} />
+                <SongTabs
+                    setIsDownloading={setIsDownloading}
+                    disabled={disabled}
+                />
                 <Button
                     id="add-measure-button"
-                    className="mt-44 p-3 text-xl"
+                    className="mt-44 hidden p-3 text-xl xl:block"
                     onClick={addMeasure}
                     disabled={disabled}
                 >

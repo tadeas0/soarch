@@ -22,12 +22,14 @@ import { API, NoteForm } from "../services/api";
 import { Note } from "../interfaces/Note";
 import { usePianoRollStore } from "../stores/pianoRollStore";
 import { ShepherdTourContext } from "react-shepherd";
-import BottomLogo from "../components/basic/bottomLogo";
 import TourButton from "../components/pianoRoll/tourButton";
 import { SearchResult } from "../interfaces/SearchResult";
 import * as React from "react";
 import useSequencer from "../hooks/sequencer/useSequencer";
 import { getGridParamsFromNotes } from "../common/coordConversion";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import FullscreenModal from "../components/pianoRoll/fullscreenModal";
+import useIsXlScreen from "../hooks/useIsXlScreen";
 
 interface PianoRollRouteProps {}
 
@@ -40,6 +42,9 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
         name: "Local alignment (Biopython lib)",
         value: "lcabp",
     });
+    const handle = useFullScreenHandle();
+    const isXl = useIsXlScreen();
+    const [showFullscreenModal, setShowFullscreenModal] = useState(false);
     const [isBusy, setBusy] = useState<boolean>(false);
     const [initializing, setInitializing] = useState(false);
     const { setServerAvailable } = useContext(AvailabilityContext);
@@ -66,12 +71,18 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     );
 
     useEffect(() => {
+        if (!handle.active && !isXl) {
+            setShowFullscreenModal(true);
+            return;
+        }
+        setShowFullscreenModal(false);
+
         const alreadyTookTour = localStorage.getItem(storageKey);
         if (!alreadyTookTour && tour) {
             tour.start();
             localStorage.setItem(storageKey, String(true));
         }
-    }, [tour]);
+    }, [handle.active, tour, isXl]);
 
     useEffect(() => {
         setInitializing(true);
@@ -149,48 +160,52 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     };
 
     return (
-        <div className="piano-roll-route">
-            {initializing ? (
-                <div className="flex h-screen w-screen flex-col items-center justify-center">
-                    <BeatLoader size={100} color={LIGHT_PRIMARY} />
-                    <h1 className="mt-4 text-2xl">
-                        Connecting to the server...
-                    </h1>
-                </div>
-            ) : (
-                <PlaybackProvider>
-                    <TourButton />
-                    <BottomLogo />
-                    {isDownloading && <DownloadingOverlay />}
-                    <PianoRoll
-                        setIsDownloading={setIsDownloading}
-                        isFetchingResults={isBusy}
-                        topSearchResult={searchResults.at(0)}
-                        onShowMore={handleDrawerToggle}
-                        onSubmit={handleSubmit}
-                        disabled={isDrawerOpen}
-                    />
-                    <div>
-                        {selectedStrategy && !HIDE_STRATEGIES && (
-                            <StrategySelector
-                                options={availableStrategies}
-                                onChange={setSelectedStrategy}
+        <FullScreen handle={handle}>
+            {showFullscreenModal && (
+                <FullscreenModal fullscreenHandle={handle} />
+            )}
+            <div className="piano-roll-route h-full bg-background p-2 lg:p-8">
+                {initializing ? (
+                    <div className="flex h-screen w-screen flex-col items-center justify-center">
+                        <BeatLoader size={100} color={LIGHT_PRIMARY} />
+                        <h1 className="mt-4 text-2xl">
+                            Connecting to the server...
+                        </h1>
+                    </div>
+                ) : (
+                    <PlaybackProvider>
+                        <TourButton />
+                        {isDownloading && <DownloadingOverlay />}
+                        <PianoRoll
+                            setIsDownloading={setIsDownloading}
+                            isFetchingResults={isBusy}
+                            topSearchResult={searchResults.at(0)}
+                            onShowMore={handleDrawerToggle}
+                            onSubmit={handleSubmit}
+                            disabled={isDrawerOpen}
+                        />
+                        <div>
+                            {selectedStrategy && !HIDE_STRATEGIES && (
+                                <StrategySelector
+                                    options={availableStrategies}
+                                    onChange={setSelectedStrategy}
+                                />
+                            )}
+                        </div>
+                        {(searchResults.length > 0 || isBusy) && (
+                            <SearchResultsDrawer
+                                onOpen={handleDrawerToggle}
+                                onClose={handleDrawerToggle}
+                                isOpen={isDrawerOpen}
+                                searchResults={searchResults}
+                                isBusy={isBusy}
+                                onEdit={handleEdit}
                             />
                         )}
-                    </div>
-                    {(searchResults.length > 0 || isBusy) && (
-                        <SearchResultsDrawer
-                            onOpen={handleDrawerToggle}
-                            onClose={handleDrawerToggle}
-                            isOpen={isDrawerOpen}
-                            searchResults={searchResults}
-                            isBusy={isBusy}
-                            onEdit={handleEdit}
-                        />
-                    )}
-                </PlaybackProvider>
-            )}
-        </div>
+                    </PlaybackProvider>
+                )}
+            </div>
+        </FullScreen>
     );
 };
 

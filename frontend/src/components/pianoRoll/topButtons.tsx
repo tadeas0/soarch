@@ -4,17 +4,14 @@ import {
     BsRecord,
     BsRecordFill,
 } from "react-icons/bs";
-import * as React from "react";
 import { CgPiano } from "react-icons/cg";
 import { MIN_BPM, MAX_BPM } from "../../constants";
 import InstrumentSelector from "./instrumentSelector";
-import { FaSave } from "react-icons/fa";
 import BPMInput from "./bpmInput";
 import Metronome from "./metronome";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import Button from "../basic/button";
-import useSynth from "../../hooks/sequencer/useSynth";
-import saveToFile from "../../common/saveTrack";
+import * as React from "react";
 import useSequencer from "../../hooks/sequencer/useSequencer";
 import { rollTimeToToneTime } from "../../common/coordConversion";
 import * as Tone from "tone";
@@ -26,7 +23,6 @@ const defaultProps = {
 };
 
 type TopButtonsProps = {
-    setIsDownloading: (v: boolean) => void;
     disabled?: boolean;
 } & typeof defaultProps;
 
@@ -58,7 +54,6 @@ const TopButtons = (props: TopButtonsProps) => {
         },
         release: 1,
     }).toDestination();
-    const { synth } = useSynth();
 
     const selectedSong = songs[selectedIndex];
 
@@ -66,23 +61,6 @@ const TopButtons = (props: TopButtonsProps) => {
         if (props.disabled) return <BsFillPlayFill />;
         if (isRollPlaying) return <BsPauseFill />;
         return <BsFillPlayFill />;
-    };
-
-    const handleSave = async () => {
-        try {
-            props.setIsDownloading(true);
-            await saveToFile(
-                selectedSong.notes,
-                selectedSong.bpm,
-                selectedSong.gridParams.width,
-                selectedSong.name,
-                synth
-            );
-        } catch (err) {
-            console.error(err);
-        } finally {
-            props.setIsDownloading(false);
-        }
     };
 
     const handlePlayClick = useCallback(async () => {
@@ -189,7 +167,7 @@ const TopButtons = (props: TopButtonsProps) => {
     return (
         <>
             <Button
-                className="col-span-1 flex items-center justify-center text-6xl"
+                className="col-span-1 flex items-center justify-center text-4xl xl:text-6xl"
                 id="play-button"
                 onClick={handlePlayClick}
                 disabled={
@@ -203,14 +181,13 @@ const TopButtons = (props: TopButtonsProps) => {
             </Button>
             <Button
                 id="record-button"
-                className={`col-span-1 flex items-center justify-center text-6xl ${
+                className={`col-span-1 flex items-center justify-center text-4xl xl:text-6xl ${
                     isRecording ? "bg-warn" : ""
                 }`}
                 onClick={handleRecordClick}
             >
                 {getRecordIcon()}
             </Button>
-            <Metronome disabled={props.disabled} />
             <BPMInput
                 id="bpm-input"
                 value={selectedSong.bpm}
@@ -220,8 +197,9 @@ const TopButtons = (props: TopButtonsProps) => {
                 max={250}
                 disabled={isRollPlaying || props.disabled}
             />
+            <Metronome disabled={props.disabled} />
             <Button
-                className="col-span-1 flex items-center justify-center text-6xl"
+                className="col-span-1 flex items-center justify-center text-4xl xl:text-6xl"
                 id="piano-button"
                 pressed={!isPianoHidden}
                 onClick={() => setIsPianoHidden(!isPianoHidden)}
@@ -230,14 +208,6 @@ const TopButtons = (props: TopButtonsProps) => {
                 <CgPiano />
             </Button>
             <InstrumentSelector disabled={props.disabled} />
-            <Button
-                id="export-button"
-                className="col-span-1 flex items-center justify-center text-6xl"
-                disabled={props.disabled}
-                onClick={handleSave}
-            >
-                <FaSave />
-            </Button>
         </>
     );
 };

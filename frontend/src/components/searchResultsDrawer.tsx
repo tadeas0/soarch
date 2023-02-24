@@ -68,7 +68,7 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
             );
         }
         return (
-            <div className="h-full bg-background p-3 text-black">
+            <div className="h-full overflow-y-scroll bg-background p-3 text-black">
                 <h1 className="mb-4 text-3xl">Search results</h1>
                 <ul className="mx-2">
                     {props.searchResults.map((s) => (

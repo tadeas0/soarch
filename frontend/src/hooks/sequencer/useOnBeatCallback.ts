@@ -1,17 +1,24 @@
 import { useEffect } from "react";
 import * as Tone from "tone";
 
-const useOnBeatCallback = (callback: (time: number) => void) => {
+const useOnTimeCallback = (
+    callback: (time: number) => void,
+    interval: Tone.Unit.Time
+) => {
     useEffect(() => {
-        const id = Tone.Transport.scheduleRepeat((time) => {
+        const loop = new Tone.Loop((time) => {
             Tone.Draw.schedule(() => {
                 callback(Tone.Transport.seconds);
             }, time);
-        }, "16n");
+        }, interval).start(0);
         return () => {
-            Tone.Transport.clear(id);
+            loop.dispose();
         };
-    }, [callback]);
+    }, [callback, interval]);
 };
 
+const useOnBeatCallback = (callback: (time: number) => void) =>
+    useOnTimeCallback(callback, "16n");
+
+export { useOnTimeCallback };
 export default useOnBeatCallback;

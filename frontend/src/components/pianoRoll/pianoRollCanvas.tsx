@@ -37,6 +37,7 @@ interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseUp: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseMove: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+    onDoubleClick: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     previewNotes: Set<Note>;
     gridParams: GridParams;
     notes: Note[];
@@ -50,6 +51,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
     const { triggerAttackRelease } = useSynth();
+    const [preventMouseMove, setPreventMouseMove] = useState(false);
     useOnBeatCallback(async (time) => {
         if (!props.disabled) {
             const headerWidth =
@@ -313,8 +315,14 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                 }}
                 ref={canvasRef}
                 onMouseDown={(e) => isOnGrid(e) && props.onMouseDown(e)}
-                onMouseMove={(e) => isOnGrid(e) && props.onMouseMove(e)}
+                onMouseMove={(e) =>
+                    !preventMouseMove && isOnGrid(e) && props.onMouseMove(e)
+                }
                 onMouseUp={(e) => isOnGrid(e) && props.onMouseUp(e)}
+                onDoubleClick={(e) => isOnGrid(e) && props.onDoubleClick(e)}
+                // This is a hack to prevent 'mousemove' events on touchscreens
+                onTouchStart={() => setPreventMouseMove(true)}
+                onClick={() => setPreventMouseMove(false)}
                 onContextMenu={(e) => e.preventDefault()}
             />
         </div>

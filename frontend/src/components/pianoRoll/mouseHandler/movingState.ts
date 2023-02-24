@@ -39,7 +39,6 @@ export default class MovingState extends State {
         if (selectedNote === null) {
             throw new Error("Note is not selected");
         }
-        this.mouseHandler.releaseNote(selectedNote.pitch);
 
         this.mouseHandler.changeState(
             new ReadyState(this.mouseHandler, mouseCoords)
@@ -69,8 +68,7 @@ export default class MovingState extends State {
         );
         const newNote: Note = { ...noteCoords, length: oldNote.length };
         if (oldNote.pitch.toNote() !== newNote.pitch.toNote()) {
-            this.mouseHandler.releaseNote(oldNote.pitch);
-            this.mouseHandler.pressNote(newNote.pitch);
+            this.mouseHandler.previewNote(newNote);
         }
         this.mouseHandler.addNote(newNote);
         this.mouseHandler.selectNote(newNote);

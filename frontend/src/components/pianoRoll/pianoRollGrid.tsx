@@ -124,6 +124,13 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         }
     };
 
+    const handleDoubleClick = async (
+        e: React.MouseEvent<HTMLCanvasElement>
+    ) => {
+        mouseHandler.onRightClick(e.nativeEvent);
+        mouseHandler.onRightRelease(e.nativeEvent);
+    };
+
     return (
         <div
             id="roll-canvas"
@@ -138,6 +145,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
+                onDoubleClick={handleDoubleClick}
                 disabled={disabled || !isRollPlaying}
             />
         </div>

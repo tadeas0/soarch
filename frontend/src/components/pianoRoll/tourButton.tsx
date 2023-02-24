@@ -11,7 +11,7 @@ const TourButton: FunctionComponent = () => {
             onClick={() => tour?.start()}
             id="tour-button"
             type="button"
-            className="absolute bottom-0 right-0 rounded-tl bg-light-primary p-2 text-xl text-white hover:bg-medium-primary hover:text-black"
+            className="fixed bottom-0 right-0 rounded-tl bg-light-primary p-2 text-xl text-white hover:bg-medium-primary hover:text-black"
         >
             <IoMdHelp />
         </button>

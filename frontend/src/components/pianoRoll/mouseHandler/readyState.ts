@@ -34,7 +34,7 @@ export default class ReadyState extends State {
         } else if (n.length > 0) {
             const selected = n[n.length - 1];
             this.mouseHandler.selectNote(selected);
-            this.mouseHandler.pressNote(selected.pitch);
+            this.mouseHandler.previewNote(selected);
             this.mouseHandler.changeState(
                 new MovingState(this.mouseHandler, coords)
             );
@@ -57,7 +57,7 @@ export default class ReadyState extends State {
             };
             this.mouseHandler.addNote(newNote);
             this.mouseHandler.selectNote(newNote);
-            this.mouseHandler.pressNote(newNote.pitch);
+            this.mouseHandler.previewNote(newNote);
             this.setMoveCursor();
             this.mouseHandler.changeState(
                 new MovingState(this.mouseHandler, coords)
