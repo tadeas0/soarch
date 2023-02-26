@@ -1,43 +1,39 @@
-import { FunctionComponent, useMemo, useState } from "react";
+import { FunctionComponent } from "react";
 import * as React from "react";
 import { BsFillPlayFill, BsPauseFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../interfaces/SearchResult";
-import { useTabControls } from "../stores/pianoRollStore";
-import useOnBeatCallback from "../hooks/sequencer/useOnBeatCallback";
 import {
     getGridParamsFromNotes,
     rollTimeToToneTime,
 } from "../common/coordConversion";
+import useSequencer from "../hooks/sequencer/useSequencer";
+import { useTabControls } from "../stores/pianoRollStore";
 
 interface SearchResultProps {
     searchResult: SearchResult;
-    isPlaying: boolean;
-    onPlay: (searchResult: SearchResult) => void;
     onEdit: (searchResult: SearchResult) => void;
 }
 
 const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     searchResult,
-    isPlaying,
     onEdit,
-    onPlay,
 }) => {
-    const [progress, setProgress] = useState(0);
     const { canAddTab } = useTabControls();
-    const resultLength = useMemo(() => {
-        if (!searchResult) return null;
+    const { play, stop, isPlaying, progress } = useSequencer();
 
-        return rollTimeToToneTime(
-            getGridParamsFromNotes(searchResult.notes).width
-        ).toSeconds();
-    }, [searchResult]);
-
-    useOnBeatCallback(async (time) => {
-        if (isPlaying && resultLength) {
-            setProgress(((time / resultLength) * 100) % 100);
+    const handlePlay = () => {
+        if (!isPlaying) {
+            const gridParams = getGridParamsFromNotes(searchResult.notes);
+            play(
+                searchResult.notes,
+                searchResult.bpm,
+                rollTimeToToneTime(gridParams.width)
+            );
+        } else {
+            stop();
         }
-    });
+    };
 
     const getInlineStyles = () => {
         if (!isPlaying) return {};
@@ -45,8 +41,10 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
             backgroundImage: `linear-gradient(
                                     90deg,
                                     var(--light-primary-color) 0%,
-                                    var(--light-primary-color) ${progress}%,
-                                    var(--bg-color) ${progress + 1}%
+                                    var(--light-primary-color) ${
+                                        progress * 100
+                                    }%,
+                                    var(--bg-color) ${progress * 100 + 1}%
                                )`,
         };
     };
@@ -63,7 +61,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
                     <button
                         className="h-1/2 text-xl outline-none"
                         type="button"
-                        onClick={() => onPlay(searchResult)}
+                        onClick={() => handlePlay()}
                     >
                         {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
                     </button>

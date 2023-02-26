@@ -7,7 +7,7 @@ import PianoRollGrid from "./pianoRollGrid";
 import * as React from "react";
 import { CgUndo } from "react-icons/cg";
 import { MdDelete } from "react-icons/md";
-import useSequencer from "../../hooks/sequencer/useSequencer";
+import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import { FaSave } from "react-icons/fa";
 import saveToFile from "../../common/saveTrack";
 import useSynth from "../../hooks/sequencer/useSynth";
@@ -15,6 +15,7 @@ import useSynth from "../../hooks/sequencer/useSynth";
 interface SongTabsProps {
     disabled?: boolean;
     setIsDownloading: (v: boolean) => void;
+    rollSequencer: Sequencer;
 }
 
 const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
@@ -25,7 +26,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
         state.clear,
     ]);
     const { canAddTab, selectTab, addTab, removeTab } = useTabControls();
-    const { stop } = useSequencer();
+    const { stop } = props.rollSequencer;
     const { synth } = useSynth();
     const selectedSong = songs[selectedIndex];
     const tabListContainer = useRef<HTMLElement | null>(null);
@@ -50,6 +51,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
 
     const handleAddTab = async () => {
         if (canAddTab) {
+            stop();
             await addTab();
             if (tabListContainer.current) {
                 const el = tabListContainer.current.querySelector("#song-tabs");
@@ -94,7 +96,10 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                             <button
                                 type="button"
                                 className="p-1"
-                                onClick={() => removeTab(i)}
+                                onClick={() => {
+                                    stop();
+                                    removeTab(i);
+                                }}
                             >
                                 <IoClose />
                             </button>
@@ -143,6 +148,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                     <PianoRollGrid
                         gridParams={s.gridParams}
                         notes={s.notes}
+                        rollSequencer={props.rollSequencer}
                         disabled={props.disabled}
                     />
                 </TabPanel>

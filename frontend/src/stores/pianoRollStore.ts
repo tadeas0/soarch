@@ -16,8 +16,6 @@ import { toneTimeToRollTime } from "../common/coordConversion";
 export interface PianoRollState {
     songs: SongParams[];
     selectedIndex: number;
-    isResultPlaying: boolean;
-    isRollPlaying: boolean;
     playbackEnabled: boolean;
     hasChanged: boolean;
     isPianoHidden: boolean;
@@ -26,8 +24,6 @@ export interface PianoRollState {
     setIsRecording: (value: boolean) => void;
     saveState: (notes: Note[]) => void;
     undo: () => void;
-    setIsRollPlaying: (value: boolean) => void;
-    setIsResultPlaying: (value: boolean) => void;
     addNote: (note: Note) => void;
     deleteNote: (note: Note) => void;
     setNotes: (notes: Note[]) => void;
@@ -71,8 +67,6 @@ export const DEFAULT_SONG_PARAMS: SongParams = {
 export const usePianoRollStore = create<PianoRollState>((set) => ({
     songs: [{ ...DEFAULT_SONG_PARAMS }],
     selectedIndex: 0,
-    isResultPlaying: false,
-    isRollPlaying: false,
     playbackEnabled: true,
     hasChanged: false,
     isPianoHidden: true,
@@ -105,16 +99,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             }
             return { hasChanged: true, undoStack };
         }),
-
-    setIsRollPlaying: (value: boolean) =>
-        set((state) => ({
-            isRollPlaying: value,
-            isResultPlaying: false,
-            isRecording: value ? state.isRecording : false,
-        })),
-
-    setIsResultPlaying: (value: boolean) =>
-        set(() => ({ isResultPlaying: value, isRollPlaying: false })),
 
     addNote: async (note: Note) =>
         set((state) => {
@@ -151,8 +135,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             newSongs[state.selectedIndex].notes = [];
             return {
                 songs: newSongs,
-                isRollPlaying: false,
-                isResultPlaying: false,
                 hasChanged: true,
                 undoStack: newStack,
             };
@@ -180,8 +162,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             return {
                 songs: [...state.songs, newSong],
                 selectedIndex: state.songs.length,
-                isRollPlaying: false,
-                isResultPlaying: false,
                 hasChanged: true,
                 undoStack: [],
             };
@@ -206,8 +186,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 return {
                     songs: newSongs,
                     selectedIndex: newSelected,
-                    isRollPlaying: false,
-                    isResultPlaying: false,
                     undoStack: newStack,
                     hasChanged: true,
                 };
@@ -216,8 +194,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 return {
                     songs: [{ ...DEFAULT_SONG_PARAMS }],
                     selectedIndex: 0,
-                    isRollPlaying: false,
-                    isResultPlaying: false,
                     hasChanged: true,
                 };
             }
@@ -229,8 +205,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             if (value >= 0 && value < state.songs.length)
                 return {
                     selectedIndex: value,
-                    isRollPlaying: false,
-                    isResultPlaying: false,
                     hasChanged: true,
                     undoStack: [],
                 };
@@ -246,7 +220,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                 ...oldGp,
                 width: oldGp.width + MEASURE_LENGTH,
             };
-            return { songs: newSongs, isRollPlaying: false };
+            return { songs: newSongs };
         });
     },
 
@@ -265,7 +239,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             );
             newSongs[state.selectedIndex].gridParams.width = newGridLength;
             newSongs[state.selectedIndex].notes = newNotes;
-            return { songs: newSongs, isRollPlaying: false };
+            return { songs: newSongs };
         }),
 
     clearChangeFlag: async () =>

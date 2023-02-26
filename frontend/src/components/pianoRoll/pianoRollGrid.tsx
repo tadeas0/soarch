@@ -6,12 +6,13 @@ import GridParams from "../../interfaces/GridParams";
 import { useMouseHandler } from "./mouseHandler/mouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
-import useSequencer from "../../hooks/sequencer/useSequencer";
+import useSequencer, { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useSynth from "../../hooks/sequencer/useSynth";
 
 interface PianoRollGridProps {
     notes: Note[];
     gridParams: GridParams;
+    rollSequencer: Sequencer;
     disabled?: boolean;
 }
 
@@ -19,15 +20,15 @@ interface PianoRollGridProps {
 const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     notes,
     gridParams,
+    rollSequencer,
     disabled = false,
 }: PianoRollGridProps) => {
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
     const [previewNotes, setPreviewNotes] = useState<Map<Note, number>>(
         new Map()
     );
-    const [playbackEnabled, isRollPlaying] = usePianoRollStore((state) => [
+    const [playbackEnabled] = usePianoRollStore((state) => [
         state.playbackEnabled,
-        state.isRollPlaying,
     ]);
     const [addNoteStore, deleteNoteStore] = usePianoRollStore((state) => [
         state.addNote,
@@ -146,7 +147,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
                 onDoubleClick={handleDoubleClick}
-                disabled={disabled || !isRollPlaying}
+                rollSequencer={rollSequencer}
             />
         </div>
     );

@@ -24,44 +24,35 @@ import { AiFillCaretDown } from "react-icons/ai";
 import { Note } from "../../interfaces/Note";
 import GridParams from "../../interfaces/GridParams";
 import * as React from "react";
-import useOnBeatCallback from "../../hooks/sequencer/useOnBeatCallback";
 import useSynth from "../../hooks/sequencer/useSynth";
 import {
     rollPitchToTonePitch,
-    rollTimeToToneTime,
     tonePitchToRollPitch,
     toneTimeToRollTime,
 } from "../../common/coordConversion";
+import { Sequencer } from "../../hooks/sequencer/useSequencer";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseUp: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseMove: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onDoubleClick: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+    rollSequencer: Sequencer;
     previewNotes: Set<Note>;
     gridParams: GridParams;
     notes: Note[];
     selectedNote: Note | null;
-    disabled?: boolean;
 }
 
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [headerTranslation, setHeaderTranslation] = useState(0);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
     const { triggerAttackRelease } = useSynth();
     const [preventMouseMove, setPreventMouseMove] = useState(false);
-    useOnBeatCallback(async (time) => {
-        if (!props.disabled) {
-            const headerWidth =
-                (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
-
-            const len = rollTimeToToneTime(props.gridParams.width);
-            const progress = time / len.toSeconds();
-            setHeaderTranslation(headerWidth * progress);
-        }
-    });
+    const headerWidth = (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
+    const { progress } = props.rollSequencer;
+    const headerTranslation = headerWidth * progress;
 
     const drawCircle = async (
         ctx: CanvasRenderingContext2D,
@@ -327,10 +318,6 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             />
         </div>
     );
-};
-
-PianoRollCanvas.defaultProps = {
-    disabled: false,
 };
 
 export default PianoRollCanvas;

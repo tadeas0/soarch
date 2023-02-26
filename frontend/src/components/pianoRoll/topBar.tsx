@@ -7,12 +7,14 @@ import TopButtons from "./topButtons";
 import TopResult from "./topResult";
 import Drawer from "react-modern-drawer";
 import { useMediaQuery } from "react-responsive";
+import { Sequencer } from "../../hooks/sequencer/useSequencer";
 
 interface TopBarProps {
     searchResult: SearchResult | undefined;
     isBusy: boolean;
     onShowMore: () => void;
     disabled: boolean;
+    rollSequencer: Sequencer;
 }
 
 const TopBar: FunctionComponent<TopBarProps> = (props) => {
@@ -28,7 +30,10 @@ const TopBar: FunctionComponent<TopBarProps> = (props) => {
                     onShowMore={props.onShowMore}
                 />
             )}
-            <TopButtons disabled={props.disabled} />
+            <TopButtons
+                rollSequencer={props.rollSequencer}
+                disabled={props.disabled}
+            />
         </div>
     );
 

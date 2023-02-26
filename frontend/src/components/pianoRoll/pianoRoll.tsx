@@ -33,20 +33,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     topSearchResult,
 }) => {
     const selectedSong = useSelectedSong();
-    const { isPlaying } = useSequencer();
-    const [
-        isRollPlaying,
-        isRecording,
-        isResultPlaying,
-        setIsRollPlaying,
-        setIsResultPlaying,
-    ] = usePianoRollStore((state) => [
-        state.isRollPlaying,
-        state.isRecording,
-        state.isResultPlaying,
-        state.setIsRollPlaying,
-        state.setIsResultPlaying,
-    ]);
+    const isRecording = usePianoRollStore((state) => state.isRecording);
     const addNote = usePianoRollStore((state) => state.addNote);
     const [playbackEnabled, isPianoHidden] = usePianoRollStore((state) => [
         state.playbackEnabled,
@@ -61,20 +48,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         state.removeMeasure,
     ]);
     const undo = usePianoRollStore((state) => state.undo);
-    useEffect(() => {
-        if (!isPlaying && isResultPlaying) {
-            setIsResultPlaying(false);
-        }
-        if (!isPlaying && isRollPlaying) {
-            setIsRollPlaying(false);
-        }
-    }, [
-        isPlaying,
-        isResultPlaying,
-        isRollPlaying,
-        setIsResultPlaying,
-        setIsRollPlaying,
-    ]);
+    const rollSequencer = useSequencer();
 
     useEffect(() => {
         if (hasChanged && !isFetchingResults) {
@@ -95,11 +69,11 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     const handleKeyUp = useCallback(
         (note: Note) => {
-            if (isRollPlaying && isRecording) {
+            if (rollSequencer.isPlaying && isRecording) {
                 addNote(note);
             }
         },
-        [addNote, isRecording, isRollPlaying]
+        [addNote, isRecording, rollSequencer.isPlaying]
     );
 
     const handleKeyboardDown = useCallback(
@@ -119,6 +93,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 disabled={disabled}
                 isBusy={isFetchingResults}
                 onShowMore={onShowMore}
+                rollSequencer={rollSequencer}
                 searchResult={topSearchResult}
             />
             <div className="mt-6 flex w-full flex-row items-start justify-center gap-3 xl:justify-between">
@@ -135,6 +110,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 </Button>
                 <SongTabs
                     setIsDownloading={setIsDownloading}
+                    rollSequencer={rollSequencer}
                     disabled={disabled}
                 />
                 <Button
@@ -150,6 +126,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 onKeyUp={handleKeyUp}
                 hidden={isPianoHidden}
                 playbackEnabled={playbackEnabled}
+                rollSequencer={rollSequencer}
             />
         </div>
     );

@@ -12,10 +12,10 @@ import Metronome from "./metronome";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import Button from "../basic/button";
 import * as React from "react";
-import useSequencer from "../../hooks/sequencer/useSequencer";
+import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import { rollTimeToToneTime } from "../../common/coordConversion";
 import * as Tone from "tone";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 
 const defaultProps = {
@@ -23,18 +23,15 @@ const defaultProps = {
 };
 
 type TopButtonsProps = {
+    rollSequencer: Sequencer;
     disabled?: boolean;
 } & typeof defaultProps;
 
 const TopButtons = (props: TopButtonsProps) => {
-    const [songs, selectedIndex, isRollPlaying, setIsRollPlaying] =
-        usePianoRollStore((state) => [
-            state.songs,
-            state.selectedIndex,
-            state.isRollPlaying,
-            state.setIsRollPlaying,
-        ]);
-    const { stop, play } = useSequencer();
+    const [songs, selectedIndex] = usePianoRollStore((state) => [
+        state.songs,
+        state.selectedIndex,
+    ]);
     const changeBPM = usePianoRollStore((state) => state.changeBPM);
     const [isPianoHidden, isRecording, setIsPianoHidden, setIsRecording] =
         usePianoRollStore((state) => [
@@ -45,8 +42,7 @@ const TopButtons = (props: TopButtonsProps) => {
         ]);
     const [countDown, setCountDown] = useState(0);
     const countInPart = useRef(new Tone.Part());
-    const repeatEvent = useRef<number | null>(null);
-    const changeEvent = useRef<number | null>(null);
+    const repeatEvent = useRef(new Tone.Loop());
     const metronomeSampler = new Tone.Sampler({
         urls: {
             G4: "/samples/metronome_down.mp3",
@@ -59,85 +55,77 @@ const TopButtons = (props: TopButtonsProps) => {
 
     const getPlayIcon = () => {
         if (props.disabled) return <BsFillPlayFill />;
-        if (isRollPlaying) return <BsPauseFill />;
+        if (props.rollSequencer.isPlaying) return <BsPauseFill />;
         return <BsFillPlayFill />;
     };
 
-    const handlePlayClick = useCallback(async () => {
-        stop();
-        if (isRollPlaying) {
-            setIsRollPlaying(false);
+    const disposeParts = () => {
+        if (!countInPart.current.disposed) countInPart.current.dispose();
+        if (!repeatEvent.current.disposed) repeatEvent.current.dispose();
+    };
+
+    const handlePlayClick = async () => {
+        disposeParts();
+        if (props.rollSequencer.isPlaying) {
+            props.rollSequencer.stop();
         } else {
-            if (countDown > 0) {
-                setCountDown(0);
-                if (repeatEvent.current)
-                    Tone.Transport.clear(repeatEvent.current);
-                if (changeEvent.current)
-                    Tone.Transport.clear(changeEvent.current);
-                countInPart.current.dispose();
-            }
-            play(
+            props.rollSequencer.play(
                 selectedSong.notes,
                 selectedSong.bpm,
                 rollTimeToToneTime(selectedSong.gridParams.width)
             );
-            setIsRollPlaying(true);
         }
-    }, [
-        countDown,
-        isRollPlaying,
-        play,
-        selectedSong.bpm,
-        selectedSong.gridParams.width,
-        selectedSong.notes,
-        setIsRollPlaying,
-        stop,
-    ]);
+        if (isRecording) {
+            setIsRecording(false);
+        }
+    };
 
     const handleRecord = async () => {
-        if (isRollPlaying) {
-            return;
-        }
-        if (Tone.context.state !== "running") await Tone.start();
-        stop();
-        const metronomeNotes = [];
-        for (let i = 0; i < 4; i++) {
-            const pitch = i % 4 === 0 ? "G4" : "C4";
-            metronomeNotes.push({ time: `0:${i}:0`, pitch });
-        }
-        countInPart.current = new Tone.Part((time, note) => {
-            metronomeSampler.triggerAttackRelease(note.pitch, "0:0:1", time);
-        }, metronomeNotes).start(0);
-        repeatEvent.current = Tone.Transport.scheduleRepeat(
-            (time) => {
+        if (props.rollSequencer.isPlaying) {
+            setIsRecording(true);
+        } else {
+            disposeParts();
+            const metronomeNotes = [];
+            for (let i = 0; i < 4; i++) {
+                const pitch = i % 4 === 0 ? "G4" : "C4";
+                metronomeNotes.push({ time: `0:${i}:0`, pitch });
+            }
+            countInPart.current = new Tone.Part((time, note) => {
+                metronomeSampler.triggerAttackRelease(
+                    note.pitch,
+                    "0:0:1",
+                    time
+                );
+            }, metronomeNotes)
+                .start(0)
+                .stop("1:0:0");
+            setCountDown(4);
+            repeatEvent.current = new Tone.Loop((time) => {
                 Tone.Draw.schedule(() => {
                     setCountDown((current) => current - 1);
                 }, time);
-            },
-            "4n",
-            "0:1:0"
-        );
-        setCountDown(4);
-        Tone.Transport.start();
-        changeEvent.current = Tone.Transport.scheduleOnce(() => {
-            countInPart.current.dispose();
-            if (repeatEvent.current) Tone.Transport.clear(repeatEvent.current);
-            setCountDown(0);
-            stop();
-            play(
+            })
+                .start("0:1:0")
+                .stop("1:1:0");
+            props.rollSequencer.play(
                 selectedSong.notes,
                 selectedSong.bpm,
-                rollTimeToToneTime(selectedSong.gridParams.width)
+                rollTimeToToneTime(selectedSong.gridParams.width),
+                false,
+                Tone.Time("1m")
             );
-            setIsRollPlaying(true);
-        }, "1m");
+        }
+        props.rollSequencer.once("loopEnd", () => {
+            setIsRecording(false);
+            disposeParts();
+        });
     };
 
     const handleRecordClick = () => {
         if (!isRecording) {
             setIsRecording(true);
             handleRecord();
-        } else {
+        } else if (countDown === 0) {
             setIsRecording(false);
         }
     };
@@ -152,15 +140,12 @@ const TopButtons = (props: TopButtonsProps) => {
         return <BsRecordFill />;
     };
 
-    const handleKeyboardDown = useCallback(
-        (e: KeyboardEvent) => {
-            if (e.key === " ") {
-                e.preventDefault();
-                handlePlayClick();
-            }
-        },
-        [handlePlayClick]
-    );
+    const handleKeyboardDown = (e: KeyboardEvent) => {
+        if (e.key === " " && countDown === 0) {
+            e.preventDefault();
+            handlePlayClick();
+        }
+    };
 
     useKeyboardListener(() => {}, handleKeyboardDown);
 
@@ -174,7 +159,9 @@ const TopButtons = (props: TopButtonsProps) => {
                     !(
                         selectedSong.bpm >= MIN_BPM &&
                         selectedSong.bpm <= MAX_BPM
-                    ) || props.disabled
+                    ) ||
+                    props.disabled ||
+                    countDown > 0
                 }
             >
                 {getPlayIcon()}
@@ -195,7 +182,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 increment={5}
                 min={30}
                 max={250}
-                disabled={isRollPlaying || props.disabled}
+                disabled={props.rollSequencer.isPlaying || props.disabled}
             />
             <Metronome disabled={props.disabled} />
             <Button
