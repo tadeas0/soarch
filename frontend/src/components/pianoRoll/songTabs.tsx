@@ -11,6 +11,7 @@ import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import { FaSave } from "react-icons/fa";
 import saveToFile from "../../common/saveTrack";
 import useSynth from "../../hooks/sequencer/useSynth";
+import useSearchResultQuery from "../../hooks/useSearchResultQuery";
 
 interface SongTabsProps {
     disabled?: boolean;
@@ -31,6 +32,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
     const selectedSong = songs[selectedIndex];
     const tabListContainer = useRef<HTMLElement | null>(null);
     const maxW = songs.length < 7 ? "max-w-2xs" : "max-w-3xs";
+    const invalidateSearchResults = useSearchResultQuery();
 
     const handleSave = async () => {
         try {
@@ -57,7 +59,20 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                 const el = tabListContainer.current.querySelector("#song-tabs");
                 if (el) el.scrollLeft = el.scrollWidth;
             }
+            invalidateSearchResults();
         }
+    };
+
+    const handleSelectTab = (n: number) => {
+        stop();
+        selectTab(n);
+        invalidateSearchResults();
+    };
+
+    const handleRemoveTab = (n: number) => {
+        stop();
+        removeTab(n);
+        invalidateSearchResults();
     };
 
     return (
@@ -86,20 +101,14 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                                 className={`max-h-8 overflow-hidden py-2 px-1 outline-none${
                                     i === selectedIndex ? "" : " truncate"
                                 }`}
-                                onClick={() => {
-                                    stop();
-                                    selectTab(i);
-                                }}
+                                onClick={() => handleSelectTab(i)}
                             >
                                 {s.name}
                             </Tab>
                             <button
                                 type="button"
                                 className="p-1"
-                                onClick={() => {
-                                    stop();
-                                    removeTab(i);
-                                }}
+                                onClick={() => handleRemoveTab(i)}
                             >
                                 <IoClose />
                             </button>

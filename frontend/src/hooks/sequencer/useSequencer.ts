@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import { SequencerContext } from "../../context/sequencerContext";
 import { Note } from "../../interfaces/Note";
@@ -14,20 +14,14 @@ export interface Sequencer {
     stop: () => void;
     addNote: (note: Note) => void;
     deleteNote: (note: Note) => void;
-    on: (event: TransportEventNames, cb: (...args: any[]) => void) => void;
-    once: (event: TransportEventNames, cb: (...args: any[]) => void) => void;
+    addOnPlay: (cb: () => void) => number;
+    addOnStop: (cb: () => void) => number;
+    clearOnPlay: (n: number) => void;
+    clearOnStop: (n: number) => void;
     isPlaying: boolean;
     progress: number;
     delay: Tone.TimeClass;
 }
-
-type TransportEventNames =
-    | "start"
-    | "stop"
-    | "pause"
-    | "loop"
-    | "loopEnd"
-    | "loopStart";
 
 const useSequencer = (): Sequencer => {
     const [currentId, setCurrentId] = useState<string | null>(null);
@@ -41,6 +35,8 @@ const useSequencer = (): Sequencer => {
         progress: seqProgress,
         setProgress,
     } = useContext(SequencerContext);
+    const onPlayEvents = useRef(new Map<number, () => void>());
+    const onStopEvents = useRef(new Map<number, () => void>());
 
     const isPlaying = playingId === currentId;
     const progress = currentId === playingId ? seqProgress : 0;
@@ -62,6 +58,9 @@ const useSequencer = (): Sequencer => {
 
     const stop = () => {
         Tone.Transport.stop();
+        onStopEvents.current.forEach((cb) => {
+            cb();
+        });
         setPlayingId(null);
     };
 
@@ -99,6 +98,11 @@ const useSequencer = (): Sequencer => {
             });
         }
         setDelay(delayBy);
+        onPlayEvents.current.forEach((cb) => {
+            Tone.Transport.scheduleOnce(() => {
+                cb();
+            }, delayBy.toSeconds());
+        });
         Tone.Transport.start();
     };
 
@@ -114,21 +118,27 @@ const useSequencer = (): Sequencer => {
         }
     };
 
-    const on = (event: TransportEventNames, cb: (...args: any[]) => void) => {
-        Tone.Transport.on(event, cb);
+    const maxMapKey = (m: Map<number, any>) => Math.max(...m.keys());
+    const setNewCb = (m: Map<number, () => void>, cb: () => void) => {
+        const nextKey = maxMapKey(m) + 1;
+        m.set(nextKey, cb);
+        return nextKey;
     };
 
-    const once = (event: TransportEventNames, cb: (...args: any[]) => void) => {
-        Tone.Transport.once(event, cb);
-    };
+    const addOnPlay = (cb: () => void) => setNewCb(onPlayEvents.current, cb);
+    const addOnStop = (cb: () => void) => setNewCb(onStopEvents.current, cb);
+    const clearOnPlay = (n: number) => onPlayEvents.current.delete(n);
+    const clearOnStop = (n: number) => onStopEvents.current.delete(n);
 
     return {
         play,
         stop,
         addNote,
         deleteNote,
-        on,
-        once,
+        addOnPlay,
+        addOnStop,
+        clearOnPlay,
+        clearOnStop,
         delay,
         isPlaying,
         progress,

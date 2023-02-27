@@ -1,13 +1,14 @@
 import * as React from "react";
-import { FunctionComponent, useRef, useState } from "react";
+import { FunctionComponent, useEffect, useRef, useState } from "react";
 import { Note } from "../../interfaces/Note";
 import PianoRollCanvas from "./pianoRollCanvas";
 import GridParams from "../../interfaces/GridParams";
-import { useMouseHandler } from "./mouseHandler/mouseHandler";
+import useMouseHandler from "./mouseHandler/useMouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
-import useSequencer, { Sequencer } from "../../hooks/sequencer/useSequencer";
+import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useSynth from "../../hooks/sequencer/useSynth";
+import useSearchResultQuery from "../../hooks/useSearchResultQuery";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -27,18 +28,20 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const [previewNotes, setPreviewNotes] = useState<Map<Note, number>>(
         new Map()
     );
-    const [playbackEnabled] = usePianoRollStore((state) => [
-        state.playbackEnabled,
+    const invalidateSearchResults = useSearchResultQuery();
+    const [localNotes, setLocalNotes] = useState<Note[]>([]);
+    const [setNotesStore, saveStateStore] = usePianoRollStore((state) => [
+        state.setNotes,
+        state.saveState,
     ]);
-    const [addNoteStore, deleteNoteStore] = usePianoRollStore((state) => [
-        state.addNote,
-        state.deleteNote,
-    ]);
-    const seq = useSequencer();
-    const { triggerAttackRelease, triggerAttack, triggerRelease } = useSynth();
+    const { triggerAttackRelease } = useSynth();
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
-    const handleShowPreviewNote = async (note: Note) => {
+    useEffect(() => {
+        setLocalNotes(notes);
+    }, [notes]);
+
+    const onPreviewNote = async (note: Note) => {
         triggerAttackRelease(note.pitch);
         setPreviewNotes((current) => {
             const currentTimeout = current.get(note);
@@ -57,29 +60,23 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     };
 
     const addNote = (note: Note) => {
-        addNoteStore(note);
-        seq.addNote(note);
+        setLocalNotes((current) => [...current, note]);
+        rollSequencer.addNote(note);
     };
 
     const deleteNote = (note: Note) => {
-        deleteNoteStore(note);
-        seq.deleteNote(note);
+        setLocalNotes((current) => current.filter((n) => n !== note));
+        rollSequencer.deleteNote(note);
     };
 
     const mouseHandler = useMouseHandler(
         addNote,
         deleteNote,
+        onPreviewNote,
         setSelectedNote,
-        handleShowPreviewNote,
-        triggerAttack,
-        triggerRelease,
-        () =>
-            usePianoRollStore.getState().songs[
-                usePianoRollStore.getState().selectedIndex
-            ].notes,
-        gridParams,
-        playbackEnabled,
-        usePianoRollStore.getState().saveState
+        saveStateStore,
+        localNotes,
+        gridParams
     );
 
     const handleLeftClick = async (coords: MouseEvent) => {
@@ -91,11 +88,19 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     };
 
     const handleLeftRelease = async (coords: MouseEvent) => {
-        if (!disabled) mouseHandler.onLeftRelease(coords);
+        if (!disabled) {
+            mouseHandler.onLeftRelease(coords);
+            setNotesStore(localNotes);
+            invalidateSearchResults();
+        }
     };
 
     const handleRightRelease = async (coords: MouseEvent) => {
-        if (!disabled) mouseHandler.onRightRelease(coords);
+        if (!disabled) {
+            mouseHandler.onRightRelease(coords);
+            setNotesStore(localNotes);
+            invalidateSearchResults();
+        }
     };
 
     const handleMouseDown = async (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -140,7 +145,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         >
             <PianoRollCanvas
                 gridParams={gridParams}
-                notes={notes}
+                notes={localNotes}
                 selectedNote={selectedNote}
                 previewNotes={new Set(previewNotes.keys())}
                 onMouseDown={handleMouseDown}

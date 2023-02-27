@@ -17,7 +17,6 @@ export interface PianoRollState {
     songs: SongParams[];
     selectedIndex: number;
     playbackEnabled: boolean;
-    hasChanged: boolean;
     isPianoHidden: boolean;
     undoStack: Note[][];
     isRecording: boolean;
@@ -35,7 +34,6 @@ export interface PianoRollState {
     selectTab: (value: number) => void;
     addMeasure: () => void;
     removeMeasure: () => void;
-    clearChangeFlag: () => void;
     setIsPianoHidden: (value: boolean) => void;
 }
 
@@ -68,7 +66,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
     songs: [{ ...DEFAULT_SONG_PARAMS }],
     selectedIndex: 0,
     playbackEnabled: true,
-    hasChanged: false,
     isPianoHidden: true,
     undoStack: [],
     isRecording: false,
@@ -95,9 +92,9 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             if (lastState) {
                 const newSongs = [...state.songs];
                 newSongs[state.selectedIndex].notes = lastState;
-                return { songs: newSongs, hasChanged: true, undoStack };
+                return { songs: newSongs, undoStack };
             }
-            return { hasChanged: true, undoStack };
+            return { undoStack };
         }),
 
     addNote: async (note: Note) =>
@@ -105,7 +102,7 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             const newSongs = [...state.songs];
             const oldNotes = newSongs[state.selectedIndex].notes;
             newSongs[state.selectedIndex].notes = [...oldNotes, note];
-            return { songs: newSongs, hasChanged: true };
+            return { songs: newSongs };
         }),
 
     deleteNote: async (note: Note) =>
@@ -115,14 +112,14 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             newSongs[state.selectedIndex].notes = oldNotes.filter(
                 (n) => n !== note
             );
-            return { songs: newSongs, hasChanged: true };
+            return { songs: newSongs };
         }),
 
     setNotes: async (notes: Note[]) =>
         set((state) => {
             const newSongs = [...state.songs];
             newSongs[state.selectedIndex].notes = notes;
-            return { songs: newSongs, hasChanged: true };
+            return { songs: newSongs };
         }),
 
     clear: () =>
@@ -135,7 +132,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             newSongs[state.selectedIndex].notes = [];
             return {
                 songs: newSongs,
-                hasChanged: true,
                 undoStack: newStack,
             };
         }),
@@ -162,7 +158,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             return {
                 songs: [...state.songs, newSong],
                 selectedIndex: state.songs.length,
-                hasChanged: true,
                 undoStack: [],
             };
         }),
@@ -187,14 +182,12 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
                     songs: newSongs,
                     selectedIndex: newSelected,
                     undoStack: newStack,
-                    hasChanged: true,
                 };
             }
             if (value === 0 && state.songs.length === 1) {
                 return {
                     songs: [{ ...DEFAULT_SONG_PARAMS }],
                     selectedIndex: 0,
-                    hasChanged: true,
                 };
             }
             return {};
@@ -205,7 +198,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             if (value >= 0 && value < state.songs.length)
                 return {
                     selectedIndex: value,
-                    hasChanged: true,
                     undoStack: [],
                 };
             return {};
@@ -241,11 +233,6 @@ export const usePianoRollStore = create<PianoRollState>((set) => ({
             newSongs[state.selectedIndex].notes = newNotes;
             return { songs: newSongs };
         }),
-
-    clearChangeFlag: async () =>
-        set(() => ({
-            hasChanged: false,
-        })),
 
     setIsPianoHidden: (value: boolean) => set(() => ({ isPianoHidden: value })),
 }));

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import {
     BsPauseFill,
     BsFillPlayFill,
@@ -15,8 +16,9 @@ import * as React from "react";
 import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import { rollTimeToToneTime } from "../../common/coordConversion";
 import * as Tone from "tone";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
+import useSearchResultQuery from "../../hooks/useSearchResultQuery";
 
 const defaultProps = {
     disabled: false,
@@ -27,12 +29,15 @@ type TopButtonsProps = {
     disabled?: boolean;
 } & typeof defaultProps;
 
+type PlaybackState = "Stopped" | "Playing" | "Recording" | "Countdown";
+
 const TopButtons = (props: TopButtonsProps) => {
     const [songs, selectedIndex] = usePianoRollStore((state) => [
         state.songs,
         state.selectedIndex,
     ]);
     const changeBPM = usePianoRollStore((state) => state.changeBPM);
+    const invalidateSearchResults = useSearchResultQuery();
     const [isPianoHidden, isRecording, setIsPianoHidden, setIsRecording] =
         usePianoRollStore((state) => [
             state.isPianoHidden,
@@ -53,6 +58,94 @@ const TopButtons = (props: TopButtonsProps) => {
 
     const selectedSong = songs[selectedIndex];
 
+    const playbackState = useRef<PlaybackState>("Stopped");
+
+    const recordWithCountdown = () => {
+        const metronomeNotes = [];
+        for (let i = 0; i < 4; i++) {
+            const pitch = i % 4 === 0 ? "G4" : "C4";
+            metronomeNotes.push({ time: `0:${i}:0`, pitch });
+        }
+        countInPart.current = new Tone.Part((time, note) => {
+            metronomeSampler.triggerAttackRelease(note.pitch, "0:0:1", time);
+        }, metronomeNotes)
+            .start(0)
+            .stop("1:0:0");
+        setCountDown(4);
+        repeatEvent.current = new Tone.Loop((time) => {
+            Tone.Draw.schedule(() => {
+                setCountDown((current) => current - 1);
+            }, time);
+        })
+            .start("0:1:0")
+            .stop("1:1:0");
+        props.rollSequencer.play(
+            selectedSong.notes,
+            selectedSong.bpm,
+            rollTimeToToneTime(selectedSong.gridParams.width),
+            false,
+            Tone.Time("1m")
+        );
+        setIsRecording(true);
+    };
+
+    const handlePlayClick = async () => {
+        switch (playbackState.current) {
+            case "Stopped":
+                props.rollSequencer.play(
+                    selectedSong.notes,
+                    selectedSong.bpm,
+                    rollTimeToToneTime(selectedSong.gridParams.width)
+                );
+                playbackState.current = "Playing";
+                break;
+            case "Playing":
+                props.rollSequencer.stop();
+                playbackState.current = "Stopped";
+                break;
+            case "Recording":
+                props.rollSequencer.stop();
+                setIsRecording(false);
+                invalidateSearchResults();
+                playbackState.current = "Stopped";
+                break;
+            case "Countdown":
+                if (countDown === 0) {
+                    playbackState.current = "Recording";
+                    handlePlayClick();
+                }
+                break;
+            default:
+                throw new Error("Unknown state");
+        }
+    };
+
+    const handleRecordClick = async () => {
+        switch (playbackState.current) {
+            case "Stopped":
+                recordWithCountdown();
+                playbackState.current = "Countdown";
+                break;
+            case "Playing":
+                setIsRecording(true);
+                playbackState.current = "Recording";
+                break;
+            case "Recording":
+                setIsRecording(false);
+                invalidateSearchResults();
+                playbackState.current = "Playing";
+                break;
+            case "Countdown":
+                if (countDown === 0) {
+                    playbackState.current = "Recording";
+                    handleRecordClick();
+                }
+                break;
+            default:
+                throw new Error("Unknown state");
+        }
+    };
+
     const getPlayIcon = () => {
         if (props.disabled) return <BsFillPlayFill />;
         if (props.rollSequencer.isPlaying) return <BsPauseFill />;
@@ -64,71 +157,21 @@ const TopButtons = (props: TopButtonsProps) => {
         if (!repeatEvent.current.disposed) repeatEvent.current.dispose();
     };
 
-    const handlePlayClick = async () => {
-        disposeParts();
-        if (props.rollSequencer.isPlaying) {
-            props.rollSequencer.stop();
-        } else {
-            props.rollSequencer.play(
-                selectedSong.notes,
-                selectedSong.bpm,
-                rollTimeToToneTime(selectedSong.gridParams.width)
-            );
-        }
-        if (isRecording) {
-            setIsRecording(false);
-        }
-    };
-
-    const handleRecord = async () => {
-        if (props.rollSequencer.isPlaying) {
-            setIsRecording(true);
-        } else {
-            disposeParts();
-            const metronomeNotes = [];
-            for (let i = 0; i < 4; i++) {
-                const pitch = i % 4 === 0 ? "G4" : "C4";
-                metronomeNotes.push({ time: `0:${i}:0`, pitch });
+    useEffect(() => {
+        const event = props.rollSequencer.addOnStop(() => {
+            if (
+                playbackState.current === "Recording" ||
+                playbackState.current === "Countdown"
+            ) {
+                disposeParts();
+                invalidateSearchResults();
+                setIsRecording(false);
+                playbackState.current = "Stopped";
             }
-            countInPart.current = new Tone.Part((time, note) => {
-                metronomeSampler.triggerAttackRelease(
-                    note.pitch,
-                    "0:0:1",
-                    time
-                );
-            }, metronomeNotes)
-                .start(0)
-                .stop("1:0:0");
-            setCountDown(4);
-            repeatEvent.current = new Tone.Loop((time) => {
-                Tone.Draw.schedule(() => {
-                    setCountDown((current) => current - 1);
-                }, time);
-            })
-                .start("0:1:0")
-                .stop("1:1:0");
-            props.rollSequencer.play(
-                selectedSong.notes,
-                selectedSong.bpm,
-                rollTimeToToneTime(selectedSong.gridParams.width),
-                false,
-                Tone.Time("1m")
-            );
-        }
-        props.rollSequencer.once("loopEnd", () => {
-            setIsRecording(false);
-            disposeParts();
         });
-    };
 
-    const handleRecordClick = () => {
-        if (!isRecording) {
-            setIsRecording(true);
-            handleRecord();
-        } else if (countDown === 0) {
-            setIsRecording(false);
-        }
-    };
+        return () => props.rollSequencer.clearOnStop(event);
+    }, [invalidateSearchResults, props.rollSequencer, setIsRecording]);
 
     const getRecordIcon = () => {
         if (countDown > 0) {

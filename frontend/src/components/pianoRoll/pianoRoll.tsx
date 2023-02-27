@@ -1,4 +1,4 @@
-import { useEffect, FunctionComponent, useCallback } from "react";
+import { FunctionComponent, useCallback } from "react";
 import { MEASURE_LENGTH, MIN_MEASURES } from "../../constants";
 import { Note } from "../../interfaces/Note";
 import SongTabs from "./songTabs";
@@ -16,7 +16,6 @@ import useSequencer from "../../hooks/sequencer/useSequencer";
 import TopBar from "./topBar";
 
 interface PianoRollProps {
-    onSubmit: (notes: Note[], gridLength: number) => void;
     onShowMore: () => void;
     setIsDownloading: (v: boolean) => void;
     topSearchResult?: SearchResult;
@@ -25,7 +24,6 @@ interface PianoRollProps {
 }
 
 const PianoRoll: FunctionComponent<PianoRollProps> = ({
-    onSubmit,
     onShowMore,
     setIsDownloading,
     disabled = false,
@@ -39,30 +37,12 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
         state.playbackEnabled,
         state.isPianoHidden,
     ]);
-    const [hasChanged, clearChangeFlag] = usePianoRollStore((state) => [
-        state.hasChanged,
-        state.clearChangeFlag,
-    ]);
     const [addMeasure, removeMeasure] = usePianoRollStore((state) => [
         state.addMeasure,
         state.removeMeasure,
     ]);
     const undo = usePianoRollStore((state) => state.undo);
     const rollSequencer = useSequencer();
-
-    useEffect(() => {
-        if (hasChanged && !isFetchingResults) {
-            onSubmit(selectedSong.notes, selectedSong.gridParams.width);
-        }
-        clearChangeFlag();
-    }, [
-        clearChangeFlag,
-        hasChanged,
-        isFetchingResults,
-        onSubmit,
-        selectedSong.gridParams.width,
-        selectedSong.notes,
-    ]);
 
     const canRemoveMeasure = () =>
         selectedSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;

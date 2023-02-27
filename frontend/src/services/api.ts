@@ -1,5 +1,5 @@
 import * as Tone from "tone";
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 
 export interface NoteForm {
     notes: NoteSerialized[];
@@ -38,13 +38,24 @@ export interface SimilarityStrategy {
 }
 
 export const API = {
-    postNotes(noteForm: NoteForm) {
-        return axios.post<SearchResultResponse>("/api/midi", noteForm);
+    postNotes(
+        noteForm: NoteForm,
+        config: AxiosRequestConfig<any> | undefined = undefined
+    ) {
+        return axios.post<SearchResultResponse>("/api/midi", noteForm, config);
     },
-    getSimilarityStrategies() {
-        return axios.get<SimilarityStrategy[]>("/api/similarity-strategy");
+    getSimilarityStrategies(
+        config: AxiosRequestConfig<any> | undefined = undefined
+    ) {
+        return axios.get<SimilarityStrategy[]>(
+            "/api/similarity-strategy",
+            config
+        );
     },
-    getExampleQueries() {
-        return axios.get<Song[]>("/api/example-queries");
+    getExampleQueries(config: AxiosRequestConfig<any> | undefined = undefined) {
+        return axios.get<Song[]>("/api/example-queries", config);
+    },
+    getHealthCheck(config: AxiosRequestConfig<any> | undefined = undefined) {
+        return axios.get("/api/healthcheck", config);
     },
 };
