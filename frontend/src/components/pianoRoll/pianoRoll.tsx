@@ -1,11 +1,9 @@
-import { useEffect, FunctionComponent, useCallback } from "react";
+import { FunctionComponent, useCallback } from "react";
 import { MEASURE_LENGTH, MIN_MEASURES } from "../../constants";
 import { Note } from "../../interfaces/Note";
 import SongTabs from "./songTabs";
 import * as React from "react";
-import TopButtons from "./topButtons";
 import { TiMinus, TiPlus } from "react-icons/ti";
-import TopResult from "./topResult";
 import { SearchResult } from "../../interfaces/SearchResult";
 import {
     usePianoRollStore,
@@ -15,9 +13,9 @@ import OnScreenPiano from "./onScreenPiano";
 import Button from "../basic/button";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import useSequencer from "../../hooks/sequencer/useSequencer";
+import TopBar from "./topBar";
 
 interface PianoRollProps {
-    onSubmit: (notes: Note[], gridLength: number) => void;
     onShowMore: () => void;
     setIsDownloading: (v: boolean) => void;
     topSearchResult?: SearchResult;
@@ -26,7 +24,6 @@ interface PianoRollProps {
 }
 
 const PianoRoll: FunctionComponent<PianoRollProps> = ({
-    onSubmit,
     onShowMore,
     setIsDownloading,
     disabled = false,
@@ -34,73 +31,29 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
     topSearchResult,
 }) => {
     const selectedSong = useSelectedSong();
-    const { isPlaying } = useSequencer();
-    const [
-        isRollPlaying,
-        isRecording,
-        isResultPlaying,
-        setIsRollPlaying,
-        setIsResultPlaying,
-    ] = usePianoRollStore((state) => [
-        state.isRollPlaying,
-        state.isRecording,
-        state.isResultPlaying,
-        state.setIsRollPlaying,
-        state.setIsResultPlaying,
-    ]);
+    const isRecording = usePianoRollStore((state) => state.isRecording);
     const addNote = usePianoRollStore((state) => state.addNote);
     const [playbackEnabled, isPianoHidden] = usePianoRollStore((state) => [
         state.playbackEnabled,
         state.isPianoHidden,
-    ]);
-    const [hasChanged, clearChangeFlag] = usePianoRollStore((state) => [
-        state.hasChanged,
-        state.clearChangeFlag,
     ]);
     const [addMeasure, removeMeasure] = usePianoRollStore((state) => [
         state.addMeasure,
         state.removeMeasure,
     ]);
     const undo = usePianoRollStore((state) => state.undo);
-    useEffect(() => {
-        if (!isPlaying && isResultPlaying) {
-            setIsResultPlaying(false);
-        }
-        if (!isPlaying && isRollPlaying) {
-            setIsRollPlaying(false);
-        }
-    }, [
-        isPlaying,
-        isResultPlaying,
-        isRollPlaying,
-        setIsResultPlaying,
-        setIsRollPlaying,
-    ]);
-
-    useEffect(() => {
-        if (hasChanged && !isFetchingResults) {
-            onSubmit(selectedSong.notes, selectedSong.gridParams.width);
-        }
-        clearChangeFlag();
-    }, [
-        clearChangeFlag,
-        hasChanged,
-        isFetchingResults,
-        onSubmit,
-        selectedSong.gridParams.width,
-        selectedSong.notes,
-    ]);
+    const rollSequencer = useSequencer();
 
     const canRemoveMeasure = () =>
         selectedSong.gridParams.width > MIN_MEASURES * MEASURE_LENGTH;
 
     const handleKeyUp = useCallback(
         (note: Note) => {
-            if (isRollPlaying && isRecording) {
+            if (rollSequencer.isPlaying && isRecording) {
                 addNote(note);
             }
         },
-        [addNote, isRecording, isRollPlaying]
+        [addNote, isRecording, rollSequencer.isPlaying]
     );
 
     const handleKeyboardDown = useCallback(
@@ -116,20 +69,16 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
 
     return (
         <div className="flex flex-col items-center justify-start">
-            <div className="grid w-full grid-cols-11 justify-center gap-4">
-                <TopResult
-                    searchResult={topSearchResult}
-                    isBusy={isFetchingResults}
-                    onShowMore={onShowMore}
-                />
-                <TopButtons
-                    setIsDownloading={setIsDownloading}
-                    disabled={disabled}
-                />
-            </div>
-            <div className="mt-10 flex w-full flex-row items-start justify-between gap-3">
+            <TopBar
+                disabled={disabled}
+                isBusy={isFetchingResults}
+                onShowMore={onShowMore}
+                rollSequencer={rollSequencer}
+                searchResult={topSearchResult}
+            />
+            <div className="mt-6 flex w-full flex-row items-start justify-center gap-3 xl:justify-between">
                 <Button
-                    className={`mt-44 p-3 text-xl${
+                    className={`mt-44 p-3 text-xl xl:block hidden${
                         canRemoveMeasure()
                             ? ""
                             : " bg-transparent text-transparent"
@@ -139,10 +88,14 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 >
                     <TiMinus />
                 </Button>
-                <SongTabs disabled={disabled} />
+                <SongTabs
+                    setIsDownloading={setIsDownloading}
+                    rollSequencer={rollSequencer}
+                    disabled={disabled}
+                />
                 <Button
                     id="add-measure-button"
-                    className="mt-44 p-3 text-xl"
+                    className="mt-44 hidden p-3 text-xl xl:block"
                     onClick={addMeasure}
                     disabled={disabled}
                 >
@@ -153,6 +106,7 @@ const PianoRoll: FunctionComponent<PianoRollProps> = ({
                 onKeyUp={handleKeyUp}
                 hidden={isPianoHidden}
                 playbackEnabled={playbackEnabled}
+                rollSequencer={rollSequencer}
             />
         </div>
     );

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { SlArrowLeft } from "react-icons/sl";
 import { SearchResult } from "../interfaces/SearchResult";
 import { HiOutlineMagnifyingGlassMinus } from "react-icons/hi2";
@@ -9,11 +8,6 @@ import PuffLoader from "react-spinners/PuffLoader";
 import Button from "./basic/button";
 import * as React from "react";
 import { BLACK } from "../constants";
-import useSequencer from "../hooks/sequencer/useSequencer";
-import {
-    getGridParamsFromNotes,
-    rollTimeToToneTime,
-} from "../common/coordConversion";
 
 type SearchResultsDrawerProps = {
     searchResults: SearchResult[];
@@ -25,28 +19,8 @@ type SearchResultsDrawerProps = {
 };
 
 const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
-    const [playingResult, setPlayingResult] = useState<SearchResult | null>(
-        null
-    );
-    const { play, stop } = useSequencer();
-
     const handleEdit = (searchResult: SearchResult) => {
         props.onEdit(searchResult);
-    };
-
-    const handlePlay = (searchResult: SearchResult) => {
-        stop();
-        if (searchResult !== playingResult) {
-            const gridParams = getGridParamsFromNotes(searchResult.notes);
-            play(
-                searchResult.notes,
-                searchResult.bpm,
-                rollTimeToToneTime(gridParams.width)
-            );
-            setPlayingResult(searchResult);
-        } else {
-            setPlayingResult(null);
-        }
     };
 
     const renderDrawerBody = () => {
@@ -68,16 +42,14 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
             );
         }
         return (
-            <div className="h-full bg-background p-3 text-black">
+            <div className="h-full overflow-y-scroll bg-background p-3 text-black">
                 <h1 className="mb-4 text-3xl">Search results</h1>
                 <ul className="mx-2">
                     {props.searchResults.map((s) => (
                         <li className="w-full border-b-2 border-black last:border-b-0">
                             <SearchResultCard
                                 searchResult={s}
-                                isPlaying={s === playingResult}
                                 onEdit={handleEdit}
-                                onPlay={handlePlay}
                             />
                         </li>
                     ))}

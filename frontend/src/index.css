@@ -14,9 +14,9 @@
     }
 
     html {
-        padding: 2rem;
         background-color: var(--bg-color);
         font-family: "Courier", monospace;
+        min-height: 100vh;
     }
 
     input[type="number"]::-webkit-inner-spin-button,

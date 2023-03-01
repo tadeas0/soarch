@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import { AvailabilityProvider } from "./context/serverAvailabilityContext";
 import reportWebVitals from "./reportWebVitals";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import LandingPage from "./routes/landingPage";
@@ -11,6 +10,7 @@ import FaqPage from "./routes/faqPage";
 import { steps, tourOptions } from "./tourSettings";
 import { ShepherdTour } from "react-shepherd";
 import { SequencerContextProvider } from "./context/sequencerContext";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const router = createBrowserRouter([
     {
@@ -27,16 +27,17 @@ const router = createBrowserRouter([
         element: <FaqPage />,
     },
 ]);
+const queryClient = new QueryClient();
 
 ReactDOM.render(
     <React.StrictMode>
-        <AvailabilityProvider>
-            <ShepherdTour steps={steps} tourOptions={tourOptions}>
-                <SequencerContextProvider>
+        <ShepherdTour steps={steps} tourOptions={tourOptions}>
+            <SequencerContextProvider>
+                <QueryClientProvider client={queryClient}>
                     <RouterProvider router={router} />
-                </SequencerContextProvider>
-            </ShepherdTour>
-        </AvailabilityProvider>
+                </QueryClientProvider>
+            </SequencerContextProvider>
+        </ShepherdTour>
     </React.StrictMode>,
     document.getElementById("root")
 );

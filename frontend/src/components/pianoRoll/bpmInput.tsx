@@ -48,7 +48,9 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
 
     return (
         <div className="col-span-3 flex flex-col items-center justify-end">
-            <h3 className="text-xl font-semibold text-black">Tempo</h3>
+            <h3 className="hidden font-semibold text-black xl:block xl:text-xl">
+                Tempo
+            </h3>
             <div
                 id={props.id}
                 className="relative flex flex-row items-center justify-center self-center justify-self-center rounded bg-light-primary p-4"
@@ -70,7 +72,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
                 <input
                     maxLength={3}
                     type="number"
-                    className={`max-w-3xs flex-grow-0 appearance-none border-none bg-transparent p-0 text-center text-4xl text-white outline-none ${
+                    className={`max-w-3xs flex-grow-0 appearance-none border-none bg-transparent p-0 text-center text-2xl text-white outline-none xl:text-4xl ${
                         props.disabled ? "text-opacity-60" : ""
                     }`}
                     value={props.value}

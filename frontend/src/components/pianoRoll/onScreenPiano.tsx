@@ -12,11 +12,13 @@ import { HiMinus, HiPlus } from "react-icons/hi";
 import useMidiListener from "../../hooks/useMidiListener";
 import * as React from "react";
 import useSynth from "../../hooks/sequencer/useSynth";
+import { Sequencer } from "../../hooks/sequencer/useSequencer";
 
 interface OnScreenPianoProps {
     onKeyUp: (note: Note) => void;
     playbackEnabled: boolean;
     hidden?: boolean;
+    rollSequencer: Sequencer;
 }
 
 const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
@@ -51,11 +53,11 @@ const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
     }, [props.playbackEnabled, setMidiPlayback]);
 
     const getCurrentQTime = () => {
-        const t = Tone.Time(Tone.Transport.position).toBarsBeatsSixteenths();
-        const splitNum = t.split(":");
-        const sixteenths = Number.parseFloat(splitNum[2]);
-        const qTime = `${splitNum[0]}:${splitNum[1]}:${Math.floor(sixteenths)}`;
-        return Tone.Time(qTime).toBarsBeatsSixteenths();
+        const t = Tone.Time(
+            Tone.Transport.getSecondsAtTime(Tone.Transport.immediate()) -
+                props.rollSequencer.delay.toSeconds()
+        );
+        return Tone.Time(t.quantize("16n")).toBarsBeatsSixteenths();
     };
 
     const handlePlayNote = (midiNote: number) => {
@@ -90,17 +92,14 @@ const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
                         parseInt(splStart[2], 10))
                 }`
             );
-
             if (len.toBarsBeatsSixteenths() === "0:0:0")
                 len = Tone.Time("0:0:1");
-
             const newPressedNotes = {
                 ...pressedNotes,
                 [midiNote]: false,
             };
             setPressedNotes(newPressedNotes);
             triggerRelease(Tone.Midi(midiNote));
-
             props.onKeyUp({
                 pitch: Tone.Midi(midiNote),
                 time: Tone.Time(start),

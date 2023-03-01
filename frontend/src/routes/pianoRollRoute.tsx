@@ -1,117 +1,66 @@
-import {
-    FunctionComponent,
-    useState,
-    useContext,
-    useCallback,
-    useEffect,
-} from "react";
+import { FunctionComponent, useState, useContext, useEffect } from "react";
 import { BeatLoader } from "react-spinners";
 import * as Tone from "tone";
 import DownloadingOverlay from "../components/downloadingOverlay";
 import PianoRoll from "../components/pianoRoll/pianoRoll";
 import SearchResultsDrawer from "../components/searchResultsDrawer";
-import StrategySelector, { Option } from "../components/strategySelector";
 import {
-    HIDE_STRATEGIES,
     LIGHT_PRIMARY,
     MIN_NOTES_FOR_FETCHING,
+    SEARCH_RESULT_KEY,
 } from "../constants";
 import { PlaybackProvider } from "../context/playbackContext";
-import { AvailabilityContext } from "../context/serverAvailabilityContext";
 import { API, NoteForm } from "../services/api";
 import { Note } from "../interfaces/Note";
-import { usePianoRollStore } from "../stores/pianoRollStore";
+import {
+    usePianoRollStore,
+    useSelectedSong,
+    useTabControls,
+} from "../stores/pianoRollStore";
 import { ShepherdTourContext } from "react-shepherd";
-import BottomLogo from "../components/basic/bottomLogo";
 import TourButton from "../components/pianoRoll/tourButton";
 import { SearchResult } from "../interfaces/SearchResult";
 import * as React from "react";
 import useSequencer from "../hooks/sequencer/useSequencer";
 import { getGridParamsFromNotes } from "../common/coordConversion";
+import { FullScreen, useFullScreenHandle } from "react-full-screen";
+import FullscreenModal from "../components/pianoRoll/fullscreenModal";
+import useIsXlScreen from "../hooks/useIsXlScreen";
+import { useQuery } from "react-query";
 
 interface PianoRollRouteProps {}
 
 const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
-    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-    const [availableStrategies, setAvailableStrategies] = useState<Option[]>(
-        []
-    );
-    const [selectedStrategy, setSelectedStrategy] = useState<Option>({
+    const selectedStrategy = {
         name: "Local alignment (Biopython lib)",
         value: "lcabp",
-    });
-    const [isBusy, setBusy] = useState<boolean>(false);
-    const [initializing, setInitializing] = useState(false);
-    const { setServerAvailable } = useContext(AvailabilityContext);
+    };
+    const handle = useFullScreenHandle();
+    const isXl = useIsXlScreen();
+    const [showFullscreenModal, setShowFullscreenModal] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
-    const addTab = usePianoRollStore((state) => state.addTab);
+    const { addTab } = useTabControls();
+    const selectedSong = useSelectedSong();
+    const selectedIndex = usePianoRollStore((state) => state.selectedIndex);
     const { stop } = useSequencer();
     const storageKey = "already-took-tour";
     const tour = useContext(ShepherdTourContext);
-
-    const handleRequestErrors = useCallback(
-        (err: any) => {
-            if (err.response) {
-                if (err.response.status === 500) {
-                    setServerAvailable(false);
-                } else {
-                    console.log(err);
-                }
-            } else {
-                console.log(err);
-            }
-        },
-        [setServerAvailable]
-    );
-
-    useEffect(() => {
-        const alreadyTookTour = localStorage.getItem(storageKey);
-        if (!alreadyTookTour && tour) {
-            tour.start();
-            localStorage.setItem(storageKey, String(true));
-        }
-    }, [tour]);
-
-    useEffect(() => {
-        setInitializing(true);
-        Promise.all([API.getSimilarityStrategies(), API.getExampleQueries()])
-            .then(([resSimStrat]) => {
-                const options = resSimStrat.data.map((r) => ({
-                    name: r.name,
-                    value: r.shortcut,
-                }));
-                setAvailableStrategies(options);
-                setSelectedStrategy({
-                    name: "Local alignment (Biopython lib)",
-                    value: "lcabp",
-                });
-                setServerAvailable(true);
-            })
-            .catch(handleRequestErrors)
-            .finally(() => setInitializing(false));
-    }, [setServerAvailable, handleRequestErrors]);
-
-    const handleSubmit = async (notes: Note[], gridLength: number) => {
-        setBusy(true);
-        if (notes.length < MIN_NOTES_FOR_FETCHING) {
-            setSearchResults([]);
-            setBusy(false);
-            return;
-        }
-
-        const reqBody: NoteForm = {
-            gridLength,
-            notes: notes.map((n) => ({
-                pitch: n.pitch.toMidi(),
-                length: n.length.toBarsBeatsSixteenths(),
-                time: n.time.toBarsBeatsSixteenths(),
-            })),
-        };
-        if (selectedStrategy)
-            reqBody.similarityStrategy = selectedStrategy.value;
-        try {
-            const res = await API.postNotes(reqBody);
+    const { isFetching, data: searchResults } = useQuery(
+        [SEARCH_RESULT_KEY, selectedIndex],
+        async ({ signal }) => {
+            if (selectedSong.notes.length < MIN_NOTES_FOR_FETCHING) return [];
+            const reqBody: NoteForm = {
+                gridLength: selectedSong.gridParams.width,
+                notes: selectedSong.notes.map((n) => ({
+                    pitch: n.pitch.toMidi(),
+                    length: n.length.toBarsBeatsSixteenths(),
+                    time: n.time.toBarsBeatsSixteenths(),
+                })),
+            };
+            if (selectedStrategy)
+                reqBody.similarityStrategy = selectedStrategy.value;
+            const res = await API.postNotes(reqBody, { signal });
             const result = res.data.tracks.map<SearchResult>((track) => ({
                 artist: track.artist,
                 name: track.name,
@@ -123,13 +72,39 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                 bpm: track.bpm,
                 similarity: track.similarity,
             }));
-            setSearchResults(result);
-        } catch (err) {
-            handleRequestErrors(err);
-        } finally {
-            setBusy(false);
+            return result;
+        },
+        {
+            initialData: [],
+            keepPreviousData: true,
+            refetchOnWindowFocus: false,
+            staleTime: Infinity,
         }
-    };
+    );
+    const { isFetching: isConnecting } = useQuery(
+        "serverAvailable",
+        async ({ signal }) => {
+            const res = await API.getHealthCheck({ signal });
+            return res.status === 200;
+        },
+        {
+            refetchOnWindowFocus: false,
+        }
+    );
+
+    useEffect(() => {
+        if (!handle.active && !isXl) {
+            setShowFullscreenModal(true);
+            return;
+        }
+        setShowFullscreenModal(false);
+
+        const alreadyTookTour = localStorage.getItem(storageKey);
+        if (!alreadyTookTour && tour) {
+            tour.start();
+            localStorage.setItem(storageKey, String(true));
+        }
+    }, [handle.active, tour, isXl]);
 
     const handleEdit = (searchResult: SearchResult) => {
         setIsDrawerOpen(false);
@@ -149,48 +124,44 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     };
 
     return (
-        <div className="piano-roll-route">
-            {initializing ? (
-                <div className="flex h-screen w-screen flex-col items-center justify-center">
-                    <BeatLoader size={100} color={LIGHT_PRIMARY} />
-                    <h1 className="mt-4 text-2xl">
-                        Connecting to the server...
-                    </h1>
-                </div>
-            ) : (
-                <PlaybackProvider>
-                    <TourButton />
-                    <BottomLogo />
-                    {isDownloading && <DownloadingOverlay />}
-                    <PianoRoll
-                        setIsDownloading={setIsDownloading}
-                        isFetchingResults={isBusy}
-                        topSearchResult={searchResults.at(0)}
-                        onShowMore={handleDrawerToggle}
-                        onSubmit={handleSubmit}
-                        disabled={isDrawerOpen}
-                    />
-                    <div>
-                        {selectedStrategy && !HIDE_STRATEGIES && (
-                            <StrategySelector
-                                options={availableStrategies}
-                                onChange={setSelectedStrategy}
+        <FullScreen handle={handle}>
+            {showFullscreenModal && (
+                <FullscreenModal fullscreenHandle={handle} />
+            )}
+            <div className="piano-roll-route h-full bg-background p-2 lg:p-8">
+                {isConnecting ? (
+                    <div className="flex h-screen w-screen flex-col items-center justify-center">
+                        <BeatLoader size={100} color={LIGHT_PRIMARY} />
+                        <h1 className="mt-4 text-2xl">
+                            Connecting to the server...
+                        </h1>
+                    </div>
+                ) : (
+                    <PlaybackProvider>
+                        <TourButton />
+                        {isDownloading && <DownloadingOverlay />}
+                        <PianoRoll
+                            setIsDownloading={setIsDownloading}
+                            isFetchingResults={isFetching}
+                            topSearchResult={searchResults?.at(0)}
+                            onShowMore={handleDrawerToggle}
+                            disabled={isDrawerOpen}
+                        />
+                        {((searchResults && searchResults.length > 0) ||
+                            isFetching) && (
+                            <SearchResultsDrawer
+                                onOpen={handleDrawerToggle}
+                                onClose={handleDrawerToggle}
+                                isOpen={isDrawerOpen}
+                                searchResults={searchResults || []}
+                                isBusy={isFetching}
+                                onEdit={handleEdit}
                             />
                         )}
-                    </div>
-                    {(searchResults.length > 0 || isBusy) && (
-                        <SearchResultsDrawer
-                            onOpen={handleDrawerToggle}
-                            onClose={handleDrawerToggle}
-                            isOpen={isDrawerOpen}
-                            searchResults={searchResults}
-                            isBusy={isBusy}
-                            onEdit={handleEdit}
-                        />
-                    )}
-                </PlaybackProvider>
-            )}
-        </div>
+                    </PlaybackProvider>
+                )}
+            </div>
+        </FullScreen>
     );
 };
 

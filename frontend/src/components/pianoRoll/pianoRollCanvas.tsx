@@ -24,42 +24,39 @@ import { AiFillCaretDown } from "react-icons/ai";
 import { Note } from "../../interfaces/Note";
 import GridParams from "../../interfaces/GridParams";
 import * as React from "react";
-import useOnBeatCallback from "../../hooks/sequencer/useOnBeatCallback";
 import useSynth from "../../hooks/sequencer/useSynth";
 import {
     rollPitchToTonePitch,
-    rollTimeToToneTime,
     tonePitchToRollPitch,
     toneTimeToRollTime,
 } from "../../common/coordConversion";
+import { Sequencer } from "../../hooks/sequencer/useSequencer";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseUp: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseMove: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+    onTouchStart: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+    onTouchEnd: () => void;
+    onTouchMove: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+    onTouchCancel: () => void;
+    preventScroll: boolean;
+    rollSequencer: Sequencer;
     previewNotes: Set<Note>;
     gridParams: GridParams;
     notes: Note[];
     selectedNote: Note | null;
-    disabled?: boolean;
 }
 
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [headerTranslation, setHeaderTranslation] = useState(0);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
     const { triggerAttackRelease } = useSynth();
-    useOnBeatCallback(async (time) => {
-        if (!props.disabled) {
-            const headerWidth =
-                (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
-
-            const len = rollTimeToToneTime(props.gridParams.width);
-            const progress = time / len.toSeconds();
-            setHeaderTranslation(headerWidth * progress);
-        }
-    });
+    const [preventMouse, setPreventMouse] = useState(false);
+    const headerWidth = (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
+    const { progress } = props.rollSequencer;
+    const headerTranslation = headerWidth * progress;
 
     const drawCircle = async (
         ctx: CanvasRenderingContext2D,
@@ -288,7 +285,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     return (
         <div
             ref={canvasContainerRef}
-            className="relative h-screen max-h-full max-w-full overflow-scroll transition-[width]"
+            className="relative h-screen max-h-full max-w-full transition-[width]"
+            style={{
+                overflow: props.preventScroll ? "hidden" : "scroll",
+            }}
         >
             {renderPiano()}
             <div
@@ -312,17 +312,27 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                     minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
                 }}
                 ref={canvasRef}
-                onMouseDown={(e) => isOnGrid(e) && props.onMouseDown(e)}
-                onMouseMove={(e) => isOnGrid(e) && props.onMouseMove(e)}
-                onMouseUp={(e) => isOnGrid(e) && props.onMouseUp(e)}
+                onMouseDown={(e) =>
+                    !preventMouse && isOnGrid(e) && props.onMouseDown(e)
+                }
+                onMouseMove={(e) =>
+                    !preventMouse && isOnGrid(e) && props.onMouseMove(e)
+                }
+                onMouseUp={(e) =>
+                    !preventMouse && isOnGrid(e) && props.onMouseUp(e)
+                }
+                // Mouse events need to be prevented, when using touchscreen
+                onTouchStart={(e) => {
+                    setPreventMouse(true);
+                    props.onTouchStart(e);
+                }}
+                onTouchEnd={props.onTouchEnd}
+                onTouchMove={props.onTouchMove}
+                onTouchCancel={props.onTouchCancel}
                 onContextMenu={(e) => e.preventDefault()}
             />
         </div>
     );
-};
-
-PianoRollCanvas.defaultProps = {
-    disabled: false,
 };
 
 export default PianoRollCanvas;
