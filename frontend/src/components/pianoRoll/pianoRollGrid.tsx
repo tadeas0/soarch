@@ -9,6 +9,7 @@ import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
 import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useSynth from "../../hooks/sequencer/useSynth";
 import useSearchResultQuery from "../../hooks/useSearchResultQuery";
+import useTouchHandler from "./touchHandler/useTouchHandler";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -75,7 +76,17 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         onPreviewNote,
         setSelectedNote,
         saveStateStore,
-        localNotes,
+        notes,
+        gridParams
+    );
+
+    const touchHandler = useTouchHandler(
+        addNote,
+        deleteNote,
+        onPreviewNote,
+        setSelectedNote,
+        saveStateStore,
+        notes,
         gridParams
     );
 
@@ -130,11 +141,42 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         }
     };
 
-    const handleDoubleClick = async (
-        e: React.MouseEvent<HTMLCanvasElement>
+    const getCoordsFromTouchEvent = (
+        e: React.TouchEvent<HTMLCanvasElement>
     ) => {
-        mouseHandler.onRightClick(e.nativeEvent);
-        mouseHandler.onRightRelease(e.nativeEvent);
+        const el = e.target as HTMLElement;
+        if (e.targetTouches.length === 0) {
+            throw new Error("No touches");
+        } else {
+            const rect = el.getBoundingClientRect();
+            const offsetX = e.targetTouches.item(0).pageX - rect.left;
+            const offsetY = e.targetTouches.item(0).pageY - rect.top;
+            return { offsetX, offsetY };
+        }
+    };
+
+    const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+        if (!disabled) touchHandler.onTouchStart(getCoordsFromTouchEvent(e));
+    };
+
+    const handleTouchEnd = async () => {
+        if (!disabled) {
+            touchHandler.onTouchEnd();
+            // TODO: replace this hacky solution
+            setLocalNotes((current) => {
+                setNotesStore(current);
+                invalidateSearchResults();
+                return current;
+            });
+        }
+    };
+
+    const handleTouchMove = async (e: React.TouchEvent<HTMLCanvasElement>) => {
+        if (!disabled) touchHandler.onTouchMove(getCoordsFromTouchEvent(e));
+    };
+
+    const handleTouchCancel = async () => {
+        if (!disabled) touchHandler.onTouchCancel();
     };
 
     return (
@@ -151,7 +193,11 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
-                onDoubleClick={handleDoubleClick}
+                onTouchEnd={handleTouchEnd}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchCancel={handleTouchCancel}
+                preventScroll={touchHandler.preventScroll}
                 rollSequencer={rollSequencer}
             />
         </div>

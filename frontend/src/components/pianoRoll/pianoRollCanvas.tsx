@@ -36,7 +36,11 @@ interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseUp: (e: React.MouseEvent<HTMLCanvasElement>) => void;
     onMouseMove: (e: React.MouseEvent<HTMLCanvasElement>) => void;
-    onDoubleClick: (e: React.MouseEvent<HTMLCanvasElement>) => void;
+    onTouchStart: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+    onTouchEnd: () => void;
+    onTouchMove: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+    onTouchCancel: () => void;
+    preventScroll: boolean;
     rollSequencer: Sequencer;
     previewNotes: Set<Note>;
     gridParams: GridParams;
@@ -49,7 +53,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
     const { triggerAttackRelease } = useSynth();
-    const [preventMouseMove, setPreventMouseMove] = useState(false);
+    const [preventMouse, setPreventMouse] = useState(false);
     const headerWidth = (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
     const { progress } = props.rollSequencer;
     const headerTranslation = headerWidth * progress;
@@ -281,7 +285,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     return (
         <div
             ref={canvasContainerRef}
-            className="relative h-screen max-h-full max-w-full overflow-scroll transition-[width]"
+            className="relative h-screen max-h-full max-w-full transition-[width]"
+            style={{
+                overflow: props.preventScroll ? "hidden" : "scroll",
+            }}
         >
             {renderPiano()}
             <div
@@ -305,15 +312,23 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                     minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
                 }}
                 ref={canvasRef}
-                onMouseDown={(e) => isOnGrid(e) && props.onMouseDown(e)}
-                onMouseMove={(e) =>
-                    !preventMouseMove && isOnGrid(e) && props.onMouseMove(e)
+                onMouseDown={(e) =>
+                    !preventMouse && isOnGrid(e) && props.onMouseDown(e)
                 }
-                onMouseUp={(e) => isOnGrid(e) && props.onMouseUp(e)}
-                onDoubleClick={(e) => isOnGrid(e) && props.onDoubleClick(e)}
-                // This is a hack to prevent 'mousemove' events on touchscreens
-                onTouchStart={() => setPreventMouseMove(true)}
-                onClick={() => setPreventMouseMove(false)}
+                onMouseMove={(e) =>
+                    !preventMouse && isOnGrid(e) && props.onMouseMove(e)
+                }
+                onMouseUp={(e) =>
+                    !preventMouse && isOnGrid(e) && props.onMouseUp(e)
+                }
+                // Mouse events need to be prevented, when using touchscreen
+                onTouchStart={(e) => {
+                    setPreventMouse(true);
+                    props.onTouchStart(e);
+                }}
+                onTouchEnd={props.onTouchEnd}
+                onTouchMove={props.onTouchMove}
+                onTouchCancel={props.onTouchCancel}
                 onContextMenu={(e) => e.preventDefault()}
             />
         </div>
