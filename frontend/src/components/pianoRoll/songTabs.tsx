@@ -86,7 +86,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
             <div className="flex flex-row">
                 <TabList
                     id="song-tabs"
-                    className="ml-4 flex max-w-md overflow-x-scroll rounded-t border-2 border-b-0 border-black outline-none last:border-r-0 xl:max-w-5xl"
+                    className="ml-4 flex max-w-md overflow-x-auto rounded-t border-2 border-b-0 border-black outline-none last:border-r-0 xl:max-w-5xl"
                 >
                     {songs.map((s, i) => (
                         <div

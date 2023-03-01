@@ -32,30 +32,33 @@
 }
 
 /* SCROLLBAR */
-::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-}
+@media only screen and (min-width: 1280px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+        border: none;
+        background-color: transparent;
+    }
 
-::-webkit-scrollbar-track {
-    background-color: var(--white-color);
-    border-radius: 0.25rem;
-}
+    ::-webkit-scrollbar-track {
+        background-color: var(--white-color);
+        border-radius: 0.25rem;
+    }
 
-::-webkit-scrollbar-thumb {
-    background: var(--light-primary-color);
-    border-radius: 0.25rem;
-}
+    ::-webkit-scrollbar-thumb {
+        background: var(--light-primary-color);
+        border-radius: 0.25rem;
+    }
 
-::-webkit-scrollbar-thumb:hover {
-    background: var(--medium-primary-color);
-}
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--medium-primary-color);
+    }
 
-/* SCROLLBAR FIREFOX */
-:root {
-    scrollbar-color: var(--light-primary-color) var(--white-color);
+    /* SCROLLBAR FIREFOX */
+    :root {
+        scrollbar-color: var(--light-primary-color) var(--white-color);
+    }
 }
-
 /* yeeted from https://shepherdjs.dev/dist/css/shepherd.css */
 .shepherd-element {
     z-index: 9999;

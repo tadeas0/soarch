@@ -1,6 +1,5 @@
 import { FunctionComponent, useState, useContext, useEffect } from "react";
 import { BeatLoader } from "react-spinners";
-import * as Tone from "tone";
 import DownloadingOverlay from "../components/downloadingOverlay";
 import PianoRoll from "../components/pianoRoll/pianoRoll";
 import SearchResultsDrawer from "../components/searchResultsDrawer";
@@ -10,8 +9,8 @@ import {
     SEARCH_RESULT_KEY,
 } from "../constants";
 import { PlaybackProvider } from "../context/playbackContext";
-import { API, NoteForm } from "../services/api";
-import { Note } from "../interfaces/Note";
+import API from "../services/api";
+import { NoteForm } from "../interfaces/NoteForm";
 import {
     usePianoRollStore,
     useSelectedSong,
@@ -27,6 +26,7 @@ import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import FullscreenModal from "../components/pianoRoll/fullscreenModal";
 import useIsXlScreen from "../hooks/useIsXlScreen";
 import { useQuery } from "react-query";
+import { deserializeSong, serializeNote } from "../common/common";
 
 interface PianoRollRouteProps {}
 
@@ -52,26 +52,12 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
             if (selectedSong.notes.length < MIN_NOTES_FOR_FETCHING) return [];
             const reqBody: NoteForm = {
                 gridLength: selectedSong.gridParams.width,
-                notes: selectedSong.notes.map((n) => ({
-                    pitch: n.pitch.toMidi(),
-                    length: n.length.toBarsBeatsSixteenths(),
-                    time: n.time.toBarsBeatsSixteenths(),
-                })),
+                notes: selectedSong.notes.map(serializeNote),
             };
             if (selectedStrategy)
                 reqBody.similarityStrategy = selectedStrategy.value;
             const res = await API.postNotes(reqBody, { signal });
-            const result = res.data.tracks.map<SearchResult>((track) => ({
-                artist: track.artist,
-                name: track.name,
-                notes: track.notes.map<Note>((n) => ({
-                    time: Tone.Time(n.time),
-                    pitch: Tone.Frequency(n.pitch, "midi"),
-                    length: Tone.Time(n.length),
-                })),
-                bpm: track.bpm,
-                similarity: track.similarity,
-            }));
+            const result = res.data.tracks.map<SearchResult>(deserializeSong);
             return result;
         },
         {

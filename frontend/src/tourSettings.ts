@@ -50,7 +50,7 @@ export const steps: ShepherdOptionsWithType[] = [
     },
     {
         id: "grid",
-        attachTo: { element: "#roll-canvas", on: "auto" },
+        attachTo: { element: "#roll-canvas" },
         buttons,
         scrollTo: true,
         title: "Grid",
@@ -60,7 +60,7 @@ export const steps: ShepherdOptionsWithType[] = [
     },
     {
         id: "record",
-        attachTo: { element: "#record-button", on: "auto" },
+        attachTo: { element: "#record-button", on: "bottom" },
         buttons,
         scrollTo: true,
         title: "Recording",
@@ -70,7 +70,7 @@ export const steps: ShepherdOptionsWithType[] = [
     },
     {
         id: "search-result",
-        attachTo: { element: "#top-result", on: "auto" },
+        attachTo: { element: "#top-result", on: "bottom" },
         buttons,
         scrollTo: true,
         title: "Search results",
@@ -78,7 +78,7 @@ export const steps: ShepherdOptionsWithType[] = [
     },
     {
         id: "tour-button",
-        attachTo: { element: "#tour-button", on: "auto" },
+        attachTo: { element: "#tour-button", on: "top-start" },
         buttons,
         scrollTo: true,
         title: "Restart tutorial",
