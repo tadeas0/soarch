@@ -6,7 +6,7 @@ import { AiOutlineRotateRight } from "react-icons/ai";
 
 interface LandscapeModalProps {}
 
-const LandscapeModal: FunctionComponent<LandscapeModalProps> = (props) => {
+const LandscapeModal: FunctionComponent<LandscapeModalProps> = () => {
     const isLandscape = useIsLandscape();
     const isXl = useIsXlScreen();
     const visible = !isXl && !isLandscape;
