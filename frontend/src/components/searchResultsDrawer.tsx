@@ -1,13 +1,12 @@
-import { SlArrowLeft } from "react-icons/sl";
 import { SearchResult } from "../interfaces/SearchResult";
-import { HiOutlineMagnifyingGlassMinus } from "react-icons/hi2";
 import SearchResultCard from "./searchResultCard";
 import Drawer from "react-modern-drawer";
 import "react-modern-drawer/dist/index.css";
 import PuffLoader from "react-spinners/PuffLoader";
 import Button from "./basic/button";
 import * as React from "react";
-import { BLACK } from "../constants";
+import { BLACK, WHITE } from "../constants";
+import { AiOutlineSearch } from "react-icons/ai";
 
 type SearchResultsDrawerProps = {
     searchResults: SearchResult[];
@@ -33,11 +32,10 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
         }
         if (!props.isBusy && props.searchResults.length === 0) {
             return (
-                <div>
-                    <div>
-                        <HiOutlineMagnifyingGlassMinus />
-                    </div>
-                    <div>No results...</div>
+                <div className="h-full bg-background p-3 text-black">
+                    <h1 className="mt-2 text-xl">
+                        No results yet. Try inputting some notes.
+                    </h1>
                 </div>
             );
         }
@@ -64,7 +62,11 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
                 className="absolute right-0 top-1/2 rounded-r-none border-r-0 py-4"
                 onClick={props.onOpen}
             >
-                <SlArrowLeft />
+                {props.isBusy ? (
+                    <PuffLoader color={WHITE} size={20} />
+                ) : (
+                    <AiOutlineSearch size={20} />
+                )}
             </Button>
             <Drawer
                 open={props.isOpen}

@@ -56,7 +56,7 @@ const BPMInput: FunctionComponent<BPMInputProps> = (props: BPMInputProps) => {
                 className="relative flex flex-row items-center justify-center self-center justify-self-center rounded bg-light-primary p-4"
             >
                 <Button
-                    className="absolute top-0 right-0 p-1 text-sm text-white"
+                    className="absolute top-0 right-0 bg-transparent p-1 text-sm text-white"
                     onClick={() => changeValueAbs(DEFAULT_BPM)}
                     disabled={props.disabled}
                 >

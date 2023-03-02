@@ -5,8 +5,15 @@
     left: 0;
     display: flex;
     flex-direction: column;
-    height: 350px;
+    height: 200px;
+    z-index: 100;
     padding: inherit;
+}
+
+@media only screen and (min-width: 1280px) {
+    .piano-container {
+        height: 350px;
+    }
 }
 
 .piano-button-container button {
