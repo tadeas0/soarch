@@ -8,6 +8,8 @@ services:
             - /midi_files
         environment:
             - ENV=prod
+            - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
+            - BUCKET_NAME=${BUCKET_NAME}
     frontend:
         build:
             args:
@@ -29,6 +31,8 @@ services:
         environment:
             - ENV=prod
             - PROCESS_COUNT=4
+            - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
+            - BUCKET_NAME=${BUCKET_NAME}
         command: app.worker.run_worker app.worker.tasks --path src/ --processes 2 --threads 1
     mongo:
         volumes:
