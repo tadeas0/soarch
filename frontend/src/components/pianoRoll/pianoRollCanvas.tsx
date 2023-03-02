@@ -212,8 +212,9 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     useEffect(() => {
         // Scroll to the first note and center it on screen
         if (canvasContainerRef.current && !alreadyScrolled) {
-            setAlreadyScrolled(true);
-            let scrollPos = canvasContainerRef.current.clientHeight / 2 + 200;
+            let scrollPos =
+                canvasContainerRef.current.scrollHeight / 2 -
+                canvasContainerRef.current.clientHeight / 2;
             if (props.notes.length > 0) {
                 const rollHeight = tonePitchToRollPitch(
                     props.notes[0].pitch,
@@ -312,9 +313,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                     minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
                 }}
                 ref={canvasRef}
-                onMouseDown={(e) =>
-                    !preventMouse && isOnGrid(e) && props.onMouseDown(e)
-                }
+                onMouseDown={(e) => {
+                    setAlreadyScrolled(true);
+                    if (!preventMouse && isOnGrid(e)) props.onMouseDown(e);
+                }}
                 onMouseMove={(e) =>
                     !preventMouse && isOnGrid(e) && props.onMouseMove(e)
                 }
@@ -323,6 +325,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
                 }
                 // Mouse events need to be prevented, when using touchscreen
                 onTouchStart={(e) => {
+                    setAlreadyScrolled(true);
                     setPreventMouse(true);
                     props.onTouchStart(e);
                 }}
