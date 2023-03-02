@@ -109,5 +109,7 @@ jobs:
               run: echo "${{ secrets.BACKEND_ENV_VARS }}" >>.env
             - name: Stop running containers
               run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml down
-            - name: Build and run containers
-              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml up --build -d
+            - name: Build containers
+              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml build --pull
+            - name: Run containers
+              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml up -d
