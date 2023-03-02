@@ -85,10 +85,12 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
         }
         setShowFullscreenModal(false);
 
-        const alreadyTookTour = localStorage.getItem(storageKey);
-        if (!alreadyTookTour && tour) {
-            tour.start();
-            localStorage.setItem(storageKey, String(true));
+        if (isXl) {
+            const alreadyTookTour = localStorage.getItem(storageKey);
+            if (!alreadyTookTour && tour) {
+                tour.start();
+                localStorage.setItem(storageKey, String(true));
+            }
         }
     }, [handle.active, tour, isXl]);
 
@@ -104,7 +106,6 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     };
 
     const handleDrawerToggle = () => {
-        console.log("MORE");
         stop();
         setIsDrawerOpen((current) => !current);
     };
