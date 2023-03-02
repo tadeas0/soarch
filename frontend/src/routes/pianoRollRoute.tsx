@@ -133,17 +133,14 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                             onShowMore={handleDrawerToggle}
                             disabled={isDrawerOpen}
                         />
-                        {((searchResults && searchResults.length > 0) ||
-                            isFetching) && (
-                            <SearchResultsDrawer
-                                onOpen={handleDrawerToggle}
-                                onClose={handleDrawerToggle}
-                                isOpen={isDrawerOpen}
-                                searchResults={searchResults || []}
-                                isBusy={isFetching}
-                                onEdit={handleEdit}
-                            />
-                        )}
+                        <SearchResultsDrawer
+                            onOpen={handleDrawerToggle}
+                            onClose={handleDrawerToggle}
+                            isOpen={isDrawerOpen}
+                            searchResults={searchResults || []}
+                            isBusy={isFetching}
+                            onEdit={handleEdit}
+                        />
                     </PlaybackProvider>
                 )}
             </div>
