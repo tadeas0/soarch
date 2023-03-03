@@ -110,6 +110,6 @@ jobs:
             - name: Stop running containers
               run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml down
             - name: Build containers
-              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml build --pull
+              run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml build --pull --no-cache
             - name: Run containers
               run: docker-compose -H "ssh://${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }}" -f docker-compose.yml -f docker-compose.prod.yml up -d
