@@ -6,8 +6,6 @@ services:
             - ./backend:/backend
             - ./dataset:/dataset
     frontend:
-        environment:
-            - PORT=80
         build:
             args:
                 NGINX_CONFIG: "./nginx.conf.dev.template"

@@ -15,11 +15,9 @@ services:
             args:
                 NGINX_CONFIG: "./nginx.conf.prod.template"
         restart: unless-stopped
-        environment:
-            - PORT=443
-            - PROTOCOL=ssl
         ports:
             - "443:443"
+            - "80:80"
         volumes:
             - "${CERT_PATH}:/cert/fullchain.pem"
             - "${PRIVKEY_PATH}:/cert/privkey.pem"
