@@ -1,5 +1,11 @@
 server {
-    listen       ${PORT} ${PROTOCOL};
+    listen       80 default_server;
+    server_name  soarch.tk;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen       443 ssl;
     server_name  soarch.tk;
     ssl_certificate     /cert/fullchain.pem;
     ssl_certificate_key /cert/privkey.pem;

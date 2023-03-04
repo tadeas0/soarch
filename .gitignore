@@ -12,3 +12,4 @@ heroku_deploy
 .env*
 mongo_data/
 dataset/
+cert/
