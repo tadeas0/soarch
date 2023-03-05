@@ -6,10 +6,10 @@ from app.util.parser import MidiParser
 from miditoolkit.midi import MidiFile
 import pickle
 import logging
-from app.util.song import Song
+from app.util.song import Song, SongMetadata
 from app.repository.song_repository import SongRepository
 import config
-from app.util.helpers import get_metadata_from_filepath, get_filename_from_metadata
+from app.util.helpers import get_artist_name_from_filepath, get_filename_from_metadata
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
@@ -76,7 +76,8 @@ class FileSongRepository(SongRepository):
         )
         logger.debug(f"Parsed file {file_path}")
 
-        song.metadata = get_metadata_from_filepath(file_path)
+        artist, name = get_artist_name_from_filepath(file_path)
+        song.metadata = SongMetadata(artist, name)
         return song
 
     async def __load_from_pickle_async(self, file_path: str) -> Song:
@@ -88,7 +89,8 @@ class FileSongRepository(SongRepository):
         )
         logger.debug(f"Parsed file {file_path}")
 
-        song.metadata = get_metadata_from_filepath(file_path)
+        artist, name = get_artist_name_from_filepath(file_path)
+        song.metadata = SongMetadata(artist, name)
         return song
 
     async def __load_song_bytes(self, file_path: str, content: bytes) -> Song:
@@ -104,7 +106,8 @@ class FileSongRepository(SongRepository):
         song = MidiParser.parse(MidiFile(file=io.BytesIO(midi)))
         logger.debug(f"Parsed file {file_path}")
 
-        song.metadata = get_metadata_from_filepath(file_path)
+        artist, name = get_artist_name_from_filepath(file_path)
+        song.metadata = SongMetadata(artist, name)
         return song
 
     async def get_all_songs(self) -> AsyncIterable[Song]:
