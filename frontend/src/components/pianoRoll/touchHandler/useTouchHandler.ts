@@ -3,6 +3,7 @@ import { Note } from "../../../interfaces/Note";
 import GridParams from "../../../interfaces/GridParams";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import { PianoRollTouchData, ReadyState } from "./touchHandlerState";
+import { DEFAULT_NOTE_LENGTH } from "../../../constants";
 
 const useTouchHandler = (
     onAddNote: (note: Note) => void,
@@ -15,6 +16,7 @@ const useTouchHandler = (
 ) => {
     const currentState = useRef(ReadyState());
     const [preventScroll, setPreventScroll] = useState(false);
+    const [newNoteLen, setNewNoteLen] = useState(DEFAULT_NOTE_LENGTH);
 
     const stateData: PianoRollTouchData = {
         onAddNote,
@@ -23,6 +25,8 @@ const useTouchHandler = (
         onSelectNote,
         onSaveState,
         onSetPreventScroll: setPreventScroll,
+        setNewNoteLen,
+        newNoteLen,
         notes,
         gridParams,
     };

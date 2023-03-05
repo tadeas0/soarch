@@ -6,7 +6,6 @@ import {
     rollTimeToToneTime,
     toneTimeToRollTime,
 } from "../../../common/coordConversion";
-import { DEFAULT_NOTE_LENGTH } from "../../../constants";
 import GridParams from "../../../interfaces/GridParams";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import { Note } from "../../../interfaces/Note";
@@ -24,6 +23,8 @@ export interface PianoRollTouchData {
     onSaveState: (note: Note[]) => void;
     onSelectNote: (note: Note | null) => void;
     onSetPreventScroll: (val: boolean) => void;
+    setNewNoteLen: (n: number) => void;
+    newNoteLen: number;
     notes: Note[];
     gridParams: GridParams;
 }
@@ -86,14 +87,12 @@ export const CreatingState = (startCoords: MouseCoords): TouchState => ({
             onSaveState,
             onSelectNote,
             notes,
+            newNoteLen,
         } = rollData;
         onSaveState(notes);
         const rollCoords = getRollCoordsFromMouseCoords(startCoords);
         const toneCoords = rollCoordsToTone(rollCoords, gridParams);
-        const len = Math.min(
-            DEFAULT_NOTE_LENGTH,
-            gridParams.width - rollCoords.column
-        );
+        const len = Math.min(newNoteLen, gridParams.width - rollCoords.column);
         const newNote = { ...toneCoords, length: rollTimeToToneTime(len) };
         onPreviewNote(newNote);
         onAddNote(newNote);
@@ -169,6 +168,7 @@ export const ChangingLengthState = (selectedNote: Note): TouchState => ({
     },
     handleTouchEnd: (rollState: PianoRollTouchData) => {
         rollState.onSetPreventScroll(false);
+        rollState.setNewNoteLen(toneTimeToRollTime(selectedNote.length));
         return ReadyState();
     },
 });

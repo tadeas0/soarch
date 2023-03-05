@@ -5,7 +5,6 @@ import {
     rollTimeToToneTime,
     toneTimeToRollTime,
 } from "../../../common/coordConversion";
-import { DEFAULT_NOTE_LENGTH } from "../../../constants";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import { Note } from "../../../interfaces/Note";
 import {
@@ -24,6 +23,8 @@ export interface PianoRollData {
     onPreviewNote: (note: Note) => void;
     onSaveState: (note: Note[]) => void;
     onSelectNote: (note: Note | null) => void;
+    setNewNoteLen: (n: number) => void;
+    newNoteLen: number;
     notes: Note[];
     gridParams: GridParams;
 }
@@ -42,7 +43,10 @@ interface State {
 const ChangingLengthState = (selectedNote: Note): State => ({
     handleLeftClick: () => ChangingLengthState(selectedNote),
     handleRightClick: () => ChangingLengthState(selectedNote),
-    handleLeftRelease: () => ReadyState(selectedNote),
+    handleLeftRelease: (coords: MouseCoords, rollData: PianoRollData) => {
+        rollData.setNewNoteLen(toneTimeToRollTime(selectedNote.length));
+        return ReadyState(selectedNote);
+    },
     handleRightRelease: () => ChangingLengthState(selectedNote),
     handleMouseMove: (coords: MouseCoords, rollData: PianoRollData) => {
         const oldNote = selectedNote;
@@ -110,6 +114,7 @@ export const ReadyState = (lastPreview: Note | null): State => ({
             onPreviewNote,
             onSaveState,
             onSelectNote,
+            newNoteLen,
         } = rollData;
         onSaveState(notes);
         const n = getNotesAt(coords, notes, gridParams);
@@ -126,10 +131,7 @@ export const ReadyState = (lastPreview: Note | null): State => ({
             return MovingState(columnOffset, selectedNote);
         }
         const rollCoords = getRollCoordsFromMouseCoords(coords);
-        const len = Math.min(
-            DEFAULT_NOTE_LENGTH,
-            gridParams.width - rollCoords.column
-        );
+        const len = Math.min(newNoteLen, gridParams.width - rollCoords.column);
         const newNote: Note = {
             time: rollTimeToToneTime(rollCoords.column),
             pitch: Tone.Frequency(gridParams.lowestNote).transpose(
