@@ -1,5 +1,5 @@
-from app.midi.repository.mongo_song_repository import MongoSongRepository
-from app.midi.repository.file_song_repository import FileSongRepository
+from app.repository.mongo_song_repository import MongoSongRepository
+from app.repository.file_song_repository import FileSongRepository
 import config
 import asyncio
 import os

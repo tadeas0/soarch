@@ -6,7 +6,8 @@ from random import shuffle
 
 import config
 import numpy as np
-from app.midi.repository.file_song_repository import FileSongRepository, SongRepository
+from app.repository.file_song_repository import FileSongRepository
+from app.repository.song_repository import SongRepository
 from app.search_engine.preprocessor import Preprocessor
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep

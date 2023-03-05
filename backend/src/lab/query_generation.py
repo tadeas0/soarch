@@ -5,7 +5,7 @@ from lab.example_query import ExampleQuery
 
 import config
 import matplotlib.pyplot as plt
-from app.midi.repository.file_song_repository import FileSongRepository
+from app.repository.file_song_repository import FileSongRepository
 from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from miditoolkit import notes2pianoroll, plot, Note as MTKNote

@@ -2,7 +2,7 @@ import logging
 import config
 import numpy.typing as npt
 import numpy as np
-from app.midi.repository.song_repository import SongRepository
+from app.repository.song_repository import SongRepository
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from app.util.song import Song, Track
 import multiprocessing as mp

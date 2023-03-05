@@ -1,6 +1,6 @@
-from app.midi.repository.file_song_repository import FileSongRepository
-from app.midi.repository.song_repository import SongRepository
-from app.midi.repository.mongo_song_repository import MongoSongRepository
+from app.repository.file_song_repository import FileSongRepository
+from app.repository.song_repository import SongRepository
+from app.repository.mongo_song_repository import MongoSongRepository
 import config
 from app.util.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 import json

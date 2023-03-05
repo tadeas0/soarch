@@ -10,7 +10,7 @@ from app.util.filestorage import FileStorage
 from app.util.song import Song
 from app.util.parser import MidiParser
 from bs4 import BeautifulSoup
-from app.midi.repository.song_repository import SongRepository
+from app.repository.song_repository import SongRepository
 import config
 from app.util.helpers import get_metadata_from_filepath
 

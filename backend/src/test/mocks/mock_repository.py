@@ -1,4 +1,4 @@
-from app.midi.repository.song_repository import SongRepository
+from app.repository.song_repository import SongRepository
 from app.util.song import Note, Song, SongMetadata, Track
 
 

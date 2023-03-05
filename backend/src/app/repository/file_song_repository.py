@@ -7,7 +7,7 @@ from miditoolkit.midi import MidiFile
 import pickle
 import logging
 from app.util.song import Song
-from app.midi.repository.song_repository import SongRepository
+from app.repository.song_repository import SongRepository
 import config
 from app.util.helpers import get_metadata_from_filepath, get_filename_from_metadata
 
