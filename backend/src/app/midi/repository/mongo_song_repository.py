@@ -1,6 +1,6 @@
 import logging
 from typing import AsyncIterable, Iterable
-from app.midi.repository.repository import SongRepository
+from app.midi.repository.song_repository import SongRepository
 from app.util.song import Song
 from app.util.mongo_serializer import MongoSerializer
 import config
@@ -10,7 +10,7 @@ from pymongo import MongoClient
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
-class MongoRepository(SongRepository):
+class MongoSongRepository(SongRepository):
     def __init__(self, mongo_url: str) -> None:
         self.mongo_url = mongo_url
         super().__init__()

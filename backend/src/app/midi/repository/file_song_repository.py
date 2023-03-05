@@ -7,7 +7,7 @@ from miditoolkit.midi import MidiFile
 import pickle
 import logging
 from app.util.song import Song
-from app.midi.repository.repository import SongRepository
+from app.midi.repository.song_repository import SongRepository
 import config
 from app.util.helpers import get_metadata_from_filepath, get_filename_from_metadata
 
@@ -15,7 +15,7 @@ from app.util.helpers import get_metadata_from_filepath, get_filename_from_metad
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
-class FileRepository(SongRepository):
+class FileSongRepository(SongRepository):
     def __init__(self, file_storage: FileStorage) -> None:
         self.file_storage = file_storage
         self.directories: list[str] = []

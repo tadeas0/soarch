@@ -1,5 +1,5 @@
-from app.midi.repository.mongo_repository import MongoRepository
-from app.midi.repository.file_repository import FileRepository
+from app.midi.repository.mongo_song_repository import MongoSongRepository
+from app.midi.repository.file_song_repository import FileSongRepository
 import config
 import asyncio
 import os
@@ -67,10 +67,10 @@ def cli(ctx):
         )
         logger.info("Using local file storage")
     if config.MONGODB_URL:
-        repository = MongoRepository(config.MONGODB_URL)
+        repository = MongoSongRepository(config.MONGODB_URL)
         logger.info("Using mongo repository")
     else:
-        repository = FileRepository(upload_file_storage)
+        repository = FileSongRepository(upload_file_storage)
         logger.info("Using file repository")
 
     download_file_storage.initialize()

@@ -6,7 +6,7 @@ from random import shuffle
 
 import config
 import numpy as np
-from app.midi.repository.file_repository import FileRepository, SongRepository
+from app.midi.repository.file_song_repository import FileSongRepository, SongRepository
 from app.search_engine.preprocessor import Preprocessor
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep
@@ -126,7 +126,7 @@ def result_to_csv_row(result: Result):
 async def benchmark_search_engine():
     # setup_logging()
     fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX))
-    repo = FileRepository(fs)
+    repo = FileSongRepository(fs)
     folders = [
         # "0_notes_changed",
         # "1_notes_changed",

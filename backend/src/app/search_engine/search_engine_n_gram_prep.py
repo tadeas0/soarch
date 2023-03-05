@@ -1,5 +1,5 @@
 from app.search_engine.search_engine import SearchEngine
-from app.midi.repository.repository import SongRepository
+from app.midi.repository.song_repository import SongRepository
 from app.search_engine.preprocessor import Preprocessor
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from app.util.song import Note, Song, Track

@@ -1,6 +1,6 @@
-from app.midi.repository.file_repository import FileRepository
-from app.midi.repository.repository import SongRepository
-from app.midi.repository.mongo_repository import MongoRepository
+from app.midi.repository.file_song_repository import FileSongRepository
+from app.midi.repository.song_repository import SongRepository
+from app.midi.repository.mongo_song_repository import MongoSongRepository
 import config
 from app.util.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 import json
@@ -19,6 +19,6 @@ else:
     )
 
 if config.MONGODB_URL:
-    repository: SongRepository = MongoRepository(config.MONGODB_URL)
+    repository: SongRepository = MongoSongRepository(config.MONGODB_URL)
 else:
-    repository = FileRepository(file_storage)
+    repository = FileSongRepository(file_storage)

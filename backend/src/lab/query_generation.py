@@ -5,7 +5,7 @@ from lab.example_query import ExampleQuery
 
 import config
 import matplotlib.pyplot as plt
-from app.midi.repository.file_repository import FileRepository
+from app.midi.repository.file_song_repository import FileSongRepository
 from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from miditoolkit import notes2pianoroll, plot, Note as MTKNote
@@ -19,7 +19,7 @@ async def __get_all_segments():
     file_storage = LocalFileStorage(
         os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX)
     )
-    repository = FileRepository(file_storage)
+    repository = FileSongRepository(file_storage)
     songs = [i async for i in repository.get_all_songs()]
     songs.sort(
         key=lambda a: a.metadata.artist + " - " + a.metadata.name if a.metadata else ""

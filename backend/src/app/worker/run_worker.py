@@ -5,7 +5,7 @@ import dramatiq
 from dramatiq.results import Results
 from dramatiq.brokers.redis import RedisBroker
 from app.util.filestorage import GoogleCloudFileStorage
-from app.midi.repository.mongo_repository import MongoRepository
+from app.midi.repository.mongo_song_repository import MongoSongRepository
 from dramatiq.results.backends import RedisBackend
 
 
@@ -18,7 +18,7 @@ class InitRepoMiddleware(dramatiq.Middleware):
             logger.info("Using google cloud file storage")
         else:
             logger.info("Using local file storage")
-        if type(repository) == MongoRepository:
+        if type(repository) == MongoSongRepository:
             logger.info("Using MongoDB repository")
         else:
             logger.info("Using file repository")

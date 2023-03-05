@@ -1,4 +1,4 @@
-from app.midi.repository.repository import SongRepository
+from app.midi.repository.song_repository import SongRepository
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
