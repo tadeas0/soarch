@@ -1,4 +1,5 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { DEFAULT_NOTE_LENGTH } from "../../../constants";
 import GridParams from "../../../interfaces/GridParams";
 import { MouseCoords } from "../../../interfaces/MouseCoords";
 import { Note } from "../../../interfaces/Note";
@@ -14,6 +15,7 @@ const useMouseHandler = (
     gridParams: GridParams
 ) => {
     const currentState = useRef(ReadyState(null));
+    const [newNoteLen, setNewNoteLen] = useState(DEFAULT_NOTE_LENGTH);
 
     const stateData: PianoRollData = {
         onAddNote,
@@ -21,6 +23,8 @@ const useMouseHandler = (
         onPreviewNote,
         onSelectNote,
         onSaveState,
+        setNewNoteLen,
+        newNoteLen,
         notes,
         gridParams,
     };
