@@ -113,7 +113,7 @@ async def generate_shifted_queries():
 async def generate_transposed_queries():
     random.seed(RANDOM_SEED)
     max_transpo = 12
-    for shift_notes in range(1, 6):
+    for shift_notes in range(6):
         query_fs = LocalFileStorage(
             os.path.join(
                 config.MIDI_DIR, config.QUERY_PREFIX, f"{shift_notes}_notes_changed"

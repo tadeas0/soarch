@@ -129,10 +129,10 @@ async def benchmark_search_engine():
     repo = FileRepository(fs)
     folders = [
         # "0_notes_changed",
-        "1_notes_changed",
-        # "1_notes_changed_transposed",
-        "2_notes_changed",
-        # "2_notes_changed_transposed",
+        # "1_notes_changed",
+        "1_notes_changed_transposed",
+        # "2_notes_changed",
+        "2_notes_changed_transposed",
         # "3_notes_changed",
         # "3_notes_changed_transposed",
         # "4_notes_changed",
