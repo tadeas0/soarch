@@ -7,7 +7,7 @@ import io
 import os
 from miditoolkit.midi import MidiFile
 from app.util.filestorage import FileStorage
-from app.util.song import Song, SongMetadata
+from app.util.song import Song
 from app.util.parser import MidiParser
 from bs4 import BeautifulSoup
 from app.repository.song_repository import SongRepository
@@ -126,9 +126,8 @@ async def list_raw_songs(file_storage: FileStorage) -> AsyncIterable[Song]:
     for i in file_storage.list_all():
         try:
             mid = MidiFile(file=io.BytesIO(await file_storage.read(i)))
-            song = MidiParser.parse(mid)
             artist, name = get_artist_name_from_filepath(i)
-            song.metadata = SongMetadata(artist, name)
+            song = MidiParser.parse(mid, artist, name)
             yield song
         except Exception as e:
             logger.info(f"Could not parse {i}. {e}")

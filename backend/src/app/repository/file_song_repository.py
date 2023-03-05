@@ -6,7 +6,7 @@ from app.util.parser import MidiParser
 from miditoolkit.midi import MidiFile
 import pickle
 import logging
-from app.util.song import Song, SongMetadata
+from app.util.song import Song
 from app.repository.song_repository import SongRepository
 import config
 from app.util.helpers import get_artist_name_from_filepath, get_filename_from_metadata
@@ -71,26 +71,28 @@ class FileSongRepository(SongRepository):
         return pickle.loads(self.file_storage.read_sync(file_path))
 
     def __load_from_midi(self, file_path: str) -> Song:
-        song = MidiParser.parse(
-            MidiFile(file=io.BytesIO(self.file_storage.read_sync(file_path)))
-        )
-        logger.debug(f"Parsed file {file_path}")
-
         artist, name = get_artist_name_from_filepath(file_path)
-        song.metadata = SongMetadata(artist, name)
+        song = MidiParser.parse(
+            MidiFile(file=io.BytesIO(self.file_storage.read_sync(file_path))),
+            artist,
+            name,
+        )
+
+        logger.debug(f"Parsed file {file_path}")
         return song
 
     async def __load_from_pickle_async(self, file_path: str) -> Song:
         return pickle.loads(await self.file_storage.read(file_path))
 
     async def __load_from_midi_async(self, file_path: str) -> Song:
+        artist, name = get_artist_name_from_filepath(file_path)
         song = MidiParser.parse(
-            MidiFile(file=io.BytesIO(await self.file_storage.read(file_path)))
+            MidiFile(file=io.BytesIO(await self.file_storage.read(file_path))),
+            artist,
+            name,
         )
         logger.debug(f"Parsed file {file_path}")
 
-        artist, name = get_artist_name_from_filepath(file_path)
-        song.metadata = SongMetadata(artist, name)
         return song
 
     async def __load_song_bytes(self, file_path: str, content: bytes) -> Song:
@@ -103,11 +105,10 @@ class FileSongRepository(SongRepository):
             raise ValueError()
 
     async def __parse_midi(self, midi: bytes, file_path: str):
-        song = MidiParser.parse(MidiFile(file=io.BytesIO(midi)))
+        artist, name = get_artist_name_from_filepath(file_path)
+        song = MidiParser.parse(MidiFile(file=io.BytesIO(midi)), artist, name)
         logger.debug(f"Parsed file {file_path}")
 
-        artist, name = get_artist_name_from_filepath(file_path)
-        song.metadata = SongMetadata(artist, name)
         return song
 
     async def get_all_songs(self) -> AsyncIterable[Song]:
