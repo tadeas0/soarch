@@ -18,7 +18,6 @@ logger = logging.getLogger(config.DEFAULT_LOGGER)
 class FileSongRepository(SongRepository):
     def __init__(self, file_storage: FileStorage) -> None:
         self.file_storage = file_storage
-        self.directories: list[str] = []
         super().__init__()
 
     async def insert(self, song: Song) -> None:
