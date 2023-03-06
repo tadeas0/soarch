@@ -81,9 +81,7 @@ class SearchEngine:
             results.extend(self.process_song(key, query_track, query_prep))
         post_res = self.postprocess_result_list(results, n)
         return [
-            (i[0], Song([i[2]], i[1].bpm, i[1].metadata), i[2])
-            for i in post_res
-            if i[1].metadata
+            (i[0], Song([i[2]], i[1].metadata), i[2]) for i in post_res if i[1].metadata
         ]
 
     def process_song(

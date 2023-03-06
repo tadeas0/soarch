@@ -14,20 +14,12 @@ class TrackSerializer:
             track_notes = TrackSerializer.trim_notes(track_notes)
         serialized_notes = [TrackSerializer.serialize_note(i) for i in track_notes]
 
-        if song.metadata:
-            return {
-                "artist": song.metadata.artist,
-                "name": song.metadata.name,
-                "notes": serialized_notes,
-                "bpm": song.bpm,
-            }
-        else:
-            return {
-                "artist": "Unknown artist",
-                "name": "Unknown song",
-                "notes": serialized_notes,
-                "bpm": song.bpm,
-            }
+        return {
+            "artist": song.metadata.artist,
+            "name": song.metadata.name,
+            "notes": serialized_notes,
+            "bpm": song.metadata.bpm,
+        }
 
     @staticmethod
     def serialize_with_similarity(

@@ -19,7 +19,9 @@ class MongoSerializer:
     @staticmethod
     def deserialize(song_dict: dict) -> Song:
         metadata = SongMetadata(
-            song_dict["metadata"]["artist"], song_dict["metadata"]["name"]
+            song_dict["metadata"]["artist"],
+            song_dict["metadata"]["name"],
+            song_dict["metadata"]["bpm"],
         )
         tracks = [MongoSerializer.__deserialize_track(i) for i in song_dict["tracks"]]
-        return Song(tracks, song_dict["bpm"], metadata)
+        return Song(tracks, metadata)

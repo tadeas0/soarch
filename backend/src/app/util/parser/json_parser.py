@@ -8,7 +8,6 @@ class JsonParser:
     @staticmethod
     def parse(data) -> Song:
         notes = data["notes"]
-        bpm = data.get("bpm", 120)
         metadata = JsonParser.__parse_metadata(data.get("metadata"))
         return Song(
             [
@@ -17,7 +16,6 @@ class JsonParser:
                     scale_ticks(4, config.DEFAULT_PPQ, data["gridLength"]),
                 )
             ],
-            bpm,
             metadata,
         )
 
@@ -25,10 +23,12 @@ class JsonParser:
     def __parse_metadata(metadata: Optional[dict]) -> SongMetadata:
         artist = "Unknown artist"
         name = "Unknown song"
+        bpm = 120
         if metadata:
             artist = metadata.get("artist", "Unknown artist")
             name = metadata.get("name", "Unknown song")
-        return SongMetadata(artist, name)
+            bpm = metadata.get("name", 120)
+        return SongMetadata(artist, name, bpm)
 
     @staticmethod
     def __parse_bars_beats_sixteenths(bbs: str) -> int:

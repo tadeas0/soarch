@@ -33,6 +33,5 @@ class MidiParser:
                 )
                 for inst in melodic_inst
             ],
-            bpm,
-            SongMetadata(artist, name),
+            SongMetadata(artist, name, bpm),
         )

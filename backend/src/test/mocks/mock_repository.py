@@ -12,7 +12,7 @@ class MockRepository(SongRepository):
     def load_song(self, file_path: str):
         track = self.__get_track()
         return Song(
-            [track], 120, SongMetadata(f"artist{file_path}", f"song{file_path}")
+            [track], SongMetadata(f"artist{file_path}", f"song{file_path}", 120)
         )
 
     def load_song_async(self, file_path: str):
@@ -21,7 +21,7 @@ class MockRepository(SongRepository):
     def get_all_songs(self):
         for i in range(5):
             track = Track([Note(0, 10, 0)], 100)
-            yield Song([track], 120, SongMetadata(f"artist{i}", f"song{i}"))
+            yield Song([track], SongMetadata(f"artist{i}", f"song{i}", 120))
 
     def insert(self):
         pass

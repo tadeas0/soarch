@@ -20,6 +20,7 @@ class Track:
 class SongMetadata:
     artist: str
     name: str
+    bpm: int
 
 
 @dataclass
@@ -31,5 +32,4 @@ class Segment:
 @dataclass
 class Song:
     tracks: list[Track]
-    bpm: int
     metadata: SongMetadata

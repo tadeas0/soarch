@@ -8,7 +8,7 @@ from test.mocks.mock_file_storage import MockFileStorage
 @pytest.mark.asyncio
 async def test_insert():
     fs = MockFileStorage()
-    test_song = Song([Track([Note(1, 1, 1)], 1)], 1, SongMetadata("artist1", "name1"))
+    test_song = Song([Track([Note(1, 1, 1)], 1)], SongMetadata("artist1", "name1", 1))
     repo = FileSongRepository(fs)
 
     await repo.insert(test_song)
@@ -23,8 +23,8 @@ async def test_insert_many():
     case = unittest.TestCase()
     fs = MockFileStorage()
     test_songs = [
-        Song([Track([Note(1, 1, 1)], 1)], 1, SongMetadata("artist1", "name1")),
-        Song([Track([Note(2, 2, 2)], 2)], 2, SongMetadata("artist2", "name2")),
+        Song([Track([Note(1, 1, 1)], 1)], SongMetadata("artist1", "name1", 1)),
+        Song([Track([Note(2, 2, 2)], 2)], SongMetadata("artist2", "name2", 2)),
     ]
     repo = FileSongRepository(fs)
 
