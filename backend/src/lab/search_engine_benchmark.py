@@ -32,7 +32,7 @@ from app.search_engine.strategy.standardization_strategy import (
 )
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from config import MEASURE_LENGTH
-from lab.example_query import ExampleQuery
+from app.entity.example_query import ExampleQuery
 
 CSV_HEADER = (
     "duration,search_engine_name,extraction,standardization,"

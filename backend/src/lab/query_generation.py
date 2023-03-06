@@ -1,7 +1,7 @@
 import os
 import pickle
 import random
-from lab.example_query import ExampleQuery
+from app.entity.example_query import ExampleQuery
 
 import config
 import matplotlib.pyplot as plt
