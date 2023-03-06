@@ -1,4 +1,4 @@
-from app.util.song import Note, Song, Track
+from app.entity.song import Note, Song, Track
 from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
 from app.search_engine.strategy.similarity_strategy import LCSStrategy

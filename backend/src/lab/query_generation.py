@@ -9,7 +9,7 @@ from app.repository.file_song_repository import FileSongRepository
 from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from miditoolkit import notes2pianoroll, plot, Note as MTKNote
-from app.util.song import Note
+from app.entity.song import Note
 import uuid
 
 RANDOM_SEED = 123

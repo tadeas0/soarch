@@ -1,5 +1,5 @@
 from typing import Optional
-from app.util.song import Song, SongMetadata, Track, Note
+from app.entity.song import Song, SongMetadata, Track, Note
 from app.util.parser.helpers import scale_ticks
 import config
 

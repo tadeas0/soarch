@@ -1,7 +1,7 @@
 import logging
 from typing import AsyncIterable, Iterable
 from app.repository.song_repository import SongRepository
-from app.util.song import Song
+from app.entity.song import Song
 from app.util.mongo_serializer import MongoSerializer
 import config
 from motor.motor_asyncio import AsyncIOMotorClient

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import AsyncIterable, Iterable
 import logging
-from app.util.song import Song
+from app.entity.song import Song
 import config
 
 

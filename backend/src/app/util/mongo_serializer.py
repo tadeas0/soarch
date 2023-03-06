@@ -1,4 +1,4 @@
-from app.util.song import Song, SongMetadata, Note, Track
+from app.entity.song import Song, SongMetadata, Note, Track
 from dataclasses import asdict
 
 

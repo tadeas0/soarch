@@ -1,7 +1,7 @@
 from quart import Quart
 import config
 import pytest
-from app.util.song import Song, SongMetadata, Track, Note
+from app.entity.song import Song, SongMetadata, Track, Note
 
 
 class MockAct:

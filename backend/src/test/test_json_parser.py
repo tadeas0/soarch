@@ -1,5 +1,5 @@
 from app.util.parser import JsonParser
-from app.util.song import Note
+from app.entity.song import Note
 
 
 def test_parse_note():

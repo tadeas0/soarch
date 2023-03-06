@@ -1,5 +1,5 @@
 from typing import Union
-from app.util.song import Note, Track, Song
+from app.entity.song import Note, Track, Song
 from math import floor
 import config
 
