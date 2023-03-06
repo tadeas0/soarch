@@ -166,6 +166,14 @@ def test_serialize_job():
     }
     assert MongoSerializer.serialize_job(job) == out
 
+    job2 = Job("123", JobStatus.COMPLETED, None)
+    out2 = {
+        "_id": "123",
+        "status": "completed",
+        "results": None,
+    }
+    assert MongoSerializer.serialize_job(job2) == out2
+
 
 def test_deserialize_job():
     res = SearchResult(
@@ -200,3 +208,12 @@ def test_deserialize_job():
     }
     job = Job("123", JobStatus.COMPLETED, [res])
     assert MongoSerializer.deserialize_job(inp) == job
+
+    inp2 = {
+        "_id": "123",
+        "status": "pending",
+        "results": None,
+    }
+
+    job2 = Job("123", JobStatus.PENDING, None)
+    assert MongoSerializer.deserialize_job(inp2) == job2
