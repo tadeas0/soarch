@@ -25,11 +25,11 @@ class MongoSongRepository(SongRepository):
         return MongoClient(self.mongo_url)[config.SONGS_DB][config.SONGS_COLLECTION]
 
     async def insert(self, song: Song) -> None:
-        await self.__get_client().insert_one(MongoSerializer.serialize(song))
+        await self.__get_client().insert_one(MongoSerializer.serialize_song(song))
 
     async def insert_many(self, songs: Iterable[Song]) -> None:
         await self.__get_client().insert_many(
-            [MongoSerializer.serialize(i) for i in songs]
+            [MongoSerializer.serialize_song(i) for i in songs]
         )
 
     async def list_keys(self) -> list[str]:
@@ -39,16 +39,18 @@ class MongoSongRepository(SongRepository):
     async def load_song_async(self, file_path: str) -> Song:
         logger.debug(await self.__get_client().server_info())
         client = self.__get_client()
-        return MongoSerializer.deserialize(await client.find_one({"_id": file_path}))
+        return MongoSerializer.deserialize_song(
+            await client.find_one({"_id": file_path})
+        )
 
     async def get_all_songs(self) -> AsyncIterable[Song]:
         client = self.__get_client()
         async for i in client.find({}):
-            yield MongoSerializer.deserialize(i)
+            yield MongoSerializer.deserialize_song(i)
 
     def load_song(self, key: str) -> Song:
         client = self.__get_sync_client()
         res = client.find_one({"_id": key})
         if not res:
             raise ValueError("Unknown key")
-        return MongoSerializer.deserialize(res)
+        return MongoSerializer.deserialize_song(res)
