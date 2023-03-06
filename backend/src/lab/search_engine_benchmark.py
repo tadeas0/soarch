@@ -60,7 +60,7 @@ async def evaluate_search_engine(
     res = await search_engine.find_similar_async(max_results, query.track)
     duration = time.time() - start_time
     try:
-        result_pos = [i[1].metadata for i in res].index(query.metadata)
+        result_pos = [i.metadata for i in res].index(query.metadata)
     except ValueError:
         result_pos = -1
     return Result(
