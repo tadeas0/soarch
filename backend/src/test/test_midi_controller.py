@@ -55,7 +55,7 @@ async def find_similar_async_mock(cls, *args):
         100,
     )
     return [
-        (i, Song([track], 120, SongMetadata("artist", "song")), track)
+        (i, Song([track], SongMetadata("artist", "song", 120)), track)
         for i in range(10)
     ]
 

@@ -13,6 +13,6 @@ similarity_strategy_bp = Blueprint("similarity-strategy", __name__,
 def strategy_get():
     res = []
     for strategy in SimilarityStrategy.__subclasses__():
-        s = strategy()
+        s = strategy()  # type: ignore
         res.append({"name": s.name, "shortcut": s.shortcut})
     return jsonify(res)

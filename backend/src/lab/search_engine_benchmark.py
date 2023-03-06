@@ -153,8 +153,8 @@ async def benchmark_search_engine():
                 queries.append(q)
         with open(output_path, "w") as f:
             f.write(CSV_HEADER + "\n")
-        for i in queries:
-            res = await test_all_combinations(i, repo)
+        for q in queries:
+            res = await test_all_combinations(q, repo)
             with open(output_path, "a") as f:
                 for r in res:
                     f.write(result_to_csv_row(r) + "\n")
@@ -190,8 +190,8 @@ async def benchmark_standardization():
     shuffle(arrays)
     for standardization in StandardizationStrategy.__subclasses__():
         start_time = time.time()
-        for i in arrays:
-            standardization().standardize(i)  # type: ignore
+        for a in arrays:
+            standardization().standardize(a)  # type: ignore
         duration = time.time() - start_time
         print(f"{standardization.__name__},{duration}")
 

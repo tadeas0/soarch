@@ -1,5 +1,6 @@
 from app.repository.mongo_song_repository import MongoSongRepository
 from app.repository.file_song_repository import FileSongRepository
+from app.repository.song_repository import SongRepository
 import config
 import asyncio
 import os
@@ -62,12 +63,12 @@ def cli(ctx):
         logger.info("Using google cloud file storage")
     else:
         download_file_storage = LocalFileStorage(config.MIDI_DIR)
-        upload_file_storage: FileStorage = LocalFileStorage(
+        upload_file_storage = LocalFileStorage(
             os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX)
         )
         logger.info("Using local file storage")
     if config.MONGODB_URL:
-        repository = MongoSongRepository(config.MONGODB_URL)
+        repository: SongRepository = MongoSongRepository(config.MONGODB_URL)
         logger.info("Using mongo repository")
     else:
         repository = FileSongRepository(upload_file_storage)
