@@ -20,7 +20,29 @@ def test_parse():
             {"time": "0:1:5", "length": "0:2:3", "pitch": 3},
         ],
     }
-    res_notes = JsonParser.parse(j1).tracks[0].notes
+    res = JsonParser.parse(j1)
+    res_notes = res.tracks[0].notes
     assert res_notes[0] == Note(240, 240, 10)
     assert res_notes[1] == Note(600, 360, 15)
     assert res_notes[2] == Note(1080, 1320, 3)
+    assert res.metadata.name == "Unknown song"
+    assert res.metadata.artist == "Unknown artist"
+
+
+def test_parse_metadata():
+    j1 = {
+        "gridLength": 500,
+        "notes": [
+            {"time": "0:0:2", "length": "0:0:2", "pitch": 10},
+            {"time": "0:0:5", "length": "0:0:3", "pitch": 15},
+            {"time": "0:1:5", "length": "0:2:3", "pitch": 3},
+        ],
+        "metadata": {"name": "song1", "artist": "artist1"},
+    }
+    res = JsonParser.parse(j1)
+    res_notes = res.tracks[0].notes
+    assert res_notes[0] == Note(240, 240, 10)
+    assert res_notes[1] == Note(600, 360, 15)
+    assert res_notes[2] == Note(1080, 1320, 3)
+    assert res.metadata.name == "song1"
+    assert res.metadata.artist == "artist1"

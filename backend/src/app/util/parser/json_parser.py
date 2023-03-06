@@ -1,4 +1,5 @@
-from app.util.song import Song, Track, Note
+from typing import Optional
+from app.util.song import Song, SongMetadata, Track, Note
 from app.util.parser.helpers import scale_ticks
 import config
 
@@ -8,6 +9,7 @@ class JsonParser:
     def parse(data) -> Song:
         notes = data["notes"]
         bpm = data.get("bpm", 120)
+        metadata = JsonParser.__parse_metadata(data.get("metadata"))
         return Song(
             [
                 Track(
@@ -16,8 +18,17 @@ class JsonParser:
                 )
             ],
             bpm,
-            None,
+            metadata,
         )
+
+    @staticmethod
+    def __parse_metadata(metadata: Optional[dict]) -> SongMetadata:
+        artist = "Unknown artist"
+        name = "Unknown song"
+        if metadata:
+            artist = metadata.get("artist", "Unknown artist")
+            name = metadata.get("name", "Unknown song")
+        return SongMetadata(artist, name)
 
     @staticmethod
     def __parse_bars_beats_sixteenths(bbs: str) -> int:
