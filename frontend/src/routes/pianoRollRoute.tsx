@@ -3,19 +3,10 @@ import { BeatLoader } from "react-spinners";
 import DownloadingOverlay from "../components/downloadingOverlay";
 import PianoRoll from "../components/pianoRoll/pianoRoll";
 import SearchResultsDrawer from "../components/searchResultsDrawer";
-import {
-    LIGHT_PRIMARY,
-    MIN_NOTES_FOR_FETCHING,
-    SEARCH_RESULT_KEY,
-} from "../constants";
+import { LIGHT_PRIMARY } from "../constants";
 import { PlaybackProvider } from "../context/playbackContext";
 import API from "../services/api";
-import { NoteForm } from "../interfaces/NoteForm";
-import {
-    usePianoRollStore,
-    useSelectedSong,
-    useTabControls,
-} from "../stores/pianoRollStore";
+import { useTabControls } from "../stores/pianoRollStore";
 import { ShepherdTourContext } from "react-shepherd";
 import TourButton from "../components/pianoRoll/tourButton";
 import { SearchResult } from "../interfaces/SearchResult";
@@ -25,47 +16,22 @@ import { getGridParamsFromNotes } from "../common/coordConversion";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import useIsXlScreen from "../hooks/useIsXlScreen";
 import { useQuery } from "react-query";
-import { deserializeSong, serializeNote } from "../common/common";
 import ControlModals from "../components/pianoRoll/controlModals";
+import useSearchResults from "../hooks/useSearchResults";
+import { SongParams } from "../interfaces/SongParams";
 
 interface PianoRollRouteProps {}
 
 const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
-    const selectedStrategy = {
-        name: "Local alignment (Biopython lib)",
-        value: "lcabp",
-    };
     const handle = useFullScreenHandle();
     const isXl = useIsXlScreen();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const { addTab } = useTabControls();
-    const selectedSong = useSelectedSong();
-    const selectedIndex = usePianoRollStore((state) => state.selectedIndex);
     const { stop } = useSequencer();
     const storageKey = "already-took-tour";
     const tour = useContext(ShepherdTourContext);
-    const { isFetching, data: searchResults } = useQuery(
-        [SEARCH_RESULT_KEY, selectedIndex],
-        async ({ signal }) => {
-            if (selectedSong.notes.length < MIN_NOTES_FOR_FETCHING) return [];
-            const reqBody: NoteForm = {
-                gridLength: selectedSong.gridParams.width,
-                notes: selectedSong.notes.map(serializeNote),
-            };
-            if (selectedStrategy)
-                reqBody.similarityStrategy = selectedStrategy.value;
-            const res = await API.postNotes(reqBody, { signal });
-            const result = res.data.tracks.map<SearchResult>(deserializeSong);
-            return result;
-        },
-        {
-            initialData: [],
-            keepPreviousData: true,
-            refetchOnWindowFocus: false,
-            staleTime: Infinity,
-        }
-    );
+    const { isLoading, searchResults, mutate } = useSearchResults();
     const { isFetching: isConnecting } = useQuery(
         "serverAvailable",
         async ({ signal }) => {
@@ -90,12 +56,14 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     const handleEdit = (searchResult: SearchResult) => {
         setIsDrawerOpen(false);
         stop();
-        addTab({
+        const newSong: SongParams = {
             bpm: Math.round(searchResult.bpm),
             name: searchResult.name,
             notes: searchResult.notes,
             gridParams: getGridParamsFromNotes(searchResult.notes),
-        });
+        };
+        addTab(newSong);
+        mutate(newSong);
     };
 
     const handleDrawerToggle = () => {
@@ -120,7 +88,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                         {isDownloading && <DownloadingOverlay />}
                         <PianoRoll
                             setIsDownloading={setIsDownloading}
-                            isFetchingResults={isFetching}
+                            isFetchingResults={isLoading}
                             topSearchResult={searchResults?.at(0)}
                             onShowMore={handleDrawerToggle}
                             disabled={isDrawerOpen}
@@ -130,7 +98,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                             onClose={handleDrawerToggle}
                             isOpen={isDrawerOpen}
                             searchResults={searchResults || []}
-                            isBusy={isFetching}
+                            isBusy={isLoading}
                             onEdit={handleEdit}
                         />
                     </PlaybackProvider>

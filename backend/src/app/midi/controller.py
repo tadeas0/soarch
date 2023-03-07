@@ -1,17 +1,14 @@
 from http import HTTPStatus
 from quart import Blueprint, request, jsonify
+from app.midi.serializer import TrackSerializer
 from app.worker.tasks import search
+from app import job_repository
 import logging
 import config
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 midi_bp = Blueprint("midi", __name__, url_prefix="/api/midi")
-
-
-@midi_bp.get("/")
-def midi_get():
-    return "hello"
 
 
 @midi_bp.post("/")
@@ -21,11 +18,22 @@ async def midi_post():
     if not data:
         raise TypeError()
 
-    res = search.send(data)
-    serialized_songs = res.get_result(block=True, timeout=100000)
-    logger.debug(f"Found {len(serialized_songs)} songs")
-    res = {"tracks": serialized_songs}
-    return jsonify(res)
+    job = job_repository.create_job()
+    logger.debug(f"created job {job}")
+    search.send(data, job.id)
+    results = None
+    if job.results:
+        results = [TrackSerializer.serialize_search_result(i) for i in job.results]
+    return jsonify({"id": job.id, "status": job.status.value, "results": results})
+
+
+@midi_bp.get("/<id>")
+async def midi_get(id: str):
+    job = job_repository.get_job(id)
+    results = None
+    if job.results:
+        results = [TrackSerializer.serialize_search_result(i) for i in job.results]
+    return jsonify({"id": job.id, "status": job.status.value, "results": results})
 
 
 @midi_bp.errorhandler(KeyError)

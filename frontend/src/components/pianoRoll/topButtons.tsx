@@ -18,7 +18,7 @@ import { rollTimeToToneTime } from "../../common/coordConversion";
 import * as Tone from "tone";
 import { useEffect, useRef, useState } from "react";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
-import useSearchResultQuery from "../../hooks/useSearchResultQuery";
+import useSearchResults from "../../hooks/useSearchResults";
 
 const defaultProps = {
     disabled: false,
@@ -37,7 +37,7 @@ const TopButtons = (props: TopButtonsProps) => {
         state.selectedIndex,
     ]);
     const changeBPM = usePianoRollStore((state) => state.changeBPM);
-    const invalidateSearchResults = useSearchResultQuery();
+    const { mutate } = useSearchResults();
     const [isPianoHidden, isRecording, setIsPianoHidden, setIsRecording] =
         usePianoRollStore((state) => [
             state.isPianoHidden,
@@ -106,7 +106,7 @@ const TopButtons = (props: TopButtonsProps) => {
             case "Recording":
                 props.rollSequencer.stop();
                 setIsRecording(false);
-                invalidateSearchResults();
+                mutate(selectedSong);
                 playbackState.current = "Stopped";
                 break;
             case "Countdown":
@@ -132,7 +132,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 break;
             case "Recording":
                 setIsRecording(false);
-                invalidateSearchResults();
+                mutate(selectedSong);
                 playbackState.current = "Playing";
                 break;
             case "Countdown":
@@ -164,14 +164,14 @@ const TopButtons = (props: TopButtonsProps) => {
                 playbackState.current === "Countdown"
             ) {
                 disposeParts();
-                invalidateSearchResults();
+                mutate(selectedSong);
                 setIsRecording(false);
                 playbackState.current = "Stopped";
             }
         });
 
         return () => props.rollSequencer.clearOnStop(event);
-    }, [invalidateSearchResults, props.rollSequencer, setIsRecording]);
+    }, [mutate, props.rollSequencer, selectedSong, setIsRecording]);
 
     const getRecordIcon = () => {
         if (countDown > 0) {

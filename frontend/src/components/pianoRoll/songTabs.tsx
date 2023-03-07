@@ -2,7 +2,11 @@ import { FunctionComponent, useRef } from "react";
 import { IoClose } from "react-icons/io5";
 import { TiPlus } from "react-icons/ti";
 import { Tabs, TabList, Tab, TabPanel } from "react-tabs";
-import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
+import {
+    DEFAULT_SONG_PARAMS,
+    usePianoRollStore,
+    useTabControls,
+} from "../../stores/pianoRollStore";
 import PianoRollGrid from "./pianoRollGrid";
 import * as React from "react";
 import { CgUndo } from "react-icons/cg";
@@ -11,7 +15,7 @@ import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import { FaSave } from "react-icons/fa";
 import saveToFile from "../../common/saveTrack";
 import useSynth from "../../hooks/sequencer/useSynth";
-import useSearchResultQuery from "../../hooks/useSearchResultQuery";
+import useSearchResults from "../../hooks/useSearchResults";
 
 interface SongTabsProps {
     disabled?: boolean;
@@ -32,7 +36,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
     const selectedSong = songs[selectedIndex];
     const tabListContainer = useRef<HTMLElement | null>(null);
     const maxW = songs.length < 7 ? "max-w-2xs" : "max-w-3xs";
-    const invalidateSearchResults = useSearchResultQuery();
+    const { mutate } = useSearchResults();
 
     const handleSave = async () => {
         try {
@@ -59,20 +63,20 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                 const el = tabListContainer.current.querySelector("#song-tabs");
                 if (el) el.scrollLeft = el.scrollWidth;
             }
-            invalidateSearchResults();
+            mutate(DEFAULT_SONG_PARAMS);
         }
     };
 
     const handleSelectTab = (n: number) => {
         stop();
         selectTab(n);
-        invalidateSearchResults();
+        mutate(songs[n]);
     };
 
     const handleRemoveTab = (n: number) => {
         stop();
         removeTab(n);
-        invalidateSearchResults();
+        mutate(DEFAULT_SONG_PARAMS);
     };
 
     return (
