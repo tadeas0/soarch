@@ -1,14 +1,14 @@
 import dramatiq
+from app.entity.job import JobStatus
 from app.util.parser.json_parser import JsonParser
 from app.search_engine.search_engine_factory import SearchEngineFactory
-from . import repository
+from . import repository, job_repository
 import config
-from app.midi.serializer import TrackSerializer
 import asyncio
 
 
-@dramatiq.actor(store_results=True, max_retries=0)
-def search(data):
+@dramatiq.actor(max_retries=0)
+def search(data: dict, job_id: str):
     song = JsonParser.parse(data)
     similarity_strategy = data.get("similarityStrategy", config.DEFAULT_STRATEGY)
     engine = SearchEngineFactory.create_search_engine(repository, similarity_strategy)
@@ -17,8 +17,4 @@ def search(data):
     similar_songs = loop.run_until_complete(
         engine.find_similar_async(10, song.tracks[0])
     )
-    serialized_songs = [
-        TrackSerializer.serialize_with_similarity(i[1], i[2], i[0], True)
-        for i in similar_songs
-    ]
-    return serialized_songs
+    job_repository.update_job(job_id, JobStatus.COMPLETED, similar_songs)

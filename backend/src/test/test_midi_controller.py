@@ -1,7 +1,8 @@
 from quart import Quart
 import config
 import pytest
-from app.util.song import Song, SongMetadata, Track, Note
+from app.entity.song import Song, SongMetadata, Track, Note
+from test.mocks.mock_job_repository import MockJobRepository
 
 
 class MockAct:
@@ -36,8 +37,13 @@ def mock_search(monkeypatch):
     monkeypatch.setattr("dramatiq.actor", lambda **kw: MockAct)
 
 
+@pytest.fixture()
+def mock_job_repository(monkeypatch):
+    monkeypatch.setattr("app.job_repository", MockJobRepository())
+
+
 @pytest.fixture
-def app(mock_search):
+def app(mock_search, mock_job_repository):
     from app.midi.controller import midi_bp
 
     app = Quart(__name__)
@@ -55,7 +61,7 @@ async def find_similar_async_mock(cls, *args):
         100,
     )
     return [
-        (i, Song([track], 120, SongMetadata("artist", "song")), track)
+        (i, Song([track], SongMetadata("artist", "song", 120)), track)
         for i in range(10)
     ]
 
@@ -79,19 +85,30 @@ async def test_midi_controller_success(app):
 
     res_json = await response.get_json()
 
-    expected_songs = [
-        {
-            "name": "song",
-            "artist": "artist",
-            "notes": [
-                {"pitch": 20, "length": "0:1:0", "time": "0:0:0"},
-                {"pitch": 20, "length": "0:1:0", "time": "0:1:0"},
-            ],
-            "bpm": 120,
-        }
-        for i in range(10)
-    ]
-    assert res_json == {"tracks": expected_songs}
+    expected_result = {"id": "1", "status": "pending", "results": None}
+
+    assert res_json == expected_result
+    assert response.status_code == 200
+
+
+@pytest.mark.asyncio
+async def test_midi_controller_get(app):
+    client = app.test_client()
+    response = await client.get("/api/midi/1")
+    expected_result = {
+        "id": "1",
+        "status": "completed",
+        "results": [
+            {
+                "artist": "artist",
+                "name": "name",
+                "bpm": 99,
+                "similarity": 1.5,
+                "notes": [{"pitch": 3, "length": "0:0:1", "time": "0:0:0"}],
+            }
+        ],
+    }
+    assert await response.get_json() == expected_result
     assert response.status_code == 200
 
 

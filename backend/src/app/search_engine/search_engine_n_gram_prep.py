@@ -1,8 +1,9 @@
+from app.entity.search_result import SearchResult
 from app.search_engine.search_engine import SearchEngine
-from app.midi.repository.repository import SongRepository
+from app.repository.song_repository import SongRepository
 from app.search_engine.preprocessor import Preprocessor
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
-from app.util.song import Note, Song, Track
+from app.entity.song import Note, Track
 import numpy.typing as npt
 import numpy as np
 
@@ -64,20 +65,15 @@ class SearchEngineNGramPrep(SearchEngine):
 
     def process_songs(
         self, keys: list[str], query_track: Track, query_prep: npt.NDArray[np.int64], n
-    ) -> list[tuple[float, Song, Track]]:
+    ) -> list[SearchResult]:
         query_classes = self.__generate_n_gram_classes(query_track)
 
-        results: list[tuple[float, Song, Track]] = []
+        results: list[SearchResult] = []
         for key in keys:
             results.extend(
                 self.__process_song(key, query_track, query_prep, query_classes)
             )
-        post_res = self.postprocess_result_list(results, n)
-        return [
-            (i[0], Song([i[2]], i[1].bpm, i[1].metadata), i[2])
-            for i in post_res
-            if i[1].metadata
-        ]
+        return self.postprocess_result_list(results, n)
 
     def __process_song(
         self,
@@ -85,8 +81,8 @@ class SearchEngineNGramPrep(SearchEngine):
         query_track: Track,
         query_prep: npt.NDArray[np.int64],
         query_classes: set[int],
-    ) -> list[tuple[float, Song, Track]]:
-        results: list[tuple[float, Song, Track]] = []
+    ) -> list[SearchResult]:
+        results: list[SearchResult] = []
         song = self.repository.load_song(key)
 
         for track in song.tracks:
@@ -100,5 +96,5 @@ class SearchEngineNGramPrep(SearchEngine):
                     val = self.similarity_strategy.compare(
                         query_prep, self.preprocessor.prep_track(segment)
                     )
-                    results.append((val, song, segment))
+                    results.append(SearchResult(song.metadata, val, segment))
         return results

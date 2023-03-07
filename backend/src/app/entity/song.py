@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 import numpy.typing as npt
 import numpy as np
-from typing import Optional
 
 
 @dataclass
@@ -21,6 +20,7 @@ class Track:
 class SongMetadata:
     artist: str
     name: str
+    bpm: int
 
 
 @dataclass
@@ -32,6 +32,4 @@ class Segment:
 @dataclass
 class Song:
     tracks: list[Track]
-    bpm: int
-    metadata: Optional[SongMetadata]
-    segments: Optional[list[Segment]] = None
+    metadata: SongMetadata

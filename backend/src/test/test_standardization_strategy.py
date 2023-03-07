@@ -8,14 +8,18 @@ from app.search_engine.strategy.standardization_strategy import (
 
 def test_default_strategy():
     ds = DefaultStrategy()
-    assert ds.standardize([1, 2, 3]) == [1, 2, 3]
+    np.testing.assert_array_equal(ds.standardize(np.array([1, 2, 3])), [1, 2, 3])
 
 
 def test_relative_interval_strategy():
     ris = RelativeIntervalStrategy()
-    np.testing.assert_array_equal(ris.standardize([1, 2, 5, 4, 2]), [0, 1, 3, -1, -2])
+    np.testing.assert_array_equal(
+        ris.standardize(np.array([1, 2, 5, 4, 2])), [0, 1, 3, -1, -2]
+    )
 
 
 def test_baseline_interval_strategy():
     bs = BaselineIntervalStrategy()
-    np.testing.assert_array_equal(bs.standardize([2, 3, 4, 1, 2]), [0, 1, 2, -1, 0])
+    np.testing.assert_array_equal(
+        bs.standardize(np.array([2, 3, 4, 1, 2])), [0, 1, 2, -1, 0]
+    )

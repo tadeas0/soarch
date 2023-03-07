@@ -1,5 +1,6 @@
 from typing import Union
-from app.util.song import Note, Track, Song
+from app.entity.search_result import SearchResult
+from app.entity.song import Note, SongMetadata, Track
 from math import floor
 import config
 
@@ -7,34 +8,28 @@ import config
 class TrackSerializer:
     @staticmethod
     def serialize_with_metadata(
-        song: Song, track: Track, trim=True
+        metadata: SongMetadata, track: Track, trim=True
     ) -> dict[str, Union[str, int, float, list[dict[str, Union[str, int]]]]]:
         track_notes = track.notes
         if trim:
             track_notes = TrackSerializer.trim_notes(track_notes)
         serialized_notes = [TrackSerializer.serialize_note(i) for i in track_notes]
 
-        if song.metadata:
-            return {
-                "artist": song.metadata.artist,
-                "name": song.metadata.name,
-                "notes": serialized_notes,
-                "bpm": song.bpm,
-            }
-        else:
-            return {
-                "artist": "Unknown artist",
-                "name": "Unknown song",
-                "notes": serialized_notes,
-                "bpm": song.bpm,
-            }
+        return {
+            "artist": metadata.artist,
+            "name": metadata.name,
+            "notes": serialized_notes,
+            "bpm": metadata.bpm,
+        }
 
     @staticmethod
-    def serialize_with_similarity(
-        song: Song, track: Track, similarity: float, trim=True
+    def serialize_search_result(
+        search_result: SearchResult, trim=True
     ) -> dict[str, Union[str, int, float, list[dict[str, Union[str, int]]]]]:
-        s = TrackSerializer.serialize_with_metadata(song, track, trim)
-        s["similarity"] = similarity
+        s = TrackSerializer.serialize_with_metadata(
+            search_result.metadata, search_result.track, trim
+        )
+        s["similarity"] = search_result.similarity
         return s
 
     @staticmethod

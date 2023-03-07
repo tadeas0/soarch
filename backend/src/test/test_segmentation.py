@@ -2,7 +2,7 @@ from app.search_engine.strategy.segmentation_strategy import (
     OneSegmentStrategy,
     FixedLengthStrategy,
 )
-from app.util.song import Track, Note
+from app.entity.song import Track, Note
 import unittest
 
 

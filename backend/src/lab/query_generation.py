@@ -1,15 +1,15 @@
 import os
 import pickle
 import random
-from lab.example_query import ExampleQuery
+from app.entity.example_query import ExampleQuery
 
 import config
 import matplotlib.pyplot as plt
-from app.midi.repository.file_repository import FileRepository
+from app.repository.file_song_repository import FileSongRepository
 from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from miditoolkit import notes2pianoroll, plot, Note as MTKNote
-from app.util.song import Note
+from app.entity.song import Note
 import uuid
 
 RANDOM_SEED = 123
@@ -19,7 +19,7 @@ async def __get_all_segments():
     file_storage = LocalFileStorage(
         os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX)
     )
-    repository = FileRepository(file_storage)
+    repository = FileSongRepository(file_storage)
     songs = [i async for i in repository.get_all_songs()]
     songs.sort(
         key=lambda a: a.metadata.artist + " - " + a.metadata.name if a.metadata else ""
@@ -113,7 +113,7 @@ async def generate_shifted_queries():
 async def generate_transposed_queries():
     random.seed(RANDOM_SEED)
     max_transpo = 12
-    for shift_notes in range(1, 6):
+    for shift_notes in range(6):
         query_fs = LocalFileStorage(
             os.path.join(
                 config.MIDI_DIR, config.QUERY_PREFIX, f"{shift_notes}_notes_changed"

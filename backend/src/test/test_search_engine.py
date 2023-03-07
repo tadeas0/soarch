@@ -1,4 +1,5 @@
-from app.util.song import Note, Song, Track
+from app.entity.search_result import SearchResult
+from app.entity.song import Note, SongMetadata, Track
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
@@ -9,13 +10,13 @@ from app.search_engine.preprocessor import Preprocessor
 from test.mocks.mock_repository import MockRepository
 
 
-def assert_result(result, expected_len):
+def assert_result(result: list[SearchResult], expected_len: int):
     assert len(result) == expected_len
     for i in result:
-        assert len(i) == 3
-        assert isinstance(i[0], float)
-        assert isinstance(i[1], Song)
-        assert isinstance(i[2], Track)
+        assert isinstance(i, SearchResult)
+        assert isinstance(i.similarity, float)
+        assert isinstance(i.metadata, SongMetadata)
+        assert isinstance(i.track, Track)
 
 
 @pytest.mark.asyncio

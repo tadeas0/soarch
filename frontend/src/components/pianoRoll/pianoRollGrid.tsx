@@ -8,8 +8,8 @@ import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
 import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useSynth from "../../hooks/sequencer/useSynth";
-import useSearchResultQuery from "../../hooks/useSearchResultQuery";
 import useTouchHandler from "./touchHandler/useTouchHandler";
+import useSearchResults from "../../hooks/useSearchResults";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -29,7 +29,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const [previewNotes, setPreviewNotes] = useState<Map<Note, number>>(
         new Map()
     );
-    const invalidateSearchResults = useSearchResultQuery();
+    const { mutate } = useSearchResults();
     const [localNotes, setLocalNotes] = useState<Note[]>([]);
     const [setNotesStore, saveStateStore] = usePianoRollStore((state) => [
         state.setNotes,
@@ -102,7 +102,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         if (!disabled) {
             mouseHandler.onLeftRelease(coords);
             setNotesStore(localNotes);
-            invalidateSearchResults();
+            mutate({ notes: localNotes, gridParams });
         }
     };
 
@@ -110,7 +110,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         if (!disabled) {
             mouseHandler.onRightRelease(coords);
             setNotesStore(localNotes);
-            invalidateSearchResults();
+            mutate({ notes: localNotes, gridParams });
         }
     };
 
@@ -165,7 +165,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
             // TODO: replace this hacky solution
             setLocalNotes((current) => {
                 setNotesStore(current);
-                invalidateSearchResults();
+                mutate({ notes: current, gridParams });
                 return current;
             });
         }

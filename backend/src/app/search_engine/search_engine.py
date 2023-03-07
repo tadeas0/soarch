@@ -1,10 +1,11 @@
 import logging
+from app.entity.search_result import SearchResult
 import config
 import numpy.typing as npt
 import numpy as np
-from app.midi.repository.repository import SongRepository
+from app.repository.song_repository import SongRepository
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
-from app.util.song import Song, Track
+from app.entity.song import Track
 import multiprocessing as mp
 from app.search_engine.preprocessor import Preprocessor
 import itertools
@@ -29,7 +30,7 @@ class SearchEngine:
 
     async def find_similar_async(
         self, n: int, query_track: Track
-    ) -> list[tuple[float, Song, Track]]:
+    ) -> list[SearchResult]:
         query_prep = self.preprocessor.prep_track(query_track)
         results = []
 
@@ -47,26 +48,25 @@ class SearchEngine:
         )
 
     def postprocess_result_list(
-        self, results: list[tuple[float, Song, Track]], n: int
-    ) -> list[tuple[float, Song, Track]]:
+        self, results: list[SearchResult], n: int
+    ) -> list[SearchResult]:
         sorted_results = sorted(
             results,
             reverse=self.similarity_strategy.highest_first,
             key=lambda a: (
-                a[0],
-                a[1].metadata.name if a[1].metadata else "",
-                a[1].metadata.artist if a[1].metadata else "",
+                a.similarity,
+                a.metadata.name,
+                a.metadata.artist,
             ),
         )
         logger.info("Postprocessing search results")
         metadata: set[tuple[str, str]] = set()
-        unique_results: list[tuple[float, Song, Track]] = []
+        unique_results: list[SearchResult] = []
         for i in sorted_results:
-            if i[1].metadata:
-                meta_tuple = (i[1].metadata.artist, i[1].metadata.name)
-                if meta_tuple not in metadata:
-                    metadata.add(meta_tuple)
-                    unique_results.append(i)
+            meta_tuple = (i.metadata.artist, i.metadata.name)
+            if meta_tuple not in metadata:
+                metadata.add(meta_tuple)
+                unique_results.append(i)
 
         if len(unique_results) >= n:
             return unique_results[0:n]
@@ -75,21 +75,16 @@ class SearchEngine:
 
     def process_songs(
         self, keys: list[str], query_track: Track, query_prep: npt.NDArray[np.int64], n
-    ) -> list[tuple[float, Song, Track]]:
-        results: list[tuple[float, Song, Track]] = []
+    ) -> list[SearchResult]:
+        results: list[SearchResult] = []
         for key in keys:
             results.extend(self.process_song(key, query_track, query_prep))
-        post_res = self.postprocess_result_list(results, n)
-        return [
-            (i[0], Song([i[2]], i[1].bpm, i[1].metadata), i[2])
-            for i in post_res
-            if i[1].metadata
-        ]
+        return self.postprocess_result_list(results, n)
 
     def process_song(
         self, key: str, query_track: Track, query_prep: npt.NDArray[np.int64]
-    ) -> list[tuple[float, Song, Track]]:
-        results: list[tuple[float, Song, Track]] = []
+    ) -> list[SearchResult]:
+        results: list[SearchResult] = []
         song = self.repository.load_song(key)
 
         for track in song.tracks:
@@ -100,5 +95,5 @@ class SearchEngine:
                 val = self.similarity_strategy.compare(
                     query_prep, self.preprocessor.prep_track(segment)
                 )
-                results.append((val, song, segment))
+                results.append(SearchResult(song.metadata, val, segment))
         return results

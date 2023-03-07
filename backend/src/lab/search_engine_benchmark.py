@@ -6,7 +6,8 @@ from random import shuffle
 
 import config
 import numpy as np
-from app.midi.repository.file_repository import FileRepository, SongRepository
+from app.repository.file_song_repository import FileSongRepository
+from app.repository.song_repository import SongRepository
 from app.search_engine.preprocessor import Preprocessor
 from app.search_engine.search_engine import SearchEngine
 from app.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep
@@ -31,7 +32,7 @@ from app.search_engine.strategy.standardization_strategy import (
 )
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from config import MEASURE_LENGTH
-from lab.example_query import ExampleQuery
+from app.entity.example_query import ExampleQuery
 
 CSV_HEADER = (
     "duration,search_engine_name,extraction,standardization,"
@@ -59,7 +60,7 @@ async def evaluate_search_engine(
     res = await search_engine.find_similar_async(max_results, query.track)
     duration = time.time() - start_time
     try:
-        result_pos = [i[1].metadata for i in res].index(query.metadata)
+        result_pos = [i.metadata for i in res].index(query.metadata)
     except ValueError:
         result_pos = -1
     return Result(
@@ -126,13 +127,13 @@ def result_to_csv_row(result: Result):
 async def benchmark_search_engine():
     # setup_logging()
     fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX))
-    repo = FileRepository(fs)
+    repo = FileSongRepository(fs)
     folders = [
         # "0_notes_changed",
-        "1_notes_changed",
-        # "1_notes_changed_transposed",
-        "2_notes_changed",
-        # "2_notes_changed_transposed",
+        # "1_notes_changed",
+        "1_notes_changed_transposed",
+        # "2_notes_changed",
+        "2_notes_changed_transposed",
         # "3_notes_changed",
         # "3_notes_changed_transposed",
         # "4_notes_changed",
@@ -152,8 +153,8 @@ async def benchmark_search_engine():
                 queries.append(q)
         with open(output_path, "w") as f:
             f.write(CSV_HEADER + "\n")
-        for i in queries:
-            res = await test_all_combinations(i, repo)
+        for q in queries:
+            res = await test_all_combinations(q, repo)
             with open(output_path, "a") as f:
                 for r in res:
                     f.write(result_to_csv_row(r) + "\n")
@@ -189,8 +190,8 @@ async def benchmark_standardization():
     shuffle(arrays)
     for standardization in StandardizationStrategy.__subclasses__():
         start_time = time.time()
-        for i in arrays:
-            standardization().standardize(i)  # type: ignore
+        for a in arrays:
+            standardization().standardize(a)  # type: ignore
         duration = time.time() - start_time
         print(f"{standardization.__name__},{duration}")
 

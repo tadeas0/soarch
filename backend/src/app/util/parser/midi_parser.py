@@ -1,12 +1,12 @@
 from miditoolkit.midi import MidiFile
-from app.util.song import Song, Track, Note
+from app.entity.song import Song, SongMetadata, Track, Note
 from app.util.parser.helpers import scale_ticks
 import config
 
 
 class MidiParser:
     @staticmethod
-    def parse(midi_file: MidiFile) -> Song:
+    def parse(midi_file: MidiFile, artist: str, name: str) -> Song:
         melodic_inst = filter(lambda inst: not inst.is_drum, midi_file.instruments)
 
         def st(t: int):
@@ -33,6 +33,5 @@ class MidiParser:
                 )
                 for inst in melodic_inst
             ],
-            bpm,
-            None,
+            SongMetadata(artist, name, bpm),
         )

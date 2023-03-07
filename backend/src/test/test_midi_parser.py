@@ -1,6 +1,6 @@
 from miditoolkit.midi import MidiFile, Instrument
 from miditoolkit.midi.containers import Note
-from app.util.song import Note as MyNote
+from app.entity.song import Note as MyNote
 from app.util.parser import MidiParser
 
 
@@ -19,7 +19,7 @@ def test_parse():
     mid.instruments.append(i1)
     mid.instruments.append(i2)
 
-    song = MidiParser.parse(mid)
+    song = MidiParser.parse(mid, "artist", "name")
 
     n1 = song.tracks[0].notes
     assert n1[0] == MyNote(0, 40, 30)
@@ -30,3 +30,6 @@ def test_parse():
     assert n2[0] == MyNote(20, 20, 4)
     assert n2[1] == MyNote(100, 2, 0)
     assert n2[2] == MyNote(16, 84, 15)
+
+    assert song.metadata.artist == "artist"
+    assert song.metadata.name == "name"

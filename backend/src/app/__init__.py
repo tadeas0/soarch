@@ -1,10 +1,14 @@
 from quart import Quart
+from app.repository.mongo_job_repository import MongoJobRepository
 import config
 from app.util.logging import setup_logging
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 from dramatiq.results.backends import RedisBackend
 from dramatiq.results import Results
+
+
+job_repository = MongoJobRepository(config.MONGODB_URL)
 
 
 def create_app() -> Quart:

@@ -18,7 +18,7 @@ import { rollTimeToToneTime } from "../../common/coordConversion";
 import * as Tone from "tone";
 import { useEffect, useRef, useState } from "react";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
-import useSearchResultQuery from "../../hooks/useSearchResultQuery";
+import useSearchResults from "../../hooks/useSearchResults";
 
 const defaultProps = {
     disabled: false,
@@ -37,7 +37,7 @@ const TopButtons = (props: TopButtonsProps) => {
         state.selectedIndex,
     ]);
     const changeBPM = usePianoRollStore((state) => state.changeBPM);
-    const invalidateSearchResults = useSearchResultQuery();
+    const { mutate } = useSearchResults();
     const [isPianoHidden, isRecording, setIsPianoHidden, setIsRecording] =
         usePianoRollStore((state) => [
             state.isPianoHidden,
@@ -48,13 +48,16 @@ const TopButtons = (props: TopButtonsProps) => {
     const [countDown, setCountDown] = useState(0);
     const countInPart = useRef(new Tone.Part());
     const repeatEvent = useRef(new Tone.Loop());
-    const metronomeSampler = new Tone.Sampler({
-        urls: {
-            G4: "/samples/metronome_down.mp3",
-            C4: "/samples/metronome_up.mp3",
-        },
-        release: 1,
-    }).toDestination();
+    const metronomeSampler = useRef<Tone.Sampler | null>(null);
+    if (!metronomeSampler.current) {
+        metronomeSampler.current = new Tone.Sampler({
+            urls: {
+                G4: "/samples/metronome_down.mp3",
+                C4: "/samples/metronome_up.mp3",
+            },
+            release: 1,
+        }).toDestination();
+    }
 
     const selectedSong = songs[selectedIndex];
 
@@ -67,7 +70,11 @@ const TopButtons = (props: TopButtonsProps) => {
             metronomeNotes.push({ time: `0:${i}:0`, pitch });
         }
         countInPart.current = new Tone.Part((time, note) => {
-            metronomeSampler.triggerAttackRelease(note.pitch, "0:0:1", time);
+            metronomeSampler.current!.triggerAttackRelease(
+                note.pitch,
+                "0:0:1",
+                time
+            );
         }, metronomeNotes)
             .start(0)
             .stop("1:0:0");
@@ -106,7 +113,7 @@ const TopButtons = (props: TopButtonsProps) => {
             case "Recording":
                 props.rollSequencer.stop();
                 setIsRecording(false);
-                invalidateSearchResults();
+                mutate(selectedSong);
                 playbackState.current = "Stopped";
                 break;
             case "Countdown":
@@ -132,7 +139,7 @@ const TopButtons = (props: TopButtonsProps) => {
                 break;
             case "Recording":
                 setIsRecording(false);
-                invalidateSearchResults();
+                mutate(selectedSong);
                 playbackState.current = "Playing";
                 break;
             case "Countdown":
@@ -164,14 +171,14 @@ const TopButtons = (props: TopButtonsProps) => {
                 playbackState.current === "Countdown"
             ) {
                 disposeParts();
-                invalidateSearchResults();
+                mutate(selectedSong);
                 setIsRecording(false);
                 playbackState.current = "Stopped";
             }
         });
 
         return () => props.rollSequencer.clearOnStop(event);
-    }, [invalidateSearchResults, props.rollSequencer, setIsRecording]);
+    }, [mutate, props.rollSequencer, selectedSong, setIsRecording]);
 
     const getRecordIcon = () => {
         if (countDown > 0) {
