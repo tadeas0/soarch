@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface SettingsState {
     volume: number;
@@ -7,9 +8,17 @@ export interface SettingsState {
     setUseFasterSearch: (val: boolean) => void;
 }
 
-export const useSettingsStore = create<SettingsState>((set) => ({
-    volume: 0.5,
-    useFasterSearch: true,
-    setVolume: (val: number) => set(() => ({ volume: val })),
-    setUseFasterSearch: (val: boolean) => set(() => ({ useFasterSearch: val })),
-}));
+export const useSettingsStore = create<SettingsState>()(
+    persist(
+        (set) => ({
+            volume: 0.5,
+            useFasterSearch: true,
+            setVolume: (val: number) => set(() => ({ volume: val })),
+            setUseFasterSearch: (val: boolean) =>
+                set(() => ({ useFasterSearch: val })),
+        }),
+        {
+            name: "settings",
+        }
+    )
+);
