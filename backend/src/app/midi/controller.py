@@ -13,6 +13,7 @@ midi_bp = Blueprint("midi", __name__, url_prefix="/api/midi")
 
 @midi_bp.post("/")
 async def midi_post():
+    print(job_repository)
     data = await request.get_json()
 
     if not data:
