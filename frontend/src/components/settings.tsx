@@ -1,8 +1,10 @@
 import * as React from "react";
-import { FunctionComponent, useState } from "react";
+import { ChangeEvent, FunctionComponent, useState } from "react";
 import { IoMdSettings } from "react-icons/io";
 import { useSettingsStore } from "../stores/settingsStore";
 import Button from "./basic/button";
+import * as Tone from "tone";
+import { MAX_VOLUME_DB, MIN_VOLUME_DB } from "../constants";
 
 interface SettingsProps {}
 
@@ -10,6 +12,13 @@ const Settings: FunctionComponent<SettingsProps> = () => {
     const [open, setOpen] = useState(false);
     const { useFasterSearch, setUseFasterSearch, volume, setVolume } =
         useSettingsStore();
+
+    const handleVolumeChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const val = Number(e.target.value);
+        setVolume(val);
+        const newVol = val * (MAX_VOLUME_DB - MIN_VOLUME_DB) + MIN_VOLUME_DB;
+        Tone.getDestination().volume.value = newVol;
+    };
 
     return (
         <div className="absolute top-0 left-0 z-10 flex flex-col items-start">
@@ -48,9 +57,7 @@ const Settings: FunctionComponent<SettingsProps> = () => {
                                 max={1}
                                 step={0.1}
                                 value={volume}
-                                onChange={(e) =>
-                                    setVolume(Number(e.target.value))
-                                }
+                                onChange={handleVolumeChange}
                             />
                         </li>
                     </ul>
