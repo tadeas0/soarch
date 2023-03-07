@@ -1,3 +1,4 @@
+from typing import Optional
 from app.entity.job import Job, JobStatus
 from app.entity.search_result import SearchResult
 from app.entity.song import Note, SongMetadata, Track
@@ -19,5 +20,7 @@ class MockJobRepository(JobRepository):
     def create_job(self) -> Job:
         return Job("1", JobStatus.PENDING, None)
 
-    def update_job(self) -> None:
+    def update_job(
+        self, id: str, status: JobStatus, results: Optional[list[SearchResult]]
+    ) -> None:
         pass
