@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { deserializeNote, serializeNote } from "../common/common";
 import { MIN_NOTES_FOR_FETCHING } from "../constants";
@@ -8,16 +7,22 @@ import { NoteForm } from "../interfaces/NoteForm";
 import api from "../services/api";
 import { useSearchResultStore } from "../stores/searchResultStore";
 
-const REFETCH_INTERVAL = 1500;
+const REFETCH_INTERVAL = 3000;
+
+export interface SongQuery {
+    notes: Note[];
+    gridParams: GridParams;
+}
 
 const useSearchResults = () => {
-    const [jobId, setJobId] = useState<string | null>(null);
     const {
         searchResults,
         setSearchResults,
         isLoading,
         setIsLoading,
         selectedStrategy,
+        jobId,
+        setJobId,
     } = useSearchResultStore();
 
     const { data } = useQuery(
@@ -25,9 +30,6 @@ const useSearchResults = () => {
         async () => {
             if (jobId === null) return null;
             const res = await api.getResult(jobId);
-            if (res.data.status === "completed") {
-                setJobId(null);
-            }
             return res.data;
         },
         {
@@ -41,20 +43,16 @@ const useSearchResults = () => {
                     }));
                     setSearchResults(results);
                     setIsLoading(false);
+                    setJobId(null);
                 }
             },
         }
     );
 
     const { mutate } = useMutation(
-        async (notes: NoteForm) => {
-            if (jobId !== null) return null;
-            if (notes.notes.length < MIN_NOTES_FOR_FETCHING) {
-                setSearchResults([]);
-                return null;
-            }
+        async (noteForm: NoteForm) => {
             const query = {
-                ...notes,
+                ...noteForm,
                 similarityStrategy: selectedStrategy.shortcut,
             };
             return api.postNotes(query);
@@ -69,11 +67,17 @@ const useSearchResults = () => {
         }
     );
 
-    const handleMutate = (song: { notes: Note[]; gridParams: GridParams }) => {
-        mutate({
-            gridLength: song.gridParams.width,
-            notes: song.notes.map(serializeNote),
-        });
+    const handleMutate = (song: SongQuery, forceUpdate: boolean = false) => {
+        if (song.notes.length < MIN_NOTES_FOR_FETCHING) {
+            setSearchResults([]);
+            setJobId(null);
+            setIsLoading(false);
+        } else if (jobId === null || forceUpdate) {
+            mutate({
+                gridLength: song.gridParams.width,
+                notes: song.notes.map(serializeNote),
+            });
+        }
     };
 
     return {

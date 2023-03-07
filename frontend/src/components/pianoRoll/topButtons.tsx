@@ -48,13 +48,16 @@ const TopButtons = (props: TopButtonsProps) => {
     const [countDown, setCountDown] = useState(0);
     const countInPart = useRef(new Tone.Part());
     const repeatEvent = useRef(new Tone.Loop());
-    const metronomeSampler = new Tone.Sampler({
-        urls: {
-            G4: "/samples/metronome_down.mp3",
-            C4: "/samples/metronome_up.mp3",
-        },
-        release: 1,
-    }).toDestination();
+    const metronomeSampler = useRef<Tone.Sampler | null>(null);
+    if (!metronomeSampler.current) {
+        metronomeSampler.current = new Tone.Sampler({
+            urls: {
+                G4: "/samples/metronome_down.mp3",
+                C4: "/samples/metronome_up.mp3",
+            },
+            release: 1,
+        }).toDestination();
+    }
 
     const selectedSong = songs[selectedIndex];
 
@@ -67,7 +70,11 @@ const TopButtons = (props: TopButtonsProps) => {
             metronomeNotes.push({ time: `0:${i}:0`, pitch });
         }
         countInPart.current = new Tone.Part((time, note) => {
-            metronomeSampler.triggerAttackRelease(note.pitch, "0:0:1", time);
+            metronomeSampler.current!.triggerAttackRelease(
+                note.pitch,
+                "0:0:1",
+                time
+            );
         }, metronomeNotes)
             .start(0)
             .stop("1:0:0");

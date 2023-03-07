@@ -1,4 +1,3 @@
-from app.repository.file_song_repository import FileSongRepository
 from app.repository.job_repository import JobRepository
 from app.repository.mongo_job_repository import MongoJobRepository
 from app.repository.song_repository import SongRepository

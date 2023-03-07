@@ -63,20 +63,26 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                 const el = tabListContainer.current.querySelector("#song-tabs");
                 if (el) el.scrollLeft = el.scrollWidth;
             }
-            mutate(DEFAULT_SONG_PARAMS);
+            mutate(DEFAULT_SONG_PARAMS, true);
         }
     };
 
     const handleSelectTab = (n: number) => {
         stop();
         selectTab(n);
-        mutate(songs[n]);
+        mutate(songs[n], true);
     };
 
     const handleRemoveTab = (n: number) => {
         stop();
         removeTab(n);
-        mutate(DEFAULT_SONG_PARAMS);
+        mutate(DEFAULT_SONG_PARAMS, true);
+    };
+
+    const handleClear = () => {
+        stop();
+        clear();
+        mutate(DEFAULT_SONG_PARAMS, true);
     };
 
     return (
@@ -139,7 +145,7 @@ const SongTabs: FunctionComponent<SongTabsProps> = (props) => {
                     <button
                         type="button"
                         className="ml-auto mb-0 rounded-t border-2 border-b-0 border-dark-primary bg-light-primary p-2 text-white hover:bg-medium-primary hover:text-black"
-                        onClick={clear}
+                        onClick={handleClear}
                     >
                         <MdDelete />
                     </button>
