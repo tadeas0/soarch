@@ -34,6 +34,12 @@ module.exports = {
                 "jsx-a11y/anchor-is-valid": "off",
                 "react/no-unescaped-entities": "off",
                 "no-underscore-dangle": "off",
+                "jsx-a11y/label-has-associated-control": [
+                    "error",
+                    {
+                        assert: "either",
+                    },
+                ],
                 "react/no-unstable-nested-components": [
                     "error",
                     {

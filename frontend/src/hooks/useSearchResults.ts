@@ -6,6 +6,7 @@ import { Note } from "../interfaces/Note";
 import { NoteForm } from "../interfaces/NoteForm";
 import api from "../services/api";
 import { useSearchResultStore } from "../stores/searchResultStore";
+import { useSettingsStore } from "../stores/settingsStore";
 
 const REFETCH_INTERVAL = 3000;
 
@@ -24,6 +25,7 @@ const useSearchResults = () => {
         jobId,
         setJobId,
     } = useSearchResultStore();
+    const { useFasterSearch } = useSettingsStore();
 
     const { data } = useQuery(
         [jobId],
@@ -54,6 +56,7 @@ const useSearchResults = () => {
             const query = {
                 ...noteForm,
                 similarityStrategy: selectedStrategy.shortcut,
+                useFasterSearch,
             };
             return api.postNotes(query);
         },
@@ -76,6 +79,7 @@ const useSearchResults = () => {
             mutate({
                 gridLength: song.gridParams.width,
                 notes: song.notes.map(serializeNote),
+                useFasterSearch,
             });
         }
     };

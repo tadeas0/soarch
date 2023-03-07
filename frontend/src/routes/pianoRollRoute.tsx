@@ -19,6 +19,7 @@ import { useQuery } from "react-query";
 import ControlModals from "../components/pianoRoll/controlModals";
 import useSearchResults from "../hooks/useSearchResults";
 import { SongParams } from "../interfaces/SongParams";
+import Settings from "../components/settings";
 
 interface PianoRollRouteProps {}
 
@@ -84,6 +85,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                     </div>
                 ) : (
                     <PlaybackProvider>
+                        <Settings />
                         <TourButton />
                         {isDownloading && <DownloadingOverlay />}
                         <PianoRoll
