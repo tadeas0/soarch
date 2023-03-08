@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from quart import Blueprint, request, jsonify
 from app.midi.serializer import TrackSerializer
-from app.worker.tasks import search
+from worker.tasks import search
 from app import job_repository
 import logging
 import config
@@ -13,7 +13,6 @@ midi_bp = Blueprint("midi", __name__, url_prefix="/api/midi")
 
 @midi_bp.post("/")
 async def midi_post():
-    print(job_repository)
     data = await request.get_json()
 
     if not data:
