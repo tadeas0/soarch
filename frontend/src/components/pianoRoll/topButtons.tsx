@@ -19,6 +19,7 @@ import * as Tone from "tone";
 import { useEffect, useRef, useState } from "react";
 import useKeyboardListener from "../../hooks/useKeyboardListener";
 import useSearchResults from "../../hooks/useSearchResults";
+import { useSettingsStore } from "../../stores/settingsStore";
 
 const defaultProps = {
     disabled: false,
@@ -45,6 +46,7 @@ const TopButtons = (props: TopButtonsProps) => {
             state.setIsPianoHidden,
             state.setIsRecording,
         ]);
+    const useCountIn = useSettingsStore((state) => state.useCountIn);
     const [countDown, setCountDown] = useState(0);
     const countInPart = useRef(new Tone.Part());
     const repeatEvent = useRef(new Tone.Loop());
@@ -96,6 +98,16 @@ const TopButtons = (props: TopButtonsProps) => {
         setIsRecording(true);
     };
 
+    const recordWithoutCountdown = () => {
+        props.rollSequencer.play(
+            selectedSong.notes,
+            selectedSong.bpm,
+            rollTimeToToneTime(selectedSong.gridParams.width),
+            false
+        );
+        setIsRecording(true);
+    };
+
     const handlePlayClick = async () => {
         switch (playbackState.current) {
             case "Stopped":
@@ -130,8 +142,13 @@ const TopButtons = (props: TopButtonsProps) => {
     const handleRecordClick = async () => {
         switch (playbackState.current) {
             case "Stopped":
-                recordWithCountdown();
-                playbackState.current = "Countdown";
+                if (useCountIn) {
+                    recordWithCountdown();
+                    playbackState.current = "Countdown";
+                } else {
+                    recordWithoutCountdown();
+                    playbackState.current = "Recording";
+                }
                 break;
             case "Playing":
                 setIsRecording(true);

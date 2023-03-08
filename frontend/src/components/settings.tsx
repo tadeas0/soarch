@@ -6,13 +6,24 @@ import Button from "./basic/button";
 import * as Tone from "tone";
 import { MAX_VOLUME_DB, MIN_VOLUME_DB } from "../constants";
 import useClickawayListener from "../hooks/useClickawayListener";
+import Tooltip from "./basic/tooltip";
+import { AiOutlineInfoCircle } from "react-icons/ai";
+import Checkbox from "./basic/checkbox";
 
 interface SettingsProps {}
 
 const Settings: FunctionComponent<SettingsProps> = () => {
     const [open, setOpen] = useState(false);
-    const { useFasterSearch, setUseFasterSearch, volume, setVolume } =
-        useSettingsStore();
+    const {
+        useFasterSearch,
+        setUseFasterSearch,
+        volume,
+        setVolume,
+        notePlayback,
+        useCountIn,
+        setUseCountIn,
+        setNotePlayback,
+    } = useSettingsStore();
     const divRef = useRef<HTMLDivElement>(null);
     useClickawayListener(divRef, () => {
         setOpen(false);
@@ -40,19 +51,36 @@ const Settings: FunctionComponent<SettingsProps> = () => {
             {open && (
                 <div className="rounded-r-md border-2 border-l-0 border-black bg-light-primary text-white">
                     <ul>
-                        <li className="group">
-                            <label className="block rounded-tr-md p-2 group-hover:bg-medium-primary group-hover:text-black">
+                        <li>
+                            <Checkbox
+                                value={useFasterSearch}
+                                onChange={() =>
+                                    setUseFasterSearch(!useFasterSearch)
+                                }
+                            >
                                 Use faster search
-                                <input
-                                    id="fasterSearch"
-                                    type="checkbox"
-                                    checked={useFasterSearch}
-                                    onChange={() =>
-                                        setUseFasterSearch(!useFasterSearch)
-                                    }
-                                    className="ml-4 rounded bg-white text-medium-primary focus:ring-0 focus:ring-offset-0 group-hover:text-dark-primary"
-                                />
-                            </label>
+                                <span className="ml-4">
+                                    <Tooltip text="Sacrifice some accuracy in order to provide faster results.">
+                                        <AiOutlineInfoCircle />
+                                    </Tooltip>
+                                </span>
+                            </Checkbox>
+                        </li>
+                        <li>
+                            <Checkbox
+                                value={notePlayback}
+                                onChange={() => setNotePlayback(!notePlayback)}
+                            >
+                                Note playback
+                            </Checkbox>
+                        </li>
+                        <li>
+                            <Checkbox
+                                value={useCountIn}
+                                onChange={() => setUseCountIn(!useCountIn)}
+                            >
+                                Use count-in
+                            </Checkbox>
                         </li>
                         <li className="rounded-l-md p-2">
                             <label htmlFor="volume">
@@ -61,7 +89,7 @@ const Settings: FunctionComponent<SettingsProps> = () => {
                             <input
                                 id="volume"
                                 type="range"
-                                className="accent-medium-primary outline-none focus:ring-0 focus:ring-offset-0"
+                                className="w-full accent-medium-primary outline-none focus:ring-0 focus:ring-offset-0"
                                 min={0}
                                 max={1}
                                 step={0.1}

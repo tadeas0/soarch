@@ -10,6 +10,7 @@ import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useSynth from "../../hooks/sequencer/useSynth";
 import useTouchHandler from "./touchHandler/useTouchHandler";
 import useSearchResults from "../../hooks/useSearchResults";
+import { useSettingsStore } from "../../stores/settingsStore";
 
 interface PianoRollGridProps {
     notes: Note[];
@@ -29,6 +30,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     const [previewNotes, setPreviewNotes] = useState<Map<Note, number>>(
         new Map()
     );
+    const notePlayback = useSettingsStore((state) => state.notePlayback);
     const { mutate } = useSearchResults();
     const [localNotes, setLocalNotes] = useState<Note[]>([]);
     const [setNotesStore, saveStateStore] = usePianoRollStore((state) => [
@@ -43,6 +45,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     }, [notes]);
 
     const onPreviewNote = async (note: Note) => {
+        if (!notePlayback) return;
         triggerAttackRelease(note.pitch);
         setPreviewNotes((current) => {
             const currentTimeout = current.get(note);

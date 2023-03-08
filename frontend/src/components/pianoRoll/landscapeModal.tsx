@@ -13,7 +13,7 @@ const LandscapeModal: FunctionComponent<LandscapeModalProps> = () => {
 
     return (
         <div
-            className={`absolute top-0 left-0 right-0 z-10 flex h-screen flex-col items-center justify-center bg-black bg-opacity-70 p-6 text-white ${
+            className={`absolute top-0 left-0 right-0 z-30 flex h-screen flex-col items-center justify-center bg-black bg-opacity-70 p-6 text-white ${
                 visible ? "block" : "hidden"
             }`}
         >

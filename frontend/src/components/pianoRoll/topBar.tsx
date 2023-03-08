@@ -48,6 +48,7 @@ const TopBar: FunctionComponent<TopBarProps> = (props) => {
                 direction="top"
                 onClose={() => setShow(false)}
                 enableOverlay={false}
+                zIndex={20}
                 style={{
                     height: "fit-content",
                     background: "0",
