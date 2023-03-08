@@ -2,7 +2,7 @@ import dramatiq
 from common.entity.job import JobStatus
 from common.util.parser.json_parser import JsonParser
 from common.search_engine.search_engine_factory import SearchEngineFactory
-from . import repository, job_repository
+from common.repository.mongo_repository_factory import MongoRepositoryFactory
 import config
 import asyncio
 
@@ -10,6 +10,9 @@ import asyncio
 @dramatiq.actor(max_retries=0)
 def search(data: dict, job_id: str):
     song = JsonParser.parse(data)
+    fact = MongoRepositoryFactory()
+    repository = fact.create_song_repository()
+    job_repository = fact.create_job_repository()
     similarity_strategy = data.get("similarityStrategy", config.DEFAULT_STRATEGY)
     use_n_gram_prep = data.get("useFasterSearch", config.USE_N_GRAM_PREP)
     engine = SearchEngineFactory.create_search_engine(
