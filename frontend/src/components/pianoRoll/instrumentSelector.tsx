@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import { SynthPreset, SYNTH_PRESETS } from "../../sound/synthPresets";
 import Button from "../basic/button";
 import * as React from "react";
 import useSynth from "../../hooks/sequencer/useSynth";
+import useClickawayListener from "../../hooks/useClickawayListener";
 
 const defaultProps = {
     disabled: false,
@@ -19,6 +20,10 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [selectedOption, setSelectedOption] =
         useState<SynthPreset>(initOption);
+    const divRef = useRef<HTMLDivElement>(null);
+    useClickawayListener(divRef, () => {
+        setIsOpen(false);
+    });
 
     if (initOption === undefined) {
         return <div className="instrument-selector" />; // return empty div
@@ -39,6 +44,7 @@ const InstrumentSelector = (props: InstrumentSelectorProps) => {
             className={`relative col-span-1 inline-block rounded bg-transparent p-0 text-3xl xl:text-6xl${
                 isOpen ? " bg-medium-primary" : ""
             }`}
+            ref={divRef}
         >
             <Button
                 id="instrument-button"
