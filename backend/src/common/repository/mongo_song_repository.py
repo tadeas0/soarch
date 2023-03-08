@@ -1,6 +1,6 @@
 import logging
 from typing import AsyncIterable, Iterable
-from app.repository.song_repository import SongRepository
+from common.repository.song_repository import SongRepository
 from common.entity.song import Song
 from app.util.mongo_serializer import MongoSerializer
 import config

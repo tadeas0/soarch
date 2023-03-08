@@ -1,6 +1,6 @@
-from app.repository.mongo_song_repository import MongoSongRepository
-from app.repository.file_song_repository import FileSongRepository
-from app.repository.song_repository import SongRepository
+from common.repository.mongo_song_repository import MongoSongRepository
+from common.repository.file_song_repository import FileSongRepository
+from common.repository.song_repository import SongRepository
 import config
 import asyncio
 import os

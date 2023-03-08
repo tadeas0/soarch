@@ -1,5 +1,5 @@
 from quart import Quart
-from app.repository.mongo_job_repository import MongoJobRepository
+from common.repository.mongo_job_repository import MongoJobRepository
 import config
 from app.util.logging import setup_logging
 import dramatiq

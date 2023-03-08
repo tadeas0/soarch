@@ -1,7 +1,7 @@
-from app.repository.job_repository import JobRepository
-from app.repository.mongo_job_repository import MongoJobRepository
-from app.repository.song_repository import SongRepository
-from app.repository.mongo_song_repository import MongoSongRepository
+from common.repository.job_repository import JobRepository
+from common.repository.mongo_job_repository import MongoJobRepository
+from common.repository.song_repository import SongRepository
+from common.repository.mongo_song_repository import MongoSongRepository
 import config
 from app.util.filestorage import FileStorage, GoogleCloudFileStorage, LocalFileStorage
 import json

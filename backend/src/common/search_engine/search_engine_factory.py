@@ -1,11 +1,13 @@
-from app.repository.song_repository import SongRepository
-from app.search_engine.search_engine import SearchEngine
-from app.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep
-from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
-from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
-from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
-from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
-from app.search_engine.preprocessor import Preprocessor
+from common.repository.song_repository import SongRepository
+from common.search_engine.search_engine import SearchEngine
+from common.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep
+from common.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
+from common.search_engine.strategy.standardization_strategy import (
+    RelativeIntervalStrategy,
+)
+from common.search_engine.strategy.similarity_strategy import SimilarityStrategy
+from common.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
+from common.search_engine.preprocessor import Preprocessor
 import logging
 import config
 

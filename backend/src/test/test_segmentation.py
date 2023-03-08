@@ -1,4 +1,4 @@
-from app.search_engine.strategy.segmentation_strategy import (
+from common.search_engine.strategy.segmentation_strategy import (
     OneSegmentStrategy,
     FixedLengthStrategy,
 )

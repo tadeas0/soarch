@@ -1,12 +1,14 @@
 from common.entity.search_result import SearchResult
 from common.entity.song import Note, SongMetadata, Track
-from app.search_engine.search_engine import SearchEngine
-from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
-from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
-from app.search_engine.strategy.similarity_strategy import LCSStrategy
-from app.search_engine.strategy.segmentation_strategy import OneSegmentStrategy
+from common.search_engine.search_engine import SearchEngine
+from common.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
+from common.search_engine.strategy.standardization_strategy import (
+    RelativeIntervalStrategy,
+)
+from common.search_engine.strategy.similarity_strategy import LCSStrategy
+from common.search_engine.strategy.segmentation_strategy import OneSegmentStrategy
 import pytest
-from app.search_engine.preprocessor import Preprocessor
+from common.search_engine.preprocessor import Preprocessor
 from test.mocks.mock_repository import MockRepository
 
 

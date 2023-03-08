@@ -3,11 +3,11 @@ from common.entity.search_result import SearchResult
 import config
 import numpy.typing as npt
 import numpy as np
-from app.repository.song_repository import SongRepository
-from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
+from common.repository.song_repository import SongRepository
+from common.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from common.entity.song import Track
 import multiprocessing as mp
-from app.search_engine.preprocessor import Preprocessor
+from common.search_engine.preprocessor import Preprocessor
 import itertools
 from app.util.helpers import split_list
 

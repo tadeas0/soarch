@@ -1,5 +1,5 @@
 import numpy as np
-from app.search_engine.strategy.standardization_strategy import (
+from common.search_engine.strategy.standardization_strategy import (
     DefaultStrategy,
     RelativeIntervalStrategy,
     BaselineIntervalStrategy,

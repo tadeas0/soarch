@@ -10,7 +10,7 @@ from app.util.filestorage import FileStorage
 from common.entity.song import Song
 from app.util.parser import MidiParser
 from bs4 import BeautifulSoup
-from app.repository.song_repository import SongRepository
+from common.repository.song_repository import SongRepository
 import config
 from app.util.helpers import get_artist_name_from_filepath
 

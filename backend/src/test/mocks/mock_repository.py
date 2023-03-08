@@ -1,4 +1,4 @@
-from app.repository.song_repository import SongRepository
+from common.repository.song_repository import SongRepository
 from common.entity.song import Note, Song, SongMetadata, Track
 
 

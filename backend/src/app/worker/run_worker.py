@@ -5,7 +5,7 @@ import dramatiq
 from dramatiq.results import Results
 from dramatiq.brokers.redis import RedisBroker
 from app.util.filestorage import GoogleCloudFileStorage
-from app.repository.mongo_song_repository import MongoSongRepository
+from common.repository.mongo_song_repository import MongoSongRepository
 from dramatiq.results.backends import RedisBackend
 
 

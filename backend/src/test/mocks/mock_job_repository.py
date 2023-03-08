@@ -2,7 +2,7 @@ from typing import Optional
 from common.entity.job import Job, JobStatus
 from common.entity.search_result import SearchResult
 from common.entity.song import Note, SongMetadata, Track
-from app.repository.job_repository import JobRepository
+from common.repository.job_repository import JobRepository
 
 
 class MockJobRepository(JobRepository):
