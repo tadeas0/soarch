@@ -33,7 +33,7 @@ services:
         container_name: midi-search-worker
         image: midi-search-worker
         entrypoint: dramatiq
-        command: app.worker.run_worker:setup_broker app.worker.tasks --path src/ --processes 1 --threads 1 --watch .
+        command: worker.run_worker:setup_broker worker.tasks --path src/ --processes 1 --threads 1 --watch .
     mongo:
         image: mongo:latest
         container_name: mongodb
