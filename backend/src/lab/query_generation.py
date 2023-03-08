@@ -7,7 +7,7 @@ import config
 import matplotlib.pyplot as plt
 from common.repository.file_song_repository import FileSongRepository
 from common.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
-from app.util.filestorage.local_file_storage import LocalFileStorage
+from common.util.filestorage.local_file_storage import LocalFileStorage
 from miditoolkit import notes2pianoroll, plot, Note as MTKNote
 from common.entity.song import Note
 import uuid

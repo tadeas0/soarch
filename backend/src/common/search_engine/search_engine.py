@@ -9,7 +9,7 @@ from common.entity.song import Track
 import multiprocessing as mp
 from common.search_engine.preprocessor import Preprocessor
 import itertools
-from app.util.helpers import split_list
+from common.util.helpers import split_list
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)

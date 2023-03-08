@@ -5,7 +5,7 @@ from bson.objectid import ObjectId
 from common.entity.job import Job, JobStatus
 from common.entity.search_result import SearchResult
 from common.repository.job_repository import JobRepository
-from app.util.mongo_serializer import MongoSerializer
+from common.util.mongo_serializer import MongoSerializer
 import config
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)

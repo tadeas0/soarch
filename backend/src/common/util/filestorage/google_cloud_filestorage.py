@@ -9,7 +9,7 @@ import redis
 import io
 import json
 import os
-from app.util.filestorage import FileStorage
+from common.util.filestorage import FileStorage
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)

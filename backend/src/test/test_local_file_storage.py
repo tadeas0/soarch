@@ -1,7 +1,7 @@
 import pytest
 import unittest
 import unittest.mock
-from app.util.filestorage import LocalFileStorage
+from common.util.filestorage import LocalFileStorage
 
 
 @pytest.fixture

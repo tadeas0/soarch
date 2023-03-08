@@ -1,7 +1,7 @@
 from quart import Quart
 from common.repository.mongo_job_repository import MongoJobRepository
 import config
-from app.util.logging import setup_logging
+from common.util.logging import setup_logging
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 from dramatiq.results.backends import RedisBackend

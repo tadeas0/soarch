@@ -1,4 +1,4 @@
-from app.util.parser import JsonParser
+from common.util.parser import JsonParser
 from common.entity.song import Note
 
 

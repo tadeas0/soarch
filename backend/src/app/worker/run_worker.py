@@ -1,10 +1,10 @@
-from app.util.logging import setup_logging
+from common.util.logging import setup_logging
 import config
 from . import file_storage, repository
 import dramatiq
 from dramatiq.results import Results
 from dramatiq.brokers.redis import RedisBroker
-from app.util.filestorage import GoogleCloudFileStorage
+from common.util.filestorage import GoogleCloudFileStorage
 from common.repository.mongo_song_repository import MongoSongRepository
 from dramatiq.results.backends import RedisBackend
 

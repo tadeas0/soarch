@@ -6,13 +6,13 @@ import logging
 import io
 import os
 from miditoolkit.midi import MidiFile
-from app.util.filestorage import FileStorage
+from common.util.filestorage import FileStorage
 from common.entity.song import Song
-from app.util.parser import MidiParser
+from common.util.parser import MidiParser
 from bs4 import BeautifulSoup
 from common.repository.song_repository import SongRepository
 import config
-from app.util.helpers import get_artist_name_from_filepath
+from common.util.helpers import get_artist_name_from_filepath
 
 FREEMIDI_URL = "https://freemidi.org/topmidi"
 FREEMIDI_GETTER_URL = "https://freemidi.org/getter"

@@ -10,7 +10,11 @@ from midi_scraper.midi_scraper import (
     scrape_robs_midi_library,
     parse_to_db,
 )
-from app.util.filestorage import FileStorage, LocalFileStorage, GoogleCloudFileStorage
+from common.util.filestorage import (
+    FileStorage,
+    LocalFileStorage,
+    GoogleCloudFileStorage,
+)
 import logging
 import json
 import click

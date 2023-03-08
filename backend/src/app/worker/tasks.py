@@ -1,6 +1,6 @@
 import dramatiq
 from common.entity.job import JobStatus
-from app.util.parser.json_parser import JsonParser
+from common.util.parser.json_parser import JsonParser
 from common.search_engine.search_engine_factory import SearchEngineFactory
 from . import repository, job_repository
 import config

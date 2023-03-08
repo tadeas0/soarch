@@ -1,7 +1,7 @@
 from miditoolkit.midi import MidiFile, Instrument
 from miditoolkit.midi.containers import Note
 from common.entity.song import Note as MyNote
-from app.util.parser import MidiParser
+from common.util.parser import MidiParser
 
 
 def test_parse():

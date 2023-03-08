@@ -30,7 +30,7 @@ from common.search_engine.strategy.standardization_strategy import (
     RelativeIntervalStrategy,
     StandardizationStrategy,
 )
-from app.util.filestorage.local_file_storage import LocalFileStorage
+from common.util.filestorage.local_file_storage import LocalFileStorage
 from config import MEASURE_LENGTH
 from common.entity.example_query import ExampleQuery
 
