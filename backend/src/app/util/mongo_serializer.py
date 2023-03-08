@@ -45,7 +45,7 @@ class MongoSerializer:
     @staticmethod
     def serialize_job(job: Job):
         results = None
-        if job.results:
+        if job.results is not None:
             results = [MongoSerializer.serialize_search_result(i) for i in job.results]
         return {
             "_id": job.id,
@@ -57,6 +57,6 @@ class MongoSerializer:
     def deserialize_job(job: dict) -> Job:
         status = JobStatus(job["status"])
         res = None
-        if job["results"]:
+        if job["results"] is not None:
             res = [MongoSerializer.deserialize_search_result(i) for i in job["results"]]
         return Job(str(job["_id"]), status, res)

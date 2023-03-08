@@ -43,9 +43,11 @@ class SearchEngine:
             ]
             results = [i.get() for i in tasks]
 
-        return self.postprocess_result_list(
+        res = self.postprocess_result_list(
             list(itertools.chain.from_iterable(results)), n
         )
+        logger.debug(f"Found {len(res)} similar songs")
+        return res
 
     def postprocess_result_list(
         self, results: list[SearchResult], n: int
@@ -67,7 +69,6 @@ class SearchEngine:
             if meta_tuple not in metadata:
                 metadata.add(meta_tuple)
                 unique_results.append(i)
-
         if len(unique_results) >= n:
             return unique_results[0:n]
 

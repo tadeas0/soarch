@@ -23,7 +23,7 @@ async def midi_post():
     logger.debug(f"created job {job}")
     search.send(data, job.id)
     results = None
-    if job.results:
+    if job.results is not None:
         results = [TrackSerializer.serialize_search_result(i) for i in job.results]
     return jsonify({"id": job.id, "status": job.status.value, "results": results})
 
@@ -32,7 +32,7 @@ async def midi_post():
 async def midi_get(id: str):
     job = job_repository.get_job(id)
     results = None
-    if job.results:
+    if job.results is not None:
         results = [TrackSerializer.serialize_search_result(i) for i in job.results]
     return jsonify({"id": job.id, "status": job.status.value, "results": results})
 

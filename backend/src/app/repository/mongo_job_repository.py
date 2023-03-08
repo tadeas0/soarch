@@ -34,7 +34,7 @@ class MongoJobRepository(JobRepository):
         self, id: str, status: JobStatus, results: Optional[list[SearchResult]]
     ) -> None:
         ser_res = None
-        if results:
+        if results is not None:
             ser_res = [MongoSerializer.serialize_search_result(i) for i in results]
         self.__get_client().update_one(
             {"_id": ObjectId(id)},

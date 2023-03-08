@@ -19,6 +19,8 @@ export const PREVIEW_NOTE_HIGHLIGHT_DURATION = 750;
 export const PIANO_ROLL_HANDLE_PART = 1 / 2; // part of the note, that is considered handle
 export const UNDO_STACK_SIZE = 10;
 export const SEARCH_RESULT_KEY = "searchResults";
+export const MAX_VOLUME_DB = 10;
+export const MIN_VOLUME_DB = -10;
 
 export const KEYBOARD_NOTE_MAP: { [keyCode: string]: number } = {
     KeyZ: 0,

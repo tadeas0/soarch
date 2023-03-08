@@ -11,7 +11,10 @@ import asyncio
 def search(data: dict, job_id: str):
     song = JsonParser.parse(data)
     similarity_strategy = data.get("similarityStrategy", config.DEFAULT_STRATEGY)
-    engine = SearchEngineFactory.create_search_engine(repository, similarity_strategy)
+    use_n_gram_prep = data.get("useFasterSearch", config.USE_N_GRAM_PREP)
+    engine = SearchEngineFactory.create_search_engine(
+        repository, similarity_strategy, use_n_gram_prep
+    )
 
     loop = asyncio.new_event_loop()
     similar_songs = loop.run_until_complete(
