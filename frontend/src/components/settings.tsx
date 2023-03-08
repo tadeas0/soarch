@@ -1,10 +1,11 @@
 import * as React from "react";
-import { ChangeEvent, FunctionComponent, useState } from "react";
+import { ChangeEvent, FunctionComponent, useRef, useState } from "react";
 import { IoMdSettings } from "react-icons/io";
 import { useSettingsStore } from "../stores/settingsStore";
 import Button from "./basic/button";
 import * as Tone from "tone";
 import { MAX_VOLUME_DB, MIN_VOLUME_DB } from "../constants";
+import useClickawayListener from "../hooks/useClickawayListener";
 
 interface SettingsProps {}
 
@@ -12,6 +13,10 @@ const Settings: FunctionComponent<SettingsProps> = () => {
     const [open, setOpen] = useState(false);
     const { useFasterSearch, setUseFasterSearch, volume, setVolume } =
         useSettingsStore();
+    const divRef = useRef<HTMLDivElement>(null);
+    useClickawayListener(divRef, () => {
+        setOpen(false);
+    });
 
     const handleVolumeChange = (e: ChangeEvent<HTMLInputElement>) => {
         const val = Number(e.target.value);
@@ -21,7 +26,10 @@ const Settings: FunctionComponent<SettingsProps> = () => {
     };
 
     return (
-        <div className="absolute top-0 left-0 z-10 flex flex-col items-start">
+        <div
+            className="absolute top-0 left-0 z-10 flex flex-col items-start"
+            ref={divRef}
+        >
             <Button
                 className="rounded-l-none rounded-tr-none text-xl"
                 pressed={open}
