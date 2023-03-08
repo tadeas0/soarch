@@ -1,7 +1,7 @@
 import unittest
 import pytest
 from app.repository.file_song_repository import FileSongRepository
-from app.entity.song import Note, Song, SongMetadata, Track
+from common.entity.song import Note, Song, SongMetadata, Track
 from test.mocks.mock_file_storage import MockFileStorage
 
 

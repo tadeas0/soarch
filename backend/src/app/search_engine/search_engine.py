@@ -1,11 +1,11 @@
 import logging
-from app.entity.search_result import SearchResult
+from common.entity.search_result import SearchResult
 import config
 import numpy.typing as npt
 import numpy as np
 from app.repository.song_repository import SongRepository
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
-from app.entity.song import Track
+from common.entity.song import Track
 import multiprocessing as mp
 from app.search_engine.preprocessor import Preprocessor
 import itertools

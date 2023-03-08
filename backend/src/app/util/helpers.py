@@ -1,4 +1,4 @@
-from app.entity.song import SongMetadata
+from common.entity.song import SongMetadata
 import re
 
 

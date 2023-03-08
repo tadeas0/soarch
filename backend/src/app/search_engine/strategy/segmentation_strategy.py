@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-from app.entity.song import Track, Note
+from common.entity.song import Track, Note
 
 
 class SegmentationStrategy(ABC):

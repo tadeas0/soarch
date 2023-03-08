@@ -1,7 +1,7 @@
 from typing import Optional
-from app.entity.job import Job, JobStatus
-from app.entity.search_result import SearchResult
-from app.entity.song import Note, SongMetadata, Track
+from common.entity.job import Job, JobStatus
+from common.entity.search_result import SearchResult
+from common.entity.song import Note, SongMetadata, Track
 from app.repository.job_repository import JobRepository
 
 

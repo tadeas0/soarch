@@ -1,9 +1,9 @@
-from app.entity.search_result import SearchResult
+from common.entity.search_result import SearchResult
 from app.search_engine.search_engine import SearchEngine
 from app.repository.song_repository import SongRepository
 from app.search_engine.preprocessor import Preprocessor
 from app.search_engine.strategy.similarity_strategy import SimilarityStrategy
-from app.entity.song import Note, Track
+from common.entity.song import Note, Track
 import numpy.typing as npt
 import numpy as np
 

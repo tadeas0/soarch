@@ -1,5 +1,5 @@
 from miditoolkit.midi import MidiFile
-from app.entity.song import Song, SongMetadata, Track, Note
+from common.entity.song import Song, SongMetadata, Track, Note
 from app.util.parser.helpers import scale_ticks
 import config
 

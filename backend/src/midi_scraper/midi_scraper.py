@@ -7,7 +7,7 @@ import io
 import os
 from miditoolkit.midi import MidiFile
 from app.util.filestorage import FileStorage
-from app.entity.song import Song
+from common.entity.song import Song
 from app.util.parser import MidiParser
 from bs4 import BeautifulSoup
 from app.repository.song_repository import SongRepository

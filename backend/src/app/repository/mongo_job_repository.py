@@ -2,8 +2,8 @@ import logging
 from typing import Optional
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from app.entity.job import Job, JobStatus
-from app.entity.search_result import SearchResult
+from common.entity.job import Job, JobStatus
+from common.entity.search_result import SearchResult
 from app.repository.job_repository import JobRepository
 from app.util.mongo_serializer import MongoSerializer
 import config

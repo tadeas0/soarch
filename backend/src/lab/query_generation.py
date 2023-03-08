@@ -1,7 +1,7 @@
 import os
 import pickle
 import random
-from app.entity.example_query import ExampleQuery
+from common.entity.example_query import ExampleQuery
 
 import config
 import matplotlib.pyplot as plt
@@ -9,7 +9,7 @@ from app.repository.file_song_repository import FileSongRepository
 from app.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
 from app.util.filestorage.local_file_storage import LocalFileStorage
 from miditoolkit import notes2pianoroll, plot, Note as MTKNote
-from app.entity.song import Note
+from common.entity.song import Note
 import uuid
 
 RANDOM_SEED = 123

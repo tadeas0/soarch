@@ -6,7 +6,7 @@ from app.util.parser import MidiParser
 from miditoolkit.midi import MidiFile
 import pickle
 import logging
-from app.entity.song import Song
+from common.entity.song import Song
 from app.repository.song_repository import SongRepository
 import config
 from app.util.helpers import get_artist_name_from_filepath, get_filename_from_metadata

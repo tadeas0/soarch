@@ -1,5 +1,5 @@
-from app.entity.search_result import SearchResult
-from app.entity.song import Note, SongMetadata, Track
+from common.entity.search_result import SearchResult
+from common.entity.song import Note, SongMetadata, Track
 from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
 from app.search_engine.strategy.standardization_strategy import RelativeIntervalStrategy
 from app.search_engine.strategy.similarity_strategy import LCSStrategy

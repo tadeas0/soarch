@@ -1,6 +1,6 @@
-from app.entity.job import Job, JobStatus
-from app.entity.search_result import SearchResult
-from app.entity.song import Song, SongMetadata, Note, Track
+from common.entity.job import Job, JobStatus
+from common.entity.search_result import SearchResult
+from common.entity.song import Song, SongMetadata, Note, Track
 from dataclasses import asdict
 
 

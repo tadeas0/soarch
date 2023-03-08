@@ -5,7 +5,7 @@ import numpy.typing as npt
 import numpy as np
 from app.search_engine.strategy.standardization_strategy import StandardizationStrategy
 from app.search_engine.strategy.segmentation_strategy import SegmentationStrategy
-from app.entity.song import Segment, Song, Track
+from common.entity.song import Segment, Song, Track
 import config
 
 

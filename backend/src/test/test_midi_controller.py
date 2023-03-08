@@ -1,7 +1,7 @@
 from quart import Quart
 import config
 import pytest
-from app.entity.song import Song, SongMetadata, Track, Note
+from common.entity.song import Song, SongMetadata, Track, Note
 from test.mocks.mock_job_repository import MockJobRepository
 
 

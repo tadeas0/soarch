@@ -1,5 +1,5 @@
 import dramatiq
-from app.entity.job import JobStatus
+from common.entity.job import JobStatus
 from app.util.parser.json_parser import JsonParser
 from app.search_engine.search_engine_factory import SearchEngineFactory
 from . import repository, job_repository

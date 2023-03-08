@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 
 from typing import Optional
 
-from app.entity.job import Job, JobStatus
-from app.entity.search_result import SearchResult
+from common.entity.job import Job, JobStatus
+from common.entity.search_result import SearchResult
 
 
 class JobRepository(ABC):

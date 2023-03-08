@@ -1,5 +1,5 @@
 from app.repository.song_repository import SongRepository
-from app.entity.song import Note, Song, SongMetadata, Track
+from common.entity.song import Note, Song, SongMetadata, Track
 
 
 class MockRepository(SongRepository):

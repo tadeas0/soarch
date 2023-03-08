@@ -1,5 +1,5 @@
 from app.midi.serializer import TrackSerializer
-from app.entity.song import Note
+from common.entity.song import Note
 import config
 
 

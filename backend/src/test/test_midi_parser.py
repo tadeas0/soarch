@@ -1,6 +1,6 @@
 from miditoolkit.midi import MidiFile, Instrument
 from miditoolkit.midi.containers import Note
-from app.entity.song import Note as MyNote
+from common.entity.song import Note as MyNote
 from app.util.parser import MidiParser
 
 

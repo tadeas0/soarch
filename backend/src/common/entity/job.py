@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
-from app.entity.search_result import SearchResult
+from common.entity.search_result import SearchResult
 
 
 class JobStatus(Enum):

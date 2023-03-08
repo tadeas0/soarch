@@ -1,6 +1,6 @@
 from typing import Union
-from app.entity.search_result import SearchResult
-from app.entity.song import Note, SongMetadata, Track
+from common.entity.search_result import SearchResult
+from common.entity.song import Note, SongMetadata, Track
 from math import floor
 import config
 

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from app.entity.song import SongMetadata, Track
+from common.entity.song import SongMetadata, Track
 
 
 @dataclass
