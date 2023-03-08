@@ -8,7 +8,7 @@ import pickle
 import logging
 from common.entity.song import Song
 from common.repository.song_repository import SongRepository
-import config
+import common.config as config
 from common.util.helpers import (
     get_artist_name_from_filepath,
     get_filename_from_metadata,

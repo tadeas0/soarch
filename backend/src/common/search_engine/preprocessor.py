@@ -8,7 +8,7 @@ from common.search_engine.strategy.standardization_strategy import (
 )
 from common.search_engine.strategy.segmentation_strategy import SegmentationStrategy
 from common.entity.song import Segment, Song, Track
-import config
+import common.config as config
 
 
 class Preprocessor:

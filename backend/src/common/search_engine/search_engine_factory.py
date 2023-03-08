@@ -9,7 +9,7 @@ from common.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from common.search_engine.strategy.segmentation_strategy import FixedLengthStrategy
 from common.search_engine.preprocessor import Preprocessor
 import logging
-import config
+import common.config as config
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
 

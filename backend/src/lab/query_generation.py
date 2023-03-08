@@ -3,7 +3,7 @@ import pickle
 import random
 from common.entity.example_query import ExampleQuery
 
-import config
+import common.config as config
 import matplotlib.pyplot as plt
 from common.repository.file_song_repository import FileSongRepository
 from common.search_engine.strategy.segmentation_strategy import FixedLengthStrategy

@@ -1,5 +1,5 @@
 from quart import Quart
-import config
+import common.config as config
 from common.util.logging import setup_logging
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker

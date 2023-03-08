@@ -11,7 +11,7 @@ from common.entity.song import Song
 from common.util.parser import MidiParser
 from bs4 import BeautifulSoup
 from common.repository.song_repository import SongRepository
-import config
+import common.config as config
 from common.util.helpers import get_artist_name_from_filepath
 
 FREEMIDI_URL = "https://freemidi.org/topmidi"

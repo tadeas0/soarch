@@ -4,7 +4,7 @@ import time
 from dataclasses import dataclass
 from random import shuffle
 
-import config
+import common.config as config
 import numpy as np
 from common.repository.file_song_repository import FileSongRepository
 from common.repository.song_repository import SongRepository
@@ -31,7 +31,7 @@ from common.search_engine.strategy.standardization_strategy import (
     StandardizationStrategy,
 )
 from common.util.filestorage.local_file_storage import LocalFileStorage
-from config import MEASURE_LENGTH
+from common.config import MEASURE_LENGTH
 from common.entity.example_query import ExampleQuery
 
 CSV_HEADER = (

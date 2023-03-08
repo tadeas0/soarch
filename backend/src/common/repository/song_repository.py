@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import AsyncIterable, Iterable
 import logging
 from common.entity.song import Song
-import config
+import common.config as config
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)

@@ -1,5 +1,5 @@
 from common.util.logging import setup_logging
-import config
+import common.config as config
 import dramatiq
 from dramatiq.results import Results
 from dramatiq.brokers.redis import RedisBroker

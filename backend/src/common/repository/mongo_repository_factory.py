@@ -3,7 +3,7 @@ from common.repository.mongo_job_repository import MongoJobRepository
 from common.repository.mongo_song_repository import MongoSongRepository
 from common.repository.repository_factory import RepositoryFactory
 from common.repository.song_repository import SongRepository
-import config
+import common.config as config
 
 
 class MongoRepositoryFactory(RepositoryFactory):

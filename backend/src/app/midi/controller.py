@@ -4,7 +4,7 @@ from app.midi.serializer import TrackSerializer
 from common.repository.mongo_repository_factory import MongoRepositoryFactory
 from worker.tasks import search
 import logging
-import config
+import common.config as config
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)

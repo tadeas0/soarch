@@ -1,5 +1,5 @@
 import logging
-import config
+import common.config as config
 
 
 def setup_logging() -> logging.Logger:

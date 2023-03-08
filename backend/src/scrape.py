@@ -1,7 +1,7 @@
 from common.repository.mongo_song_repository import MongoSongRepository
 from common.repository.file_song_repository import FileSongRepository
 from common.repository.song_repository import SongRepository
-import config
+import common.config as config
 import asyncio
 import os
 from functools import update_wrapper

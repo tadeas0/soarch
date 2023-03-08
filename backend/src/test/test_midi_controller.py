@@ -1,5 +1,5 @@
 from quart import Quart
-import config
+import common.config as config
 import pytest
 from common.entity.song import Song, SongMetadata, Track, Note
 from test.mocks.mock_repository_factory import MockRepositoryFactory

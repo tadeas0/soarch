@@ -3,7 +3,7 @@ from common.entity.job import JobStatus
 from common.util.parser.json_parser import JsonParser
 from common.search_engine.search_engine_factory import SearchEngineFactory
 from common.repository.mongo_repository_factory import MongoRepositoryFactory
-import config
+import common.config as config
 import asyncio
 
 

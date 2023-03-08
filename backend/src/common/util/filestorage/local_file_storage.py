@@ -1,6 +1,6 @@
 import logging
 from typing import Iterable
-import config
+import common.config as config
 import aiofiles
 import os
 import asyncio

@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any, Iterable, Optional
 import logging
-import config
+import common.config as config
 from google.cloud import storage
 from gcloud.aio.storage import storage as aio_storage
 from redis import asyncio as aioredis

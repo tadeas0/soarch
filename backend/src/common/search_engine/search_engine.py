@@ -1,6 +1,6 @@
 import logging
 from common.entity.search_result import SearchResult
-import config
+import common.config as config
 import numpy.typing as npt
 import numpy as np
 from common.repository.song_repository import SongRepository

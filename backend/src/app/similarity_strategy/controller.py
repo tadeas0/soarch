@@ -1,7 +1,7 @@
 from common.search_engine.strategy.similarity_strategy import SimilarityStrategy
 from quart import Blueprint, jsonify
 import logging
-import config
+import common.config as config
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)

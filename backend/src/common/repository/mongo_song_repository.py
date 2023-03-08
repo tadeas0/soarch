@@ -3,7 +3,7 @@ from typing import AsyncIterable, Iterable
 from common.repository.song_repository import SongRepository
 from common.entity.song import Song
 from common.util.mongo_serializer import MongoSerializer
-import config
+import common.config as config
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 
