@@ -61,6 +61,7 @@ const Settings: FunctionComponent<SettingsProps> = () => {
                             <input
                                 id="volume"
                                 type="range"
+                                className="accent-medium-primary outline-none focus:ring-0 focus:ring-offset-0"
                                 min={0}
                                 max={1}
                                 step={0.1}
