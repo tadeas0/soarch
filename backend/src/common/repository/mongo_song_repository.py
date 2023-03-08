@@ -54,3 +54,19 @@ class MongoSongRepository(SongRepository):
         if not res:
             raise ValueError("Unknown key")
         return MongoSerializer.deserialize_song(res)
+
+    async def get_song_slugs(self) -> list[str]:
+        client = self.__get_client()
+        res = client.aggregate(
+            [
+                {
+                    "$project": {
+                        "song_slug": {
+                            "$concat": ["$metadata.artist", " - ", "$metadata.name"]
+                        }
+                    }
+                }
+            ]
+        )
+        song_slugs = [i["song_slug"] async for i in res]
+        return song_slugs

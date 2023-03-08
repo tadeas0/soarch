@@ -35,3 +35,7 @@ class SongRepository(ABC):
     @abstractmethod
     def load_song(self, key: str) -> Song:
         pass
+
+    @abstractmethod
+    async def get_song_slugs(self) -> list[str]:
+        pass

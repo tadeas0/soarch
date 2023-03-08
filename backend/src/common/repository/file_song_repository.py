@@ -133,3 +133,9 @@ class FileSongRepository(SongRepository):
             return self.__load_from_pickle(file_path)
         else:
             raise ValueError()
+
+    async def get_song_slugs(self) -> list[str]:
+        keys = await self.list_keys()
+        artist_name = [get_artist_name_from_filepath(i) for i in keys]
+        song_slugs = [f"{a} - {n}" for a, n in artist_name]
+        return song_slugs
