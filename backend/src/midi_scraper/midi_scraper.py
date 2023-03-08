@@ -122,17 +122,24 @@ async def scrape_free_midi(file_storage: FileStorage):
     logger.info("Finished scraping FreeMidi library")
 
 
-async def list_raw_songs(file_storage: FileStorage) -> AsyncIterable[Song]:
+async def list_raw_songs(
+    file_storage: FileStorage, ignore_slugs: list[str] = []
+) -> AsyncIterable[Song]:
     for i in file_storage.list_all():
         try:
             mid = MidiFile(file=io.BytesIO(await file_storage.read(i)))
             artist, name = get_artist_name_from_filepath(i)
             song = MidiParser.parse(mid, artist, name)
-            yield song
+            if song.metadata.slug not in ignore_slugs:
+                yield song
+            else:
+                logger.debug(f"Ignoring {song.metadata.slug}, already in DB")
         except Exception as e:
             logger.info(f"Could not parse {i}. {e}")
 
 
 async def parse_to_db(file_storage: FileStorage, repository: SongRepository):
     logger.info("Parsing files")
-    await repository.insert_many([i async for i in list_raw_songs(file_storage)])
+    ignore_slugs = await repository.get_song_slugs()
+    raw_songs = list_raw_songs(file_storage, ignore_slugs)
+    await repository.insert_many([i async for i in raw_songs])

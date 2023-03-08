@@ -29,7 +29,7 @@ class MongoSongRepository(SongRepository):
 
     async def insert_many(self, songs: Iterable[Song]) -> None:
         await self.__get_client().insert_many(
-            [MongoSerializer.serialize_song(i) for i in songs]
+            (MongoSerializer.serialize_song(i) for i in songs)
         )
 
     async def list_keys(self) -> list[str]:

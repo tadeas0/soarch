@@ -22,6 +22,10 @@ class SongMetadata:
     name: str
     bpm: int
 
+    @property
+    def slug(self):
+        return f"{self.artist} - {self.name}"
+
 
 @dataclass
 class Segment:
