@@ -14,7 +14,7 @@ const FullscreenModal: FunctionComponent<FullscreenModalProps> = (props) => {
 
     return (
         <div
-            className={`absolute top-0 left-0 right-0 z-10 flex h-screen items-center justify-center bg-black bg-opacity-70 p-6 ${
+            className={`absolute top-0 left-0 right-0 z-30 flex h-screen items-center justify-center bg-black bg-opacity-70 p-6 ${
                 visible ? "block" : "hidden"
             }`}
         >
