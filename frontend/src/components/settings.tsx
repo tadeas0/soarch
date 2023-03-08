@@ -6,6 +6,8 @@ import Button from "./basic/button";
 import * as Tone from "tone";
 import { MAX_VOLUME_DB, MIN_VOLUME_DB } from "../constants";
 import useClickawayListener from "../hooks/useClickawayListener";
+import Tooltip from "./basic/tooltip";
+import { AiOutlineInfoCircle } from "react-icons/ai";
 
 interface SettingsProps {}
 
@@ -40,9 +42,8 @@ const Settings: FunctionComponent<SettingsProps> = () => {
             {open && (
                 <div className="rounded-r-md border-2 border-l-0 border-black bg-light-primary text-white">
                     <ul>
-                        <li className="group">
-                            <label className="block rounded-tr-md p-2 group-hover:bg-medium-primary group-hover:text-black">
-                                Use faster search
+                        <li className="group/fastersearch">
+                            <label className="flex flex-row items-center rounded-tr-md p-2 group-hover/fastersearch:bg-medium-primary group-hover/fastersearch:text-black">
                                 <input
                                     id="fasterSearch"
                                     type="checkbox"
@@ -50,8 +51,14 @@ const Settings: FunctionComponent<SettingsProps> = () => {
                                     onChange={() =>
                                         setUseFasterSearch(!useFasterSearch)
                                     }
-                                    className="ml-4 rounded bg-white text-medium-primary focus:ring-0 focus:ring-offset-0 group-hover:text-dark-primary"
+                                    className="mr-4 rounded bg-white text-medium-primary focus:ring-0 focus:ring-offset-0 group-hover/fastersearch:text-dark-primary"
                                 />
+                                Use faster search
+                                <span className="ml-4">
+                                    <Tooltip text="Sacrifice some accuracy in order to provide faster results.">
+                                        <AiOutlineInfoCircle />
+                                    </Tooltip>
+                                </span>
                             </label>
                         </li>
                         <li className="rounded-l-md p-2">
