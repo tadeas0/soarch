@@ -40,6 +40,8 @@ services:
         environment:
             - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
             - BUCKET_NAME=${BUCKET_NAME}
+            - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+            - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
             - MONGODB_URL=mongodb://mongodb:27017/soarch-db
         command: python3 src/run_parser_cron.py
     mongo:
