@@ -17,6 +17,7 @@ services:
             - MONGODB_URL=mongodb://mongodb:27017/soarch-db
         ports:
             - "8080:8080"
+        command: hypercorn --reload -b 0.0.0.0:8080 "src/app:create_app()"
     frontend:
         build: frontend
         depends_on:

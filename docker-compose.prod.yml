@@ -10,6 +10,7 @@ services:
             - ENV=prod
             - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
             - BUCKET_NAME=${BUCKET_NAME}
+        command: hypercorn -b 0.0.0.0:8080 "src/app:create_app()"
     frontend:
         build:
             args:
@@ -32,6 +33,15 @@ services:
             - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
             - BUCKET_NAME=${BUCKET_NAME}
         command: worker.run_worker:setup_broker worker.tasks --path src/ --processes 2 --threads 1
+    parser-cron:
+        build: backend
+        container_name: midi-search-parser-cron
+        image: midi-search-backend
+        environment:
+            - CLOUD_STORAGE_CREDENTIALS=${CLOUD_STORAGE_CREDENTIALS}
+            - BUCKET_NAME=${BUCKET_NAME}
+            - MONGODB_URL=mongodb://mongodb:27017/soarch-db
+        command: python3 src/run_parser_cron.py
     mongo:
         volumes:
             - /var/lib/mongodb/data:/data/db
