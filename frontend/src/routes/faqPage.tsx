@@ -19,29 +19,30 @@ const FaqPage: FunctionComponent = () => (
                 alt="soarch logo"
             />
         </Link>
-        <header className="mb-10 flex w-1/2 items-end justify-start self-start">
-            <h1 className="ml-1 text-4xl tracking-wide text-light-primary">
-                F.A.Q.
-            </h1>
-        </header>
         <main className="lg:w-1/2">
+            <header className="mb-10 flex w-1/2 items-end justify-start self-start">
+                <h1 className="ml-1 text-4xl tracking-wide text-light-primary">
+                    F.A.Q.
+                </h1>
+            </header>
             <Accordion allowMultipleExpanded allowZeroExpanded className="p-2">
                 <AccordionItem>
                     <AccordionItemHeading>
                         <AccordionItemButton>
-                            How Can I Delete A Note?
+                            How does it work?
                         </AccordionItemButton>
                     </AccordionItemHeading>
                     <AccordionItemPanel>
                         <p>
-                            A simple right click on the note will do the trick!
+                            Soarch uses a combination of several algorithms to
+                            extract melodies from songs and then compare them.
                         </p>
                     </AccordionItemPanel>
                 </AccordionItem>
                 <AccordionItem>
                     <AccordionItemHeading>
                         <AccordionItemButton>
-                            Can I Export A Tune I Created In MIDI Song Search?
+                            Can I export a tune I created in Soarch?
                         </AccordionItemButton>
                     </AccordionItemHeading>
                     <AccordionItemPanel>
@@ -55,41 +56,41 @@ const FaqPage: FunctionComponent = () => (
                 <AccordionItem>
                     <AccordionItemHeading>
                         <AccordionItemButton>
-                            How Can I Use The Piano?
+                            Can Soarch find any Song?
                         </AccordionItemButton>
                     </AccordionItemHeading>
                     <AccordionItemPanel>
                         <p>
-                            To toggle a piano, simply press a piano button in
-                            the top button section. Once you are ready, press
-                            start button to record your piano play!
+                            Soarch searches in a database containing around 1
+                            thousand songs. We are currently working on
+                            expanding it as much as possible.
                         </p>
                     </AccordionItemPanel>
                 </AccordionItem>
                 <AccordionItem>
                     <AccordionItemHeading>
                         <AccordionItemButton>
-                            How MIDI Song Search finds best matching songs?
+                            How can I record a tune?
                         </AccordionItemButton>
                     </AccordionItemHeading>
                     <AccordionItemPanel>
                         <p>
-                            Our search uses an esemble of machine learning
-                            algorithms, to find the best matches for your tune!
+                            Just press the record button and use your computer
+                            keyboard or MIDI instrument to record notes.
                         </p>
                     </AccordionItemPanel>
                 </AccordionItem>
                 <AccordionItem>
                     <AccordionItemHeading>
                         <AccordionItemButton>
-                            Can MIDI Song Search Find Any Song?
+                            Does Soarch support MIDI instruments?
                         </AccordionItemButton>
                     </AccordionItemHeading>
                     <AccordionItemPanel>
                         <p>
-                            Currently MIDI Song Finder searches in a database
-                            containing over 8 milion songs! So there are high
-                            chances it will find the song you are looking for!
+                            It does! Simply connect your MIDI instrument to your
+                            computer and refresh the page. Soarch will
+                            automatically detect it and enable it.
                         </p>
                     </AccordionItemPanel>
                 </AccordionItem>
