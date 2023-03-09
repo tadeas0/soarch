@@ -1,6 +1,6 @@
 from common.entity.job import Job, JobStatus
 from common.entity.search_result import SearchResult
-from common.entity.song import Song, SongMetadata, Note, Track
+from common.entity.song import Song, SongMetadata, Note, SpotifyMetadata, Track
 from dataclasses import asdict
 
 
@@ -20,10 +20,17 @@ class MongoSerializer:
 
     @staticmethod
     def __deserialize_song_metadata(metadata_dict: dict) -> SongMetadata:
+        spotify_metadata = None
+        if metadata_dict["spotify"] is not None:
+            spot_dict = metadata_dict["spotify"]
+            spotify_metadata = SpotifyMetadata(
+                spot_dict["preview_url"], spot_dict["song_url"]
+            )
         return SongMetadata(
             metadata_dict["artist"],
             metadata_dict["name"],
             metadata_dict["bpm"],
+            spotify_metadata,
         )
 
     @staticmethod

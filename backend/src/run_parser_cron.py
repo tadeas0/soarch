@@ -6,7 +6,7 @@ from common.repository.mongo_song_repository import MongoSongRepository
 from common.util.filestorage.filestorage import FileStorage
 from common.util.filestorage.google_cloud_filestorage import GoogleCloudFileStorage
 from common.util.filestorage.local_file_storage import LocalFileStorage
-from midi_scraper.midi_scraper import parse_to_db
+from midi_scraper.midi_scraper import parse_to_db, tag_with_spotify_data
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
 import common.config as config
@@ -31,9 +31,13 @@ async def run_job(logger: Logger):
     song_repo = MongoSongRepository(config.MONGODB_URL)
     try:
         await parse_to_db(download_file_storage, song_repo)
-        logger.info("Parser job finished")
+        logger.info("Parsing finished")
     except InvalidOperation as e:
         logger.info(e)
+    if config.SPOTIFY_CLIENT_ID and config.SPOTIFY_CLIENT_SECRET:
+        await tag_with_spotify_data(song_repo)
+        logger.info("Fetching spotify metadata finished")
+    logger.info("Job finished")
 
 
 if __name__ == "__main__":

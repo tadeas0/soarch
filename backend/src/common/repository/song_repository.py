@@ -39,3 +39,7 @@ class SongRepository(ABC):
     @abstractmethod
     async def get_song_slugs(self) -> list[str]:
         pass
+
+    @abstractmethod
+    async def upsert(self, key: str, song: Song) -> None:
+        pass

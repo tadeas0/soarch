@@ -31,3 +31,6 @@ class MockRepository(SongRepository):
 
     async def get_song_slugs(self) -> list[str]:
         return [f"artist{i} - song{i}" for i in range(5)]
+
+    def upsert(self):
+        pass

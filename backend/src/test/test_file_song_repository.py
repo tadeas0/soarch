@@ -52,3 +52,31 @@ async def test_get_song_slugs():
     case.assertCountEqual(
         await repo.get_song_slugs(), ["artist1 - name1", "artist2 - name2"]
     )
+
+
+@pytest.mark.asyncio
+async def test_upsert():
+    fs = MockFileStorage()
+    test_songs = [
+        Song([Track([Note(1, 1, 1)], 1)], SongMetadata("artist1", "name1", 1)),
+        Song([Track([Note(2, 2, 2)], 2)], SongMetadata("artist2", "name2", 2)),
+    ]
+    repo = FileSongRepository(fs)
+    await repo.insert_many(test_songs)
+    await repo.upsert(
+        "artist1 - name1.pkl",
+        Song([Track([Note(1, 2, 3)], 4)], SongMetadata("newartist", "newname", 1)),
+    )
+    await repo.upsert(
+        "artist3 - name3.pkl",
+        Song(
+            [Track([], 10)],
+            SongMetadata("newartist2", "newname2", 1),
+        ),
+    )
+    assert repo.load_song("artist1 - name1.pkl") == Song(
+        [Track([Note(1, 2, 3)], 4)], SongMetadata("newartist", "newname", 1)
+    )
+    assert repo.load_song("artist3 - name3.pkl") == Song(
+        [Track([], 10)], SongMetadata("newartist2", "newname2", 1)
+    )
