@@ -20,12 +20,9 @@ const LandingPage: FunctionComponent = () => (
         </header>
         <main className="lg:w-1/2">
             <p className="my-3 text-xl">
-                <b>Soarch</b> is a{" "}
-                <i>
-                    <b>free</b> online tool
-                </i>{" "}
-                that enables you to search songs similar to the tunes you enter
-                through our <i>web interface</i>.
+                <b>Soarch</b> is a <b>free</b> online tool that enables you to
+                search songs similar to the tunes you enter through our{" "}
+                <i>web interface</i>.
             </p>
             <h3 className="mt-12 text-2xl font-semibold">
                 Do you have a melody stuck in your head and can't figure out
@@ -33,11 +30,7 @@ const LandingPage: FunctionComponent = () => (
             </h3>
             <p className="my-3 text-xl">
                 We've got you covered. Through the use of our
-                <i>
-                    {" "}
-                    unique <b>state-of-the-art AI based</b> search engine
-                </i>
-                , you can discover music in a
+                <i> unique search engine</i>, you can <b>discover</b> music in a
                 <i>
                     <b> completely new way.</b>
                 </i>
