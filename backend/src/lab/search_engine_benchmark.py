@@ -28,6 +28,7 @@ from common.search_engine.strategy.standardization_strategy import (
     BaselineIntervalStrategy,
     DefaultStrategy,
     RelativeIntervalStrategy,
+    ParsonsCodeStrategy,
     StandardizationStrategy,
 )
 from common.util.filestorage.local_file_storage import LocalFileStorage
@@ -90,6 +91,7 @@ async def test_all_combinations(
             for standardization in [
                 BaselineIntervalStrategy,
                 RelativeIntervalStrategy,
+                ParsonsCodeStrategy,
                 DefaultStrategy,
             ]:
                 for segmentation in [FixedLengthStrategy]:
