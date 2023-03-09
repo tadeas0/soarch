@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { BsPauseFill, BsFillPlayFill, BsSpotify } from "react-icons/bs";
+import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../../interfaces/SearchResult";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -12,29 +12,13 @@ import {
     rollTimeToToneTime,
 } from "../../common/coordConversion";
 import { BarLoader } from "react-spinners";
-import usePlayer from "../../hooks/usePlayer";
+import SpotifyPlayer from "./spotifyPlayer";
 
 interface TopResultProps {
     searchResult?: SearchResult;
     isBusy: boolean;
     onShowMore: () => void;
 }
-
-const SpotifyPlayer: FunctionComponent<{
-    previewUrl: string | null;
-    className: string;
-}> = ({ previewUrl, className }) => {
-    const { isPlaying, start, stop } = usePlayer(previewUrl);
-    return (
-        <button
-            type="button"
-            className={`${className} ${previewUrl ? "" : "hidden"}`}
-            onClick={() => (isPlaying ? stop() : start())}
-        >
-            {isPlaying ? <BsPauseFill /> : <BsSpotify />}
-        </button>
-    );
-};
 
 const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const { canAddTab, addTab } = useTabControls();

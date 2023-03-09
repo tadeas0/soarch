@@ -73,6 +73,7 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
                 onClose={props.onClose}
                 direction="right"
                 zIndex={20}
+                size="500px"
             >
                 {renderDrawerBody()}
             </Drawer>
