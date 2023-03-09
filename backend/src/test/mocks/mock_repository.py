@@ -28,3 +28,6 @@ class MockRepository(SongRepository):
 
     def insert_many(self):
         pass
+
+    async def get_song_slugs(self) -> list[str]:
+        return [f"artist{i} - song{i}" for i in range(5)]
