@@ -29,3 +29,16 @@ class BaselineIntervalStrategy(StandardizationStrategy):
         for i in range(1, len(top_line)):
             res[i] = top_line[i] - baseline
         return res
+
+
+class ParsonsCodeStrategy(StandardizationStrategy):
+    def standardize(self, top_line: npt.NDArray[np.int64]) -> npt.NDArray[np.int64]:
+        res = np.zeros(len(top_line), dtype=np.int64)
+        for i in range(1, len(top_line)):
+            if top_line[i] > top_line[i - 1]:
+                res[i] = 1
+            elif top_line[i] < top_line[i - 1]:
+                res[i] = -1
+            else:
+                res[i] = 0
+        return res
