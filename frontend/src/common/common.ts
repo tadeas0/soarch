@@ -3,8 +3,6 @@ import { SynthPreset } from "../sound/synthPresets";
 import * as Tone from "tone";
 import { Note } from "../interfaces/Note";
 import { NoteSerialized } from "../interfaces/NoteSerialized";
-import { SearchResult } from "../interfaces/SearchResult";
-import { Song } from "../interfaces/Song";
 import { SongParams } from "../interfaces/SongParams";
 import { SongParamsSerialized } from "../interfaces/SongParamsSerialized";
 import GridParams from "../interfaces/GridParams";
