@@ -139,3 +139,7 @@ class FileSongRepository(SongRepository):
         artist_name = [get_artist_name_from_filepath(i) for i in keys]
         song_slugs = [f"{a} - {n}" for a, n in artist_name]
         return song_slugs
+
+    async def upsert(self, key: str, song: Song) -> None:
+        obj = pickle.dumps(song)
+        await self.file_storage.write(key, obj)

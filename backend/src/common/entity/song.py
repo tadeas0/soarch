@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 import numpy.typing as npt
 import numpy as np
 
@@ -17,10 +18,17 @@ class Track:
 
 
 @dataclass
+class SpotifyMetadata:
+    preview_url: str
+    song_url: str
+
+
+@dataclass
 class SongMetadata:
     artist: str
     name: str
     bpm: int
+    spotify: Optional[SpotifyMetadata] = None
 
     @property
     def slug(self):

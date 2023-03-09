@@ -70,3 +70,8 @@ class MongoSongRepository(SongRepository):
         )
         song_slugs = [i["song_slug"] async for i in res]
         return song_slugs
+
+    async def upsert(self, key: str, song: Song) -> None:
+        client = self.__get_client()
+        ser = MongoSerializer.serialize_song(song)
+        await client.replace_one({"_id": key}, ser, upsert=True)

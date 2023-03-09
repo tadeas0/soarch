@@ -22,7 +22,7 @@ const TopBar: FunctionComponent<TopBarProps> = (props) => {
     const isXl = useMediaQuery({ minWidth: 1280 });
 
     const renderTopDiv = () => (
-        <div className="grid w-full grid-cols-8 justify-center gap-1 border-b-2 border-black bg-background p-2 xl:grid-cols-10 xl:gap-4 xl:border-none">
+        <div className="grid w-full grid-cols-7 justify-center gap-1 border-b-2 border-black bg-background p-2 xl:grid-cols-11 xl:gap-4 xl:border-none">
             {isXl && (
                 <TopResult
                     searchResult={props.searchResult}

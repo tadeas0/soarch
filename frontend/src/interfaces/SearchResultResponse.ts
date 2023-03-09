@@ -6,4 +6,6 @@ export interface SearchResultResponse {
     notes: NoteSerialized[];
     bpm: number;
     similarity: number;
+    preview_url: string | null;
+    spotify_url: string | null;
 }

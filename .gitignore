@@ -13,3 +13,4 @@ heroku_deploy
 mongo_data/
 dataset/
 cert/
+.cache

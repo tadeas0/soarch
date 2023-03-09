@@ -108,6 +108,8 @@ async def test_midi_controller_get(app):
                 "bpm": 99,
                 "similarity": 1.5,
                 "notes": [{"pitch": 3, "length": "0:0:1", "time": "0:0:0"}],
+                "spotify_url": None,
+                "preview_url": None,
             }
         ],
     }

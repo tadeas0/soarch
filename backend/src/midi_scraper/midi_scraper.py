@@ -1,24 +1,26 @@
 import asyncio
 import itertools
-from typing import AsyncIterable
+from typing import AsyncIterable, Optional
 from aiohttp import ClientSession
 import logging
 import io
 import os
 from miditoolkit.midi import MidiFile
 from common.util.filestorage import FileStorage
-from common.entity.song import Song
+from common.entity.song import Song, SongMetadata, SpotifyMetadata
 from common.util.parser import MidiParser
 from bs4 import BeautifulSoup
 from common.repository.song_repository import SongRepository
 import common.config as config
 from common.util.helpers import get_artist_name_from_filepath
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
 
 FREEMIDI_URL = "https://freemidi.org/topmidi"
 FREEMIDI_GETTER_URL = "https://freemidi.org/getter"
 ROBS_MIDI_LIB_URL = "http://www.storth.com/midi"
 
-logger = logging.getLogger(config.SCRAPER_LOGGER)
+logger = logging.getLogger(config.DEFAULT_LOGGER)
 
 
 async def __download(
@@ -136,6 +138,42 @@ async def list_raw_songs(
                 logger.debug(f"Ignoring {song.metadata.slug}, already in DB")
         except Exception as e:
             logger.info(f"Could not parse {i}. {e}")
+
+
+def get_spotify_metadata(
+    song_metadata: SongMetadata, spotify_client: spotipy.Spotify
+) -> Optional[SpotifyMetadata]:
+    results = spotify_client.search(
+        q=f"artist:{song_metadata.artist} track:{song_metadata.name}",
+        limit=10,
+        type="track",
+    )
+    if not results:
+        raise ValueError()
+    items = results["tracks"]["items"]
+    if len(items) > 0:
+        spotify_url = items[0]["external_urls"]["spotify"]
+        preview_url = items[0]["preview_url"]
+        return SpotifyMetadata(preview_url, spotify_url)
+    return None
+
+
+async def tag_with_spotify_data(repository: SongRepository):
+    if not config.SPOTIFY_CLIENT_SECRET or not config.SPOTIFY_CLIENT_ID:
+        raise ValueError("Missing spotify client credentials")
+
+    sp = spotipy.Spotify(
+        auth_manager=SpotifyClientCredentials(
+            client_id=config.SPOTIFY_CLIENT_ID,
+            client_secret=config.SPOTIFY_CLIENT_SECRET,
+        )
+    )
+
+    for i in await repository.list_keys():
+        song = repository.load_song(i)
+        if not song.metadata.spotify:
+            song.metadata.spotify = get_spotify_metadata(song.metadata, sp)
+            await repository.upsert(i, song)
 
 
 async def parse_to_db(file_storage: FileStorage, repository: SongRepository):

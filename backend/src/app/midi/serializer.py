@@ -9,23 +9,30 @@ class TrackSerializer:
     @staticmethod
     def serialize_with_metadata(
         metadata: SongMetadata, track: Track, trim=True
-    ) -> dict[str, Union[str, int, float, list[dict[str, Union[str, int]]]]]:
+    ) -> dict[str, Union[str, int, float, list[dict[str, Union[str, int]]], None]]:
         track_notes = track.notes
         if trim:
             track_notes = TrackSerializer.trim_notes(track_notes)
         serialized_notes = [TrackSerializer.serialize_note(i) for i in track_notes]
+        spotify_url = None
+        preview_url = None
+        if metadata.spotify:
+            spotify_url = metadata.spotify.song_url
+            preview_url = metadata.spotify.preview_url
 
         return {
             "artist": metadata.artist,
             "name": metadata.name,
             "notes": serialized_notes,
             "bpm": metadata.bpm,
+            "spotify_url": spotify_url,
+            "preview_url": preview_url,
         }
 
     @staticmethod
     def serialize_search_result(
         search_result: SearchResult, trim=True
-    ) -> dict[str, Union[str, int, float, list[dict[str, Union[str, int]]]]]:
+    ) -> dict[str, Union[str, int, float, list[dict[str, Union[str, int]]], None]]:
         s = TrackSerializer.serialize_with_metadata(
             search_result.metadata, search_result.track, trim
         )

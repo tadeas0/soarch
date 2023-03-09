@@ -29,3 +29,5 @@ SONGS_DB = "songs_db"
 SONGS_COLLECTION = "songs_collection"
 JOBS_COLLECTION = "jobs_collection"
 ANALYSIS_OUTPUT_DIR = "analysis_output"
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID", "")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET", "")

@@ -1,6 +1,6 @@
 from common.entity.job import Job, JobStatus
 from common.entity.search_result import SearchResult
-from common.entity.song import Note, Song, SongMetadata, Track
+from common.entity.song import Note, Song, SongMetadata, SpotifyMetadata, Track
 from common.util.mongo_serializer import MongoSerializer
 
 
@@ -10,7 +10,46 @@ def test_serialize_song():
         SongMetadata("artist", "name", 99),
     )
     assert MongoSerializer.serialize_song(song) == {
-        "metadata": {"artist": "artist", "name": "name", "bpm": 99},
+        "metadata": {"artist": "artist", "name": "name", "bpm": 99, "spotify": None},
+        "tracks": [
+            {
+                "notes": [
+                    {
+                        "time": 1,
+                        "length": 1,
+                        "pitch": 1,
+                    },
+                    {
+                        "time": 2,
+                        "length": 2,
+                        "pitch": 2,
+                    },
+                ],
+                "grid_length": 10,
+            },
+            {
+                "notes": [
+                    {
+                        "time": 2,
+                        "length": 2,
+                        "pitch": 2,
+                    },
+                ],
+                "grid_length": 10,
+            },
+        ],
+    }
+    song2 = Song(
+        [Track([Note(1, 1, 1), Note(2, 2, 2)], 10), Track([Note(2, 2, 2)], 10)],
+        SongMetadata("artist", "name", 99, SpotifyMetadata("url1", "url2")),
+    )
+    assert MongoSerializer.serialize_song(song2) == {
+        "metadata": {
+            "artist": "artist",
+            "name": "name",
+            "bpm": 99,
+            "spotify": {"preview_url": "url1", "song_url": "url2"},
+        },
         "tracks": [
             {
                 "notes": [
@@ -43,7 +82,7 @@ def test_serialize_song():
 
 def test_deserialize_song():
     inp = {
-        "metadata": {"artist": "artist", "name": "name", "bpm": 99},
+        "metadata": {"artist": "artist", "name": "name", "bpm": 99, "spotify": None},
         "tracks": [
             {
                 "notes": [
@@ -76,6 +115,50 @@ def test_deserialize_song():
         [Track([Note(1, 1, 1), Note(2, 2, 2)], 10), Track([Note(2, 2, 2)], 10)],
         SongMetadata("artist", "name", 99),
     )
+    inp2 = {
+        "metadata": {
+            "artist": "artist",
+            "name": "name",
+            "bpm": 99,
+            "spotify": {"preview_url": "urlprev", "song_url": "urlsong"},
+        },
+        "tracks": [
+            {
+                "notes": [
+                    {
+                        "time": 1,
+                        "length": 1,
+                        "pitch": 1,
+                    },
+                    {
+                        "time": 2,
+                        "length": 2,
+                        "pitch": 2,
+                    },
+                ],
+                "grid_length": 10,
+            },
+            {
+                "notes": [
+                    {
+                        "time": 2,
+                        "length": 2,
+                        "pitch": 2,
+                    },
+                ],
+                "grid_length": 10,
+            },
+        ],
+    }
+    assert MongoSerializer.deserialize_song(inp2) == Song(
+        [Track([Note(1, 1, 1), Note(2, 2, 2)], 10), Track([Note(2, 2, 2)], 10)],
+        SongMetadata(
+            "artist",
+            "name",
+            99,
+            SpotifyMetadata("urlprev", "urlsong"),
+        ),
+    )
 
 
 def test_serialize_search_result():
@@ -85,7 +168,12 @@ def test_serialize_search_result():
         Track([Note(1, 1, 1), Note(2, 2, 2)], 10),
     )
     assert MongoSerializer.serialize_search_result(res) == {
-        "metadata": {"artist": "artist", "name": "name", "bpm": 99},
+        "metadata": {
+            "artist": "artist",
+            "name": "name",
+            "bpm": 99,
+            "spotify": None,
+        },
         "similarity": 1.5,
         "track": {
             "notes": [
@@ -107,7 +195,12 @@ def test_serialize_search_result():
 
 def test_deserialize_search_result():
     inp = {
-        "metadata": {"artist": "artist", "name": "name", "bpm": 99},
+        "metadata": {
+            "artist": "artist",
+            "name": "name",
+            "bpm": 99,
+            "spotify": None,
+        },
         "similarity": 1.5,
         "track": {
             "notes": [
@@ -144,7 +237,12 @@ def test_serialize_job():
         "status": "completed",
         "results": [
             {
-                "metadata": {"artist": "artist", "name": "name", "bpm": 99},
+                "metadata": {
+                    "artist": "artist",
+                    "name": "name",
+                    "bpm": 99,
+                    "spotify": None,
+                },
                 "similarity": 1.5,
                 "track": {
                     "notes": [
@@ -186,7 +284,12 @@ def test_deserialize_job():
         "status": "completed",
         "results": [
             {
-                "metadata": {"artist": "artist", "name": "name", "bpm": 99},
+                "metadata": {
+                    "artist": "artist",
+                    "name": "name",
+                    "bpm": 99,
+                    "spotify": None,
+                },
                 "similarity": 1.5,
                 "track": {
                     "notes": [

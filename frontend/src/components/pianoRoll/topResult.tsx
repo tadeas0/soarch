@@ -12,6 +12,7 @@ import {
     rollTimeToToneTime,
 } from "../../common/coordConversion";
 import { BarLoader } from "react-spinners";
+import SpotifyPlayer from "./spotifyPlayer";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -105,38 +106,58 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                     color={shouldColor ? BLACK : WHITE}
                 />
             )}
-            <h1 className="h-1/5 font-semibold">Best result:</h1>
-            <div className="flex h-3/5 w-full flex-row">
-                <div className="max-h-full w-5/6 ">
-                    <h4 className="mt-0.5 text-lg leading-4">{sr.name}</h4>
-                    <p className="text-sm">{sr.artist}</p>
+            <div className="mt-1 flex h-full flex-col justify-between overflow-auto">
+                <div className="mt-0.5 flex flex-row justify-between">
+                    <div>
+                        <h1 className="font-semibold">Best result:</h1>
+                        <div>
+                            <h4 className="text-lg leading-4">{sr.name}</h4>
+                            <p className="mt-0.5 text-sm">{sr.artist}</p>
+                        </div>
+                    </div>
+                    <div className="ml-2 flex flex-col justify-center gap-2">
+                        <SpotifyPlayer
+                            previewUrl={props.searchResult?.previewUrl || null}
+                            className="text-md outline-none"
+                        />
+                        <button
+                            className="text-md outline-none"
+                            type="button"
+                            onClick={handlePlayClick}
+                        >
+                            {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleEdit}
+                            className={`outline-none text-md${
+                                canAddTab ? "" : " inactive"
+                            }`}
+                        >
+                            <MdModeEdit />
+                        </button>
+                    </div>
                 </div>
-                <div className="flex h-full w-1/6 flex-col justify-evenly">
+                <div className="mr-2 flex flex-row justify-end gap-8">
+                    {props.searchResult?.spotifyUrl && (
+                        <a
+                            href={props.searchResult.spotifyUrl}
+                            className="underline outline-none"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Show on Spotify
+                        </a>
+                    )}
                     <button
-                        className="text-xl outline-none"
                         type="button"
-                        onClick={handlePlayClick}
+                        onClick={props.onShowMore}
+                        className="underline outline-none"
                     >
-                        {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleEdit}
-                        className={`outline-none text-xl${
-                            canAddTab ? "" : " inactive"
-                        }`}
-                    >
-                        <MdModeEdit />
+                        Show more results
                     </button>
                 </div>
             </div>
-            <button
-                type="button"
-                onClick={props.onShowMore}
-                className="w-full pr-2 text-right underline outline-none"
-            >
-                Show more results
-            </button>
         </>
     );
 
@@ -151,7 +172,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     return (
         <div
             id="top-result"
-            className={`relative col-span-2 h-28 rounded p-1 pb-2 transition-colors ${
+            className={`relative col-span-4 h-28 rounded p-2 transition-colors ${
                 shouldColor
                     ? "bg-medium-primary text-black"
                     : "bg-light-primary text-white"

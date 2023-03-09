@@ -3,8 +3,6 @@ import { SynthPreset } from "../sound/synthPresets";
 import * as Tone from "tone";
 import { Note } from "../interfaces/Note";
 import { NoteSerialized } from "../interfaces/NoteSerialized";
-import { SearchResult } from "../interfaces/SearchResult";
-import { Song } from "../interfaces/Song";
 import { SongParams } from "../interfaces/SongParams";
 import { SongParamsSerialized } from "../interfaces/SongParamsSerialized";
 import GridParams from "../interfaces/GridParams";
@@ -38,14 +36,6 @@ export const deserializeNote = (note: NoteSerialized) => ({
     time: Tone.Time(note.time),
     pitch: Tone.Frequency(note.pitch, "midi"),
     length: Tone.Time(note.length),
-});
-
-export const deserializeSong = (song: Song): SearchResult => ({
-    artist: song.artist,
-    name: song.name,
-    notes: song.notes.map<Note>(deserializeNote),
-    bpm: song.bpm,
-    similarity: song.similarity,
 });
 
 export const serializeGridParams = (

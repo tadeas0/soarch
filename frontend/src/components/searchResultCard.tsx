@@ -9,6 +9,7 @@ import {
 } from "../common/coordConversion";
 import useSequencer from "../hooks/sequencer/useSequencer";
 import { useTabControls } from "../stores/pianoRollStore";
+import SpotifyPlayer from "./pianoRoll/spotifyPlayer";
 
 interface SearchResultProps {
     searchResult: SearchResult;
@@ -51,13 +52,24 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
 
     return (
         <div className="py-3 px-1" style={getInlineStyles()}>
-            <div className="flex h-full w-full flex-row">
+            <div className="flex h-full w-full flex-row justify-between">
                 <h3 className="pr-2 text-xl">{searchResult.similarity}</h3>
                 <div className="flex h-full w-5/6 flex-col">
                     <h4>{searchResult.name}</h4>
                     <p className="text-sm">{searchResult.artist}</p>
+                    {searchResult.spotifyUrl && (
+                        <a
+                            className="self-end underline"
+                            href={searchResult.spotifyUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            Show on Spotify
+                        </a>
+                    )}
                 </div>
-                <div className="flex h-full flex-col">
+                <div className="flex h-full flex-col self-end">
+                    <SpotifyPlayer previewUrl={searchResult.previewUrl} />
                     <button
                         className="h-1/2 text-xl outline-none"
                         type="button"

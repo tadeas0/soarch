@@ -41,6 +41,8 @@ const useSearchResults = () => {
                 if (queryData?.status === "completed" && queryData.results) {
                     const results = queryData.results.map((r) => ({
                         ...r,
+                        spotifyUrl: r.spotify_url,
+                        previewUrl: r.preview_url,
                         notes: r.notes.map(deserializeNote),
                     }));
                     setSearchResults(results);
