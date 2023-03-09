@@ -1,6 +1,6 @@
 from app.midi.serializer import TrackSerializer
-from app.entity.song import Note
-import config
+from common.entity.song import Note
+import common.config as config
 
 
 def test_ticks_to_bbbs():

@@ -1,7 +1,7 @@
-from app.repository.mongo_song_repository import MongoSongRepository
-from app.repository.file_song_repository import FileSongRepository
-from app.repository.song_repository import SongRepository
-import config
+from common.repository.mongo_song_repository import MongoSongRepository
+from common.repository.file_song_repository import FileSongRepository
+from common.repository.song_repository import SongRepository
+import common.config as config
 import asyncio
 import os
 from functools import update_wrapper
@@ -10,7 +10,11 @@ from midi_scraper.midi_scraper import (
     scrape_robs_midi_library,
     parse_to_db,
 )
-from app.util.filestorage import FileStorage, LocalFileStorage, GoogleCloudFileStorage
+from common.util.filestorage import (
+    FileStorage,
+    LocalFileStorage,
+    GoogleCloudFileStorage,
+)
 import logging
 import json
 import click

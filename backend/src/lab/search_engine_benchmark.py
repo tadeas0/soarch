@@ -4,19 +4,19 @@ import time
 from dataclasses import dataclass
 from random import shuffle
 
-import config
+import common.config as config
 import numpy as np
-from app.repository.file_song_repository import FileSongRepository
-from app.repository.song_repository import SongRepository
-from app.search_engine.preprocessor import Preprocessor
-from app.search_engine.search_engine import SearchEngine
-from app.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep
-from app.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
-from app.search_engine.strategy.segmentation_strategy import (
+from common.repository.file_song_repository import FileSongRepository
+from common.repository.song_repository import SongRepository
+from common.search_engine.preprocessor import Preprocessor
+from common.search_engine.search_engine import SearchEngine
+from common.search_engine.search_engine_n_gram_prep import SearchEngineNGramPrep
+from common.search_engine.strategy.melody_extraction_strategy import TopNoteStrategy
+from common.search_engine.strategy.segmentation_strategy import (
     FixedLengthStrategy,
     SegmentationStrategy,
 )
-from app.search_engine.strategy.similarity_strategy import (
+from common.search_engine.strategy.similarity_strategy import (
     DTWStrategy,
     EMDStrategySP,
     FDTWStrategyLib,
@@ -24,15 +24,15 @@ from app.search_engine.strategy.similarity_strategy import (
     LocalAlignmentStrategyLib,
     SimilarityStrategy,
 )
-from app.search_engine.strategy.standardization_strategy import (
+from common.search_engine.strategy.standardization_strategy import (
     BaselineIntervalStrategy,
     DefaultStrategy,
     RelativeIntervalStrategy,
     StandardizationStrategy,
 )
-from app.util.filestorage.local_file_storage import LocalFileStorage
-from config import MEASURE_LENGTH
-from app.entity.example_query import ExampleQuery
+from common.util.filestorage.local_file_storage import LocalFileStorage
+from common.config import MEASURE_LENGTH
+from common.entity.example_query import ExampleQuery
 
 CSV_HEADER = (
     "duration,search_engine_name,extraction,standardization,"

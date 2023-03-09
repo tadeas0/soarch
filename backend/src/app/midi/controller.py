@@ -1,10 +1,10 @@
 from http import HTTPStatus
 from quart import Blueprint, request, jsonify
 from app.midi.serializer import TrackSerializer
-from app.worker.tasks import search
-from app import job_repository
+from common.repository.mongo_repository_factory import MongoRepositoryFactory
+from worker.tasks import search
 import logging
-import config
+import common.config as config
 
 
 logger = logging.getLogger(config.DEFAULT_LOGGER)
@@ -13,12 +13,12 @@ midi_bp = Blueprint("midi", __name__, url_prefix="/api/midi")
 
 @midi_bp.post("/")
 async def midi_post():
-    print(job_repository)
     data = await request.get_json()
 
     if not data:
         raise TypeError()
 
+    job_repository = MongoRepositoryFactory().create_job_repository()
     job = job_repository.create_job()
     logger.debug(f"created job {job}")
     search.send(data, job.id)
@@ -30,6 +30,7 @@ async def midi_post():
 
 @midi_bp.get("/<id>")
 async def midi_get(id: str):
+    job_repository = MongoRepositoryFactory().create_job_repository()
     job = job_repository.get_job(id)
     results = None
     if job.results is not None:

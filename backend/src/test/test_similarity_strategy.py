@@ -1,4 +1,4 @@
-from app.search_engine.strategy.similarity_strategy import (
+from common.search_engine.strategy.similarity_strategy import (
     LCSStrategy,
     DTWStrategy,
     LocalAlignmentStrategy,

@@ -1,8 +1,8 @@
 from quart import Quart
-import config
+import common.config as config
 import pytest
-from app.entity.song import Song, SongMetadata, Track, Note
-from test.mocks.mock_job_repository import MockJobRepository
+from common.entity.song import Song, SongMetadata, Track, Note
+from test.mocks.mock_repository_factory import MockRepositoryFactory
 
 
 class MockAct:
@@ -38,12 +38,15 @@ def mock_search(monkeypatch):
 
 
 @pytest.fixture()
-def mock_job_repository(monkeypatch):
-    monkeypatch.setattr("app.job_repository", MockJobRepository())
+def mock_repository_factory(monkeypatch):
+    monkeypatch.setattr(
+        "common.repository.mongo_repository_factory.MongoRepositoryFactory",
+        MockRepositoryFactory,
+    )
 
 
 @pytest.fixture
-def app(mock_search, mock_job_repository):
+def app(mock_search, mock_repository_factory):
     from app.midi.controller import midi_bp
 
     app = Quart(__name__)

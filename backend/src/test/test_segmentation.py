@@ -1,8 +1,8 @@
-from app.search_engine.strategy.segmentation_strategy import (
+from common.search_engine.strategy.segmentation_strategy import (
     OneSegmentStrategy,
     FixedLengthStrategy,
 )
-from app.entity.song import Track, Note
+from common.entity.song import Track, Note
 import unittest
 
 

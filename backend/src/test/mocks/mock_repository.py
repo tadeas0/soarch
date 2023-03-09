@@ -1,5 +1,5 @@
-from app.repository.song_repository import SongRepository
-from app.entity.song import Note, Song, SongMetadata, Track
+from common.repository.song_repository import SongRepository
+from common.entity.song import Note, Song, SongMetadata, Track
 
 
 class MockRepository(SongRepository):
@@ -28,3 +28,6 @@ class MockRepository(SongRepository):
 
     def insert_many(self):
         pass
+
+    async def get_song_slugs(self) -> list[str]:
+        return [f"artist{i} - song{i}" for i in range(5)]

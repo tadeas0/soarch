@@ -1,5 +1,5 @@
 from typing import Any, Iterable
-from app.util.filestorage.filestorage import FileStorage
+from common.util.filestorage.filestorage import FileStorage
 
 
 class MockFileStorage(FileStorage):

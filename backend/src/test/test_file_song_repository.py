@@ -1,7 +1,7 @@
 import unittest
 import pytest
-from app.repository.file_song_repository import FileSongRepository
-from app.entity.song import Note, Song, SongMetadata, Track
+from common.repository.file_song_repository import FileSongRepository
+from common.entity.song import Note, Song, SongMetadata, Track
 from test.mocks.mock_file_storage import MockFileStorage
 
 
@@ -37,3 +37,18 @@ async def test_insert_many():
     assert await repo.load_song_async("artist1 - name1.pkl") == test_songs[0]
     assert await repo.load_song_async("artist2 - name2.pkl") == test_songs[1]
     case.assertCountEqual([i async for i in repo.get_all_songs()], test_songs)
+
+
+@pytest.mark.asyncio
+async def test_get_song_slugs():
+    case = unittest.TestCase()
+    fs = MockFileStorage()
+    test_songs = [
+        Song([Track([Note(1, 1, 1)], 1)], SongMetadata("artist1", "name1", 1)),
+        Song([Track([Note(2, 2, 2)], 2)], SongMetadata("artist2", "name2", 2)),
+    ]
+    repo = FileSongRepository(fs)
+    await repo.insert_many(test_songs)
+    case.assertCountEqual(
+        await repo.get_song_slugs(), ["artist1 - name1", "artist2 - name2"]
+    )
