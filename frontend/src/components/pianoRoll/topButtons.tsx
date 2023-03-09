@@ -233,15 +233,6 @@ const TopButtons = (props: TopButtonsProps) => {
             >
                 {getPlayIcon()}
             </Button>
-            <Button
-                id="record-button"
-                className={`col-span-1 flex items-center justify-center text-4xl xl:text-6xl ${
-                    isRecording ? "bg-warn" : ""
-                }`}
-                onClick={handleRecordClick}
-            >
-                {getRecordIcon()}
-            </Button>
             <BPMInput
                 id="bpm-input"
                 value={selectedSong.bpm}
@@ -251,6 +242,15 @@ const TopButtons = (props: TopButtonsProps) => {
                 max={250}
                 disabled={props.rollSequencer.isPlaying || props.disabled}
             />
+            <Button
+                id="record-button"
+                className={`col-span-1 flex items-center justify-center text-4xl xl:text-6xl ${
+                    isRecording ? "bg-warn" : ""
+                }`}
+                onClick={handleRecordClick}
+            >
+                {getRecordIcon()}
+            </Button>
             <Metronome disabled={props.disabled} />
             <Button
                 className="col-span-1 flex items-center justify-center text-4xl xl:text-6xl"

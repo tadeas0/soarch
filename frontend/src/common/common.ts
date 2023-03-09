@@ -40,14 +40,6 @@ export const deserializeNote = (note: NoteSerialized) => ({
     length: Tone.Time(note.length),
 });
 
-export const deserializeSong = (song: Song): SearchResult => ({
-    artist: song.artist,
-    name: song.name,
-    notes: song.notes.map<Note>(deserializeNote),
-    bpm: song.bpm,
-    similarity: song.similarity,
-});
-
 export const serializeGridParams = (
     gridParams: GridParams
 ): GridParamsSerialized => ({

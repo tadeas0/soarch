@@ -6,4 +6,6 @@ export interface SearchResult {
     notes: Note[];
     bpm: number;
     similarity: number;
+    previewUrl: string | null;
+    spotifyUrl: string | null;
 }
