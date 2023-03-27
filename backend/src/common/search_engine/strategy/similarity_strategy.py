@@ -4,6 +4,7 @@ import numpy.typing as npt
 from scipy.stats import wasserstein_distance
 from fastdtw import fastdtw
 from Bio import Align
+import wasserstein
 
 
 class SimilarityStrategy(ABC):
@@ -211,3 +212,34 @@ class EMDStrategySP(SimilarityStrategy):
         self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
     ) -> float:
         return wasserstein_distance(line1, line2)
+
+
+class EMDStrategyCV(SimilarityStrategy):
+    highest_first = False
+
+    @property
+    def name(self) -> str:
+        return "Earth mover's distance (SciPy library)"
+
+    @property
+    def shortcut(self) -> str:
+        return "emdsp"
+
+    def compare(
+        self, line1: npt.NDArray[np.int64], line2: npt.NDArray[np.int64]
+    ) -> float:
+        emd = wasserstein.EMD(norm=True)
+        l1 = np.zeros((len(line1), 2))
+        l2 = np.zeros((len(line2), 2))
+        w1 = np.ones(len(line1))
+        w2 = np.ones(len(line2))
+        for i in range(len(line1)):
+            l1[i][0] = i + 1
+            l1[i][1] = line1[i]
+        for i in range(len(line2)):
+            l2[i][0] = i + 1
+            l2[i][1] = line2[i]
+        try:
+            return emd(w1, l1, w2, l2)
+        except Exception:
+            return float("inf")

@@ -10,7 +10,6 @@ import numpy as np
 
 class SearchEngineNGramPrep(SearchEngine):
     N_GRAM_LENGTH = 5
-    MIN_COMMON_CLASSES = 3
 
     def __init__(
         self,
@@ -39,10 +38,13 @@ class SearchEngineNGramPrep(SearchEngine):
         for i in notes:
             if i.pitch == last_pitch:
                 res.append(0)
+                last_pitch = i.pitch
             elif i.pitch < last_pitch:
                 res.append(-1)
+                last_pitch = i.pitch
             if i.pitch > last_pitch:
                 res.append(1)
+                last_pitch = i.pitch
         return res
 
     def __classify_segment(self, melodic_contour: list[int]) -> int:
@@ -56,7 +58,7 @@ class SearchEngineNGramPrep(SearchEngine):
         melody = self.__extract_melody(track)
         melodic_contour = self.__extract_melodic_contour(melody)
         classes = set()
-        for i in range(len(melodic_contour)):
+        for i in range(len(melodic_contour) - self.N_GRAM_LENGTH + 1):
             segment_class = self.__classify_segment(
                 melodic_contour[i : i + self.N_GRAM_LENGTH]
             )
@@ -92,7 +94,7 @@ class SearchEngineNGramPrep(SearchEngine):
             for segment in segments:
                 n_gram_classes = self.__generate_n_gram_classes(segment)
                 common_classes = len(query_classes.intersection(n_gram_classes))
-                if common_classes > self.MIN_COMMON_CLASSES:
+                if common_classes > (len(query_classes) // 3):
                     val = self.similarity_strategy.compare(
                         query_prep, self.preprocessor.prep_track(segment)
                     )

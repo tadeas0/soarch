@@ -23,6 +23,7 @@ from common.search_engine.strategy.similarity_strategy import (
     LCSStrategy,
     LocalAlignmentStrategyLib,
     SimilarityStrategy,
+    EMDStrategyCV,
 )
 from common.search_engine.strategy.standardization_strategy import (
     BaselineIntervalStrategy,
@@ -87,6 +88,7 @@ async def test_all_combinations(
             FDTWStrategyLib,
             LCSStrategy,
             DTWStrategy,
+            EMDStrategyCV,
         ]:
             for standardization in [
                 BaselineIntervalStrategy,
@@ -130,8 +132,10 @@ async def benchmark_search_engine():
     # setup_logging()
     fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX))
     repo = FileSongRepository(fs)
+    measures = [2, 4]
     folders = [
         # "0_notes_changed",
+        "0_notes_changed_transposed",
         # "1_notes_changed",
         "1_notes_changed_transposed",
         # "2_notes_changed",
@@ -143,23 +147,27 @@ async def benchmark_search_engine():
         # "5_notes_changed",
         # "5_notes_changed_transposed",
     ]
-    for folder in folders:
-        output_path = os.path.join(
-            config.ANALYSIS_OUTPUT_DIR, f"{config.PROCESS_COUNT}_processes_{folder}.csv"
-        )
-        query_dir = os.path.join(config.MIDI_DIR, config.QUERY_PREFIX, folder)
-        queries: list[ExampleQuery] = []
-        for i in os.listdir(query_dir):
-            with open(os.path.join(query_dir, i), "rb") as f:
-                q = pickle.load(f)
-                queries.append(q)
-        with open(output_path, "w") as f:
-            f.write(CSV_HEADER + "\n")
-        for q in queries:
-            res = await test_all_combinations(q, repo)
-            with open(output_path, "a") as f:
-                for r in res:
-                    f.write(result_to_csv_row(r) + "\n")
+    for measure in measures:
+        for folder in folders:
+            output_path = os.path.join(
+                config.ANALYSIS_OUTPUT_DIR,
+                f"{config.PROCESS_COUNT}_processes_{measure}_measures_{folder}.csv",
+            )
+            query_dir = os.path.join(
+                config.MIDI_DIR, config.QUERY_PREFIX, f"{measure}_measures", folder
+            )
+            queries: list[ExampleQuery] = []
+            for i in os.listdir(query_dir):
+                with open(os.path.join(query_dir, i), "rb") as f:
+                    q = pickle.load(f)
+                    queries.append(q)
+            with open(output_path, "w") as f:
+                f.write(CSV_HEADER + "\n")
+            for q in queries[43:]:
+                res = await test_all_combinations(q, repo)
+                with open(output_path, "a") as f:
+                    for r in res:
+                        f.write(result_to_csv_row(r) + "\n")
 
     # await benchmark_similarities()
     # await benchmark_standardization()

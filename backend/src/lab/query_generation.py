@@ -13,6 +13,9 @@ from common.entity.song import Note
 import uuid
 
 RANDOM_SEED = 123
+MEASURES = 2
+FOLDER = f"{MEASURES}_measures"
+STORAGE_ROOT = os.path.join(config.MIDI_DIR, config.QUERY_PREFIX, FOLDER)
 
 
 async def __get_all_segments():
@@ -30,7 +33,7 @@ async def __get_all_segments():
         if not song.metadata:
             continue
         for track in song.tracks:
-            s = segmentation.segment(track, config.MEASURE_LENGTH * 2)
+            s = segmentation.segment(track, config.MEASURE_LENGTH * MEASURES)
             ann_seg = [ExampleQuery(song.metadata, i) for i in s]
             annotated_segments.extend(ann_seg)
     return annotated_segments
@@ -38,7 +41,7 @@ async def __get_all_segments():
 
 async def generate_queries():
     annotated_segments = await __get_all_segments()
-    query_fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.QUERY_PREFIX))
+    query_fs = LocalFileStorage(os.path.join(STORAGE_ROOT, "0_notes_changed"))
     random.seed(RANDOM_SEED)
     random.shuffle(annotated_segments)
 
@@ -55,7 +58,7 @@ async def generate_queries():
         pianoroll = notes2pianoroll(
             mtk_notes,
             ticks_per_beat=config.DEFAULT_PPQ,
-            max_tick=config.MEASURE_LENGTH * 2,
+            max_tick=config.MEASURE_LENGTH * MEASURES,
         )
         plot(
             pianoroll,
@@ -87,14 +90,12 @@ def __randomise_pitch(note: Note) -> Note:
 
 
 async def generate_shifted_queries():
-    query_fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.QUERY_PREFIX))
+    query_fs = LocalFileStorage(os.path.join(STORAGE_ROOT, "0_notes_changed"))
     keys = query_fs.list_all()
     random.seed(RANDOM_SEED)
     for shift_notes in range(1, 6):
         target_fs = LocalFileStorage(
-            os.path.join(
-                config.MIDI_DIR, config.QUERY_PREFIX, f"{shift_notes}_notes_changed"
-            )
+            os.path.join(STORAGE_ROOT, f"{shift_notes}_notes_changed")
         )
         for k in keys:
             example_query: ExampleQuery = pickle.loads(await query_fs.read(k))
@@ -105,9 +106,8 @@ async def generate_shifted_queries():
             for i in shift_indexes:
                 new_notes[i] = __randomise_pitch(new_notes[i])
             example_query.track.notes = new_notes
-            file_name = f"{str(uuid.uuid4())}.pkl"
             obj = pickle.dumps(example_query)
-            await target_fs.write(file_name, obj)
+            await target_fs.write(k, obj)
 
 
 async def generate_transposed_queries():
@@ -115,16 +115,10 @@ async def generate_transposed_queries():
     max_transpo = 12
     for shift_notes in range(6):
         query_fs = LocalFileStorage(
-            os.path.join(
-                config.MIDI_DIR, config.QUERY_PREFIX, f"{shift_notes}_notes_changed"
-            )
+            os.path.join(STORAGE_ROOT, f"{shift_notes}_notes_changed")
         )
         target_fs = LocalFileStorage(
-            os.path.join(
-                config.MIDI_DIR,
-                config.QUERY_PREFIX,
-                f"{shift_notes}_notes_changed_transposed",
-            )
+            os.path.join(STORAGE_ROOT, f"{shift_notes}_notes_changed_transposed")
         )
         keys = query_fs.list_all()
         for k in keys:
@@ -139,6 +133,11 @@ async def generate_transposed_queries():
                 shift = random.randint(1, min(max_shift, max_transpo))
                 new_notes = [Note(n.time, n.length, n.pitch - shift) for n in new_notes]
             example_query.track.notes = new_notes
-            file_name = f"{str(uuid.uuid4())}.pkl"
             obj = pickle.dumps(example_query)
-            await target_fs.write(file_name, obj)
+            await target_fs.write(k, obj)
+
+
+async def generate_all_queries():
+    await generate_queries()
+    await generate_shifted_queries()
+    await generate_transposed_queries()
