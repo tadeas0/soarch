@@ -20,7 +20,7 @@ class MockRepository(SongRepository):
 
     def get_all_songs(self):
         for i in range(5):
-            track = Track([Note(0, 10, 0)], 100)
+            track = self.__get_track()
             yield Song([track], SongMetadata(f"artist{i}", f"song{i}", 120))
 
     def insert(self):
