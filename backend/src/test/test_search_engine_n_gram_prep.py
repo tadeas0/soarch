@@ -32,9 +32,7 @@ async def test_find_similar_async():
         prep,
         LCSStrategy(),
     )
-    query = Track(
-        [Note(0, 10, 32), Note(30, 10, 32), Note(40, 10, 32), Note(50, 10, 32)], 150
-    )
+    query = Track([Note(i * 10, 10, 0) for i in range(8)], 150)
     result1 = await search_engine.find_similar_async(2, query)
     result2 = await search_engine.find_similar_async(3, query)
     result3 = await search_engine.find_similar_async(5, query)
