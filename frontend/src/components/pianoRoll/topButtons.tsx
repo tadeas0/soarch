@@ -197,6 +197,10 @@ const TopButtons = (props: TopButtonsProps) => {
         return () => props.rollSequencer.clearOnStop(event);
     }, [mutate, props.rollSequencer, selectedSong, setIsRecording]);
 
+    useEffect(() => {
+        if (!props.rollSequencer.isPlaying) playbackState.current = "Stopped";
+    }, [props.rollSequencer.isPlaying]);
+
     const getRecordIcon = () => {
         if (countDown > 0) {
             return countDown;

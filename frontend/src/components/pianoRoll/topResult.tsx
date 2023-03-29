@@ -13,6 +13,7 @@ import {
 } from "../../common/coordConversion";
 import { BarLoader } from "react-spinners";
 import SpotifyPlayer from "./spotifyPlayer";
+import useProgress from "../../hooks/sequencer/useProgress";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -26,7 +27,9 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [shouldPing, setShouldPing] = useState(false);
     const [pingTimeout, setPingTimeout] = useState<number>(0);
     const [shouldColor, setShouldColor] = useState(false);
-    const { isPlaying, stop, play, progress } = useSequencer();
+    const sequencer = useSequencer();
+    const { isPlaying, stop, play } = sequencer;
+    const progress = useProgress(sequencer);
 
     const getInlineStyles = () => {
         if (!isPlaying) return {};

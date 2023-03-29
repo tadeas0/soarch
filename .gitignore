@@ -14,3 +14,4 @@ mongo_data/
 dataset/
 cert/
 .cache
+analysis_output*

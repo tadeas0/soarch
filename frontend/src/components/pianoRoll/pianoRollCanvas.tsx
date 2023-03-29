@@ -31,6 +31,7 @@ import {
     toneTimeToRollTime,
 } from "../../common/coordConversion";
 import { Sequencer } from "../../hooks/sequencer/useSequencer";
+import useProgress from "../../hooks/sequencer/useProgress";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -48,15 +49,39 @@ interface PianoRollCanvasProps {
     selectedNote: Note | null;
 }
 
+const PianoRollHeader: FunctionComponent<{
+    gridParams: GridParams;
+    rollSequencer: Sequencer;
+}> = (props) => {
+    const headerWidth = (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
+    const progress = useProgress(props.rollSequencer);
+    const headerTranslation = headerWidth * progress;
+
+    return (
+        <div
+            className="sticky top-0 left-0 h-5 border-b-2 border-dark-primary bg-white transition-[width]"
+            style={{
+                minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
+            }}
+        >
+            <div
+                className="ml-14 w-1 text-black"
+                style={{
+                    transform: `translateX(${headerTranslation}px)`,
+                }}
+            >
+                <AiFillCaretDown />
+            </div>
+        </div>
+    );
+};
+
 const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [alreadyScrolled, setAlreadyScrolled] = useState(false);
     const canvasContainerRef = useRef<HTMLDivElement>(null);
     const { triggerAttackRelease } = useSynth();
     const [preventMouse, setPreventMouse] = useState(false);
-    const headerWidth = (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
-    const { progress } = props.rollSequencer;
-    const headerTranslation = headerWidth * progress;
 
     const drawCircle = async (
         ctx: CanvasRenderingContext2D,
@@ -254,6 +279,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             children.push(
                 // eslint-disable-next-line jsx-a11y/no-static-element-interactions
                 <div
+                    key={pitch.toNote()}
                     aria-label={pitch.toNote()}
                     style={{
                         height: PIANO_ROLL_NOTE_HEIGHT,
@@ -292,21 +318,10 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             }}
         >
             {renderPiano()}
-            <div
-                className="sticky top-0 left-0 h-5 border-b-2 border-dark-primary bg-white transition-[width]"
-                style={{
-                    minWidth: props.gridParams.width * PIANO_ROLL_NOTE_WIDTH,
-                }}
-            >
-                <div
-                    className="ml-14 w-1 text-black"
-                    style={{
-                        transform: `translateX(${headerTranslation}px)`,
-                    }}
-                >
-                    <AiFillCaretDown />
-                </div>
-            </div>
+            <PianoRollHeader
+                gridParams={props.gridParams}
+                rollSequencer={props.rollSequencer}
+            />
             <canvas
                 className="ml-14 snap-none transition-[width]"
                 style={{

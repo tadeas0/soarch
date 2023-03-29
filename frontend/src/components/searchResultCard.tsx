@@ -10,6 +10,7 @@ import {
 import useSequencer from "../hooks/sequencer/useSequencer";
 import { useTabControls } from "../stores/pianoRollStore";
 import SpotifyPlayer from "./pianoRoll/spotifyPlayer";
+import useProgress from "../hooks/sequencer/useProgress";
 
 interface SearchResultProps {
     searchResult: SearchResult;
@@ -21,7 +22,9 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     onEdit,
 }) => {
     const { canAddTab } = useTabControls();
-    const { play, stop, isPlaying, progress } = useSequencer();
+    const sequencer = useSequencer();
+    const { play, stop, isPlaying } = sequencer;
+    const progress = useProgress(sequencer);
 
     const handlePlay = () => {
         if (!isPlaying) {
