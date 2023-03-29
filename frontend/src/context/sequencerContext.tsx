@@ -12,12 +12,11 @@ import { SequencerSynth } from "../types/sequencerSynth";
 interface SequencerContextState {
     synthRef: MutableRefObject<SequencerSynth>;
     partRef: MutableRefObject<Tone.Part>;
-    progress: number;
+    progress: MutableRefObject<number>;
     sequencerIds: string[];
     setSequencerIds: React.Dispatch<React.SetStateAction<string[]>>;
     playingId: string | null;
     setPlayingId: React.Dispatch<React.SetStateAction<string | null>>;
-    setProgress: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export const SequencerContext = React.createContext<SequencerContextState>(
@@ -29,12 +28,12 @@ export const SequencerContextProvider: FunctionComponent = ({ children }) => {
     const synth = useRef<SequencerSynth>(getSynthFromPreset(SYNTH_PRESETS[0]));
     const [sequencerIds, setSequencerIds] = useState<string[]>([]);
     const [playingId, setPlayingId] = useState<string | null>(null);
-    const [progress, setProgress] = useState(0);
+    const progress = useRef(0);
 
     useRef(
         new Tone.Loop((time) => {
             Tone.Draw.schedule(() => {
-                setProgress(part.current.progress);
+                progress.current = part.current.progress;
             }, time);
         }, "16n").start(0)
     );
@@ -49,7 +48,6 @@ export const SequencerContextProvider: FunctionComponent = ({ children }) => {
                 progress,
                 setSequencerIds,
                 setPlayingId,
-                setProgress,
             }}
         >
             {children}

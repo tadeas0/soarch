@@ -19,7 +19,6 @@ export interface Sequencer {
     clearOnPlay: (n: number) => void;
     clearOnStop: (n: number) => void;
     isPlaying: boolean;
-    progress: number;
     delay: Tone.TimeClass;
 }
 
@@ -33,13 +32,11 @@ const useSequencer = (): Sequencer => {
         setPlayingId,
         playingId,
         progress: seqProgress,
-        setProgress,
     } = useContext(SequencerContext);
     const onPlayEvents = useRef(new Map<number, () => void>());
     const onStopEvents = useRef(new Map<number, () => void>());
 
     const isPlaying = playingId === currentId;
-    const progress = currentId === playingId ? seqProgress : 0;
 
     useEffect(() => {
         const id = Math.random().toString(16).slice(2);
@@ -58,6 +55,7 @@ const useSequencer = (): Sequencer => {
 
     const stop = () => {
         Tone.Transport.stop();
+        seqProgress.current = 0;
         onStopEvents.current.forEach((cb) => {
             cb();
         });
@@ -75,7 +73,7 @@ const useSequencer = (): Sequencer => {
             Tone.start();
         }
         Tone.Transport.stop();
-        setProgress(0);
+        seqProgress.current = 0;
         setPlayingId(currentId);
         Tone.Transport.bpm.value = bpm;
         partRef.current.dispose();
@@ -141,7 +139,6 @@ const useSequencer = (): Sequencer => {
         clearOnStop,
         delay,
         isPlaying,
-        progress,
     };
 };
 
