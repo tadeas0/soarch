@@ -4,7 +4,6 @@ import DownloadingOverlay from "../components/downloadingOverlay";
 import PianoRoll from "../components/pianoRoll/pianoRoll";
 import SearchResultsDrawer from "../components/searchResultsDrawer";
 import { LIGHT_PRIMARY } from "../constants";
-import { PlaybackProvider } from "../context/playbackContext";
 import API from "../services/api";
 import { useTabControls } from "../stores/pianoRollStore";
 import { ShepherdTourContext } from "react-shepherd";
@@ -84,7 +83,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                         </h1>
                     </div>
                 ) : (
-                    <PlaybackProvider>
+                    <>
                         <Settings />
                         <TourButton />
                         {isDownloading && <DownloadingOverlay />}
@@ -103,7 +102,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                             isBusy={isLoading}
                             onEdit={handleEdit}
                         />
-                    </PlaybackProvider>
+                    </>
                 )}
             </div>
         </FullScreen>

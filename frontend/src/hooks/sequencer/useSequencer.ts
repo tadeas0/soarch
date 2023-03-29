@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 import { SequencerContext } from "../../context/sequencerContext";
 import { Note } from "../../interfaces/Note";
+import { useSequencerStore } from "../../stores/sequencerStore";
 
 export interface Sequencer {
     play: (
@@ -28,11 +29,15 @@ const useSequencer = (): Sequencer => {
     const {
         partRef,
         synthRef,
-        setSequencerIds,
-        setPlayingId,
-        playingId,
         progress: seqProgress,
     } = useContext(SequencerContext);
+    const [playingId, setPlayingId, addSequencerId, removeSequencerId] =
+        useSequencerStore((state) => [
+            state.playingId,
+            state.setPlayingId,
+            state.addSequencerId,
+            state.removeSequencerId,
+        ]);
     const onPlayEvents = useRef(new Map<number, () => void>());
     const onStopEvents = useRef(new Map<number, () => void>());
 
@@ -40,18 +45,11 @@ const useSequencer = (): Sequencer => {
 
     useEffect(() => {
         const id = Math.random().toString(16).slice(2);
-        setSequencerIds((current) => [...current, id]);
+        addSequencerId(id);
         setCurrentId(id);
 
-        return () => {
-            setPlayingId((current) => {
-                if (current === id) return null;
-                return current;
-            });
-
-            setSequencerIds((current) => current.filter((c) => c !== id));
-        };
-    }, [setPlayingId, setSequencerIds]);
+        return () => removeSequencerId(id);
+    }, [addSequencerId, removeSequencerId]);
 
     const stop = () => {
         Tone.Transport.stop();
