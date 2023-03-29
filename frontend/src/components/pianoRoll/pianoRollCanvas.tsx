@@ -279,6 +279,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             children.push(
                 // eslint-disable-next-line jsx-a11y/no-static-element-interactions
                 <div
+                    key={pitch.toNote()}
                     aria-label={pitch.toNote()}
                     style={{
                         height: PIANO_ROLL_NOTE_HEIGHT,

@@ -46,6 +46,7 @@ const SearchResultsDrawer = (props: SearchResultsDrawerProps) => {
                     {props.searchResults.map((s) => (
                         <li className="w-full border-b-2 border-black last:border-b-0">
                             <SearchResultCard
+                                key={s.spotifyUrl}
                                 searchResult={s}
                                 onEdit={handleEdit}
                             />
