@@ -3,7 +3,7 @@ import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../../interfaces/SearchResult";
 import ClipLoader from "react-spinners/ClipLoader";
-import { useTabControls } from "../../stores/pianoRollStore";
+import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
 import * as React from "react";
 import { BLACK, WHITE } from "../../constants";
 import useSequencer from "../../hooks/sequencer/useSequencer";
@@ -29,6 +29,7 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [shouldColor, setShouldColor] = useState(false);
     const sequencer = useSequencer();
     const { isPlaying, stop, play } = sequencer;
+    const isRecording = usePianoRollStore((state) => state.isRecording);
     const progress = useProgress(sequencer);
 
     const getInlineStyles = () => {
@@ -122,13 +123,21 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                         <SpotifyPlayer
                             previewUrl={props.searchResult?.previewUrl || null}
                             className="text-md outline-none"
+                            disabled={isRecording}
                         />
                         <button
                             className="text-md outline-none"
                             type="button"
                             onClick={handlePlayClick}
+                            disabled={isRecording}
                         >
-                            {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
+                            {isPlaying ? (
+                                <BsPauseFill opacity={isRecording ? 0.6 : 1} />
+                            ) : (
+                                <BsFillPlayFill
+                                    opacity={isRecording ? 0.6 : 1}
+                                />
+                            )}
                         </button>
                         <button
                             type="button"
@@ -136,8 +145,9 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                             className={`outline-none text-md${
                                 canAddTab ? "" : " inactive"
                             }`}
+                            disabled={isRecording}
                         >
-                            <MdModeEdit />
+                            <MdModeEdit opacity={isRecording ? 0.6 : 1} />
                         </button>
                     </div>
                 </div>
