@@ -34,6 +34,8 @@
         "tone": "^14.7.77",
         "web-vitals": "^1.0.1",
         "webmidi": "^3.0.22",
+        "xstate": "^4.37.2",
+        "@xstate/react": "^3.2.2",
         "zustand": "^4.3.5"
     },
     "optionalDependencies": {
@@ -42,6 +44,7 @@
     "scripts": {
         "start": "HTTPS=true vite --host",
         "build": "tsc && vite build",
+        "tsc": "tsc",
         "serve": "vite preview",
         "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
     },

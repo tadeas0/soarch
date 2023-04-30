@@ -3,13 +3,15 @@ import { GiMetronome } from "react-icons/gi";
 import Button from "../basic/button";
 import * as React from "react";
 import useMetronome from "../../hooks/sequencer/useMetronome";
+import { useRollSequencer } from "../../context/pianorollContext";
 
 interface MetronomeProps {
     disabled?: boolean;
 }
 
 const Metronome: FunctionComponent<MetronomeProps> = ({ disabled = false }) => {
-    const { enabled, setEnabled } = useMetronome();
+    const sequencer = useRollSequencer();
+    const { enabled, setEnabled } = useMetronome(sequencer.delay);
 
     const handleClick = () => {
         setEnabled(!enabled);

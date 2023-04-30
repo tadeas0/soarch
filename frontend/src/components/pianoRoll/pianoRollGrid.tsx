@@ -6,16 +6,15 @@ import GridParams from "../../interfaces/GridParams";
 import useMouseHandler from "./mouseHandler/useMouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
-import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useSynth from "../../hooks/sequencer/useSynth";
 import useTouchHandler from "./touchHandler/useTouchHandler";
 import useSearchResults from "../../hooks/useSearchResults";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useRollSequencer } from "../../context/pianorollContext";
 
 interface PianoRollGridProps {
     notes: Note[];
     gridParams: GridParams;
-    rollSequencer: Sequencer;
     disabled?: boolean;
 }
 
@@ -23,9 +22,9 @@ interface PianoRollGridProps {
 const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     notes,
     gridParams,
-    rollSequencer,
     disabled = false,
 }: PianoRollGridProps) => {
+    const rollSequencer = useRollSequencer();
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
     const [previewNotes, setPreviewNotes] = useState<Map<Note, number>>(
         new Map()
@@ -201,7 +200,6 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onTouchMove={handleTouchMove}
                 onTouchCancel={handleTouchCancel}
                 preventScroll={touchHandler.preventScroll}
-                rollSequencer={rollSequencer}
             />
         </div>
     );

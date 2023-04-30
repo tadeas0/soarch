@@ -3,17 +3,14 @@ import { BsPauseFill, BsFillPlayFill } from "react-icons/bs";
 import { MdModeEdit } from "react-icons/md";
 import { SearchResult } from "../../interfaces/SearchResult";
 import ClipLoader from "react-spinners/ClipLoader";
-import { usePianoRollStore, useTabControls } from "../../stores/pianoRollStore";
+import { useTabControls } from "../../stores/pianoRollStore";
 import * as React from "react";
 import { BLACK, WHITE } from "../../constants";
-import useSequencer from "../../hooks/sequencer/useSequencer";
-import {
-    getGridParamsFromNotes,
-    rollTimeToToneTime,
-} from "../../common/coordConversion";
+import { getGridParamsFromNotes } from "../../common/coordConversion";
 import { BarLoader } from "react-spinners";
 import SpotifyPlayer from "./spotifyPlayer";
 import useProgress from "../../hooks/sequencer/useProgress";
+import { usePlaybackMachine } from "../../context/pianorollContext";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -27,10 +24,10 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [shouldPing, setShouldPing] = useState(false);
     const [pingTimeout, setPingTimeout] = useState<number>(0);
     const [shouldColor, setShouldColor] = useState(false);
-    const sequencer = useSequencer();
-    const { isPlaying, stop, play } = sequencer;
-    const isRecording = usePianoRollStore((state) => state.isRecording);
-    const progress = useProgress(sequencer);
+    const [state, send] = usePlaybackMachine();
+    const isPlaying = state.matches("resultPlaying");
+    const isRecording = state.matches("recording");
+    const progress = useProgress(state.matches("resultPlaying"));
 
     const getInlineStyles = () => {
         if (!isPlaying) return {};
@@ -68,23 +65,13 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
         }
     }, [lastResult, pingTimeout, props.searchResult]);
 
-    const handlePlayClick = async () => {
-        if (isPlaying) {
-            stop();
-        } else if (props.searchResult) {
-            play(
-                props.searchResult.notes,
-                props.searchResult.bpm,
-                rollTimeToToneTime(
-                    getGridParamsFromNotes(props.searchResult.notes).width
-                )
-            );
-        }
+    const handlePlayClick = () => {
+        send("PLAY_RESULT");
     };
 
-    const handleEdit = async () => {
+    const handleEdit = () => {
         if (props.searchResult) {
-            stop();
+            send("STOP");
             addTab({
                 ...props.searchResult,
                 bpm: Math.round(props.searchResult.bpm),

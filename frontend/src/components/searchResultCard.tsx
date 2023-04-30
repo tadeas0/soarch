@@ -24,7 +24,7 @@ const SearchResultCard: FunctionComponent<SearchResultProps> = ({
     const { canAddTab } = useTabControls();
     const sequencer = useSequencer();
     const { play, stop, isPlaying } = sequencer;
-    const progress = useProgress(sequencer);
+    const progress = useProgress(sequencer.isPlaying);
 
     const handlePlay = () => {
         if (!isPlaying) {

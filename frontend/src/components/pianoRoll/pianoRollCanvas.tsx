@@ -30,8 +30,8 @@ import {
     tonePitchToRollPitch,
     toneTimeToRollTime,
 } from "../../common/coordConversion";
-import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useProgress from "../../hooks/sequencer/useProgress";
+import { usePlaybackMachine } from "../../context/pianorollContext";
 
 interface PianoRollCanvasProps {
     onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
@@ -42,7 +42,6 @@ interface PianoRollCanvasProps {
     onTouchMove: (e: React.TouchEvent<HTMLCanvasElement>) => void;
     onTouchCancel: () => void;
     preventScroll: boolean;
-    rollSequencer: Sequencer;
     previewNotes: Set<Note>;
     gridParams: GridParams;
     notes: Note[];
@@ -51,10 +50,12 @@ interface PianoRollCanvasProps {
 
 const PianoRollHeader: FunctionComponent<{
     gridParams: GridParams;
-    rollSequencer: Sequencer;
 }> = (props) => {
     const headerWidth = (props.gridParams.width - 1) * PIANO_ROLL_NOTE_WIDTH;
-    const progress = useProgress(props.rollSequencer);
+    const [state] = usePlaybackMachine();
+    const progress = useProgress(
+        state.matches("queryPlaying") || state.matches("recording")
+    );
     const headerTranslation = headerWidth * progress;
 
     return (
@@ -318,10 +319,7 @@ const PianoRollCanvas: FunctionComponent<PianoRollCanvasProps> = (props) => {
             }}
         >
             {renderPiano()}
-            <PianoRollHeader
-                gridParams={props.gridParams}
-                rollSequencer={props.rollSequencer}
-            />
+            <PianoRollHeader gridParams={props.gridParams} />
             <canvas
                 className="ml-14 snap-none transition-[width]"
                 style={{

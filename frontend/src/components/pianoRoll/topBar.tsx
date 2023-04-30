@@ -6,7 +6,6 @@ import Button from "../basic/button";
 import TopButtons from "./topButtons";
 import TopResult from "./topResult";
 import Drawer from "react-modern-drawer";
-import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useIsXlScreen from "../../hooks/useIsXlScreen";
 
 interface TopBarProps {
@@ -14,22 +13,12 @@ interface TopBarProps {
     isBusy: boolean;
     onShowMore: () => void;
     disabled: boolean;
-    rollSequencer: Sequencer;
 }
 
 const TopDiv: FunctionComponent<TopBarProps & { isXl: boolean }> = (props) => (
     <div className="grid w-full grid-cols-7 justify-center gap-1 border-b-2 border-black bg-background p-2 xl:grid-cols-11 xl:gap-4 xl:border-none">
-        {props.isXl && (
-            <TopResult
-                searchResult={props.searchResult}
-                isBusy={props.isBusy}
-                onShowMore={props.onShowMore}
-            />
-        )}
-        <TopButtons
-            rollSequencer={props.rollSequencer}
-            disabled={props.disabled}
-        />
+        {props.isXl && <TopResult {...props} />}
+        <TopButtons {...props} />
     </div>
 );
 
