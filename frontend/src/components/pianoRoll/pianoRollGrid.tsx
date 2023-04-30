@@ -18,7 +18,6 @@ interface PianoRollGridProps {
     disabled?: boolean;
 }
 
-// TODO: cleanup event handling
 const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     notes,
     gridParams,
@@ -36,6 +35,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         state.setNotes,
         state.saveState,
     ]);
+    const [cursor, setCursor] = useState("default");
     const { triggerAttackRelease } = useSynth();
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
@@ -78,6 +78,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         onPreviewNote,
         setSelectedNote,
         saveStateStore,
+        setCursor,
         notes,
         gridParams
     );
@@ -186,6 +187,9 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
             id="roll-canvas"
             ref={canvasContainerRef}
             className="relative z-0 flex h-[70vh] max-w-[90vw] justify-start rounded border-2 border-dark-primary"
+            style={{
+                cursor,
+            }}
         >
             <PianoRollCanvas
                 gridParams={gridParams}
