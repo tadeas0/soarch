@@ -6,39 +6,28 @@ import Button from "../basic/button";
 import TopButtons from "./topButtons";
 import TopResult from "./topResult";
 import Drawer from "react-modern-drawer";
-import { useMediaQuery } from "react-responsive";
-import { Sequencer } from "../../hooks/sequencer/useSequencer";
+import useIsXlScreen from "../../hooks/useIsXlScreen";
 
 interface TopBarProps {
     searchResult: SearchResult | undefined;
     isBusy: boolean;
     onShowMore: () => void;
     disabled: boolean;
-    rollSequencer: Sequencer;
 }
+
+const TopDiv: FunctionComponent<TopBarProps & { isXl: boolean }> = (props) => (
+    <div className="grid w-full grid-cols-7 justify-center gap-1 border-b-2 border-black bg-background p-2 xl:grid-cols-11 xl:gap-4 xl:border-none">
+        {props.isXl && <TopResult {...props} />}
+        <TopButtons {...props} />
+    </div>
+);
 
 const TopBar: FunctionComponent<TopBarProps> = (props) => {
     const [show, setShow] = useState(false);
-    const isXl = useMediaQuery({ minWidth: 1280 });
-
-    const renderTopDiv = () => (
-        <div className="grid w-full grid-cols-7 justify-center gap-1 border-b-2 border-black bg-background p-2 xl:grid-cols-11 xl:gap-4 xl:border-none">
-            {isXl && (
-                <TopResult
-                    searchResult={props.searchResult}
-                    isBusy={props.isBusy}
-                    onShowMore={props.onShowMore}
-                />
-            )}
-            <TopButtons
-                rollSequencer={props.rollSequencer}
-                disabled={props.disabled}
-            />
-        </div>
-    );
+    const isXl = useIsXlScreen();
 
     if (isXl) {
-        return renderTopDiv();
+        return <TopDiv isXl={isXl} {...props} />;
     }
 
     return (
@@ -55,7 +44,7 @@ const TopBar: FunctionComponent<TopBarProps> = (props) => {
                     boxShadow: "none",
                 }}
             >
-                {renderTopDiv()}
+                <TopDiv isXl={isXl} {...props} />
                 <div className="flex flex-col items-center">
                     <Button
                         onClick={() => setShow((current) => !current)}

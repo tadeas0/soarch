@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import * as Tone from "tone";
 
-const useMetronome = () => {
+const useMetronome = (delay: Tone.TimeClass = Tone.Time(0)) => {
     const [enabled, setEnabledState] = useState(false);
     const metronomePart = useRef<Tone.Part | null>(null);
     const metronomeSampler = useRef<Tone.Sampler | null>(null);
@@ -29,11 +29,19 @@ const useMetronome = () => {
                 "0:0:1",
                 time
             );
-        }, metronomeNotes).start(0);
+        }, metronomeNotes).start(delay.toSeconds());
         m.loop = true;
         m.loopEnd = "1m";
         metronomePart.current = m;
-    }, []);
+    }, [delay]);
+
+    useEffect(() => {
+        fillMetronome();
+
+        return () => {
+            metronomePart.current?.dispose();
+        };
+    }, [fillMetronome]);
 
     useEffect(() => {
         setEnabledState(false);
@@ -47,9 +55,6 @@ const useMetronome = () => {
         setEnabledState(true);
         if (metronomeSampler.current) {
             metronomeSampler.current.volume.value = 0;
-        }
-        if (!metronomePart.current) {
-            fillMetronome();
         }
     };
 

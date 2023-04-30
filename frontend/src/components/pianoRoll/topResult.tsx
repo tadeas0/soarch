@@ -6,14 +6,11 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { useTabControls } from "../../stores/pianoRollStore";
 import * as React from "react";
 import { BLACK, WHITE } from "../../constants";
-import useSequencer from "../../hooks/sequencer/useSequencer";
-import {
-    getGridParamsFromNotes,
-    rollTimeToToneTime,
-} from "../../common/coordConversion";
+import { getGridParamsFromNotes } from "../../common/coordConversion";
 import { BarLoader } from "react-spinners";
 import SpotifyPlayer from "./spotifyPlayer";
 import useProgress from "../../hooks/sequencer/useProgress";
+import { usePlaybackMachine } from "../../context/pianorollContext";
 
 interface TopResultProps {
     searchResult?: SearchResult;
@@ -27,9 +24,10 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
     const [shouldPing, setShouldPing] = useState(false);
     const [pingTimeout, setPingTimeout] = useState<number>(0);
     const [shouldColor, setShouldColor] = useState(false);
-    const sequencer = useSequencer();
-    const { isPlaying, stop, play } = sequencer;
-    const progress = useProgress(sequencer);
+    const [state, send] = usePlaybackMachine();
+    const isPlaying = state.matches("resultPlaying");
+    const isRecording = state.matches("recording");
+    const progress = useProgress(state.matches("resultPlaying"));
 
     const getInlineStyles = () => {
         if (!isPlaying) return {};
@@ -67,23 +65,13 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
         }
     }, [lastResult, pingTimeout, props.searchResult]);
 
-    const handlePlayClick = async () => {
-        if (isPlaying) {
-            stop();
-        } else if (props.searchResult) {
-            play(
-                props.searchResult.notes,
-                props.searchResult.bpm,
-                rollTimeToToneTime(
-                    getGridParamsFromNotes(props.searchResult.notes).width
-                )
-            );
-        }
+    const handlePlayClick = () => {
+        send("PLAY_RESULT");
     };
 
-    const handleEdit = async () => {
+    const handleEdit = () => {
         if (props.searchResult) {
-            stop();
+            send("STOP");
             addTab({
                 ...props.searchResult,
                 bpm: Math.round(props.searchResult.bpm),
@@ -122,13 +110,21 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                         <SpotifyPlayer
                             previewUrl={props.searchResult?.previewUrl || null}
                             className="text-md outline-none"
+                            disabled={isRecording}
                         />
                         <button
                             className="text-md outline-none"
                             type="button"
                             onClick={handlePlayClick}
+                            disabled={isRecording}
                         >
-                            {isPlaying ? <BsPauseFill /> : <BsFillPlayFill />}
+                            {isPlaying ? (
+                                <BsPauseFill opacity={isRecording ? 0.6 : 1} />
+                            ) : (
+                                <BsFillPlayFill
+                                    opacity={isRecording ? 0.6 : 1}
+                                />
+                            )}
                         </button>
                         <button
                             type="button"
@@ -136,8 +132,9 @@ const TopResult: FunctionComponent<TopResultProps> = (props) => {
                             className={`outline-none text-md${
                                 canAddTab ? "" : " inactive"
                             }`}
+                            disabled={isRecording}
                         >
-                            <MdModeEdit />
+                            <MdModeEdit opacity={isRecording ? 0.6 : 1} />
                         </button>
                     </div>
                 </div>

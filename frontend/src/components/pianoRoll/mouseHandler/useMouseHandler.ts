@@ -11,6 +11,7 @@ const useMouseHandler = (
     onPreviewNote: (note: Note) => void,
     onSelectNote: (note: Note | null) => void,
     onSaveState: (notes: Note[]) => void,
+    onSetCursor: (cursor: string) => void,
     notes: Note[],
     gridParams: GridParams
 ) => {
@@ -24,6 +25,7 @@ const useMouseHandler = (
         onSelectNote,
         onSaveState,
         setNewNoteLen,
+        onSetCursor,
         newNoteLen,
         notes,
         gridParams,

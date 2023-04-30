@@ -19,6 +19,7 @@ import ControlModals from "../components/pianoRoll/controlModals";
 import useSearchResults from "../hooks/useSearchResults";
 import { SongParams } from "../interfaces/SongParams";
 import Settings from "../components/settings";
+import { PianorollContextProvider } from "../context/pianorollContext";
 
 interface PianoRollRouteProps {}
 
@@ -27,6 +28,7 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
     const isXl = useIsXlScreen();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const rollSequencer = useSequencer();
     const { addTab } = useTabControls();
     const { stop } = useSequencer();
     const storageKey = "already-took-tour";
@@ -87,13 +89,18 @@ const PianoRollRoute: FunctionComponent<PianoRollRouteProps> = () => {
                         <Settings />
                         <TourButton />
                         {isDownloading && <DownloadingOverlay />}
-                        <PianoRoll
-                            setIsDownloading={setIsDownloading}
-                            isFetchingResults={isLoading}
-                            topSearchResult={searchResults?.at(0)}
-                            onShowMore={handleDrawerToggle}
-                            disabled={isDrawerOpen}
-                        />
+                        <PianorollContextProvider
+                            searchResult={searchResults?.at(0)}
+                            sequencer={rollSequencer}
+                        >
+                            <PianoRoll
+                                setIsDownloading={setIsDownloading}
+                                isFetchingResults={isLoading}
+                                topSearchResult={searchResults?.at(0)}
+                                onShowMore={handleDrawerToggle}
+                                disabled={isDrawerOpen}
+                            />
+                        </PianorollContextProvider>
                         <SearchResultsDrawer
                             onOpen={handleDrawerToggle}
                             onClose={handleDrawerToggle}

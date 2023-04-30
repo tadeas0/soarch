@@ -129,24 +129,24 @@ def result_to_csv_row(result: Result):
 
 
 async def benchmark_search_engine():
-    # setup_logging()
     fs = LocalFileStorage(os.path.join(config.MIDI_DIR, config.PROCESSED_MIDI_PREFIX))
     repo = FileSongRepository(fs)
-    measures = [2, 4]
+    measures = [6, 8]
     folders = [
-        # "0_notes_changed",
+        "0_notes_changed",
         "0_notes_changed_transposed",
-        # "1_notes_changed",
+        "1_notes_changed",
         "1_notes_changed_transposed",
-        # "2_notes_changed",
+        "2_notes_changed",
         "2_notes_changed_transposed",
-        # "3_notes_changed",
-        # "3_notes_changed_transposed",
-        # "4_notes_changed",
-        # "4_notes_changed_transposed",
-        # "5_notes_changed",
-        # "5_notes_changed_transposed",
+        "3_notes_changed",
+        "3_notes_changed_transposed",
+        "4_notes_changed",
+        "4_notes_changed_transposed",
+        "5_notes_changed",
+        "5_notes_changed_transposed",
     ]
+    os.makedirs(config.ANALYSIS_OUTPUT_DIR, exist_ok=True)
     for measure in measures:
         for folder in folders:
             output_path = os.path.join(
@@ -163,7 +163,7 @@ async def benchmark_search_engine():
                     queries.append(q)
             with open(output_path, "w") as f:
                 f.write(CSV_HEADER + "\n")
-            for q in queries[43:]:
+            for q in queries:
                 res = await test_all_combinations(q, repo)
                 with open(output_path, "a") as f:
                     for r in res:

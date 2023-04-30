@@ -24,6 +24,7 @@ export interface PianoRollData {
     onSaveState: (note: Note[]) => void;
     onSelectNote: (note: Note | null) => void;
     setNewNoteLen: (n: number) => void;
+    onSetCursor: (cursor: string) => void;
     newNoteLen: number;
     notes: Note[];
     gridParams: GridParams;
@@ -114,6 +115,7 @@ export const ReadyState = (lastPreview: Note | null): State => ({
             onPreviewNote,
             onSaveState,
             onSelectNote,
+            onSetCursor,
             newNoteLen,
         } = rollData;
         onSaveState(notes);
@@ -141,27 +143,36 @@ export const ReadyState = (lastPreview: Note | null): State => ({
         };
         onPreviewNote(newNote);
         onAddNote(newNote);
+        onSetCursor("move");
         return MovingState(0, newNote);
     },
 
     handleRightClick: (coords: MouseCoords, rollData: PianoRollData) => {
-        const { notes, gridParams, onDeleteNote, onSaveState } = rollData;
+        const { notes, gridParams, onDeleteNote, onSaveState, onSetCursor } =
+            rollData;
         onSaveState(notes);
         const n = getNotesAt(coords, notes, gridParams);
         if (n.length > 0) {
             onDeleteNote(n[n.length - 1]);
         }
+        onSetCursor("default");
         return DeletingState;
     },
 
     handleLeftRelease: () => ReadyState(lastPreview),
     handleRightRelease: () => ReadyState(lastPreview),
     handleMouseMove: (coords: MouseCoords, rollData: PianoRollData) => {
-        const { onPreviewNote, notes, gridParams } = rollData;
+        const { onPreviewNote, onSetCursor, notes, gridParams } = rollData;
         const n = getNotesAt(coords, notes, gridParams);
         if (n.length === 0) {
+            onSetCursor("default");
             return ReadyState(null);
         }
+        const handle = getNoteHandle(coords, n, gridParams);
+
+        if (handle !== null) onSetCursor("ew-resize");
+        else onSetCursor("move");
+
         if (lastPreview !== n[n.length - 1]) {
             onPreviewNote(n[n.length - 1]);
         }

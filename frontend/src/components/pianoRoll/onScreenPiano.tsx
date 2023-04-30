@@ -12,17 +12,17 @@ import { HiMinus, HiPlus } from "react-icons/hi";
 import useMidiListener from "../../hooks/useMidiListener";
 import * as React from "react";
 import useSynth from "../../hooks/sequencer/useSynth";
-import { Sequencer } from "../../hooks/sequencer/useSequencer";
+import { useRollSequencer } from "../../context/pianorollContext";
 
 interface OnScreenPianoProps {
     onKeyUp: (note: Note) => void;
     playbackEnabled: boolean;
     hidden?: boolean;
-    rollSequencer: Sequencer;
 }
 
 const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
     const [octaveOffset, setOctaveOffset] = useState(0);
+    const rollSequencer = useRollSequencer();
     const octaveSize = 12;
     const { triggerAttack, triggerRelease } = useSynth();
     const range = {
@@ -55,7 +55,7 @@ const OnScreenPiano: FunctionComponent<OnScreenPianoProps> = (props) => {
     const getCurrentQTime = () => {
         const t = Tone.Time(
             Tone.Transport.getSecondsAtTime(Tone.Transport.immediate()) -
-                props.rollSequencer.delay.toSeconds()
+                rollSequencer.delay.toSeconds()
         );
         return Tone.Time(t.quantize("16n")).toBarsBeatsSixteenths();
     };

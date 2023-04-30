@@ -21,8 +21,6 @@ export interface PianoRollState {
     playbackEnabled: boolean;
     isPianoHidden: boolean;
     undoStack: Note[][];
-    isRecording: boolean;
-    setIsRecording: (value: boolean) => void;
     saveState: (notes: Note[]) => void;
     undo: () => void;
     addNote: (note: Note) => void;
@@ -72,12 +70,6 @@ export const usePianoRollStore = create(
             playbackEnabled: true,
             isPianoHidden: true,
             undoStack: [],
-            isRecording: false,
-
-            setIsRecording: (value: boolean) =>
-                set(() => ({
-                    isRecording: value,
-                })),
 
             saveState: (notes: Note[]) =>
                 set((state) => {

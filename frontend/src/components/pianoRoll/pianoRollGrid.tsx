@@ -6,26 +6,24 @@ import GridParams from "../../interfaces/GridParams";
 import useMouseHandler from "./mouseHandler/useMouseHandler";
 import { usePianoRollStore } from "../../stores/pianoRollStore";
 import { PREVIEW_NOTE_HIGHLIGHT_DURATION } from "../../constants";
-import { Sequencer } from "../../hooks/sequencer/useSequencer";
 import useSynth from "../../hooks/sequencer/useSynth";
 import useTouchHandler from "./touchHandler/useTouchHandler";
 import useSearchResults from "../../hooks/useSearchResults";
 import { useSettingsStore } from "../../stores/settingsStore";
+import { useRollSequencer } from "../../context/pianorollContext";
 
 interface PianoRollGridProps {
     notes: Note[];
     gridParams: GridParams;
-    rollSequencer: Sequencer;
     disabled?: boolean;
 }
 
-// TODO: cleanup event handling
 const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
     notes,
     gridParams,
-    rollSequencer,
     disabled = false,
 }: PianoRollGridProps) => {
+    const rollSequencer = useRollSequencer();
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
     const [previewNotes, setPreviewNotes] = useState<Map<Note, number>>(
         new Map()
@@ -37,6 +35,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         state.setNotes,
         state.saveState,
     ]);
+    const [cursor, setCursor] = useState("default");
     const { triggerAttackRelease } = useSynth();
     const canvasContainerRef = useRef<HTMLDivElement>(null);
 
@@ -79,6 +78,7 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
         onPreviewNote,
         setSelectedNote,
         saveStateStore,
+        setCursor,
         notes,
         gridParams
     );
@@ -187,6 +187,9 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
             id="roll-canvas"
             ref={canvasContainerRef}
             className="relative z-0 flex h-[70vh] max-w-[90vw] justify-start rounded border-2 border-dark-primary"
+            style={{
+                cursor,
+            }}
         >
             <PianoRollCanvas
                 gridParams={gridParams}
@@ -201,7 +204,6 @@ const PianoRollGrid: FunctionComponent<PianoRollGridProps> = ({
                 onTouchMove={handleTouchMove}
                 onTouchCancel={handleTouchCancel}
                 preventScroll={touchHandler.preventScroll}
-                rollSequencer={rollSequencer}
             />
         </div>
     );
