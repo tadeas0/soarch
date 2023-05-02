@@ -16,7 +16,6 @@ class MongoSongRepository(SongRepository):
         super().__init__()
 
     def __get_client(self):
-        logger.debug("Getting mongo client")
         return AsyncIOMotorClient(self.mongo_url)[config.SONGS_DB][
             config.SONGS_COLLECTION
         ]
