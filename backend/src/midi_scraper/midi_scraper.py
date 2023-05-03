@@ -196,5 +196,6 @@ async def parse_to_db(file_storage: FileStorage, repository: SongRepository):
     raw_songs = list_raw_songs(file_storage, ignore_slugs)
     try:
         await repository.insert_many([i async for i in raw_songs])
+        logger.info("Finished parsing files")
     except InvalidOperation as e:
         logger.warn(e)
