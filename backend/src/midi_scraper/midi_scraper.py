@@ -137,8 +137,10 @@ async def list_raw_songs(
                 yield song
             else:
                 logger.debug(f"Ignoring {song.metadata.slug}, already in DB")
-        except Exception as e:
-            logger.info(f"Could not parse. {e}")
+        except Exception:
+            # NOTE: This exception occurs, when trying to parse something,
+            # that is not a MIDI file. It can be safely ignored.
+            pass
 
 
 def get_spotify_metadata(
