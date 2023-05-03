@@ -3,6 +3,7 @@ import os
 MIDI_CHANNELS = 16
 MIDI_NOTES = 128
 MIDI_DIR = "../dataset/full"
+EXAMPLE_DIR = "../dataset/example"
 RAW_MIDI_PREFIX = "raw"
 PROCESSED_MIDI_PREFIX = "processed"
 PROCESSED_EXAMPLE_PREFIX = "example/processed"

@@ -5,6 +5,7 @@ from aiohttp import ClientSession
 import logging
 import io
 import os
+from pymongo.errors import InvalidOperation
 from miditoolkit.midi import MidiFile
 from common.util.filestorage import FileStorage
 from common.entity.song import Song, SongMetadata, SpotifyMetadata
@@ -14,7 +15,7 @@ from common.repository.song_repository import SongRepository
 import common.config as config
 from common.util.helpers import get_artist_name_from_filepath
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOauthError
 
 FREEMIDI_URL = "https://freemidi.org/topmidi"
 FREEMIDI_GETTER_URL = "https://freemidi.org/getter"
@@ -137,7 +138,7 @@ async def list_raw_songs(
             else:
                 logger.debug(f"Ignoring {song.metadata.slug}, already in DB")
         except Exception as e:
-            logger.info(f"Could not parse {i}. {e}")
+            logger.info(f"Could not parse. {e}")
 
 
 def get_spotify_metadata(
@@ -160,24 +161,38 @@ def get_spotify_metadata(
 
 async def tag_with_spotify_data(repository: SongRepository):
     if not config.SPOTIFY_CLIENT_SECRET or not config.SPOTIFY_CLIENT_ID:
-        raise ValueError("Missing spotify client credentials")
-
-    sp = spotipy.Spotify(
-        auth_manager=SpotifyClientCredentials(
-            client_id=config.SPOTIFY_CLIENT_ID,
-            client_secret=config.SPOTIFY_CLIENT_SECRET,
+        logger.error(
+            "Missing SPOTIFY_CLIENT_SECRET and/or SPOTIFY_CLIENT_ID in '.env' file. "
+            "Cannot fetch spotify metadata."
         )
-    )
+        return
 
-    for i in await repository.list_keys():
-        song = repository.load_song(i)
-        if not song.metadata.spotify:
-            song.metadata.spotify = get_spotify_metadata(song.metadata, sp)
-            await repository.upsert(i, song)
+    logger.info("Tagging songs with spotify data")
+    try:
+        sp = spotipy.Spotify(
+            auth_manager=SpotifyClientCredentials(
+                client_id=config.SPOTIFY_CLIENT_ID,
+                client_secret=config.SPOTIFY_CLIENT_SECRET,
+            )
+        )
+
+        for i in await repository.list_keys():
+            song = repository.load_song(i)
+            if not song.metadata.spotify:
+                song.metadata.spotify = get_spotify_metadata(song.metadata, sp)
+                await repository.upsert(i, song)
+    except SpotifyOauthError:
+        logger.error(
+            "Invalid SPOTIFY_CLIENT_SECRET and/or SPOTIFY_CLIENT_ID in '.env' file."
+        )
+        return
 
 
 async def parse_to_db(file_storage: FileStorage, repository: SongRepository):
     logger.info("Parsing files")
     ignore_slugs = await repository.get_song_slugs()
     raw_songs = list_raw_songs(file_storage, ignore_slugs)
-    await repository.insert_many([i async for i in raw_songs])
+    try:
+        await repository.insert_many([i async for i in raw_songs])
+    except InvalidOperation as e:
+        logger.warn(e)

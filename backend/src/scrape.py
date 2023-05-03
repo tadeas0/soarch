@@ -9,6 +9,7 @@ from midi_scraper.midi_scraper import (
     scrape_free_midi,
     scrape_robs_midi_library,
     parse_to_db,
+    tag_with_spotify_data,
 )
 from common.util.filestorage import (
     FileStorage,
@@ -22,7 +23,7 @@ import shutil
 
 
 def __setup_logging():
-    logger = logging.getLogger(config.SCRAPER_LOGGER)
+    logger = logging.getLogger(config.DEFAULT_LOGGER)
 
     if config.ENV == "dev":
         logger.setLevel(logging.DEBUG)
@@ -93,14 +94,16 @@ def cli(ctx):
     is_flag=True,
     help="Download midi files from https://freemidi.org/topmidi",
 )
+@click.option("--parse", is_flag=True, help="Parse downloaded midi files.")
 @click.option(
-    "--parse",
+    "--spotify",
     is_flag=True,
-    help="Parse downloaded midi files. "
-    "Increases search speed, but takes up more space",
+    help="Add spotify metadata to songs in database. "
+    "Requires SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET "
+    "to be present in '.env' file.",
 )
 @click.pass_context
-def download(ctx, robs, freemidi, parse):
+def download(ctx, robs, freemidi, parse, spotify):
     download_file_storage = ctx.obj["download_file_storage"]
     repository = ctx.obj["repository"]
     loop = asyncio.get_event_loop()
@@ -110,7 +113,9 @@ def download(ctx, robs, freemidi, parse):
         loop.run_until_complete(scrape_robs_midi_library(download_file_storage))
     if parse:
         loop.run_until_complete(parse_to_db(download_file_storage, repository))
-    if not parse and not robs and not freemidi:
+    if spotify:
+        loop.run_until_complete(tag_with_spotify_data(repository))
+    if not parse and not robs and not freemidi and not spotify:
         click.echo(ctx.get_help())
 
 

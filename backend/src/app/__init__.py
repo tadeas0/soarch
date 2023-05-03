@@ -1,10 +1,14 @@
 from quart import Quart
 import common.config as config
+from common.repository.mongo_repository_factory import MongoRepositoryFactory
+from common.util.filestorage.local_file_storage import LocalFileStorage
 from common.util.logging import setup_logging
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 from dramatiq.results.backends import RedisBackend
 from dramatiq.results import Results
+
+from midi_scraper.midi_scraper import parse_to_db
 
 
 def create_app() -> Quart:
@@ -31,5 +35,14 @@ def create_app() -> Quart:
 
     logger.info("Blueprints initialized")
     logger.info("Application initialized")
+
+    @app.before_serving
+    async def load_examples() -> None:
+        logger.info("Loading example MIDI files to DB")
+        fs = LocalFileStorage(config.EXAMPLE_DIR)
+        fact = MongoRepositoryFactory()
+        repo = fact.create_song_repository()
+        await parse_to_db(fs, repo)
+        logger.info("Finished loading example MIDI files to DB")
 
     return app
